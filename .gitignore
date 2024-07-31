@@ -24,6 +24,9 @@ dist-ssr
 *.sln
 *.sw?
 
+#AWS
+/aws
+
 # amplify
 .amplify
 amplify_outputs*
