@@ -3,7 +3,6 @@ import type { Schema } from "../amplify/data/resource";
 import { generateClient } from "aws-amplify/data";
 import { Authenticator } from '@aws-amplify/ui-react'
 import '@aws-amplify/ui-react/styles.css'
-import './css/auth.css'
 import './css/font.css'
 import './css/main.css'
 import profileImage from './images/IMG_20210604_134717~2.jpg';
@@ -31,7 +30,7 @@ function App() {
   return (
     <div className="page-home">
 
-      <header className="site-header">
+      <section className="site-header">
         <h1 className="title">tomriddelsdell.com</h1>
         <img className="profile-image" src={profileImage} alt="Thomas Riddelsdell"  />
         <nav className="site-nav">
@@ -41,7 +40,7 @@ function App() {
           </ul>
         </nav>
         <button type="button" className="btn-menu"><span>Menu</span></button>
-      </header>
+      </section>
 
       <section className="home-about">
         <div className="row column large-9 xlarge-6 xxlarge-4">

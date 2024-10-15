@@ -2672,7 +2672,7 @@ img {
     margin: 0;
     text-indent: -999em;
     position: relative;
-    height: 180vh;
+    height: 100vh;
 }
 
 /*@media screen and (min-width:75em) {
@@ -2716,7 +2716,7 @@ img {
 }*/
 
 .home-about {
-    background: #4781a5;
+    background: #6281f5;
     color: #fff;
     padding: 5rem 0;
     text-align: center
