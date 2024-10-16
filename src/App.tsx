@@ -30,7 +30,7 @@ function App() {
   return (
     <div className="page-home">
 
-      <section className="site-header">
+      <header className="site-header">
         <h1 className="title">tomriddelsdell.com</h1>
         <img className="profile-image" src={profileImage} alt="Thomas Riddelsdell"  />
         <nav className="site-nav">
@@ -40,7 +40,7 @@ function App() {
           </ul>
         </nav>
         <button type="button" className="btn-menu"><span>Menu</span></button>
-      </section>
+      </header>
 
       <section className="home-about">
         <div className="row column large-9 xlarge-6 xxlarge-4">
