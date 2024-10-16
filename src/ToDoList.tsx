@@ -19,8 +19,7 @@ export default function TodoList() {
 
     const createTodo = async () => {
     await client.models.Todo.create({
-        content: window.prompt("Todo content?"),
-        isDone: false,
+        content: window.prompt("Todo content?")
     });
     // no more manual refetchTodos required!
     // - fetchTodos()
