@@ -1,47 +1,50 @@
-import { useEffect, useState } from "react";
-import type { Schema } from "../amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
 import { Authenticator } from '@aws-amplify/ui-react'
 import '@aws-amplify/ui-react/styles.css'
 import './css/font.css'
 import './css/main.css'
 import profileImage from './images/IMG_20210604_134717~2.jpg';
-
-const client = generateClient<Schema>();
-
+import { availableApps } from './AppConfig';
+import { Route, Routes } from 'react-router-dom';
+import AppStore from './AppStore';
+import React from 'react';
+import { Menu, MenuItem} from '@aws-amplify/ui-react';
   
-function deleteTodo(id: string) {
-  client.models.Todo.delete({ id })
-}
-
+        /*<nav className="site-nav">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="/AppStore">Todo's</a></li>
+          </ul>
+        </nav>
+        <button type="button" className="btn-menu"><span>Menu</span></button>*/
 function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
-
-  useEffect(() => {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
-  }, []);
-
-  function createTodo() {
-    client.models.Todo.create({ content: window.prompt("Todo content") });
-  }
-
   return (
     <div className="page-home">
 
       <header className="site-header">
         <h1 className="title">tomriddelsdell.com</h1>
         <img className="profile-image" src={profileImage} alt="Thomas Riddelsdell"  />
-        <nav className="site-nav">
-          <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="todo.html">Todo's</a></li>
-          </ul>
-        </nav>
-        <button type="button" className="btn-menu"><span>Menu</span></button>
       </header>
 
+      <>
+        <Routes>
+          <Route path="*" element={<App/>} />
+          <Route path="/appstore" element={<AppStore/>} />
+          {availableApps.map((app) => {
+            const Component = React.lazy(() => import(`./apps/${app.id.charAt(0).toUpperCase() + app.id.slice(1)}.tsx`));
+            return <Route key={app.id} path={app.link} element={<Component/>} />;
+          })}
+          {/* Add more routes as needed */}
+        </Routes>
+      </>
+
+        <Menu className = "btn-menu">
+            <MenuItem onSelect={() => alert("Download")}>Download</MenuItem>
+            <MenuItem onSelect={() => alert("Copy")}>Create a Copy</MenuItem>
+            <MenuItem onSelect={() => alert("Mark as Draft")}>
+              Mark as Draft
+            </MenuItem>
+            <MenuItem onSelect={() => alert("Delete")}>Delete</MenuItem>
+        </Menu>
       <section className="home-about">
         <div className="row column large-9 xlarge-6 xxlarge-4">
           <h1 className="section-title">Tom Riddelsdell</h1>
@@ -56,23 +59,12 @@ function App() {
           <Authenticator>
             {({signOut, user}) => (
             <main>
-              <h1>{user?.signInDetails?.loginId}'s todos</h1>
-              <h1>My todos</h1>
-              <button onClick={createTodo}>+ new</button>
+              <h1>Welcome back {user?.signInDetails?.loginId}. You're logged in</h1>
               <ul>
-                {todos.map((todo) => (
-                  <li 
-                    onClick={() => deleteTodo(todo.id)}
-                    key={todo.id}>{todo.content}</li>
+                {availableApps.map((app) => (
+                  <li key={app.id}><a href={app.link}>{app.description}</a></li>
                 ))}
               </ul>
-              <div>
-                🥳 App successfully hosted. Try creating a new todo.
-                <br />
-                <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
-                  Review next step of this tutorial.
-                </a>
-              </div>
               <button onClick={signOut}>Sign Out</button>
             </main>
             )}
