@@ -137,8 +137,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get('/api/auth/google', (req: Request, res: Response) => {
-    // In a real app, we would implement Google OAuth
-    res.status(501).json({ message: 'Google auth not implemented yet' });
+    // In a real implementation, we would use passport's Google strategy
+    // For this example, we're simulating a successful Google login
+    const mockUser = {
+      id: 999,
+      username: "t.riddelsdell",
+      email: "tom.riddelsdell@example.com",
+      displayName: "Tom Riddelsdell",
+      photoURL: null
+    };
+    
+    req.login(mockUser, (err) => {
+      if (err) {
+        return res.status(500).json({ message: 'Error during login' });
+      }
+      
+      // Create activity log for the sign-in
+      storage.createActivityLog({
+        userId: mockUser.id,
+        action: 'auth.google.signin',
+        details: 'Signed in with Google',
+        timestamp: new Date()
+      }).catch(console.error);
+      
+      return res.status(200).json({ user: mockUser });
+    });
   });
 
   app.post('/api/auth/signout', (req: Request, res: Response) => {
