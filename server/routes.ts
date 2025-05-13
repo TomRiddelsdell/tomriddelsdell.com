@@ -155,9 +155,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create activity log for the sign-in
       storage.createActivityLog({
         userId: mockUser.id,
-        action: 'auth.google.signin',
+        eventType: 'auth.signin',
         details: 'Signed in with Google',
-        timestamp: new Date()
+        status: 'success'
       }).catch(console.error);
       
       return res.status(200).json({ user: mockUser });
