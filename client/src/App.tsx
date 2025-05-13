@@ -8,6 +8,8 @@ import { LanguageProvider } from "./context/LanguageContext";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Career from "@/pages/Career";
+import Projects from "@/pages/Projects";
+import Tasks from "@/pages/Tasks";
 import Dashboard from "@/pages/Dashboard";
 import Workflows from "@/pages/Workflows";
 import AppConnections from "@/pages/AppConnections";
@@ -23,6 +25,8 @@ function Router() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/career" component={Career} />
+        <Route path="/projects" component={Projects} />
+        <Route path="/tasks" component={Tasks} />
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/workflows" component={Workflows} />
         <Route path="/app-connections" component={AppConnections} />

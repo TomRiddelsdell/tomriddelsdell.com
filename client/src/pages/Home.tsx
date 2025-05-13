@@ -6,6 +6,7 @@ import { Link } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import profilePic from "../assets/profile.jpg";
 import backgroundImage from "../assets/background.jpg";
+import familyImage from "../assets/family.jpg";
 import VolatilitySurfaceViz from "@/components/VolatilitySurfaceViz";
 import MarketNetworkViz from "@/components/MarketNetworkViz";
 import QuantFormulas from "@/components/QuantFormulas";
@@ -26,15 +27,19 @@ export default function Home() {
           <a href="#about" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
             About
           </a>
-          <a href="#skills" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
-            Skills
-          </a>
           <Link href="/career" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
             Career
           </Link>
-          <a href="#projects" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
-            Projects
-          </a>
+          {isAuthenticated && (
+            <>
+              <Link href="/projects" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
+                Projects
+              </Link>
+              <Link href="/tasks" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
+                Tasks
+              </Link>
+            </>
+          )}
           <a href="#contact" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
             Contact
           </a>
@@ -154,293 +159,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Skills Section */}
-        <section id="skills" className="py-16 md:py-24 px-6 md:px-12">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Skills & Expertise</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              {/* Technical Skills */}
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold mb-4 text-blue-600 dark:text-blue-400">Technical Skills</h3>
-                <ul className="space-y-2">
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Python (NumPy, Pandas, Scikit-learn)
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    TypeScript/JavaScript (React, Node.js)
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    R for Statistical Analysis
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    SQL & NoSQL Databases
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Cloud Platforms (AWS, GCP)
-                  </li>
-                </ul>
-              </div>
-              
-              {/* Quantitative Skills */}
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold mb-4 text-teal-600 dark:text-teal-400">Quantitative Skills</h3>
-                <ul className="space-y-2">
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-teal-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Time Series Analysis
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-teal-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Statistical Modeling
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-teal-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Machine Learning Algorithms
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-teal-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Risk Management Models
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-teal-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Portfolio Optimization
-                  </li>
-                </ul>
-              </div>
-              
-              {/* Finance Knowledge */}
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold mb-4 text-purple-600 dark:text-purple-400">Finance Knowledge</h3>
-                <ul className="space-y-2">
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-purple-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Derivatives Pricing
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-purple-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Algorithmic Trading
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-purple-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Market Microstructure
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-purple-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Fixed Income Securities
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="h-5 w-5 text-purple-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    ESG Investment Analysis
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* Experience Section */}
-        <section id="experience" className="py-16 md:py-24 px-6 md:px-12 bg-gray-50 dark:bg-gray-800">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Professional Experience</h2>
-            
-            <div className="space-y-12">
-              {/* Goldman Sachs Experience */}
-              <div className="flex flex-col md:flex-row gap-6">
-                <div className="md:w-1/3">
-                  <h3 className="text-xl font-bold text-blue-600 dark:text-blue-400">Goldman Sachs</h3>
-                  <p className="text-gray-500 dark:text-gray-400">Executive Director</p>
-                  <p className="text-gray-500 dark:text-gray-400">2015 - Present</p>
-                </div>
-                <div className="md:w-2/3">
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    Technical Lead for Client Analytics in the Systematic Trading Strategies team, designing innovative trading strategies to systematically harvest Risk Premia.
-                  </p>
-                  <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-2">
-                    <li>Providing the data and insight clients require to understand their position and make future trading decisions</li>
-                    <li>Developing and maintaining the Managed Portfolio Platform for client-driven strategy execution</li>
-                    <li>Using Slang to automate and optimize the execution of trading strategies</li>
-                    <li>Building independent Volatility Surfaces for repricing STS Strategies</li>
-                  </ul>
-                </div>
-              </div>
-              
-              {/* Barclays Experience */}
-              <div className="flex flex-col md:flex-row gap-6">
-                <div className="md:w-1/3">
-                  <h3 className="text-xl font-bold text-teal-600 dark:text-teal-400">Barclays Capital</h3>
-                  <p className="text-gray-500 dark:text-gray-400">Associate Vice President</p>
-                  <p className="text-gray-500 dark:text-gray-400">2012 - 2015</p>
-                </div>
-                <div className="md:w-2/3">
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    Full-Stack Developer in the QASys Risk and Analytics team, responsible for model configuration and market data management for Exotic Interest Rate Derivatives.
-                  </p>
-                  <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-2">
-                    <li>Development and maintenance of a broad tech stack spanning multiple technologies (C++, C#, Python, VBA)</li>
-                    <li>Coverage of a wide range of Derivatives products spanning Rates and Credit</li>
-                    <li>Line management of 2 junior staff members</li>
-                  </ul>
-                </div>
-              </div>
-              
-              {/* Sophis Experience */}
-              <div className="flex flex-col md:flex-row gap-6">
-                <div className="md:w-1/3">
-                  <h3 className="text-xl font-bold text-purple-600 dark:text-purple-400">Sophis / Misys</h3>
-                  <p className="text-gray-500 dark:text-gray-400">Senior Consultant</p>
-                  <p className="text-gray-500 dark:text-gray-400">2009 - 2012</p>
-                </div>
-                <div className="md:w-2/3">
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    Financial Engineering consultant responsible for extending cross-asset trading platform with bespoke client-specific features.
-                  </p>
-                  <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-2">
-                    <li>Design and implementation of equity exotics pricing models for key buy-side clients</li>
-                    <li>Consulting with multiple Banks and Hedge Funds to gather Requirements and deliver tailored solutions</li>
-                    <li>Running client training days for Pricing Model Development and Portfolio Analytics</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Projects Section */}
-        <section id="projects" className="py-16 md:py-24 px-6 md:px-12">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Featured Projects</h2>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Project 1 */}
-              <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden">
-                <div className="h-48 bg-gradient-to-r from-blue-500 to-teal-400 flex items-center justify-center">
-                  <svg className="h-20 w-20 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2">Quantum Portfolio Optimizer</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    An advanced portfolio optimization system using quantum computing algorithms to find optimal asset allocations under complex constraints.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full text-sm">Python</span>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full text-sm">Qiskit</span>
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full text-sm">AWS Braket</span>
-                  </div>
-                  <div>
-                    <a href="#" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">View Project →</a>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Project 2 */}
-              <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden">
-                <div className="h-48 bg-gradient-to-r from-purple-500 to-pink-400 flex items-center justify-center">
-                  <svg className="h-20 w-20 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2">NLP Market Sentiment Analyzer</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    A machine learning system that analyzes financial news, social media, and earnings calls to predict market sentiment for various assets.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-3 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded-full text-sm">Python</span>
-                    <span className="px-3 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded-full text-sm">TensorFlow</span>
-                    <span className="px-3 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded-full text-sm">GCP</span>
-                  </div>
-                  <div>
-                    <a href="#" className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 font-medium">View Project →</a>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Project 3 */}
-              <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden">
-                <div className="h-48 bg-gradient-to-r from-green-500 to-teal-400 flex items-center justify-center">
-                  <svg className="h-20 w-20 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2">High-Frequency Trading Simulator</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    A simulation environment for testing high-frequency trading strategies with nanosecond precision and realistic market microstructure.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-sm">C++</span>
-                    <span className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-sm">CUDA</span>
-                    <span className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-sm">AWS</span>
-                  </div>
-                  <div>
-                    <a href="#" className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 font-medium">View Project →</a>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Project 4 */}
-              <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md overflow-hidden">
-                <div className="h-48 bg-gradient-to-r from-red-500 to-orange-400 flex items-center justify-center">
-                  <svg className="h-20 w-20 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                  </svg>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-2">ESG Investment Analytics Platform</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    A comprehensive platform for analyzing environmental, social, and governance factors in investment decisions.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-3 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded-full text-sm">TypeScript</span>
-                    <span className="px-3 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded-full text-sm">React</span>
-                    <span className="px-3 py-1 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded-full text-sm">Node.js</span>
-                  </div>
-                  <div>
-                    <a href="#" className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium">View Project →</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* Contact Section */}
         <section id="contact" className="py-16 md:py-24 px-6 md:px-12 bg-gray-50 dark:bg-gray-800">
