@@ -17,7 +17,7 @@ export default function Home() {
       {/* Navigation */}
       <header className="py-4 px-6 md:px-12 flex justify-between items-center border-b">
         <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
-          John Doe
+          Tom Riddelsdell
         </div>
         <nav className="hidden md:flex space-x-8 items-center">
           <a href="#about" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
@@ -79,13 +79,29 @@ export default function Home() {
           <div className="md:w-1/2 mb-10 md:mb-0">
             <h1 className="text-4xl md:text-6xl font-bold mb-4">
               <span className="block">Hi, I'm Tom Riddelsdell</span>
-              <span className="block mt-2 bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
-                Quantitative Analyst & Software Engineer
-              </span>
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              Transforming complex data into actionable insights with advanced analytics and modern software engineering
-            </p>
+            
+            {/* Skills Bubbles Visualization */}
+            <div className="flex flex-wrap gap-2 mb-8">
+              <div className="px-3 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full font-medium animate-float-slow">
+                Data Science
+              </div>
+              <div className="px-3 py-2 bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200 rounded-full font-medium animate-float-medium">
+                Quantitative Analysis
+              </div>
+              <div className="px-3 py-2 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full font-medium animate-float-fast">
+                Machine Learning
+              </div>
+              <div className="px-3 py-2 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full font-medium animate-float-medium">
+                Software Engineering
+              </div>
+              <div className="px-3 py-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full font-medium animate-float-slow">
+                Cloud Architecture
+              </div>
+              <div className="px-3 py-2 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-full font-medium animate-float-fast">
+                Financial Modeling
+              </div>
+            </div>
             <div className="flex space-x-4">
               <Button 
                 size="lg" 
@@ -450,15 +466,15 @@ export default function Home() {
                 <div className="space-y-4">
                   <div className="flex items-center">
                     <MailIcon className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-4" />
-                    <span className="text-gray-600 dark:text-gray-300">john.doe@example.com</span>
+                    <span className="text-gray-600 dark:text-gray-300">tom.riddelsdell@example.com</span>
                   </div>
                   <div className="flex items-center">
                     <LinkedinIcon className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-4" />
-                    <a href="https://linkedin.com" className="text-blue-600 dark:text-blue-400 hover:underline">linkedin.com/in/johndoe</a>
+                    <a href="https://linkedin.com" className="text-blue-600 dark:text-blue-400 hover:underline">linkedin.com/in/tomriddelsdell</a>
                   </div>
                   <div className="flex items-center">
                     <GithubIcon className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-4" />
-                    <a href="https://github.com" className="text-blue-600 dark:text-blue-400 hover:underline">github.com/johndoe</a>
+                    <a href="https://github.com" className="text-blue-600 dark:text-blue-400 hover:underline">github.com/tomriddelsdell</a>
                   </div>
                 </div>
               </div>
@@ -520,10 +536,10 @@ export default function Home() {
       <footer className="py-8 px-6 md:px-12 border-t bg-white dark:bg-gray-900">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text mb-4 md:mb-0">
-            John Doe
+            Tom Riddelsdell
           </div>
           <div className="text-gray-600 dark:text-gray-400">
-            © {new Date().getFullYear()} John Doe. All rights reserved.
+            © {new Date().getFullYear()} Tom Riddelsdell. All rights reserved.
           </div>
         </div>
       </footer>
