@@ -7,6 +7,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
+import Career from "@/pages/Career";
 import Dashboard from "@/pages/Dashboard";
 import Workflows from "@/pages/Workflows";
 import AppConnections from "@/pages/AppConnections";
@@ -21,6 +22,7 @@ function Router() {
     <div className="min-h-screen flex flex-col md:flex-row">
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/career" component={Career} />
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/workflows" component={Workflows} />
         <Route path="/app-connections" component={AppConnections} />
