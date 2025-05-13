@@ -6,6 +6,9 @@ import { Link } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import profilePic from "../assets/profile.jpg";
 import backgroundImage from "../assets/background.jpg";
+import VolatilitySurfaceViz from "@/components/VolatilitySurfaceViz";
+import MarketNetworkViz from "@/components/MarketNetworkViz";
+import QuantFormulas from "@/components/QuantFormulas";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -81,25 +84,16 @@ export default function Home() {
               <span className="block">Hi, I'm Tom Riddelsdell</span>
             </h1>
             
-            {/* Skills Bubbles Visualization */}
-            <div className="flex flex-wrap gap-2 mb-8">
-              <div className="px-3 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full font-medium animate-float-slow">
-                Data Science
+            {/* Quantitative Analysis Visualizations */}
+            <div className="grid grid-cols-3 gap-4 mb-8 w-full">
+              <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+                <VolatilitySurfaceViz />
               </div>
-              <div className="px-3 py-2 bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200 rounded-full font-medium animate-float-medium">
-                Quantitative Analysis
+              <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+                <MarketNetworkViz />
               </div>
-              <div className="px-3 py-2 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full font-medium animate-float-fast">
-                Machine Learning
-              </div>
-              <div className="px-3 py-2 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full font-medium animate-float-medium">
-                Software Engineering
-              </div>
-              <div className="px-3 py-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full font-medium animate-float-slow">
-                Cloud Architecture
-              </div>
-              <div className="px-3 py-2 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 rounded-full font-medium animate-float-fast">
-                Financial Modeling
+              <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+                <QuantFormulas />
               </div>
             </div>
             <div className="flex space-x-4">
