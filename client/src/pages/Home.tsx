@@ -112,11 +112,11 @@ export default function Home() {
               >
                 Join My Network
               </Button>
-              <a href="#projects">
+              <Link href="/career">
                 <Button size="lg" variant="outline">
-                  View Projects
+                  View Career
                 </Button>
-              </a>
+              </Link>
             </div>
           </div>
           <div className="md:w-1/2 flex justify-center">
@@ -162,12 +162,20 @@ export default function Home() {
 
 
         {/* Contact Section */}
-        <section id="contact" className="py-16 md:py-24 px-6 md:px-12 bg-gray-50 dark:bg-gray-800">
+        <section 
+          id="contact" 
+          className="py-16 md:py-24 px-6 md:px-12 bg-cover bg-center"
+          style={{
+            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.9)), url(${familyImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
           <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Get In Touch</h2>
             
             <div className="grid md:grid-cols-2 gap-12">
-              <div>
+              <div className="bg-white/90 dark:bg-gray-800/90 p-6 rounded-lg shadow-md">
                 <h3 className="text-xl font-bold mb-4">Contact Information</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">
                   I'm always open to discussing new projects, opportunities, or partnerships. 
@@ -190,54 +198,28 @@ export default function Home() {
                 </div>
               </div>
               
-              <div>
-                <h3 className="text-xl font-bold mb-4">Send a Message</h3>
-                <form className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
-                      <input
-                        type="text"
-                        id="name"
-                        className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
-                        placeholder="Your name"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-                      <input
-                        type="email"
-                        id="email"
-                        className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
-                        placeholder="your.email@example.com"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subject</label>
-                    <input
-                      type="text"
-                      id="subject"
-                      className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
-                      placeholder="Subject"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Message</label>
-                    <textarea
-                      id="message"
-                      rows={4}
-                      className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
-                      placeholder="Your message..."
-                    ></textarea>
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600"
+              <div className="bg-white/90 dark:bg-gray-800/90 p-6 rounded-lg shadow-md">
+                <h3 className="text-xl font-bold mb-4">Life Beyond Work</h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  When I'm not developing quantitative models or writing code, I enjoy spending time with my family, exploring the countryside, and teaching my daughter about nature and technology.
+                </p>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  The background image shows one of our favorite spots in the Wye Valley, where we often go for weekend walks along the river.
+                </p>
+                <div className="flex justify-start">
+                  <Button
+                    onClick={() => {
+                      if (isAuthenticated) {
+                        // Handle authenticated action
+                      } else {
+                        setAuthMode('signup');
+                        setShowAuthModal(true);
+                      }
+                    }}
                   >
-                    Send Message
+                    {isAuthenticated ? "View Dashboard" : "Connect with Me"}
                   </Button>
-                </form>
+                </div>
               </div>
             </div>
           </div>
