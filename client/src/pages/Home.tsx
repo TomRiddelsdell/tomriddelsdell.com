@@ -4,6 +4,8 @@ import { useAuth } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
 import { Link } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
+import profilePic from "../assets/profile.jpg";
+import backgroundImage from "../assets/background.jpg";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -65,16 +67,24 @@ export default function Home() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="py-16 md:py-24 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between">
+        <section 
+          className="relative py-16 md:py-24 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between"
+          style={{
+            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7)), url(${backgroundImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}
+        >
           <div className="md:w-1/2 mb-10 md:mb-0">
             <h1 className="text-4xl md:text-6xl font-bold mb-4">
-              <span className="block">Hi, I'm John Doe</span>
+              <span className="block">Hi, I'm Tom Riddelsdell</span>
               <span className="block mt-2 bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
                 Quantitative Analyst & Software Engineer
               </span>
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              Transforming financial data into actionable insights with advanced analytics and machine learning
+              Transforming complex data into actionable insights with advanced analytics and modern software engineering
             </p>
             <div className="flex space-x-4">
               <Button 
@@ -95,8 +105,8 @@ export default function Home() {
             </div>
           </div>
           <div className="md:w-1/2 flex justify-center">
-            <div className="w-64 h-64 md:w-80 md:h-80 rounded-full bg-gradient-to-r from-blue-600 to-teal-500 flex items-center justify-center text-white text-5xl font-bold">
-              JD
+            <div className="w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-gradient-to-r from-blue-600 to-teal-500">
+              <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
             </div>
           </div>
         </section>
