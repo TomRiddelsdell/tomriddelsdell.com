@@ -7,9 +7,7 @@ import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import profilePic from "../assets/profile.jpg";
 import backgroundImage from "../assets/background.jpg";
 import familyImage from "../assets/family.jpg";
-import VolatilitySurfaceViz from "@/components/VolatilitySurfaceViz";
-import MarketNetworkViz from "@/components/MarketNetworkViz";
-import QuantFormulas from "@/components/QuantFormulas";
+import CombinedQuantViz from "@/components/CombinedQuantViz";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -24,9 +22,6 @@ export default function Home() {
           Tom Riddelsdell
         </div>
         <nav className="hidden md:flex space-x-8 items-center">
-          <a href="#about" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
-            About
-          </a>
           <Link href="/career" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
             Career
           </Link>
@@ -84,22 +79,10 @@ export default function Home() {
             backgroundAttachment: 'fixed'
           }}
         >
-          <div className="md:w-1/2 mb-10 md:mb-0">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">
-              <span className="block">Hi, I'm Tom Riddelsdell</span>
-            </h1>
-            
-            {/* Quantitative Analysis Visualizations */}
-            <div className="grid grid-cols-3 gap-4 mb-8 w-full">
-              <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
-                <VolatilitySurfaceViz />
-              </div>
-              <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
-                <MarketNetworkViz />
-              </div>
-              <div className="bg-white/50 dark:bg-gray-800/50 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
-                <QuantFormulas />
-              </div>
+          <div className="md:w-3/5 mb-10 md:mb-0">
+            {/* Combined Quantitative Analysis Visualization */}
+            <div className="bg-white/50 dark:bg-gray-800/50 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-700 mb-8 h-[300px]">
+              <CombinedQuantViz />
             </div>
             <div className="flex space-x-4">
               <Button 
@@ -119,45 +102,14 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div className="md:w-1/2 flex justify-center">
+          <div className="md:w-2/5 flex justify-center">
             <div className="w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-gradient-to-r from-blue-600 to-teal-500">
               <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
             </div>
           </div>
         </section>
 
-        {/* About Section */}
-        <section id="about" className="py-16 md:py-24 px-6 md:px-12 bg-gray-50 dark:bg-gray-800">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">About Me</h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-semibold mb-4">My Background</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  With over 10 years of experience at the intersection of finance and technology, 
-                  I specialize in developing quantitative models and algorithms for financial markets,
-                  risk assessment, and portfolio optimization.
-                </p>
-                <p className="text-gray-600 dark:text-gray-300">
-                  I've worked with leading investment firms and tech companies including Google and AWS,
-                  where I've developed scalable solutions for processing and analyzing large financial datasets.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-4">My Approach</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  I believe in leveraging cutting-edge technology to solve complex financial problems.
-                  My approach combines rigorous mathematical modeling with practical software engineering
-                  to deliver solutions that are both theoretically sound and practically implementable.
-                </p>
-                <p className="text-gray-600 dark:text-gray-300">
-                  I'm passionate about continuously learning and adapting to new technologies and methodologies
-                  in the rapidly evolving fields of quantitative finance and software engineering.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+
 
 
 
