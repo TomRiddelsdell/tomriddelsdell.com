@@ -29,9 +29,9 @@ export default function Home() {
           <a href="#skills" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
             Skills
           </a>
-          <a href="#experience" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
-            Experience
-          </a>
+          <Link href="/career" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
+            Career
+          </Link>
           <a href="#projects" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
             Projects
           </a>
@@ -279,62 +279,60 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Professional Experience</h2>
             
             <div className="space-y-12">
-              {/* Google Experience */}
+              {/* Goldman Sachs Experience */}
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="md:w-1/3">
-                  <h3 className="text-xl font-bold text-blue-600 dark:text-blue-400">Google</h3>
-                  <p className="text-gray-500 dark:text-gray-400">Senior Quantitative Engineer</p>
-                  <p className="text-gray-500 dark:text-gray-400">2019 - Present</p>
+                  <h3 className="text-xl font-bold text-blue-600 dark:text-blue-400">Goldman Sachs</h3>
+                  <p className="text-gray-500 dark:text-gray-400">Executive Director</p>
+                  <p className="text-gray-500 dark:text-gray-400">2015 - Present</p>
                 </div>
                 <div className="md:w-2/3">
                   <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    Leading a team of engineers developing advanced pricing models for Google Cloud Financial Services solutions.
+                    Technical Lead for Client Analytics in the Systematic Trading Strategies team, designing innovative trading strategies to systematically harvest Risk Premia.
                   </p>
                   <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-2">
-                    <li>Designed and implemented a real-time risk assessment system for cloud-based financial applications</li>
-                    <li>Developed ML algorithms to optimize cloud resource allocation for high-frequency trading systems</li>
-                    <li>Created a distributed data processing pipeline for financial time-series analysis</li>
-                    <li>Collaborated with product teams to integrate quantitative features into Google Cloud's financial offerings</li>
+                    <li>Providing the data and insight clients require to understand their position and make future trading decisions</li>
+                    <li>Developing and maintaining the Managed Portfolio Platform for client-driven strategy execution</li>
+                    <li>Using Slang to automate and optimize the execution of trading strategies</li>
+                    <li>Building independent Volatility Surfaces for repricing STS Strategies</li>
                   </ul>
                 </div>
               </div>
               
-              {/* AWS Experience */}
+              {/* Barclays Experience */}
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="md:w-1/3">
-                  <h3 className="text-xl font-bold text-teal-600 dark:text-teal-400">Amazon Web Services</h3>
-                  <p className="text-gray-500 dark:text-gray-400">Quantitative Developer</p>
-                  <p className="text-gray-500 dark:text-gray-400">2015 - 2019</p>
-                </div>
-                <div className="md:w-2/3">
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    Worked on AWS FinTech solutions team developing cloud-based financial modeling systems.
-                  </p>
-                  <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-2">
-                    <li>Built serverless architectures for financial analytics processing using AWS Lambda and Step Functions</li>
-                    <li>Implemented Monte Carlo simulation frameworks for risk analysis on distributed systems</li>
-                    <li>Developed APIs for connecting financial data providers with AWS-based analytics systems</li>
-                    <li>Optimized performance of large-scale financial calculations using AWS Batch and EC2</li>
-                  </ul>
-                </div>
-              </div>
-              
-              {/* JPMorgan Experience */}
-              <div className="flex flex-col md:flex-row gap-6">
-                <div className="md:w-1/3">
-                  <h3 className="text-xl font-bold text-purple-600 dark:text-purple-400">JPMorgan Chase</h3>
-                  <p className="text-gray-500 dark:text-gray-400">Quantitative Analyst</p>
+                  <h3 className="text-xl font-bold text-teal-600 dark:text-teal-400">Barclays Capital</h3>
+                  <p className="text-gray-500 dark:text-gray-400">Associate Vice President</p>
                   <p className="text-gray-500 dark:text-gray-400">2012 - 2015</p>
                 </div>
                 <div className="md:w-2/3">
                   <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    Worked in the Quantitative Research division developing models for derivatives pricing and risk management.
+                    Full-Stack Developer in the QASys Risk and Analytics team, responsible for model configuration and market data management for Exotic Interest Rate Derivatives.
                   </p>
                   <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-2">
-                    <li>Developed and validated pricing models for exotic derivatives products</li>
-                    <li>Created VaR models for market risk assessment across multiple asset classes</li>
-                    <li>Built automated reporting systems for regulatory compliance</li>
-                    <li>Collaborated with trading desks to implement real-time pricing tools</li>
+                    <li>Development and maintenance of a broad tech stack spanning multiple technologies (C++, C#, Python, VBA)</li>
+                    <li>Coverage of a wide range of Derivatives products spanning Rates and Credit</li>
+                    <li>Line management of 2 junior staff members</li>
+                  </ul>
+                </div>
+              </div>
+              
+              {/* Sophis Experience */}
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="md:w-1/3">
+                  <h3 className="text-xl font-bold text-purple-600 dark:text-purple-400">Sophis / Misys</h3>
+                  <p className="text-gray-500 dark:text-gray-400">Senior Consultant</p>
+                  <p className="text-gray-500 dark:text-gray-400">2009 - 2012</p>
+                </div>
+                <div className="md:w-2/3">
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">
+                    Financial Engineering consultant responsible for extending cross-asset trading platform with bespoke client-specific features.
+                  </p>
+                  <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-2">
+                    <li>Design and implementation of equity exotics pricing models for key buy-side clients</li>
+                    <li>Consulting with multiple Banks and Hedge Funds to gather Requirements and deliver tailored solutions</li>
+                    <li>Running client training days for Pricing Model Development and Portfolio Analytics</li>
                   </ul>
                 </div>
               </div>
