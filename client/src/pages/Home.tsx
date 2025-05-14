@@ -79,12 +79,12 @@ export default function Home() {
             backgroundAttachment: 'fixed'
           }}
         >
-          <div className="md:w-3/5 mb-10 md:mb-0 flex flex-col justify-center">
+          <div className="md:w-1/2 mb-10 md:mb-0 flex flex-col items-center justify-center">
             {/* Implied Volatility Visualization */}
-            <div className="bg-transparent dark:bg-transparent p-4 md:p-6 rounded-2xl shadow-lg mb-8 h-[380px] backdrop-blur-sm overflow-hidden border border-white/10 dark:border-white/5">
+            <div className="bg-transparent dark:bg-transparent p-4 md:p-5 rounded-2xl shadow-lg mb-8 h-[360px] w-full md:w-[90%] backdrop-blur-sm overflow-hidden border border-white/10 dark:border-white/5">
               <ImpliedVolDisplay />
             </div>
-            <div className="flex space-x-4 justify-center md:justify-start">
+            <div className="flex space-x-4 justify-center">
               <Button 
                 size="lg" 
                 className="bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600"
@@ -102,7 +102,7 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div className="md:w-2/5 flex justify-center items-center">
+          <div className="md:w-1/2 flex justify-center items-center">
             <div className="w-64 h-64 md:w-72 md:h-72 rounded-full overflow-hidden border-4 border-white/30 dark:border-gray-700/30 shadow-xl">
               <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
             </div>

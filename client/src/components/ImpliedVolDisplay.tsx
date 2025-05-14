@@ -16,16 +16,16 @@ export default function ImpliedVolDisplay() {
           }}
         />
         
-        {/* Main image with soft edges */}
+        {/* Main image with soft edges and transparency */}
         <div
-          className="absolute inset-0 z-10"
+          className="absolute inset-0 z-10 opacity-85"
           style={{ 
             background: `url(${impliedVolImage})`,
             backgroundSize: 'contain',
-            backgroundPosition: 'center',
+            backgroundPosition: 'center center',
             backgroundRepeat: 'no-repeat',
-            mask: 'radial-gradient(ellipse at center, black 50%, rgba(0,0,0,0.7) 70%, transparent 90%)',
-            WebkitMask: 'radial-gradient(ellipse at center, black 50%, rgba(0,0,0,0.7) 70%, transparent 90%)',
+            mask: 'radial-gradient(ellipse at center, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.3) 80%, transparent 95%)',
+            WebkitMask: 'radial-gradient(ellipse at center, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.3) 80%, transparent 95%)',
           }}
         />
       </div>
