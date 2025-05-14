@@ -15,9 +15,9 @@ export default function Home() {
   const [authMode, setAuthMode] = React.useState<'signin' | 'signup'>('signin');
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       {/* Navigation */}
-      <header className="py-4 px-6 md:px-12 flex justify-between items-center border-b">
+      <header className="py-4 px-6 md:px-12 flex justify-between items-center border-b bg-white dark:bg-gray-900">
         <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
           Tom Riddelsdell
         </div>
@@ -71,9 +71,9 @@ export default function Home() {
       <main className="flex-1">
         {/* Hero Section */}
         <section 
-          className="relative py-16 md:py-24 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between"
+          className="relative py-16 md:py-24 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between bg-white dark:bg-gray-900"
           style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7)), url(${backgroundImage})`,
+            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9)), url(${backgroundImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundAttachment: 'fixed'
@@ -81,7 +81,7 @@ export default function Home() {
         >
           <div className="md:w-3/5 mb-10 md:mb-0">
             {/* Combined Quantitative Analysis Visualization */}
-            <div className="bg-white/50 dark:bg-gray-800/50 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-700 mb-8 h-[300px]">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 mb-8 h-[300px]">
               <CombinedQuantViz />
             </div>
             <div className="flex space-x-4">
@@ -116,9 +116,9 @@ export default function Home() {
         {/* Contact Section */}
         <section 
           id="contact" 
-          className="py-16 md:py-24 px-6 md:px-12 bg-cover bg-center"
+          className="py-16 md:py-24 px-6 md:px-12 bg-cover bg-center bg-white dark:bg-gray-900"
           style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.9)), url(${familyImage})`,
+            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.95)), url(${familyImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -127,8 +127,8 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Get In Touch</h2>
             
             <div className="grid md:grid-cols-2 gap-12">
-              <div className="bg-white/90 dark:bg-gray-800/90 p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-bold mb-4">Contact Information</h3>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Contact Information</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">
                   I'm always open to discussing new projects, opportunities, or partnerships. 
                   Feel free to reach out through any of the following channels:
@@ -150,8 +150,8 @@ export default function Home() {
                 </div>
               </div>
               
-              <div className="bg-white/90 dark:bg-gray-800/90 p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-bold mb-4">Life Beyond Work</h3>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Life Beyond Work</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">
                   When I'm not developing quantitative models or writing code, I enjoy spending time with my family, exploring the countryside, and teaching my daughter about nature and technology.
                 </p>
