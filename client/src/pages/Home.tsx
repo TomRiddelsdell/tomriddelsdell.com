@@ -118,13 +118,13 @@ export default function Home() {
           id="contact" 
           className="pt-20 md:pt-28 pb-16 md:pb-24 px-6 md:px-12 bg-cover bg-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8"
           style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.55)), url(${familyImage})`,
+            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.35)), url(${familyImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         >
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Get In Touch</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-gray-900 dark:text-white drop-shadow-sm">Get In Touch</h2>
             
             <div className="grid md:grid-cols-2 gap-12">
               <div className="bg-white/60 dark:bg-gray-800/60 p-6 rounded-lg shadow-md backdrop-blur-sm">
