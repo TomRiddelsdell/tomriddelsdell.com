@@ -23,9 +23,9 @@ export default function CombinedQuantViz() {
     
     // Set up gradients and styles
     const gradient = ctx.createLinearGradient(0, 0, rect.width, rect.height);
-    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.6)'); // blue-500
-    gradient.addColorStop(0.5, 'rgba(20, 184, 166, 0.6)'); // teal-500
-    gradient.addColorStop(1, 'rgba(139, 92, 246, 0.5)'); // purple-500
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)'); // blue-500
+    gradient.addColorStop(0.5, 'rgba(20, 184, 166, 0.8)'); // teal-500
+    gradient.addColorStop(1, 'rgba(139, 92, 246, 0.7)'); // purple-500
     
     // Draw a stylized volatility surface
     drawVolatilitySurface(ctx, rect.width, rect.height, gradient);
@@ -182,7 +182,7 @@ export default function CombinedQuantViz() {
       <canvas
         ref={canvasRef}
         className="w-full h-full rounded-lg"
-        style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
+        style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
       />
     </div>
   );
