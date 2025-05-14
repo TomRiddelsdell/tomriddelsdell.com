@@ -118,7 +118,7 @@ export default function Home() {
           id="contact" 
           className="pt-20 md:pt-28 pb-16 md:pb-24 px-6 md:px-12 bg-cover bg-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8"
           style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.95)), url(${familyImage})`,
+            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.75)), url(${familyImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -127,7 +127,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Get In Touch</h2>
             
             <div className="grid md:grid-cols-2 gap-12">
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+              <div className="bg-white/85 dark:bg-gray-800/85 p-6 rounded-lg shadow-md backdrop-blur-sm">
                 <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Contact Information</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">
                   I'm always open to discussing new projects, opportunities, or partnerships. 
@@ -150,7 +150,7 @@ export default function Home() {
                 </div>
               </div>
               
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+              <div className="bg-white/85 dark:bg-gray-800/85 p-6 rounded-lg shadow-md backdrop-blur-sm">
                 <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Send a Message</h3>
                 <form className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
