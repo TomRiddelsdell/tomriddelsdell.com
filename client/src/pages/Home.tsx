@@ -81,8 +81,7 @@ export default function Home() {
         >
           <div className="md:w-3/5 mb-10 md:mb-0">
             {/* Implied Volatility Visualization */}
-            <div className="bg-white/70 dark:bg-gray-800/70 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 mb-8 h-[360px] backdrop-blur-sm">
-              <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white drop-shadow-sm">Implied Volatility Surface</h3>
+            <div className="bg-white/50 dark:bg-gray-800/50 p-7 rounded-xl shadow-md border border-gray-200/50 dark:border-gray-700/50 mb-8 h-[360px] backdrop-blur-md overflow-hidden">
               <ImpliedVolDisplay />
             </div>
             <div className="flex space-x-4">

@@ -4,15 +4,17 @@ import impliedVolImage from '../assets/impliedvol.jpeg';
 export default function ImpliedVolDisplay() {
   return (
     <div className="w-full h-full flex items-center justify-center overflow-hidden">
-      <img 
-        src={impliedVolImage} 
-        alt="Implied Volatility Surface" 
-        className="w-full h-full object-contain"
+      <div 
+        className="w-full h-full" 
         style={{ 
-          maxHeight: '100%', 
-          maxWidth: '100%',
-          borderRadius: '0.5rem'
-        }} 
+          background: `url(${impliedVolImage})`,
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.3))',
+          transform: 'scale(0.98)',
+          transition: 'transform 0.3s ease'
+        }}
       />
     </div>
   );
