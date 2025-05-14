@@ -79,12 +79,14 @@ export default function Home() {
             backgroundAttachment: 'fixed'
           }}
         >
-          <div className="md:w-1/2 mb-10 md:mb-0 flex flex-col items-center justify-center">
-            {/* Implied Volatility Visualization */}
-            <div className="bg-transparent dark:bg-transparent p-4 md:p-5 rounded-2xl shadow-lg mb-8 h-[360px] w-full md:w-[90%] backdrop-blur-sm overflow-hidden border border-white/10 dark:border-white/5">
-              <ImpliedVolDisplay />
-            </div>
-            <div className="flex space-x-4 justify-center">
+          <div className="md:w-1/2 mb-10 md:mb-0 flex flex-col justify-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
+              Tom Riddelsdell
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+              Quantitative Analyst & Software Engineer with expertise in financial modeling, algorithmic trading, and full-stack development.
+            </p>
+            <div className="flex space-x-4">
               <Button 
                 size="lg" 
                 className="bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600"
@@ -103,7 +105,7 @@ export default function Home() {
             </div>
           </div>
           <div className="md:w-1/2 flex justify-center items-center">
-            <div className="w-64 h-64 md:w-72 md:h-72 rounded-full overflow-hidden border-4 border-white/30 dark:border-gray-700/30 shadow-xl">
+            <div className="w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/30 dark:border-gray-700/30 shadow-xl">
               <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
             </div>
           </div>
@@ -112,6 +114,25 @@ export default function Home() {
 
 
 
+
+        {/* Quant Developer Quote Section with Volatility Surface */}
+        <section className="py-20 px-6 md:px-12 bg-gradient-to-r from-blue-900/90 via-slate-900/90 to-gray-900/90 text-white">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
+            <div className="md:w-1/2 order-2 md:order-1">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-teal-300 bg-clip-text text-transparent">Quantitative Insights</h2>
+              <p className="text-xl md:text-2xl font-light leading-relaxed mb-6 text-gray-200">
+                "In quantitative finance, the most elegant models are those that balance mathematical rigor with practical application. The beauty lies not in complexity, but in the precision with which we can forecast market behavior."
+              </p>
+              <p className="italic text-blue-300">— Navigating markets through data-driven decisions</p>
+            </div>
+            
+            <div className="md:w-1/2 h-[400px] order-1 md:order-2 flex items-center justify-center">
+              <div className="w-full h-full max-w-md">
+                <ImpliedVolDisplay />
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Contact Section */}
         <section 
