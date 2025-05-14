@@ -116,7 +116,7 @@ export default function Home() {
         {/* Contact Section */}
         <section 
           id="contact" 
-          className="py-16 md:py-24 px-6 md:px-12 bg-cover bg-center bg-white dark:bg-gray-900"
+          className="pt-20 md:pt-28 pb-16 md:pb-24 px-6 md:px-12 bg-cover bg-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8"
           style={{
             backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.95)), url(${familyImage})`,
             backgroundSize: 'cover',
