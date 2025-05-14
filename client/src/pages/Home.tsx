@@ -7,7 +7,7 @@ import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import profilePic from "../assets/profile.jpg";
 import backgroundImage from "../assets/background.jpg";
 import familyImage from "../assets/family.jpg";
-import CombinedQuantViz from "@/components/CombinedQuantViz";
+import ImpliedVolDisplay from "@/components/ImpliedVolDisplay";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -80,9 +80,10 @@ export default function Home() {
           }}
         >
           <div className="md:w-3/5 mb-10 md:mb-0">
-            {/* Combined Quantitative Analysis Visualization */}
-            <div className="bg-white/70 dark:bg-gray-800/70 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 mb-8 h-[300px] backdrop-blur-sm">
-              <CombinedQuantViz />
+            {/* Implied Volatility Visualization */}
+            <div className="bg-white/70 dark:bg-gray-800/70 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 mb-8 h-[360px] backdrop-blur-sm">
+              <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white drop-shadow-sm">Implied Volatility Surface</h3>
+              <ImpliedVolDisplay />
             </div>
             <div className="flex space-x-4">
               <Button 
