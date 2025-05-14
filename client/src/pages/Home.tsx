@@ -151,27 +151,53 @@ export default function Home() {
               </div>
               
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Life Beyond Work</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  When I'm not developing quantitative models or writing code, I enjoy spending time with my family, exploring the countryside, and teaching my daughter about nature and technology.
-                </p>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  The background image shows one of our favorite spots in the Wye Valley, where we often go for weekend walks along the river.
-                </p>
-                <div className="flex justify-start">
-                  <Button
-                    onClick={() => {
-                      if (isAuthenticated) {
-                        // Handle authenticated action
-                      } else {
-                        setAuthMode('signup');
-                        setShowAuthModal(true);
-                      }
-                    }}
+                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Send a Message</h3>
+                <form className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+                      <input
+                        type="text"
+                        id="name"
+                        className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
+                        placeholder="Your name"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                      <input
+                        type="email"
+                        id="email"
+                        className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
+                        placeholder="your.email@example.com"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subject</label>
+                    <input
+                      type="text"
+                      id="subject"
+                      className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
+                      placeholder="Subject"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Message</label>
+                    <textarea
+                      id="message"
+                      rows={4}
+                      className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
+                      placeholder="Your message..."
+                    ></textarea>
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600"
                   >
-                    {isAuthenticated ? "View Dashboard" : "Connect with Me"}
+                    Send Message
                   </Button>
-                </div>
+                </form>
               </div>
             </div>
           </div>
