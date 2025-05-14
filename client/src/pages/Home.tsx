@@ -73,7 +73,7 @@ export default function Home() {
         <section 
           className="relative py-16 md:py-24 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between bg-white dark:bg-gray-900"
           style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9)), url(${backgroundImage})`,
+            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.35)), url(${backgroundImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundAttachment: 'fixed'
@@ -81,7 +81,7 @@ export default function Home() {
         >
           <div className="md:w-3/5 mb-10 md:mb-0">
             {/* Combined Quantitative Analysis Visualization */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 mb-8 h-[300px]">
+            <div className="bg-white/70 dark:bg-gray-800/70 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 mb-8 h-[300px] backdrop-blur-sm">
               <CombinedQuantViz />
             </div>
             <div className="flex space-x-4">
@@ -127,8 +127,8 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-gray-900 dark:text-white drop-shadow-sm">Get In Touch</h2>
             
             <div className="grid md:grid-cols-2 gap-12">
-              <div className="bg-white/60 dark:bg-gray-800/60 p-6 rounded-lg shadow-md backdrop-blur-sm">
-                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Contact Information</h3>
+              <div className="bg-white/40 dark:bg-gray-800/40 p-6 rounded-lg shadow-md backdrop-blur-sm">
+                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white drop-shadow-sm">Contact Information</h3>
                 <p className="text-gray-800 dark:text-gray-200 mb-6 font-medium">
                   I'm always open to discussing new projects, opportunities, or partnerships. 
                   Feel free to reach out through any of the following channels:
@@ -150,8 +150,8 @@ export default function Home() {
                 </div>
               </div>
               
-              <div className="bg-white/60 dark:bg-gray-800/60 p-6 rounded-lg shadow-md backdrop-blur-sm">
-                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Send a Message</h3>
+              <div className="bg-white/40 dark:bg-gray-800/40 p-6 rounded-lg shadow-md backdrop-blur-sm">
+                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white drop-shadow-sm">Send a Message</h3>
                 <form className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
