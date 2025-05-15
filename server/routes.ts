@@ -62,9 +62,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   passport.deserializeUser(async (id: number, done) => {
     try {
       const user = await storage.getUser(id);
-      done(null, user);
+      // Check if user exists
+      if (!user) {
+        return done(null, false);
+      }
+      return done(null, user);
     } catch (error) {
-      done(error);
+      console.error("Error deserializing user:", error);
+      return done(null, false);
     }
   });
 
@@ -136,32 +141,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     })(req, res, next);
   });
 
-  app.get('/api/auth/google', (req: Request, res: Response) => {
-    // In a real implementation, we would use passport's Google strategy
-    // For this example, we're simulating a successful Google login
-    const mockUser = {
-      id: 999,
-      username: "t.riddelsdell",
-      email: "tom.riddelsdell@example.com",
-      displayName: "Tom Riddelsdell",
-      photoURL: null
-    };
-    
-    req.login(mockUser, (err) => {
-      if (err) {
-        return res.status(500).json({ message: 'Error during login' });
+  app.get('/api/auth/google', async (req: Request, res: Response) => {
+    try {
+      // In a real implementation, we would use passport's Google strategy
+      // For this example, we're simulating a successful Google login
+      
+      // First check if this user already exists
+      let user = await storage.getUserByEmail("tom.riddelsdell@example.com");
+      
+      // If not, create the user
+      if (!user) {
+        user = await storage.createUser({
+          username: "t.riddelsdell",
+          email: "tom.riddelsdell@example.com",
+          password: "google-auth", // Not actually used for OAuth users
+          provider: "google",
+          displayName: "Tom Riddelsdell",
+          photoURL: null
+        });
       }
       
-      // Create activity log for the sign-in
-      storage.createActivityLog({
-        userId: mockUser.id,
-        eventType: 'auth.signin',
-        details: 'Signed in with Google',
-        status: 'success'
-      }).catch(console.error);
+      // Explicit type check to match what passport expects
+      if (!user || !user.id) {
+        return res.status(500).json({ message: 'Could not create or find user' });
+      }
       
-      return res.status(200).json({ user: mockUser });
-    });
+      req.login(user, (err) => {
+        if (err) {
+          console.error("Login error:", err);
+          return res.status(500).json({ message: 'Error during login' });
+        }
+        
+        // Create activity log for the sign-in
+        storage.createActivityLog({
+          userId: user.id,
+          eventType: 'auth.signin',
+          details: 'Signed in with Google',
+          status: 'success'
+        }).catch(error => console.error("Activity log error:", error));
+        
+        // Remove password from response
+        const { password: _, ...userWithoutPassword } = user;
+        
+        return res.status(200).json({ user: userWithoutPassword });
+      });
+    } catch (error) {
+      console.error("Google auth error:", error);
+      return res.status(500).json({ message: 'Error during Google authentication' });
+    }
   });
 
   app.post('/api/auth/signout', (req: Request, res: Response) => {
@@ -335,8 +362,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 // Middleware to check if user is authenticated
 function isAuthenticated(req: Request, res: Response, next: Function) {
-  if (req.isAuthenticated()) {
-    return next();
+  try {
+    if (req.isAuthenticated() && req.user) {
+      return next();
+    }
+    
+    // If session exists but user is not properly loaded
+    if (req.session && req.session.passport && req.session.passport.user && !req.user) {
+      console.warn("Session exists but user not loaded - clearing session");
+      req.session.destroy((err) => {
+        if (err) console.error("Error destroying invalid session:", err);
+      });
+    }
+    
+    return res.status(401).json({ message: 'Unauthorized' });
+  } catch (error) {
+    console.error("Authentication middleware error:", error);
+    return res.status(500).json({ message: 'Authentication error' });
   }
-  res.status(401).json({ message: 'Unauthorized' });
 }
