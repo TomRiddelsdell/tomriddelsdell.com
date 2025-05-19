@@ -4,6 +4,8 @@ import { useAuth } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
 import { Link } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import profilePic from "../assets/profile.jpg";
 import backgroundImage from "../assets/background.jpg";
 import familyImage from "../assets/family.jpg";
@@ -11,8 +13,76 @@ import ImpliedVolDisplay from "@/components/ImpliedVolDisplay";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
   const [showAuthModal, setShowAuthModal] = React.useState(false);
   const [authMode, setAuthMode] = React.useState<'signin' | 'signup'>('signin');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  
+  // Form state
+  const [contactForm, setContactForm] = React.useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  
+  // Handle form input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setContactForm(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+  
+  // Handle contact form submission
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Simple validation
+    if (!contactForm.name || !contactForm.email || !contactForm.message) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill out all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      
+      const response = await apiRequest('POST', '/api/contact', contactForm);
+      
+      if (response.ok) {
+        // Clear form
+        setContactForm({
+          name: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+        
+        // Show success message
+        toast({
+          title: "Message Sent",
+          description: "Your message has been sent successfully. Thank you for reaching out!",
+          variant: "default"
+        });
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to send message');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to send message. Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
   // Check URL for login parameter which indicates a redirect from a protected route
   React.useEffect(() => {
@@ -184,15 +254,18 @@ export default function Home() {
               
               <div className="bg-white/40 dark:bg-gray-800/40 p-6 rounded-lg shadow-md backdrop-blur-sm">
                 <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white drop-shadow-sm">Send a Message</h3>
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleContactSubmit}>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
                       <input
                         type="text"
                         id="name"
+                        value={contactForm.name}
+                        onChange={handleInputChange}
                         className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
                         placeholder="Your name"
+                        required
                       />
                     </div>
                     <div>
@@ -200,8 +273,11 @@ export default function Home() {
                       <input
                         type="email"
                         id="email"
+                        value={contactForm.email}
+                        onChange={handleInputChange}
                         className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
                         placeholder="your.email@example.com"
+                        required
                       />
                     </div>
                   </div>
@@ -210,6 +286,8 @@ export default function Home() {
                     <input
                       type="text"
                       id="subject"
+                      value={contactForm.subject}
+                      onChange={handleInputChange}
                       className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
                       placeholder="Subject"
                     />
@@ -219,15 +297,19 @@ export default function Home() {
                     <textarea
                       id="message"
                       rows={4}
+                      value={contactForm.message}
+                      onChange={handleInputChange}
                       className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
                       placeholder="Your message..."
+                      required
                     ></textarea>
                   </div>
                   <Button 
                     type="submit" 
                     className="w-full bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600"
+                    disabled={isSubmitting}
                   >
-                    Send Message
+                    {isSubmitting ? "Sending..." : "Send Message"}
                   </Button>
                 </form>
               </div>
