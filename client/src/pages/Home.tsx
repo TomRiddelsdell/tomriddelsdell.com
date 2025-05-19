@@ -80,7 +80,7 @@ export default function Home() {
           }}
         >
           <div className="md:w-1/2 mb-10 md:mb-0 flex flex-col justify-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent sr-only">
               Tom Riddelsdell
             </h1>
             <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
@@ -119,7 +119,7 @@ export default function Home() {
         <section className="py-20 px-6 md:px-12 bg-gradient-to-r from-blue-900/90 via-slate-900/90 to-gray-900/90 text-white">
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
             <div className="md:w-1/2 order-2 md:order-1">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-teal-300 bg-clip-text text-transparent">Quantitative Insights</h2>
+
               <p className="text-xl md:text-2xl font-light leading-relaxed mb-6 text-gray-200">
                 "In quantitative finance, the most elegant models are those that balance mathematical rigor with practical application. The beauty lies not in complexity, but in the precision with which we can forecast market behavior."
               </p>
