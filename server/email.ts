@@ -35,7 +35,7 @@ export async function sendContactEmail(emailData: EmailData): Promise<boolean> {
     // Construct the email content
     const emailContent = {
       to: toEmail,
-      from: 'noreply@portfoliocontact.com', // This should be a verified sender in your SendGrid account
+      from: 't.riddelsdell@gmail.com', // Using the same email as recipient, which should be verified in SendGrid
       subject: subject,
       text: `Name: ${emailData.name}\nEmail: ${emailData.email}\n\nMessage:\n${emailData.message}`,
       html: `
