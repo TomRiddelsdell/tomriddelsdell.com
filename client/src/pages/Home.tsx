@@ -13,6 +13,15 @@ export default function Home() {
   const { isAuthenticated } = useAuth();
   const [showAuthModal, setShowAuthModal] = React.useState(false);
   const [authMode, setAuthMode] = React.useState<'signin' | 'signup'>('signin');
+  
+  // Check URL for login parameter which indicates a redirect from a protected route
+  React.useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('login') === 'true' && !isAuthenticated) {
+      setAuthMode('signin');
+      setShowAuthModal(true);
+    }
+  }, [isAuthenticated]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
@@ -22,11 +31,11 @@ export default function Home() {
           Tom Riddelsdell
         </div>
         <nav className="hidden md:flex space-x-8 items-center">
-          <Link href="/career" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
-            Career
-          </Link>
           {isAuthenticated && (
             <>
+              <Link href="/career" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
+                Career
+              </Link>
               <Link href="/projects" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
                 Projects
               </Link>
@@ -97,11 +106,13 @@ export default function Home() {
               >
                 Join My Network
               </Button>
-              <Link href="/career">
-                <Button size="lg" variant="outline">
-                  View Career
-                </Button>
-              </Link>
+              {isAuthenticated && (
+                <Link href="/career">
+                  <Button size="lg" variant="outline">
+                    View Career
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
           <div className="md:w-1/2 flex justify-center items-center">

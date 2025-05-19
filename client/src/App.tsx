@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "./context/AuthContext";
 import { LanguageProvider } from "./context/LanguageContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Career from "@/pages/Career";
@@ -24,7 +25,9 @@ function Router() {
     <div className="min-h-screen flex flex-col md:flex-row">
       <Switch>
         <Route path="/" component={Home} />
-        <Route path="/career" component={Career} />
+        <Route path="/career">
+          {(params) => <ProtectedRoute component={Career} {...params} />}
+        </Route>
         <Route path="/projects" component={Projects} />
         <Route path="/tasks" component={Tasks} />
         <Route path="/dashboard" component={Dashboard} />
