@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertUserSchema, insertWorkflowSchema, insertConnectedAppSchema, insertTemplateSchema, insertActivityLogSchema } from "@shared/schema";
 import { z, ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { sendContactEmail } from "./email";
 import session from "express-session";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
@@ -352,6 +353,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       console.error('Error creating activity log:', error);
       res.status(500).json({ message: 'Error creating activity log' });
+    }
+  });
+  
+  // Contact form submission endpoint
+  app.post('/api/contact', async (req: Request, res: Response) => {
+    try {
+      // Define a schema for contact form data
+      const contactSchema = z.object({
+        name: z.string().min(1, 'Name is required'),
+        email: z.string().email('Invalid email address'),
+        subject: z.string().optional(),
+        message: z.string().min(5, 'Message is too short')
+      });
+
+      // Validate the request body
+      const contactData = contactSchema.parse(req.body);
+      
+      // Send the email
+      const success = await sendContactEmail(contactData);
+      
+      if (success) {
+        // Log the contact submission for authenticated users
+        if (req.isAuthenticated() && req.user) {
+          await storage.createActivityLog({
+            userId: (req.user as any).id,
+            eventType: 'contact_form',
+            status: 'success',
+            details: {
+              subject: contactData.subject || 'No subject',
+              fromEmail: contactData.email
+            }
+          });
+        }
+        
+        res.status(200).json({ message: 'Message sent successfully' });
+      } else {
+        res.status(500).json({ message: 'Failed to send message' });
+      }
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return res.status(400).json({ 
+          message: 'Invalid form data', 
+          errors: fromZodError(error).message 
+        });
+      }
+      console.error('Error processing contact form:', error);
+      res.status(500).json({ message: 'An error occurred while processing your message' });
     }
   });
 
