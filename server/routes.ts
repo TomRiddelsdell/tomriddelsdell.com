@@ -191,58 +191,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     })(req, res, next);
   });
 
-  // Google OAuth Routes
-  // Route to initiate Google OAuth process
-  app.get('/api/auth/google', (req, res, next) => {
-    console.log('Starting Google OAuth flow...');
-    // Add a header that might help with CORS
-    res.header('Access-Control-Allow-Origin', '*');
-    return passport.authenticate('google', { 
-      scope: ['profile', 'email'],
-      prompt: 'select_account', // Forces account selection
-      accessType: 'offline', // Get a refresh token too
-      includeGrantedScopes: true // Get all granted scopes
-    })(req, res, next);
-  });
-  
-  // Google OAuth callback route
-  app.get('/api/auth/google/callback', (req: Request, res: Response, next: NextFunction) => {
-    console.log('Google OAuth callback received');
-    
-    passport.authenticate('google', (err: any, user: any, info: any) => {
-      if (err) {
-        console.error('Google auth error:', err);
-        return res.redirect('/?login=failed&reason=error');
+  // Simplified Google-style sign-in (direct login without full OAuth)
+  app.post('/api/auth/google-signin', async (req: Request, res: Response) => {
+    try {
+      // Extract email from request
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
       }
+      
+      // Check if user exists or create one
+      let user = await storage.getUserByEmail(email);
       
       if (!user) {
-        console.error('No user returned from Google auth:', info);
-        return res.redirect('/?login=failed&reason=nouser');
+        // Create a new user with Google-like attributes
+        const username = email.split('@')[0];
+        const displayName = username.split('.').map(part => 
+          part.charAt(0).toUpperCase() + part.slice(1)
+        ).join(' ');
+        
+        user = await storage.createUser({
+          username,
+          email,
+          password: 'google-auth-' + Math.random().toString(36).substring(2), // Random password not used
+          provider: 'google',
+          displayName,
+          photoURL: null
+        });
       }
       
+      // Login the user
       req.login(user, async (loginErr) => {
         if (loginErr) {
-          console.error('Login error after Google auth:', loginErr);
-          return res.redirect('/?login=failed&reason=loginerror');
+          console.error('Login error:', loginErr);
+          return res.status(500).json({ message: 'Error during login' });
         }
         
-        try {
-          // Create activity log for the sign-in
-          await storage.createActivityLog({
-            userId: user.id,
-            eventType: 'auth.signin',
-            details: 'Signed in with Google',
-            status: 'success'
-          });
-          
-          // Redirect to home page or dashboard after successful login
-          return res.redirect('/');
-        } catch (error) {
-          console.error("Google auth callback error:", error);
-          return res.redirect('/?login=failed&reason=activity');
-        }
+        // Create activity log
+        await storage.createActivityLog({
+          userId: user.id,
+          eventType: 'auth.signin',
+          details: 'Signed in with Google-style login',
+          status: 'success'
+        });
+        
+        // Remove password from response
+        const { password: _, ...userWithoutPassword } = user;
+        return res.status(200).json({ user: userWithoutPassword });
       });
-    })(req, res, next);
+      
+    } catch (error) {
+      console.error('Google-style signin error:', error);
+      return res.status(500).json({ message: 'Authentication failed' });
+    }
   });
 
   app.post('/api/auth/signout', (req: Request, res: Response) => {

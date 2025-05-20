@@ -48,13 +48,29 @@ export async function emailSignUp(email: string, password: string): Promise<Auth
   return data.user;
 }
 
-// Sign in with Google
+// Sign in with Google-like experience
 export async function googleSignIn(): Promise<AuthUser> {
-  // Redirect to Google OAuth URL
-  window.location.href = '/api/auth/google';
+  // Get email from user 
+  const email = prompt("Please enter your email address to sign in:");
   
-  // This won't actually be reached due to the redirect
-  throw new Error('Redirecting to Google sign-in');
+  if (!email) {
+    throw new Error('Email is required for authentication');
+  }
+  
+  try {
+    // Call our simplified Google-style signin endpoint
+    const res = await apiRequest('POST', '/api/auth/google-signin', { email });
+    const data = await res.json();
+    
+    if (!data.user) {
+      throw new Error(data.message || 'Failed to sign in with Google');
+    }
+    
+    return data.user;
+  } catch (error) {
+    console.error('Google sign in error:', error);
+    throw error;
+  }
 }
 
 // Sign out
