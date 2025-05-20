@@ -191,55 +191,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     })(req, res, next);
   });
 
-  app.get('/api/auth/google', async (req: Request, res: Response) => {
-    try {
-      // In a real implementation, we would use passport's Google strategy
-      // For this example, we're simulating a successful Google login
-      
-      // First check if this user already exists
-      let user = await storage.getUserByEmail("tom.riddelsdell@example.com");
-      
-      // If not, create the user
-      if (!user) {
-        user = await storage.createUser({
-          username: "t.riddelsdell",
-          email: "tom.riddelsdell@example.com",
-          password: "google-auth", // Not actually used for OAuth users
-          provider: "google",
-          displayName: "Tom Riddelsdell",
-          photoURL: null
-        });
-      }
-      
-      // Explicit type check to match what passport expects
-      if (!user || !user.id) {
-        return res.status(500).json({ message: 'Could not create or find user' });
-      }
-      
-      req.login(user, (err) => {
-        if (err) {
-          console.error("Login error:", err);
-          return res.status(500).json({ message: 'Error during login' });
+  // Google OAuth Routes
+  // Route to initiate Google OAuth process
+  app.get('/api/auth/google', passport.authenticate('google', { 
+    scope: ['profile', 'email'],
+    prompt: 'select_account' // Forces account selection even if already logged in
+  }));
+  
+  // Google OAuth callback route
+  app.get('/api/auth/google/callback', 
+    passport.authenticate('google', { 
+      failureRedirect: '/?login=failed'
+    }),
+    async (req: Request, res: Response) => {
+      try {
+        if (!req.user || !(req.user as any).id) {
+          return res.redirect('/?login=failed');
         }
         
         // Create activity log for the sign-in
-        storage.createActivityLog({
-          userId: user.id,
+        await storage.createActivityLog({
+          userId: (req.user as any).id,
           eventType: 'auth.signin',
           details: 'Signed in with Google',
           status: 'success'
-        }).catch(error => console.error("Activity log error:", error));
+        });
         
-        // Remove password from response
-        const { password: _, ...userWithoutPassword } = user;
-        
-        return res.status(200).json({ user: userWithoutPassword });
-      });
-    } catch (error) {
-      console.error("Google auth error:", error);
-      return res.status(500).json({ message: 'Error during Google authentication' });
+        // Redirect to home page or dashboard after successful login
+        return res.redirect('/');
+      } catch (error) {
+        console.error("Google auth callback error:", error);
+        return res.redirect('/?login=failed');
+      }
     }
-  });
+  );
 
   app.post('/api/auth/signout', (req: Request, res: Response) => {
     req.logout((err) => {
