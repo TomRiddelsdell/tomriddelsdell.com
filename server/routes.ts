@@ -56,17 +56,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   ));
   
-  // Set up Google OAuth Strategy
-  // Generate the full callback URL using the request host
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const hostname = '951623bd-429c-43fc-aa2e-0735d412df34.id.replit.app';
-  const callbackURL = `${protocol}://${hostname}/api/auth/google/callback`;
-  
+  // Set up Google OAuth Strategy with development-friendly configuration
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID || '',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    callbackURL: callbackURL,
-    proxy: true // Important for Replit environments
+    callbackURL: '/api/auth/google/callback', // Relative URL for flexibility
+    // No proxy setting during dev to avoid potential issues
   }, async (accessToken, refreshToken, profile, done) => {
     try {
       // Get profile info
@@ -198,38 +193,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Google OAuth Routes
   // Route to initiate Google OAuth process
-  app.get('/api/auth/google', passport.authenticate('google', { 
-    scope: ['profile', 'email'],
-    prompt: 'select_account' // Forces account selection even if already logged in
-  }));
+  app.get('/api/auth/google', (req, res, next) => {
+    console.log('Starting Google OAuth flow...');
+    // Add a header that might help with CORS
+    res.header('Access-Control-Allow-Origin', '*');
+    return passport.authenticate('google', { 
+      scope: ['profile', 'email'],
+      prompt: 'select_account', // Forces account selection
+      accessType: 'offline', // Get a refresh token too
+      includeGrantedScopes: true // Get all granted scopes
+    })(req, res, next);
+  });
   
   // Google OAuth callback route
-  app.get('/api/auth/google/callback', 
-    passport.authenticate('google', { 
-      failureRedirect: '/?login=failed'
-    }),
-    async (req: Request, res: Response) => {
-      try {
-        if (!req.user || !(req.user as any).id) {
-          return res.redirect('/?login=failed');
+  app.get('/api/auth/google/callback', (req: Request, res: Response, next: NextFunction) => {
+    console.log('Google OAuth callback received');
+    
+    passport.authenticate('google', (err: any, user: any, info: any) => {
+      if (err) {
+        console.error('Google auth error:', err);
+        return res.redirect('/?login=failed&reason=error');
+      }
+      
+      if (!user) {
+        console.error('No user returned from Google auth:', info);
+        return res.redirect('/?login=failed&reason=nouser');
+      }
+      
+      req.login(user, async (loginErr) => {
+        if (loginErr) {
+          console.error('Login error after Google auth:', loginErr);
+          return res.redirect('/?login=failed&reason=loginerror');
         }
         
-        // Create activity log for the sign-in
-        await storage.createActivityLog({
-          userId: (req.user as any).id,
-          eventType: 'auth.signin',
-          details: 'Signed in with Google',
-          status: 'success'
-        });
-        
-        // Redirect to home page or dashboard after successful login
-        return res.redirect('/');
-      } catch (error) {
-        console.error("Google auth callback error:", error);
-        return res.redirect('/?login=failed');
-      }
-    }
-  );
+        try {
+          // Create activity log for the sign-in
+          await storage.createActivityLog({
+            userId: user.id,
+            eventType: 'auth.signin',
+            details: 'Signed in with Google',
+            status: 'success'
+          });
+          
+          // Redirect to home page or dashboard after successful login
+          return res.redirect('/');
+        } catch (error) {
+          console.error("Google auth callback error:", error);
+          return res.redirect('/?login=failed&reason=activity');
+        }
+      });
+    })(req, res, next);
+  });
 
   app.post('/api/auth/signout', (req: Request, res: Response) => {
     req.logout((err) => {
