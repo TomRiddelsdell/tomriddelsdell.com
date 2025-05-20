@@ -98,6 +98,24 @@ export default function Home() {
       setShowAuthModal(true);
     }
   }, [isAuthenticated]);
+  
+  // Listen for auth success event
+  React.useEffect(() => {
+    const handleAuthSuccess = () => {
+      setShowAuthModal(false);
+      toast({
+        title: "Welcome!",
+        description: "You have successfully signed in",
+        variant: "default",
+      });
+    };
+    
+    window.addEventListener('authSuccess', handleAuthSuccess);
+    
+    return () => {
+      window.removeEventListener('authSuccess', handleAuthSuccess);
+    };
+  }, [toast]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
@@ -136,9 +154,15 @@ export default function Home() {
             Contact
           </a>
           {isAuthenticated ? (
-            <Link href="/dashboard">
-              <Button variant="outline">Dashboard</Button>
-            </Link>
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-sm">
+                <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                <span>Logged In</span>
+              </div>
+              <Link href="/dashboard">
+                <Button variant="outline">Dashboard</Button>
+              </Link>
+            </div>
           ) : (
             <Button
               onClick={() => {

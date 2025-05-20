@@ -48,8 +48,14 @@ export default function AuthModal() {
     try {
       if (mode === 'signin') {
         await signIn(data.email, data.password, data.rememberMe);
+        // Signal to parent component that auth was successful
+        const event = new CustomEvent('authSuccess');
+        window.dispatchEvent(event);
       } else {
         await signUp(data.email, data.password);
+        // Signal to parent component that auth was successful
+        const event = new CustomEvent('authSuccess');
+        window.dispatchEvent(event);
       }
     } catch (error) {
       console.error('Authentication error:', error);
@@ -59,6 +65,9 @@ export default function AuthModal() {
   const handleGoogleSignIn = async () => {
     try {
       await signInWithGoogle();
+      // Signal to parent component that auth was successful
+      const event = new CustomEvent('authSuccess');
+      window.dispatchEvent(event);
     } catch (error) {
       console.error('Google sign in error:', error);
     }
