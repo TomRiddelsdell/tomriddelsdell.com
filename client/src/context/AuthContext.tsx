@@ -82,8 +82,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     setIsLoading(true);
     try {
-      await googleSignIn();
-      // User will be redirected to Google, so we don't need to handle the success case here
+      const user = await googleSignIn();
+      setUser(user);
+      toast({
+        title: "Welcome back!",
+        description: `You have successfully signed in as ${user.displayName || user.email}.`,
+      });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to sign in with Google";
       toast({
@@ -91,8 +95,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: errorMessage,
         variant: "destructive",
       });
-      setIsLoading(false);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
