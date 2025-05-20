@@ -50,21 +50,17 @@ export async function emailSignUp(email: string, password: string): Promise<Auth
 
 // Sign in with Google-like experience
 export async function googleSignIn(): Promise<AuthUser> {
-  // Get email from user 
-  const email = prompt("Please enter your email address to sign in:");
-  
-  if (!email) {
-    throw new Error('Email is required for authentication');
-  }
-  
   try {
+    // Use a default test account for the simplified experience
+    const defaultEmail = "t.riddelsdell@gmail.com";
+    
     // Call our simplified Google-style signin endpoint
     const res = await fetch('/api/auth/google-signin', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ email: defaultEmail }),
       credentials: 'include'
     });
     
