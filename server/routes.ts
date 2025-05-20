@@ -57,11 +57,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   ));
   
   // Set up Google OAuth Strategy
+  // Generate the full callback URL using the request host
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+  const hostname = '951623bd-429c-43fc-aa2e-0735d412df34.id.replit.app';
+  const callbackURL = `${protocol}://${hostname}/api/auth/google/callback`;
+  
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID || '',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    callbackURL: '/api/auth/google/callback',
-    scope: ['profile', 'email']
+    callbackURL: callbackURL,
+    proxy: true // Important for Replit environments
   }, async (accessToken, refreshToken, profile, done) => {
     try {
       // Get profile info
