@@ -19,14 +19,24 @@ export const availableApps = [
     path: '/apps/dummy-public/dummy-public.tsx',
     css: './css/dummy-public-1.css',
     className: 'dummy-public',
+    access: AppAccessScope.public,
   },
   // Add more apps as needed
 ];
+
+const config = {
+  homeCss: './css/home-1.css',
+  homeClassName: 'home',
+  loginCss: './css/login-1.css',
+  loginClassName: 'login',
+  siteNavCss: './css/siteNav-1.css',
+  siteNavClassName: 'siteNav'
+}
 
 export function appConfig(appId: string) {
   return availableApps.find((app) => app.id === appId);
 } 
 
-export function exportCss() {
-  return availableApps.map((app) => import(`${app.css}`));
+export function importCss() {
+  return [ ...availableApps.map((app) => import(`${app.css}`)), config.loginCss, config.homeCss];
 }
