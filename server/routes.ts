@@ -207,7 +207,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         // Create a new user with Google-like attributes
         const username = email.split('@')[0];
-        const displayName = username.split('.').map(part => 
+        const displayName = username.split('.').map((part: string) => 
           part.charAt(0).toUpperCase() + part.slice(1)
         ).join(' ');
         
@@ -221,25 +221,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Login the user
-      req.login(user, async (loginErr) => {
-        if (loginErr) {
-          console.error('Login error:', loginErr);
-          return res.status(500).json({ message: 'Error during login' });
-        }
-        
-        // Create activity log
-        await storage.createActivityLog({
-          userId: user.id,
-          eventType: 'auth.signin',
-          details: 'Signed in with Google-style login',
-          status: 'success'
-        });
-        
-        // Remove password from response
-        const { password: _, ...userWithoutPassword } = user;
-        return res.status(200).json({ user: userWithoutPassword });
+      // Create activity log
+      await storage.createActivityLog({
+        userId: user.id,
+        eventType: 'auth.signin',
+        details: 'Signed in with Google-style login',
+        status: 'success'
       });
+      
+      // Set user in session manually instead of using req.login
+      if (req.session) {
+        req.session.userId = user.id;
+      }
+      
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = user;
+      return res.status(200).json({ user: userWithoutPassword });
       
     } catch (error) {
       console.error('Google-style signin error:', error);

@@ -59,7 +59,21 @@ export async function googleSignIn(): Promise<AuthUser> {
   
   try {
     // Call our simplified Google-style signin endpoint
-    const res = await apiRequest('POST', '/api/auth/google-signin', { email });
+    const res = await fetch('/api/auth/google-signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+      credentials: 'include'
+    });
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('Error response:', errorText);
+      throw new Error('Failed to sign in with Google');
+    }
+    
     const data = await res.json();
     
     if (!data.user) {
