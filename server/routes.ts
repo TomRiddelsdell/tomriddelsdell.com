@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, insertWorkflowSchema, insertConnectedAppSchema, insertTemplateSchema, insertActivityLogSchema } from "@shared/schema";
@@ -8,6 +8,7 @@ import { sendContactEmail } from "./email";
 import session from "express-session";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import MemoryStore from "memorystore";
 
 const SessionStore = MemoryStore(session);
@@ -54,6 +55,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
   ));
+  
+  // Set up Google OAuth Strategy
+  passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID || '',
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+    callbackURL: '/api/auth/google/callback',
+    scope: ['profile', 'email']
+  }, async (accessToken, refreshToken, profile, done) => {
+    try {
+      // Get profile info
+      const googleId = profile.id;
+      const email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
+      const displayName = profile.displayName || '';
+      const photoURL = profile.photos && profile.photos[0] ? profile.photos[0].value : null;
+      
+      if (!email) {
+        return done(new Error('No email found in Google profile'));
+      }
+      
+      // Check if user exists
+      let user = await storage.getUserByEmail(email);
+      
+      // If user doesn't exist, create a new one
+      if (!user) {
+        user = await storage.createUser({
+          username: email.split('@')[0],
+          email: email,
+          password: `google-auth-${googleId}`, // Not actually used for OAuth users
+          provider: 'google',
+          displayName: displayName,
+          photoURL: photoURL
+        });
+      } 
+      // If user exists but has email/password auth, link it with Google
+      else if (user.provider !== 'google') {
+        user = await storage.updateUser(user.id, {
+          provider: 'google',
+          displayName: displayName || user.displayName,
+          photoURL: photoURL || user.photoURL
+        });
+      }
+      
+      return done(null, user);
+    } catch (error) {
+      console.error('Google auth error:', error);
+      return done(error);
+    }
+  }));
 
   // Serialize/deserialize user for session
   passport.serializeUser((user: any, done) => {
