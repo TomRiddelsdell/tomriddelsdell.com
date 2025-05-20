@@ -8,7 +8,7 @@ import ProfileQuote from './component/ProfileQuote'
 function Home() {
   return (
     <div>
-      <SiteNav title={'hello'}/>
+      <SiteNav/>
       <ProfileTop/>
       <Auth/>
       <AppBanner/>
