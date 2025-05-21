@@ -37,8 +37,14 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
       return false;
     }
     
-    // Form the reset link (in a production environment, this would point to your domain)
-    const resetLink = `${process.env.HOST_URL || 'http://localhost:5000'}/reset-password?code=${resetCode}&email=${encodeURIComponent(email)}`;
+    // Get the host URL for the password reset link based on environment
+    // Use REPLIT_DEPLOYMENT_URL for production when deployed, or custom HOST_URL if set
+    const hostUrl = process.env.REPLIT_DEPLOYMENT_URL || 
+                    process.env.HOST_URL || 
+                    'http://localhost:5000';
+    
+    // Form the reset link - this will now work in both development and production
+    const resetLink = `${hostUrl}/reset-password?code=${resetCode}&email=${encodeURIComponent(email)}`;
     
     // Construct the email content
     const emailContent = {
