@@ -371,7 +371,7 @@ export default function Home() {
               <div className="bg-white/50 backdrop-blur-sm p-5 rounded-lg shadow-md mb-8">
                 <p className="text-xl md:text-2xl text-slate-900 dark:text-slate-900 leading-relaxed">
                   Strategist & Software Engineer with expertise in financial
-                  modeling, algorithmic trading, and full-stack development.
+                  modeling, automated investment strategies, risk management, and full-stack development.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 sm:space-x-4">
