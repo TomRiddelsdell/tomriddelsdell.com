@@ -185,20 +185,16 @@ export class AuthController {
    */
   static async logout(req: Request, res: Response) {
     try {
-      // Clear session regardless of Cognito status
-      if (req.session) {
-        req.session.destroy((err) => {
-          if (err) {
-            console.error('Session destruction error:', err);
-            return res.status(500).json({ message: 'Error during logout' });
-          }
-          
-          res.clearCookie('connect.sid');
-          return res.json({ message: 'Logged out successfully' });
-        });
-      } else {
-        return res.status(200).json({ message: 'No active session' });
-      }
+      // Skip Cognito logout and just destroy the session
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Session destruction error:', err);
+          return res.status(500).json({ message: 'Error during logout' });
+        }
+        
+        res.clearCookie('connect.sid');
+        return res.json({ message: 'Logged out successfully' });
+      });
     } catch (error) {
       console.error('Logout error:', error);
       return res.status(500).json({ message: 'Error during logout' });
