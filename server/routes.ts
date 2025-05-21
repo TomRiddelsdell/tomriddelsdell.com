@@ -485,6 +485,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update password route
+  app.post('/api/auth/update-password', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as any).id;
+      const { currentPassword, newPassword } = req.body;
+      
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: 'Current password and new password are required' });
+      }
+      
+      // Get current user
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Verify current password
+      const isPasswordValid = currentPassword === user.password;
+      if (!isPasswordValid) {
+        return res.status(400).json({ message: 'Current password is incorrect' });
+      }
+      
+      // Update password
+      await storage.updateUser(userId, { password: newPassword });
+      
+      // Log password change
+      await storage.createActivityLog({
+        userId,
+        eventType: 'password_changed',
+        status: 'success',
+        details: { timestamp: new Date() },
+        ipAddress: req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || 'unknown'
+      });
+      
+      res.status(200).json({ message: 'Password updated successfully' });
+    } catch (error) {
+      console.error('Error updating password:', error);
+      res.status(500).json({ message: 'Failed to update password' });
+    }
+  });
+
   // Register admin routes for user management
   await registerAdminRoutes(app);
   

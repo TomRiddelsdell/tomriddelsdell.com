@@ -54,8 +54,24 @@ export default function Security() {
     
     setIsUpdating(true);
     try {
-      // In a real app, we would call an API to update the password
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      // Send password update request to the server
+      const response = await fetch('/api/auth/update-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword,
+        }),
+        credentials: 'include',
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to update password');
+      }
       
       toast({
         title: "Password updated",
@@ -66,7 +82,7 @@ export default function Security() {
     } catch (error) {
       toast({
         title: "Update failed",
-        description: "Failed to update your password. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to update your password. Please try again.",
         variant: "destructive",
       });
     } finally {
