@@ -491,8 +491,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = (req.user as any).id;
       const { currentPassword, newPassword } = req.body;
       
-      console.log('Password update requested for user ID:', userId);
-      
       if (!currentPassword || !newPassword) {
         return res.status(400).json({ message: 'Current password and new password are required' });
       }
@@ -503,26 +501,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'User not found' });
       }
       
-      console.log('Current user password (masked):', '*'.repeat(user.password?.length || 0));
-      console.log('Input current password (masked):', '*'.repeat(currentPassword?.length || 0));
-      
       // Verify current password
       const isPasswordValid = currentPassword === user.password;
-      console.log('Is password valid?', isPasswordValid);
-      
       if (!isPasswordValid) {
         return res.status(400).json({ message: 'Current password is incorrect' });
       }
       
-      // Update password
-      console.log('Updating password to new value (masked):', '*'.repeat(newPassword?.length || 0));
-      const updatedUser = await storage.updateUser(userId, { password: newPassword });
-      console.log('Update result:', updatedUser ? 'Success' : 'Failed');
-      
-      // Verify the update
-      const verifiedUser = await storage.getUser(userId);
-      console.log('Verification - Updated password (masked):', '*'.repeat(verifiedUser?.password?.length || 0));
-      console.log('Password correctly updated:', verifiedUser?.password === newPassword);
+      // Update password using direct SQL query for more reliability
+      await db.execute(
+        sql`UPDATE users SET password = ${newPassword}, updated_at = NOW() WHERE id = ${userId}`
+      );
       
       // Log password change
       await storage.createActivityLog({
@@ -533,7 +521,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ipAddress: req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || 'unknown'
       });
       
-      res.status(200).send('Password updated successfully');
+      // Return JSON response
+      res.status(200).json({ message: 'Password updated successfully' });
     } catch (error) {
       console.error('Error updating password:', error);
       res.status(500).json({ message: 'Failed to update password' });
