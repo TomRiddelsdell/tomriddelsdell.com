@@ -306,7 +306,7 @@ export default function Home() {
             backgroundAttachment: "fixed",
           }}
         >
-          <div className="md:w-1/2 mb-10 md:mb-0 flex flex-col justify-center">
+          <div className="w-full md:w-1/2 mb-10 md:mb-0 flex flex-col justify-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent sr-only">
               Tom Riddelsdell
             </h1>
@@ -314,10 +314,10 @@ export default function Home() {
               Strategist & Software Engineer with expertise in financial
               modeling, algorithmic trading, and full-stack development.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex flex-col sm:flex-row gap-4 sm:space-x-4">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600"
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600"
                 onClick={() => {
                   setAuthMode("signup");
                   setShowAuthModal(true);
@@ -326,16 +326,16 @@ export default function Home() {
                 Join My Network
               </Button>
               {isAuthenticated && (
-                <Link href="/career">
-                  <Button size="lg" variant="outline">
+                <Link href="/career" className="w-full sm:w-auto">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
                     View Career
                   </Button>
                 </Link>
               )}
             </div>
           </div>
-          <div className="md:w-1/2 flex justify-center items-center">
-            <div className="w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/30 dark:border-gray-700/30 shadow-xl">
+          <div className="w-full md:w-1/2 flex justify-center items-center mt-8 md:mt-0">
+            <div className="w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/30 dark:border-gray-700/30 shadow-xl">
               <img
                 src={profilePic}
                 alt="Profile"
@@ -346,21 +346,21 @@ export default function Home() {
         </section>
 
         {/* Quant Developer Quote Section with Volatility Surface */}
-        <section className="py-20 px-6 md:px-12 bg-gradient-to-r from-blue-900/90 via-slate-900/90 to-gray-900/90 text-white">
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
-            <div className="md:w-1/2 order-2 md:order-1">
-              <p className="text-xl md:text-2xl font-light leading-relaxed mb-6 text-gray-200">
+        <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-12 bg-gradient-to-r from-blue-900/90 via-slate-900/90 to-gray-900/90 text-white">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
+            <div className="w-full md:w-1/2 order-2 md:order-1 mt-8 md:mt-0">
+              <p className="text-lg sm:text-xl md:text-2xl font-light leading-relaxed mb-4 sm:mb-6 text-gray-200">
                 "In quantitative finance, the most elegant models are those that
                 balance mathematical rigor with practical application. The
                 beauty lies not in complexity, but in the precision with which
                 we can forecast market behavior."
               </p>
-              <p className="italic text-blue-300">
+              <p className="italic text-blue-300 text-sm sm:text-base">
                 — Navigating markets through data-driven decisions
               </p>
             </div>
 
-            <div className="md:w-1/2 h-[400px] order-1 md:order-2 flex items-center justify-center">
+            <div className="w-full md:w-1/2 h-[300px] sm:h-[350px] md:h-[400px] order-1 md:order-2 flex items-center justify-center">
               <div className="w-full h-full max-w-md">
                 <ImpliedVolDisplay />
               </div>
@@ -371,7 +371,7 @@ export default function Home() {
         {/* Contact Section */}
         <section
           id="contact"
-          className="pt-20 md:pt-28 pb-16 md:pb-24 px-6 md:px-12 bg-cover bg-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8"
+          className="pt-16 sm:pt-20 md:pt-28 pb-12 sm:pb-16 md:pb-24 px-4 sm:px-6 md:px-12 bg-cover bg-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8"
           style={{
             backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.35)), url(${familyImage})`,
             backgroundSize: "cover",
@@ -379,11 +379,11 @@ export default function Home() {
           }}
         >
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-gray-900 dark:text-white drop-shadow-sm">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 text-center text-gray-900 dark:text-white drop-shadow-sm">
               Get In Touch
             </h2>
 
-            <div className="grid md:grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12">
               <div className="bg-white/40 dark:bg-gray-800/40 p-6 rounded-lg shadow-md backdrop-blur-sm">
                 <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white drop-shadow-sm">
                   Contact Information
