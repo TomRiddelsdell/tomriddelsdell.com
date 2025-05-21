@@ -2,18 +2,18 @@ import { pgTable, text, serial, integer, boolean, timestamp, json } from "drizzl
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Users table
+// Users table - now linked to Cognito
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
+  id: serial("id").primaryKey(), // Local database ID
+  cognitoId: text("cognito_id").unique(), // AWS Cognito User ID
   username: text("username").notNull().unique(),
-  password: text("password").notNull(),
   email: text("email").notNull().unique(),
   displayName: text("display_name"),
   photoURL: text("photo_url"),
   lastLogin: timestamp("last_login"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  provider: text("provider").default("email").notNull(), // 'email', 'google', etc.
+  provider: text("provider").default("cognito").notNull(), // 'cognito', 'google', 'aws', etc.
   role: text("role").default("user").notNull(), // 'user', 'admin', 'editor', etc.
   preferredLanguage: text("preferred_language").default("en").notNull(),
   isActive: boolean("is_active").default(true).notNull(),
@@ -23,8 +23,8 @@ export const users = pgTable("users", {
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
-  password: true,
   email: true,
+  cognitoId: true,
   displayName: true,
   photoURL: true,
   provider: true,
