@@ -3,19 +3,24 @@ import { AuthServiceImpl } from './auth-service';
 
 // Create and export the auth service singleton
 const authService = new AuthServiceImpl({
-  provider: 'simple', // Using our simple auth provider instead of Cognito
-  region: '',
-  userPoolId: '',
-  clientId: '',
-  clientSecret: ''
+  provider: 'cognito',
+  region: process.env.AWS_REGION || 'eu-west-2',
+  userPoolId: process.env.AWS_USER_POOL_ID || 'eu-west-2_g2Bs4XiwN',
+  clientId: process.env.AWS_CLIENT_ID || '5ul4gn8k517s87iv49t6qd9l1m',
+  clientSecret: process.env.AWS_CLIENT_SECRET || 'rn4s5bhsfhblegb3a5ooh69r4kp226chkr8uqcnrprq92qg3sov'
 });
 
 // Initialize auth service
 (async () => {
   try {
-    console.log('Initializing Simple authentication provider');
+    console.log('Initializing AWS Cognito authentication with:', {
+      region: process.env.AWS_REGION || 'eu-west-2',
+      userPoolId: process.env.AWS_USER_POOL_ID || 'eu-west-2_g2Bs4XiwN',
+      clientId: process.env.AWS_CLIENT_ID || '5ul4gn8k517s87iv49t6qd9l1m',
+      hasClientSecret: !!process.env.AWS_CLIENT_SECRET
+    });
     await authService.initialize();
-    console.log('Authentication initialized successfully');
+    console.log('AWS Cognito authentication initialized successfully');
   } catch (error) {
     console.error('Failed to initialize auth service:', error);
   }
@@ -23,5 +28,5 @@ const authService = new AuthServiceImpl({
 
 export default authService;
 export * from './types';
-export * from './auth-controller';
+export * from './aws-auth-controller';
 export * from './user-adapter';
