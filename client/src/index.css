@@ -10,6 +10,7 @@
   margin-right: auto;
   padding-left: 1rem;
   padding-right: 1rem;
+  position: relative;
 }
 
 @media (min-width: 640px) {
@@ -24,6 +25,16 @@
     padding-left: 2rem;
     padding-right: 2rem;
   }
+}
+
+/* Force all sections to be contained */
+section {
+  overflow: hidden;
+  position: relative;
+}
+
+section > .container-center {
+  z-index: 1;
 }
 
 :root {
