@@ -13,6 +13,7 @@ import MemoryStore from "memorystore";
 import { registerAdminRoutes } from "./admin";
 import { db } from "./db";
 import { sql } from "drizzle-orm";
+import { setupAwsAuth } from "./aws-auth";
 
 const SessionStore = MemoryStore(session);
 

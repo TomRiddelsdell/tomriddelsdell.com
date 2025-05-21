@@ -1,0 +1,73 @@
+import { Strategy as OAuthStrategy } from 'passport-oauth2';
+import { Request } from 'express';
+import passport from 'passport';
+import { storage } from './storage';
+
+// AWS Cognito OAuth2 strategy
+export function setupAwsAuth() {
+  if (!process.env.AWS_CLIENT_ID || !process.env.AWS_CLIENT_SECRET) {
+    console.warn('AWS credentials not found. AWS authentication will not be available.');
+    return;
+  }
+
+  // Determine the domain based on environment
+  const isProduction = process.env.NODE_ENV === 'production';
+  const appDomain = isProduction 
+    ? process.env.APP_DOMAIN || 'https://your-app.replit.app'
+    : 'http://localhost:5000';
+
+  const region = 'us-east-1'; // Change this to your Cognito region
+  const userPoolDomain = `https://your-domain.auth.${region}.amazoncognito.com`; // Replace with your domain
+
+  passport.use('aws', new OAuthStrategy({
+    authorizationURL: `${userPoolDomain}/oauth2/authorize`,
+    tokenURL: `${userPoolDomain}/oauth2/token`,
+    clientID: process.env.AWS_CLIENT_ID,
+    clientSecret: process.env.AWS_CLIENT_SECRET,
+    callbackURL: `${appDomain}/auth/aws/callback`,
+    passReqToCallback: true
+  }, async (req: Request, accessToken: string, refreshToken: string, profile: any, done: any) => {
+    try {
+      // Extract user info from the JWT token or fetch from the userInfo endpoint
+      const userInfo = profile;
+      
+      // Look for existing user
+      let user = await storage.getUserByEmail(userInfo.email);
+      
+      if (!user) {
+        // Create new user if not exists
+        const username = userInfo.email.split('@')[0];
+        const displayName = userInfo.name || username;
+        
+        user = await storage.createUser({
+          username,
+          email: userInfo.email,
+          password: 'aws-auth-' + Math.random().toString(36).substring(2), // Random password not used
+          provider: 'aws',
+          displayName,
+          photoURL: userInfo.picture || null
+        });
+      }
+      
+      // Track login
+      try {
+        const clientIP = req.headers['x-forwarded-for'] || 
+                       req.socket.remoteAddress || 
+                       'unknown';
+        await storage.trackUserLogin(user.id);
+        
+        console.log(`AWS user ${user.username} (ID: ${user.id}) logged in from ${clientIP}`);
+      } catch (error) {
+        console.error('Error tracking login:', error);
+      }
+      
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = user;
+      
+      return done(null, userWithoutPassword);
+    } catch (error) {
+      console.error('Error during AWS authentication:', error);
+      return done(error);
+    }
+  }));
+}
