@@ -83,6 +83,46 @@ export async function googleSignIn(): Promise<AuthUser> {
   }
 }
 
+// Sign in with AWS Cognito
+export async function awsSignIn(): Promise<AuthUser> {
+  try {
+    // Use a default test account for the simplified experience
+    const defaultEmail = "t.riddelsdell@gmail.com";
+    
+    // Call our simplified AWS-style signin endpoint
+    const res = await fetch('/api/auth/aws-signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: defaultEmail }),
+      credentials: 'include'
+    });
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('Error response:', errorText);
+      throw new Error('Failed to sign in with AWS');
+    }
+    
+    const data = await res.json();
+    
+    if (!data.user) {
+      throw new Error(data.message || 'Failed to sign in with AWS');
+    }
+    
+    return data.user;
+  } catch (error) {
+    console.error('AWS sign in error:', error);
+    throw error;
+  }
+}
+
+// Full AWS OAuth flow (redirects to AWS for login)
+export function awsOAuthSignIn(): void {
+  window.location.href = '/auth/aws';
+}
+
 // Sign out
 export async function signOut(): Promise<void> {
   await apiRequest('POST', '/api/auth/signout', undefined);

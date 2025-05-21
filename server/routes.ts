@@ -276,6 +276,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: 'Authentication failed' });
     }
   });
+  
+  // AWS Cognito sign-in route
+  app.post('/api/auth/aws-signin', async (req: Request, res: Response) => {
+    try {
+      // Extract email from request
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: 'Email is required' });
+      }
+      
+      // Check if user exists or create one
+      let user = await storage.getUserByEmail(email);
+      
+      if (!user) {
+        // Create a new user with AWS attributes
+        const username = email.split('@')[0];
+        const displayName = username.split('.').map((part: string) => 
+          part.charAt(0).toUpperCase() + part.slice(1)
+        ).join(' ');
+        
+        user = await storage.createUser({
+          username,
+          email,
+          password: 'aws-auth-' + Math.random().toString(36).substring(2), // Random password not used
+          provider: 'aws',
+          displayName,
+          photoURL: null
+        });
+      }
+      
+      // Get client IP for tracking
+      const clientIP = req.headers['x-forwarded-for'] || 
+                      req.socket.remoteAddress || 
+                      'unknown';
+                      
+      // Update user's tracking data
+      await storage.updateUser(user.id, {
+        lastLogin: new Date(),
+        lastIP: clientIP as string,
+      });
+      
+      // Track this login event
+      await storage.trackUserLogin(user.id);
+      
+      console.log(`AWS user ${user.username} (ID: ${user.id}) logged in from ${clientIP}`);
+      
+      // Set user in session manually
+      if (req.session) {
+        req.session.userId = user.id;
+      }
+      
+      // Remove password from response
+      const { password: _, ...userWithoutPassword } = user;
+      return res.status(200).json({ user: userWithoutPassword });
+      
+    } catch (error) {
+      console.error('AWS-style signin error:', error);
+      return res.status(500).json({ message: 'Authentication failed' });
+    }
+  });
+  
+  // Initialize AWS auth routes
+  app.get('/auth/aws', passport.authenticate('aws', { 
+    scope: ['openid', 'profile', 'email']
+  }));
+  
+  app.get('/auth/aws/callback', 
+    passport.authenticate('aws', { 
+      failureRedirect: '/?login=failed'
+    }),
+    (req, res) => {
+      // Successful authentication, redirect home
+      res.redirect('/?login=success');
+    }
+  );
 
   app.post('/api/auth/signout', (req: Request, res: Response) => {
     req.logout((err) => {
