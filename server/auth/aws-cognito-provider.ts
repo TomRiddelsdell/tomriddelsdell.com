@@ -128,12 +128,12 @@ export class AwsCognitoProvider implements AuthProvider {
         );
       }
       
-      // Try USER_PASSWORD_AUTH flow first - this is typically enabled by default in Cognito
-      console.log(`Using authentication flow: USER_PASSWORD_AUTH for user ${username}`);
+      // Use ADMIN_USER_PASSWORD_AUTH flow which is the recommended approach for server applications
+      console.log(`Using authentication flow: ADMIN_USER_PASSWORD_AUTH for user ${username}`);
       const authCommand = new AdminInitiateAuthCommand({
         UserPoolId: this.userPoolId,
         ClientId: this.clientId,
-        AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
+        AuthFlow: AuthFlowType.ADMIN_USER_PASSWORD_AUTH,
         AuthParameters: authParameters
       });
       
@@ -294,14 +294,22 @@ export class AwsCognitoProvider implements AuthProvider {
    */
   async confirmResetPassword(email: string, code: string, newPassword: string): Promise<boolean> {
     try {
+      // Add SECRET_HASH if client secret is provided
+      const secretHash = this.clientSecret ? 
+        calculateSecretHash(email, this.clientId, this.clientSecret) : 
+        undefined;
+      
       const command = new ConfirmForgotPasswordCommand({
         ClientId: this.clientId,
         Username: email,
         ConfirmationCode: code,
-        Password: newPassword
+        Password: newPassword,
+        SecretHash: secretHash
       });
       
+      console.log(`Confirming password reset for user: ${email}`);
       await this.client.send(command);
+      console.log(`Password reset confirmed successfully for: ${email}`);
       return true;
     } catch (error) {
       console.error("Cognito confirm reset password error:", error);

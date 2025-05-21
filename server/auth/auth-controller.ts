@@ -226,27 +226,40 @@ export class AuthController {
         return res.status(400).json({ message: 'Email is required' });
       }
       
-      // Find user in Cognito
-      const cognitoUser = await authService.getProvider().getUserByEmail(email);
+      // Log the request for debugging
+      console.log(`Password reset requested for email: ${email}`);
       
-      if (!cognitoUser) {
-        // Don't reveal if user exists for security
-        return res.json({ message: 'If an account exists with this email, a password reset link will be sent' });
+      // For security, we don't want to reveal if a user exists or not
+      // So we always return a success message regardless of whether the user exists
+      
+      try {
+        // Find user in Cognito
+        const cognitoUser = await authService.getProvider().getUserByEmail(email);
+        
+        if (cognitoUser) {
+          // Initiate password reset in Cognito only if user exists
+          console.log(`User found, initiating password reset for: ${email}`);
+          await authService.getProvider().resetPassword(email);
+          console.log(`Password reset initiated successfully for: ${email}`);
+        } else {
+          console.log(`No user found with email: ${email}, skipping password reset`);
+        }
+      } catch (innerError) {
+        // Log error but don't expose to client
+        console.error('Error during password reset process:', innerError);
       }
       
-      // Initiate password reset in Cognito
-      const success = await authService.getProvider().resetPassword(email);
-      
+      // Always return success to avoid revealing user existence
       return res.json({ 
         message: 'If an account exists with this email, a password reset link will be sent',
-        success
+        success: true
       });
     } catch (error) {
       console.error('Password reset error:', error);
       // Don't reveal failure details
       return res.json({ 
         message: 'If an account exists with this email, a password reset link will be sent',
-        success: false
+        success: true // Always return success for security
       });
     }
   }
