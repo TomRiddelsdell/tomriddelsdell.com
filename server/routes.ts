@@ -519,7 +519,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ipAddress: req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || 'unknown'
       });
       
-      res.status(200).json({ message: 'Password updated successfully' });
+      res.status(200).send('Password updated successfully');
     } catch (error) {
       console.error('Error updating password:', error);
       res.status(500).json({ message: 'Failed to update password' });
