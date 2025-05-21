@@ -209,7 +209,7 @@ export default function Home() {
       {showMobileMenu && (
         <div className="md:hidden fixed inset-0 z-40 bg-white dark:bg-gray-900 flex flex-col overflow-y-auto">
           <div className="flex justify-between items-center p-4 border-b">
-            <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
+            <div className="text-xl font-bold gradient-text">
               Tom Riddelsdell
             </div>
             <Button
@@ -322,7 +322,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4 sm:space-x-4">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600"
+                  className="w-full sm:w-auto gradient-bg gradient-bg-hover"
                   onClick={() => {
                     setAuthMode("signup");
                     setShowAuthModal(true);
@@ -504,7 +504,7 @@ export default function Home() {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600"
+                    className="w-full gradient-bg gradient-bg-hover"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Sending..." : "Send Message"}
@@ -518,7 +518,7 @@ export default function Home() {
 
       <footer className="py-8 px-6 md:px-12 border-t bg-white dark:bg-gray-900">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center">
-          <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text mb-4 md:mb-0">
+          <div className="text-xl font-bold gradient-text mb-4 md:mb-0">
             Tom Riddelsdell
           </div>
           <div className="text-gray-600 dark:text-gray-400">
