@@ -341,7 +341,7 @@ export default function Home() {
               <h1 className="text-4xl md:text-5xl font-bold mb-6 gradient-text sr-only">
                 Tom Riddelsdell
               </h1>
-              <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+              <p className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-white mb-8 leading-relaxed drop-shadow-sm">
                 Strategist & Software Engineer with expertise in financial
                 modeling, algorithmic trading, and full-stack development.
               </p>
