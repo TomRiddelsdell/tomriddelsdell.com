@@ -122,7 +122,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 overflow-hidden">
       {/* Navigation */}
       <header className="py-4 border-b bg-white dark:bg-gray-900">
-        <div className="site-container flex justify-between items-center">
+        <div style={{ maxWidth: "1280px", margin: "0 auto", width: "100%", padding: "0 2rem" }} className="flex justify-between items-center">
           <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
             Tom Riddelsdell
           </div>
@@ -308,7 +308,7 @@ export default function Home() {
             backgroundAttachment: "fixed",
           }}
         >
-          <div className="site-container flex flex-col md:flex-row items-center justify-between">
+          <div style={{ maxWidth: "1280px", margin: "0 auto", width: "100%", padding: "0 2rem" }} className="flex flex-col md:flex-row items-center justify-between">
             <div className="w-full md:w-1/2 mb-10 md:mb-0 flex flex-col justify-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent sr-only">
                 Tom Riddelsdell
@@ -351,7 +351,7 @@ export default function Home() {
 
         {/* Quant Developer Quote Section with Volatility Surface */}
         <section className="py-16 sm:py-20 bg-gradient-to-r from-blue-900/90 via-slate-900/90 to-gray-900/90 text-white">
-          <div className="site-container flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
+          <div style={{ maxWidth: "1280px", margin: "0 auto", width: "100%", padding: "0 2rem" }} className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
             <div className="w-full md:w-1/2 order-2 md:order-1 mt-8 md:mt-0">
               <p className="text-lg sm:text-xl md:text-2xl font-light leading-relaxed mb-4 sm:mb-6 text-gray-200">
                 "In quantitative finance, the most elegant models are those that
@@ -382,7 +382,7 @@ export default function Home() {
             backgroundPosition: "center",
           }}
         >
-          <div className="site-container">
+          <div style={{ maxWidth: "1280px", margin: "0 auto", width: "100%", padding: "0 2rem" }}>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 text-center text-gray-900 dark:text-white drop-shadow-sm">
               Get In Touch
             </h2>
