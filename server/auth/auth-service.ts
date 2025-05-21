@@ -1,79 +1,35 @@
-import { AuthServiceInterface, AuthProviderInterface } from './types';
+import { AuthOptions, AuthProvider, AuthService } from './types';
 import { AwsCognitoProvider } from './aws-cognito-provider';
 
 /**
- * Auth provider types supported by the service
+ * Main authentication service that manages auth providers
  */
-export type AuthProviderType = 'cognito' | 'memory';
-
-/**
- * Authentication service that manages provider selection
- */
-export class AuthService implements AuthServiceInterface {
-  private provider: AuthProviderInterface;
-  private providerType: AuthProviderType;
-  private static instance: AuthService;
-
-  private constructor(providerType: AuthProviderType = 'cognito') {
-    this.providerType = providerType;
-    
-    // Initialize the appropriate provider based on type
-    switch (providerType) {
+export class AuthServiceImpl implements AuthService {
+  private provider: AuthProvider;
+  
+  constructor(options: AuthOptions) {
+    // Select the appropriate provider based on configuration
+    switch (options.provider) {
       case 'cognito':
-        this.provider = new AwsCognitoProvider();
-        break;
-      case 'memory':
-        // Memory provider would be implemented for development
-        // For now, fall back to Cognito
-        this.provider = new AwsCognitoProvider();
+        this.provider = new AwsCognitoProvider(options);
         break;
       default:
-        this.provider = new AwsCognitoProvider();
+        throw new Error(`Unsupported auth provider: ${options.provider}`);
     }
   }
-
-  /**
-   * Get singleton instance of auth service
-   */
-  public static getInstance(providerType?: AuthProviderType): AuthService {
-    if (!AuthService.instance) {
-      AuthService.instance = new AuthService(providerType);
-    }
-    return AuthService.instance;
-  }
-
+  
   /**
    * Initialize the auth service
    */
   async initialize(): Promise<void> {
-    console.log(`Initializing auth service with provider: ${this.providerType}`);
-    // Any provider-specific initialization can happen here
+    // Any initialization logic if needed
+    console.log(`Authentication service initialized with ${this.provider.constructor.name}`);
   }
-
+  
   /**
    * Get the current auth provider
    */
-  getProvider(): AuthProviderInterface {
+  getProvider(): AuthProvider {
     return this.provider;
-  }
-
-  /**
-   * Switch to a different auth provider
-   * This allows changing providers at runtime if needed
-   */
-  switchProvider(providerType: AuthProviderType): void {
-    this.providerType = providerType;
-    
-    switch (providerType) {
-      case 'cognito':
-        this.provider = new AwsCognitoProvider();
-        break;
-      case 'memory':
-        // Would switch to memory provider
-        this.provider = new AwsCognitoProvider(); // Placeholder
-        break;
-    }
-    
-    console.log(`Switched to auth provider: ${providerType}`);
   }
 }
