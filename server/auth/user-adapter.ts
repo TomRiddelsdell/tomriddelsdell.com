@@ -9,6 +9,22 @@ import authService from './index';
  */
 export class UserAdapter {
   /**
+   * Get a user from the database by numeric ID
+   */
+  static async getUser(id: number): Promise<User | null> {
+    try {
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, id));
+      
+      return user || null;
+    } catch (error) {
+      console.error('Error getting user by numeric ID:', error);
+      return null;
+    }
+  }
+  /**
    * Synchronize a Cognito user with our database
    * - Creates a new user if none exists
    * - Updates existing user if found
