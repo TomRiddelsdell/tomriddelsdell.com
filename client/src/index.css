@@ -112,6 +112,36 @@ body {
   background: var(--gradient-primary-hover);
 }
 
+/* Form field animations and styling */
+.form-field {
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-field:focus-within {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.form-field label {
+  position: absolute;
+  left: 12px;
+  top: 10px;
+  font-size: 14px;
+  color: var(--muted-foreground);
+  pointer-events: none;
+  transition: transform 0.2s ease, color 0.2s ease, font-size 0.2s ease;
+}
+
+.form-field input:focus + label,
+.form-field textarea:focus + label,
+.form-field input:not(:placeholder-shown) + label,
+.form-field textarea:not(:placeholder-shown) + label {
+  transform: translateY(-20px);
+  font-size: 12px;
+  color: var(--primary);
+}
+
 :root {
   /* Base color palette */
   --background: 0 0% 100%;

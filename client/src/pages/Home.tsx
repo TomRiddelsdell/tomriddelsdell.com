@@ -434,56 +434,56 @@ export default function Home() {
                 </h3>
                 <form className="space-y-4" onSubmit={handleContactSubmit}>
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        htmlFor="name"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                      >
-                        Name
-                      </label>
+                    <div className="form-field">
                       <input
                         type="text"
                         id="name"
                         value={contactForm.name}
                         onChange={handleInputChange}
-                        className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
-                        placeholder="Your name"
+                        className="w-full p-2 pt-5 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 focus:border-blue-500 outline-none"
+                        placeholder=" "
                         required
                       />
-                    </div>
-                    <div>
                       <label
-                        htmlFor="email"
-                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                        htmlFor="name"
+                        className="text-sm font-medium text-gray-700 dark:text-gray-300"
                       >
-                        Email
+                        Name
                       </label>
+                    </div>
+                    <div className="form-field">
                       <input
                         type="email"
                         id="email"
                         value={contactForm.email}
                         onChange={handleInputChange}
-                        className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
-                        placeholder="your.email@example.com"
+                        className="w-full p-2 pt-5 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 focus:border-blue-500 outline-none"
+                        placeholder=" "
                         required
                       />
+                      <label
+                        htmlFor="email"
+                        className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                      >
+                        Email
+                      </label>
                     </div>
                   </div>
-                  <div>
-                    <label
-                      htmlFor="subject"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                      Subject
-                    </label>
+                  <div className="form-field">
                     <input
                       type="text"
                       id="subject"
                       value={contactForm.subject}
                       onChange={handleInputChange}
-                      className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
-                      placeholder="Subject"
+                      className="w-full p-2 pt-5 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 focus:border-blue-500 outline-none"
+                      placeholder=" "
                     />
+                    <label
+                      htmlFor="subject"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      Subject
+                    </label>
                   </div>
                   <div>
                     <label
