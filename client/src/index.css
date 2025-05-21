@@ -93,6 +93,12 @@ body {
   --brand-blue: #3b82f6;
   --brand-teal: #14b8a6;
   --brand-dark-blue: #2563eb;
+  
+  /* Overlay gradients for background images */
+  --overlay-light: rgba(255, 255, 255, 0.3);
+  --overlay-light-strong: rgba(255, 255, 255, 0.4);
+  --overlay-dark: rgba(0, 0, 0, 0.4);
+  --overlay-dark-strong: rgba(0, 0, 0, 0.6);
   --brand-dark-teal: #0d9488;
   
   /* Gradient definitions */
