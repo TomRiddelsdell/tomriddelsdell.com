@@ -304,7 +304,7 @@ export default function Home() {
         <section
           className="relative py-16 md:py-24 bg-white dark:bg-gray-900 full-width-section"
           style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.35)), url(${backgroundImage})`,
+            backgroundImage: `linear-gradient(to bottom, var(--overlay-light), var(--overlay-light)), url(${backgroundImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundAttachment: "fixed",
@@ -379,7 +379,7 @@ export default function Home() {
           id="contact"
           className="pt-16 sm:pt-20 md:pt-28 pb-12 sm:pb-16 md:pb-24 bg-cover bg-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8 full-width-section"
           style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.35)), url(${familyImage})`,
+            backgroundImage: `linear-gradient(to bottom, var(--overlay-light), var(--overlay-light-strong)), url(${familyImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
