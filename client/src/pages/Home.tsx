@@ -10,6 +10,8 @@ import profilePic from "../assets/profile.jpg";
 import backgroundImage from "../assets/background.jpg";
 import familyImage from "../assets/family.jpg";
 import ImpliedVolDisplay from "@/components/ImpliedVolDisplay";
+import BackgroundSection from "@/components/BackgroundSection";
+import ContentContainer from "@/components/ContentContainer";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -123,7 +125,7 @@ export default function Home() {
       {/* Navigation */}
       <header className="py-4 border-b bg-white dark:bg-gray-900 full-width-section">
         <div className="content-width flex justify-between items-center">
-          <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
+          <div className="text-2xl font-bold gradient-text">
             Tom Riddelsdell
           </div>
           <nav className="hidden md:flex space-x-8 items-center">
@@ -310,7 +312,7 @@ export default function Home() {
         >
           <div className="content-width flex flex-col md:flex-row items-center justify-between">
             <div className="w-full md:w-1/2 mb-10 md:mb-0 flex flex-col justify-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent sr-only">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 gradient-text sr-only">
                 Tom Riddelsdell
               </h1>
               <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
