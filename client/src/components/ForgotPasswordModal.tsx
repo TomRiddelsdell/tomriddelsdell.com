@@ -45,20 +45,20 @@ export default function ForgotPasswordModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   
-  // Reset the form and success state when the modal opens
-  useEffect(() => {
-    if (open) {
-      setIsSuccess(false);
-      form.reset();
-    }
-  }, [open]);
-
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: '',
     },
   });
+  
+  // Reset the form and success state whenever the modal opens
+  useEffect(() => {
+    if (open) {
+      setIsSuccess(false);
+      form.reset();
+    }
+  }, [open, form]);
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsSubmitting(true);
