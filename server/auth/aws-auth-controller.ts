@@ -185,16 +185,8 @@ export class AuthController {
    */
   static async logout(req: Request, res: Response) {
     try {
-      if (req.session.userId) {
-        // Sign out from Cognito if needed
-        try {
-          await authService.getProvider().signOut(req.session.userId.toString());
-        } catch (error) {
-          console.error('Cognito sign-out error:', error);
-          // Continue with logout even if Cognito fails
-        }
-        
-        // Clear session
+      // Clear session regardless of Cognito status
+      if (req.session) {
         req.session.destroy((err) => {
           if (err) {
             console.error('Session destruction error:', err);
