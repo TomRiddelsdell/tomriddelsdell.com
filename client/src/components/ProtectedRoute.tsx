@@ -50,9 +50,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // If there's an error or user is not authenticated
   if (error || !data || !data.user) {
-    // Redirect to home page with a message
-    setLocation('/?auth=required');
-    return null;
+    return (
+      <div className="flex h-screen flex-col items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-md">
+          <h2 className="mb-4 text-center text-2xl font-bold text-gray-900">Authentication Required</h2>
+          <p className="mb-6 text-center text-gray-600">
+            You need to be signed in to access this page. Please sign in to continue.
+          </p>
+          <button 
+            onClick={() => setLocation('/?signin=true')}
+            className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Sign In
+          </button>
+        </div>
+      </div>
+    );
   }
 
   // If roles are specified, check if user has required role
