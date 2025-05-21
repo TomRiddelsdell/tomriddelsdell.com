@@ -17,6 +17,7 @@ export default function Home() {
   const [showAuthModal, setShowAuthModal] = React.useState(false);
   const [authMode, setAuthMode] = React.useState<"signin" | "signup">("signin");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [showMobileMenu, setShowMobileMenu] = React.useState(false);
 
   // Form state
   const [contactForm, setContactForm] = React.useState({
@@ -179,7 +180,7 @@ export default function Home() {
           variant="ghost"
           className="md:hidden"
           size="icon"
-          onClick={() => {}}
+          onClick={() => setShowMobileMenu(!showMobileMenu)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -199,6 +200,100 @@ export default function Home() {
           </svg>
         </Button>
       </header>
+
+      {/* Mobile Menu */}
+      {showMobileMenu && (
+        <div className="md:hidden fixed inset-0 z-40 bg-white dark:bg-gray-900 flex flex-col overflow-y-auto">
+          <div className="flex justify-between items-center p-4 border-b">
+            <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
+              Tom Riddelsdell
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowMobileMenu(false)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-6 w-6"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </Button>
+          </div>
+          <nav className="flex flex-col p-4 space-y-4">
+            {isAuthenticated && (
+              <>
+                <Link
+                  href="/career"
+                  className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Career
+                </Link>
+                <Link
+                  href="/projects"
+                  className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Projects
+                </Link>
+                <Link
+                  href="/tasks"
+                  className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Tasks
+                </Link>
+              </>
+            )}
+            <a
+              href="#contact"
+              className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+              onClick={() => setShowMobileMenu(false)}
+            >
+              Contact
+            </a>
+            {isAuthenticated ? (
+              <>
+                <div className="flex items-center py-2 px-4">
+                  <div className="flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-sm mr-2">
+                    <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                    <span>Logged In</span>
+                  </div>
+                </div>
+                <Link
+                  href="/dashboard"
+                  className="block"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <Button className="w-full" variant="outline">Dashboard</Button>
+                </Link>
+              </>
+            ) : (
+              <Button
+                className="w-full mt-2"
+                onClick={() => {
+                  setAuthMode("signin");
+                  setShowAuthModal(true);
+                  setShowMobileMenu(false);
+                }}
+              >
+                Sign In
+              </Button>
+            )}
+          </nav>
+        </div>
+      )}
 
       <main className="flex-1">
         {/* Hero Section */}
