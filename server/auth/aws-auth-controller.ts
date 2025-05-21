@@ -123,7 +123,13 @@ export class AuthController {
    */
   static async socialLogin(req: Request, res: Response) {
     try {
-      const { email, displayName, provider } = req.body;
+      // For AWS signin, we'll handle a simpler request format
+      console.log('Social login request body:', req.body);
+      
+      // Extract email from the request - handle both direct email and nested formats
+      const email = req.body.email || (req.body.user && req.body.user.email);
+      const displayName = req.body.displayName || (req.body.user && req.body.user.displayName) || email;
+      const provider = req.body.provider || 'aws';
       
       if (!email) {
         return res.status(400).json({ message: 'Email is required' });
