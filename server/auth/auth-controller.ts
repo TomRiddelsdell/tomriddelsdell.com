@@ -158,23 +158,23 @@ export class AuthController {
    */
   static async logout(req: Request, res: Response) {
     try {
-      // Sign out of Cognito if needed (not required for most apps)
-      if (req.session.userId) {
-        const [localUser] = await UserAdapter.getUserById(req.session.userId.toString());
-        if (localUser?.cognitoId) {
-          await authService.getProvider().signOut(localUser.cognitoId);
-        }
-      }
+      // Simply destroy the session without attempting to sign out from Cognito
+      // This is more reliable for client-side applications
       
-      // Clear session
-      req.session.destroy((err) => {
-        if (err) {
-          return res.status(500).json({ message: 'Error logging out' });
-        }
-        
-        res.clearCookie('connect.sid'); // Clear the session cookie
+      if (req.session) {
+        req.session.destroy((err) => {
+          if (err) {
+            console.error('Session destruction error:', err);
+            return res.status(500).json({ message: 'Error logging out' });
+          }
+          
+          res.clearCookie('connect.sid'); // Clear the session cookie
+          return res.json({ message: 'Logged out successfully' });
+        });
+      } else {
+        // No session to destroy
         return res.json({ message: 'Logged out successfully' });
-      });
+      }
     } catch (error) {
       console.error('Logout error:', error);
       return res.status(500).json({ message: 'Error during logout' });
