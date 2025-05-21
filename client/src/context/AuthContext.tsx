@@ -9,6 +9,7 @@ interface AuthContextType {
   signIn: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInWithAWS: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -123,6 +124,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signInWithAWS = async () => {
+    setIsLoading(true);
+    try {
+      const user = await awsSignIn();
+      setUser(user);
+      toast({
+        title: "Welcome back!",
+        description: `You have successfully signed in as ${user.displayName || user.email}.`,
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to sign in with AWS";
+      toast({
+        title: "AWS sign in failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value = {
     user,
     isLoading,
@@ -130,6 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signIn,
     signUp,
     signInWithGoogle,
+    signInWithAWS,
     signOut,
   };
 
