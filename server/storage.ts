@@ -14,8 +14,14 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, userData: Partial<User>): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
+  getUserCount(): Promise<number>;
+  getActiveUserCount(): Promise<number>;
+  getNewUserCount(days: number): Promise<number>;
+  trackUserLogin(userId: number): Promise<void>;
+  getTotalLoginCount(): Promise<number>;
   
-  // Workflow operations
+  // Workflow operations 
   getWorkflow(id: number): Promise<Workflow | undefined>;
   getWorkflowsByUserId(userId: number): Promise<Workflow[]>;
   getRecentWorkflows(userId: number, limit?: number): Promise<Workflow[]>;
@@ -43,6 +49,10 @@ export interface IStorage {
     totalCount: number;
   }>;
   createActivityLog(log: InsertActivityLog): Promise<ActivityLogEntry>;
+  getLoginActivity(page?: number, limit?: number): Promise<{
+    entries: ActivityLogEntry[];
+    totalCount: number;
+  }>;
   
   // Dashboard operations
   getDashboardStats(userId: number): Promise<DashboardStats>;
