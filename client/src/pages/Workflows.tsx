@@ -3,7 +3,6 @@ import Sidebar from "@/components/Sidebar";
 import TopNavbar from "@/components/TopNavbar";
 import CreateWorkflowButton from "@/components/CreateWorkflowButton";
 import LanguageModal from "@/components/LanguageModal";
-import AuthModal from "@/components/AuthModal";
 import { useLanguage } from "@/context/LanguageContext";
 import { useMobile } from "@/hooks/use-mobile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -218,7 +217,6 @@ export default function Workflows() {
       
       <CreateWorkflowButton />
       <LanguageModal />
-      <AuthModal />
     </>
   );
 }
