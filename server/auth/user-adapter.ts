@@ -183,14 +183,24 @@ export class UserAdapter {
    */
   static async trackUserLogin(userId: number, ipAddress?: string): Promise<void> {
     try {
-      await db
-        .update(users)
-        .set({ 
-          lastLogin: new Date(),
-          lastIP: ipAddress,
-          loginCount: (u) => (u.loginCount || 0) + 1
-        })
+      // First get the current login count
+      const [user] = await db
+        .select()
+        .from(users)
         .where(eq(users.id, userId));
+      
+      // Then update with incremented value
+      if (user) {
+        const currentCount = user.loginCount || 0;
+        await db
+          .update(users)
+          .set({ 
+            lastLogin: new Date(),
+            lastIP: ipAddress,
+            loginCount: currentCount + 1
+          })
+          .where(eq(users.id, userId));
+      }
     } catch (error) {
       console.error('Error tracking user login:', error);
     }
