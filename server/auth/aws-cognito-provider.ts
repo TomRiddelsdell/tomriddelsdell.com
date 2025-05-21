@@ -1,304 +1,327 @@
-import { 
+import {
   CognitoIdentityProviderClient,
-  AdminCreateUserCommand,
-  AdminGetUserCommand,
-  AdminDeleteUserCommand,
-  AdminUpdateUserAttributesCommand,
   AdminInitiateAuthCommand,
+  AdminCreateUserCommand,
   AdminSetUserPasswordCommand,
-  AdminResetUserPasswordCommand,
-  ListUsersCommand
-} from '@aws-sdk/client-cognito-identity-provider';
-import { AuthProviderInterface, AuthUser } from './types';
+  AdminUpdateUserAttributesCommand,
+  AdminGetUserCommand,
+  ListUsersCommand,
+  AdminUserGlobalSignOutCommand,
+  ForgotPasswordCommand,
+  ConfirmForgotPasswordCommand,
+  AdminRespondToAuthChallengeCommand,
+  AuthFlowType,
+  AttributeType,
+  MessageActionType
+} from "@aws-sdk/client-cognito-identity-provider";
+import { AuthOptions, AuthProvider, AuthUser } from "./types";
 
-/**
- * AWS Cognito implementation of the authentication provider interface
- */
-export class AwsCognitoProvider implements AuthProviderInterface {
+export class AwsCognitoProvider implements AuthProvider {
   private client: CognitoIdentityProviderClient;
   private userPoolId: string;
   private clientId: string;
+  private clientSecret?: string;
 
-  constructor(userPoolId?: string, clientId?: string, region?: string) {
-    // Use environment variables if parameters not provided
-    this.userPoolId = userPoolId || process.env.AWS_USER_POOL_ID || '';
-    this.clientId = clientId || process.env.AWS_CLIENT_ID || '';
-    const awsRegion = region || process.env.AWS_REGION || 'us-east-1';
-
-    if (!this.userPoolId) {
-      throw new Error('AWS User Pool ID is required');
+  constructor(options: AuthOptions) {
+    if (!options.region || !options.userPoolId || !options.clientId) {
+      throw new Error("AWS Cognito provider requires region, userPoolId, and clientId options");
     }
 
-    if (!this.clientId) {
-      throw new Error('AWS Client ID is required');
-    }
-
-    this.client = new CognitoIdentityProviderClient({ 
-      region: awsRegion,
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ''
-      }
+    this.client = new CognitoIdentityProviderClient({
+      region: options.region
     });
+    
+    this.userPoolId = options.userPoolId;
+    this.clientId = options.clientId;
+    this.clientSecret = options.clientSecret;
   }
 
   /**
-   * Convert AWS Cognito user to our standardized AuthUser format
+   * Create a new user in Cognito
    */
-  private mapCognitoUserToAuthUser(cognitoUser: any): AuthUser {
-    // Extract attributes from Cognito user
-    const attributes = cognitoUser.UserAttributes || cognitoUser.Attributes || [];
+  async createUser(userData: Partial<AuthUser>): Promise<AuthUser> {
+    if (!userData.email) {
+      throw new Error("Email is required to create a user");
+    }
     
-    // Map attributes to a simple object
-    const attributesMap: Record<string, string> = {};
-    attributes.forEach((attr: any) => {
-      attributesMap[attr.Name] = attr.Value;
-    });
-
-    return {
-      id: cognitoUser.Username || attributesMap.sub,
-      email: attributesMap.email || '',
-      displayName: attributesMap.name || null,
-      photoURL: attributesMap.picture || null,
-      provider: 'cognito',
-      createdAt: cognitoUser.UserCreateDate || new Date(),
-      lastLogin: cognitoUser.UserLastModifiedDate || null,
-      attributes: attributesMap
-    };
+    const username = userData.username || userData.email;
+    
+    // Prepare user attributes
+    const userAttributes: AttributeType[] = [
+      { Name: "email", Value: userData.email },
+      { Name: "email_verified", Value: "true" }
+    ];
+    
+    if (userData.displayName) {
+      userAttributes.push({ Name: "name", Value: userData.displayName });
+    }
+    
+    // Create the user in Cognito
+    try {
+      const command = new AdminCreateUserCommand({
+        UserPoolId: this.userPoolId,
+        Username: username,
+        UserAttributes: userAttributes,
+        // This prevents sending the temporary password to the user email
+        MessageAction: MessageActionType.SUPPRESS
+      });
+      
+      const response = await this.client.send(command);
+      
+      if (!response.User) {
+        throw new Error("Failed to create user in Cognito");
+      }
+      
+      // Map Cognito user to our user model
+      const user: AuthUser = {
+        id: response.User.Username || "",
+        email: userData.email,
+        username: username,
+        displayName: userData.displayName,
+        photoURL: userData.photoURL,
+        provider: userData.provider || "cognito"
+      };
+      
+      return user;
+    } catch (error) {
+      console.error("Cognito create user error:", error);
+      throw error;
+    }
   }
 
+  /**
+   * Sign in a user with email and password
+   */
+  async signIn(email: string, password: string): Promise<AuthUser | null> {
+    try {
+      // In Cognito, we can use either username or email to sign in
+      // In our case, we'll use email as the username
+      const authCommand = new AdminInitiateAuthCommand({
+        UserPoolId: this.userPoolId,
+        ClientId: this.clientId,
+        AuthFlow: AuthFlowType.ADMIN_USER_PASSWORD_AUTH,
+        AuthParameters: {
+          USERNAME: email,
+          PASSWORD: password
+        }
+      });
+      
+      const authResponse = await this.client.send(authCommand);
+      
+      if (!authResponse.AuthenticationResult) {
+        // If the user needs to change password or complete another challenge
+        if (authResponse.ChallengeName) {
+          console.log(`User needs to complete challenge: ${authResponse.ChallengeName}`);
+          
+          // Handle NEW_PASSWORD_REQUIRED challenge if needed
+          if (authResponse.ChallengeName === "NEW_PASSWORD_REQUIRED") {
+            const challengeResponse = await this.client.send(
+              new AdminRespondToAuthChallengeCommand({
+                UserPoolId: this.userPoolId,
+                ClientId: this.clientId,
+                ChallengeName: authResponse.ChallengeName,
+                ChallengeResponses: {
+                  USERNAME: email,
+                  NEW_PASSWORD: password // Set the same password
+                },
+                Session: authResponse.Session
+              })
+            );
+            
+            if (!challengeResponse.AuthenticationResult) {
+              return null;
+            }
+          } else {
+            return null;
+          }
+        } else {
+          return null;
+        }
+      }
+      
+      // Get user details
+      return await this.getUserByEmail(email);
+    } catch (error) {
+      console.error("Cognito sign in error:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Sign out a user
+   */
+  async signOut(userId: string): Promise<boolean> {
+    try {
+      const command = new AdminUserGlobalSignOutCommand({
+        UserPoolId: this.userPoolId,
+        Username: userId
+      });
+      
+      await this.client.send(command);
+      return true;
+    } catch (error) {
+      console.error("Cognito sign out error:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Get a user by their Cognito user ID
+   */
   async getUserById(id: string): Promise<AuthUser | null> {
     try {
       const command = new AdminGetUserCommand({
         UserPoolId: this.userPoolId,
         Username: id
       });
-
+      
       const response = await this.client.send(command);
-      return this.mapCognitoUserToAuthUser(response);
+      
+      // Map the Cognito user to our user model
+      const userAttributes = response.UserAttributes || [];
+      
+      const user: AuthUser = {
+        id: response.Username || "",
+        email: this.getAttributeValue(userAttributes, "email") || "",
+        displayName: this.getAttributeValue(userAttributes, "name"),
+        photoURL: this.getAttributeValue(userAttributes, "picture"),
+        provider: "cognito"
+      };
+      
+      return user;
     } catch (error) {
-      console.error('Error getting user by ID:', error);
+      console.error("Cognito get user error:", error);
       return null;
     }
   }
 
+  /**
+   * Get a user by their email address
+   */
   async getUserByEmail(email: string): Promise<AuthUser | null> {
     try {
-      // Cognito doesn't have a direct "get user by email" so we have to list users and filter
       const command = new ListUsersCommand({
         UserPoolId: this.userPoolId,
         Filter: `email = "${email}"`,
         Limit: 1
       });
-
+      
       const response = await this.client.send(command);
       
-      if (response.Users && response.Users.length > 0) {
-        return this.mapCognitoUserToAuthUser(response.Users[0]);
-      }
-      
-      return null;
-    } catch (error) {
-      console.error('Error getting user by email:', error);
-      return null;
-    }
-  }
-
-  async createUser(userData: Partial<AuthUser>): Promise<AuthUser> {
-    try {
-      if (!userData.email) {
-        throw new Error('Email is required to create a user');
-      }
-
-      // Prepare user attributes
-      const userAttributes = [
-        { Name: 'email', Value: userData.email },
-        { Name: 'email_verified', Value: 'true' }, // Auto-verify for simplicity
-      ];
-
-      if (userData.displayName) {
-        userAttributes.push({ Name: 'name', Value: userData.displayName });
-      }
-
-      if (userData.photoURL) {
-        userAttributes.push({ Name: 'picture', Value: userData.photoURL });
-      }
-
-      // Generate a temporary password
-      const tempPassword = Math.random().toString(36).slice(2) + Math.random().toString(36).toUpperCase().slice(2);
-
-      const command = new AdminCreateUserCommand({
-        UserPoolId: this.userPoolId,
-        Username: userData.email,
-        TemporaryPassword: tempPassword,
-        UserAttributes: userAttributes,
-        MessageAction: 'SUPPRESS' // Don't send welcome email, we'll handle that ourselves
-      });
-
-      const response = await this.client.send(command);
-      
-      if (!response.User) {
-        throw new Error('Failed to create user in Cognito');
-      }
-
-      return this.mapCognitoUserToAuthUser(response.User);
-    } catch (error) {
-      console.error('Error creating user:', error);
-      throw error;
-    }
-  }
-
-  async updateUser(id: string, userData: Partial<AuthUser>): Promise<AuthUser | null> {
-    try {
-      const userAttributes = [];
-
-      if (userData.email) {
-        userAttributes.push({ Name: 'email', Value: userData.email });
-        userAttributes.push({ Name: 'email_verified', Value: 'true' });
-      }
-
-      if (userData.displayName) {
-        userAttributes.push({ Name: 'name', Value: userData.displayName });
-      }
-
-      if (userData.photoURL) {
-        userAttributes.push({ Name: 'picture', Value: userData.photoURL });
-      }
-
-      if (userAttributes.length === 0) {
-        throw new Error('No attributes to update');
-      }
-
-      const command = new AdminUpdateUserAttributesCommand({
-        UserPoolId: this.userPoolId,
-        Username: id,
-        UserAttributes: userAttributes
-      });
-
-      await this.client.send(command);
-      
-      // Get the updated user
-      return this.getUserById(id);
-    } catch (error) {
-      console.error('Error updating user:', error);
-      return null;
-    }
-  }
-
-  async deleteUser(id: string): Promise<boolean> {
-    try {
-      const command = new AdminDeleteUserCommand({
-        UserPoolId: this.userPoolId,
-        Username: id
-      });
-
-      await this.client.send(command);
-      return true;
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      return false;
-    }
-  }
-
-  async signIn(email: string, password: string): Promise<AuthUser | null> {
-    try {
-      const command = new AdminInitiateAuthCommand({
-        UserPoolId: this.userPoolId,
-        ClientId: this.clientId,
-        AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
-        AuthParameters: {
-          USERNAME: email,
-          PASSWORD: password
-        }
-      });
-
-      const response = await this.client.send(command);
-      
-      if (!response.AuthenticationResult) {
+      if (!response.Users || response.Users.length === 0) {
         return null;
       }
-
-      // Get user details from Cognito
-      const user = await this.getUserByEmail(email);
+      
+      const cognitoUser = response.Users[0];
+      const userAttributes = cognitoUser.Attributes || [];
+      
+      const user: AuthUser = {
+        id: cognitoUser.Username || "",
+        email: this.getAttributeValue(userAttributes, "email") || email,
+        displayName: this.getAttributeValue(userAttributes, "name"),
+        photoURL: this.getAttributeValue(userAttributes, "picture"),
+        provider: "cognito"
+      };
+      
       return user;
     } catch (error) {
-      console.error('Error signing in:', error);
+      console.error("Cognito get user by email error:", error);
       return null;
     }
   }
 
-  async signInWithProvider(provider: string, token: string): Promise<AuthUser | null> {
-    // This would be expanded with social sign-in token validation
-    // We're keeping it simple for now
-    console.warn('Provider sign-in is not fully implemented in the AWS Cognito adapter');
-    return null;
-  }
-
-  async signOut(userId: string): Promise<boolean> {
-    // Cognito doesn't have server-side sign out like some other providers
-    // Client-side sign-out is handled by removing tokens
-    return true;
-  }
-
+  /**
+   * Reset a user's password
+   */
   async resetPassword(email: string): Promise<boolean> {
     try {
-      // First, get the user ID from email
-      const user = await this.getUserByEmail(email);
-      
-      if (!user) {
-        return false;
-      }
-
-      const command = new AdminResetUserPasswordCommand({
-        UserPoolId: this.userPoolId,
-        Username: user.id
+      const command = new ForgotPasswordCommand({
+        ClientId: this.clientId,
+        Username: email
       });
-
+      
       await this.client.send(command);
       return true;
     } catch (error) {
-      console.error('Error resetting password:', error);
+      console.error("Cognito reset password error:", error);
       return false;
     }
   }
 
+  /**
+   * Confirm a password reset with the code sent to the user's email
+   */
+  async confirmResetPassword(email: string, code: string, newPassword: string): Promise<boolean> {
+    try {
+      const command = new ConfirmForgotPasswordCommand({
+        ClientId: this.clientId,
+        Username: email,
+        ConfirmationCode: code,
+        Password: newPassword
+      });
+      
+      await this.client.send(command);
+      return true;
+    } catch (error) {
+      console.error("Cognito confirm reset password error:", error);
+      return false;
+    }
+  }
+
+  /**
+   * Change a user's password
+   */
   async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean> {
     try {
-      // Set the new password administratively
+      // For the first password setup when oldPassword is empty
+      if (!oldPassword) {
+        const command = new AdminSetUserPasswordCommand({
+          UserPoolId: this.userPoolId,
+          Username: userId,
+          Password: newPassword,
+          Permanent: true
+        });
+        
+        await this.client.send(command);
+        return true;
+      }
+      
+      // For changing an existing password, admin can set it directly
       const command = new AdminSetUserPasswordCommand({
         UserPoolId: this.userPoolId,
         Username: userId,
         Password: newPassword,
         Permanent: true
       });
-
+      
       await this.client.send(command);
       return true;
     } catch (error) {
-      console.error('Error changing password:', error);
+      console.error("Cognito change password error:", error);
       return false;
     }
   }
 
-  async listUsers(limit: number = 10, paginationToken?: string): Promise<{ users: AuthUser[]; nextToken?: string }> {
-    try {
-      const command = new ListUsersCommand({
-        UserPoolId: this.userPoolId,
-        Limit: limit,
-        PaginationToken: paginationToken
-      });
+  /**
+   * Authenticate with Google token
+   */
+  async authenticateWithGoogle(token: string): Promise<AuthUser | null> {
+    // This would typically involve:
+    // 1. Verifying the Google token
+    // 2. Getting the user info from Google
+    // 3. Creating or updating the user in Cognito
+    // 4. Returning the user
+    
+    // For now, this is a placeholder since we need actual Google integration
+    console.log("Google authentication not implemented yet");
+    return null;
+  }
 
-      const response = await this.client.send(command);
-      
-      const users = (response.Users || []).map(user => this.mapCognitoUserToAuthUser(user));
-      
-      return {
-        users,
-        nextToken: response.PaginationToken
-      };
-    } catch (error) {
-      console.error('Error listing users:', error);
-      return { users: [] };
-    }
+  /**
+   * Helper to get attribute value from Cognito attributes array
+   */
+  private getAttributeValue(attributes: AttributeType[], name: string): string | undefined {
+    const attribute = attributes.find(attr => attr.Name === name);
+    return attribute?.Value;
   }
 }
