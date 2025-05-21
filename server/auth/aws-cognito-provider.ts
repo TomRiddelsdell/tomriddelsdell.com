@@ -28,7 +28,11 @@ export class AwsCognitoProvider implements AuthProvider {
     }
 
     this.client = new CognitoIdentityProviderClient({
-      region: options.region
+      region: options.region,
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'AKIAIOSFODNN7EXAMPLE',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+      }
     });
     
     this.userPoolId = options.userPoolId;

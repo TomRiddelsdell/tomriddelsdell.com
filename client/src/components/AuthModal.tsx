@@ -19,7 +19,11 @@ interface AuthFormData {
   rememberMe?: boolean;
 }
 
-export default function AuthModal() {
+interface AuthModalProps {
+  defaultOpen?: boolean;
+}
+
+export default function AuthModal({ defaultOpen = false }: AuthModalProps) {
   const { signIn, signUp, signInWithGoogle, signInWithAWS } = useAuth();
   const { t } = useLanguage();
   const [mode, setMode] = useState<AuthMode>('signin');
