@@ -2,10 +2,11 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import AuthModal from "@/components/AuthModal";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { signOut } from "@/lib/auth";
 import profilePic from "../assets/profile.jpg";
 import backgroundImage from "../assets/background.jpg";
 import familyImage from "../assets/family.jpg";
@@ -16,10 +17,32 @@ import ContentContainer from "@/components/ContentContainer";
 export default function Home() {
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [showAuthModal, setShowAuthModal] = React.useState(false);
   const [authMode, setAuthMode] = React.useState<"signin" | "signup">("signin");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+  
+  // Handle user sign out
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account.",
+        variant: "default",
+      });
+      // Redirect to home page
+      setLocation("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast({
+        title: "Sign out failed",
+        description: "There was a problem signing you out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Form state
   const [contactForm, setContactForm] = React.useState({
@@ -185,7 +208,13 @@ export default function Home() {
             </a>
             {isAuthenticated ? (
               <div className="flex items-center space-x-3">
-                <div className="flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-sm">
+                <div 
+                  className="flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-sm cursor-pointer hover:bg-green-200 dark:hover:bg-green-800 transition-colors"
+                  onClick={() => {
+                    handleSignOut();
+                  }}
+                  title="Click to sign out"
+                >
                   <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
                   <span>Logged In</span>
                 </div>
