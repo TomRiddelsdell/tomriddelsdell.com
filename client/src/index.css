@@ -43,28 +43,75 @@ body {
   justify-content: center;
 }
 
+/* Utility classes for gradients and text effects */
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-text-hover:hover {
+  background: var(--gradient-primary-hover);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-bg {
+  background: var(--gradient-primary);
+}
+
+.gradient-bg-hover:hover {
+  background: var(--gradient-primary-hover);
+}
+
 :root {
-      --background: 0 0% 100%;
---foreground: 20 14.3% 4.1%;
---muted: 60 4.8% 95.9%;
---muted-foreground: 25 5.3% 44.7%;
---popover: 0 0% 100%;
---popover-foreground: 20 14.3% 4.1%;
---card: 0 0% 100%;
---card-foreground: 20 14.3% 4.1%;
---border: 20 5.9% 90%;
---input: 20 5.9% 90%;
---primary: 207 90% 54%;
---primary-foreground: 211 100% 99%;
---secondary: 60 4.8% 95.9%;
---secondary-foreground: 24 9.8% 10%;
---accent: 60 4.8% 95.9%;
---accent-foreground: 24 9.8% 10%;
---destructive: 0 84.2% 60.2%;
---destructive-foreground: 60 9.1% 97.8%;
---ring: 20 14.3% 4.1%;
---radius: 0.5rem;
-  }
+  /* Base color palette */
+  --background: 0 0% 100%;
+  --foreground: 20 14.3% 4.1%;
+  --muted: 60 4.8% 95.9%;
+  --muted-foreground: 25 5.3% 44.7%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 14.3% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 14.3% 4.1%;
+  --border: 20 5.9% 90%;
+  --input: 20 5.9% 90%;
+  --primary: 207 90% 54%;
+  --primary-foreground: 211 100% 99%;
+  --secondary: 60 4.8% 95.9%;
+  --secondary-foreground: 24 9.8% 10%;
+  --accent: 60 4.8% 95.9%;
+  --accent-foreground: 24 9.8% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 60 9.1% 97.8%;
+  --ring: 20 14.3% 4.1%;
+  --radius: 0.5rem;
+  
+  /* Brand colors (hex) */
+  --brand-blue: #3b82f6;
+  --brand-teal: #14b8a6;
+  --brand-dark-blue: #2563eb;
+  --brand-dark-teal: #0d9488;
+  
+  /* Gradient definitions */
+  --gradient-primary: linear-gradient(to right, var(--brand-blue), var(--brand-teal));
+  --gradient-primary-hover: linear-gradient(to right, var(--brand-dark-blue), var(--brand-dark-teal));
+  
+  /* Background overlays */
+  --overlay-light: rgba(255, 255, 255, 0.3);
+  --overlay-light-strong: rgba(255, 255, 255, 0.35);
+  --overlay-dark: rgba(0, 0, 0, 0.3);
+  --overlay-dark-strong: rgba(0, 0, 0, 0.5);
+  
+  /* Breakpoints for reference - these match Tailwind's default breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
   .dark {
       --background: 240 10% 3.9%;
 --foreground: 0 0% 98%;
