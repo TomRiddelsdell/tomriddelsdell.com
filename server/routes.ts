@@ -178,9 +178,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!user) {
         return res.status(401).json({ message: info.message });
       }
-      req.login(user, (err) => {
+      req.login(user, async (err) => {
         if (err) {
           return next(err);
+        }
+        
+        try {
+          // Get client IP for tracking
+          const clientIP = req.headers['x-forwarded-for'] || 
+                           req.socket.remoteAddress || 
+                           'unknown';
+          
+          // Update user's tracking data
+          await storage.updateUser(user.id, {
+            lastLogin: new Date(),
+            lastIP: clientIP as string,
+          });
+          
+          // Track this login event
+          await storage.trackUserLogin(user.id);
+          
+          console.log(`User ${user.username} (ID: ${user.id}) logged in from ${clientIP}`);
+        } catch (error) {
+          // Don't prevent login if tracking fails
+          console.error('Error tracking login:', error);
         }
         
         // Remove password from response
@@ -221,13 +242,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Create activity log
-      await storage.createActivityLog({
-        userId: user.id,
-        eventType: 'auth.signin',
-        details: 'Signed in with Google-style login',
-        status: 'success'
+      // Get client IP for tracking
+      const clientIP = req.headers['x-forwarded-for'] || 
+                      req.socket.remoteAddress || 
+                      'unknown';
+                      
+      // Update user's tracking data
+      await storage.updateUser(user.id, {
+        lastLogin: new Date(),
+        lastIP: clientIP as string,
       });
+      
+      // Track this login event with improved tracking
+      await storage.trackUserLogin(user.id);
+      
+      console.log(`Google user ${user.username} (ID: ${user.id}) logged in from ${clientIP}`);
       
       // Set user in session manually instead of using req.login
       if (req.session) {
