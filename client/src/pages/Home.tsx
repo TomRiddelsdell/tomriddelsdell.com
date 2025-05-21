@@ -6,7 +6,6 @@ import { Link, useLocation } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { signOut } from "@/lib/auth";
 import profilePic from "../assets/profile.jpg";
 import backgroundImage from "../assets/background.jpg";
 import familyImage from "../assets/family.jpg";
@@ -15,7 +14,7 @@ import BackgroundSection from "@/components/BackgroundSection";
 import ContentContainer from "@/components/ContentContainer";
 
 export default function Home() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, signOut: authSignOut } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [showAuthModal, setShowAuthModal] = React.useState(false);
@@ -26,14 +25,13 @@ export default function Home() {
   // Handle user sign out
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await authSignOut(); // This will update the auth context state
       toast({
         title: "Signed out successfully",
         description: "You have been logged out of your account.",
         variant: "default",
       });
-      // Redirect to home page
-      setLocation("/");
+      // No need to redirect - the UI will update automatically
     } catch (error) {
       console.error("Error signing out:", error);
       toast({
