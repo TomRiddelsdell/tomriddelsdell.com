@@ -133,19 +133,19 @@ export default function Home() {
               <>
                 <Link
                   href="/career"
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
                 >
                   Career
                 </Link>
                 <Link
                   href="/projects"
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
                 >
                   Projects
                 </Link>
                 <Link
                   href="/tasks"
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
                 >
                   Tasks
                 </Link>
@@ -153,7 +153,7 @@ export default function Home() {
             )}
             <a
               href="#contact"
-              className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+              className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
             >
               Contact
             </a>
@@ -207,7 +207,7 @@ export default function Home() {
 
       {/* Mobile Menu */}
       {showMobileMenu && (
-        <div className="md:hidden fixed inset-0 z-40 bg-white dark:bg-gray-900 flex flex-col overflow-y-auto">
+        <div className="md:hidden fixed inset-0 z-40 bg-white dark:bg-gray-900 flex flex-col overflow-y-auto mobile-menu">
           <div className="flex justify-between items-center p-4 border-b">
             <div className="text-xl font-bold gradient-text">
               Tom Riddelsdell
@@ -304,7 +304,7 @@ export default function Home() {
         <section
           className="relative py-16 md:py-24 bg-white dark:bg-gray-900 full-width-section"
           style={{
-            backgroundImage: `linear-gradient(to bottom, var(--overlay-light), var(--overlay-light)), url(${backgroundImage})`,
+            backgroundImage: `linear-gradient(to bottom, var(--overlay-light), var(--overlay-light-strong)), url(${backgroundImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundAttachment: "fixed",
