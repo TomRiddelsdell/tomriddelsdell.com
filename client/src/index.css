@@ -3,38 +3,41 @@
 @tailwind utilities;
 
 /* Custom styles for centering content */
-.container-center {
+.site-container {
   width: 100%;
-  max-width: 1280px; /* 7xl equivalent */
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
   padding-left: 1rem;
   padding-right: 1rem;
-  position: relative;
+  box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
-  .container-center {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container-center {
+  .site-container {
     padding-left: 2rem;
     padding-right: 2rem;
   }
 }
 
-/* Force all sections to be contained */
-section {
+@media (min-width: 1024px) {
+  .site-container {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}
+
+/* Section styles for proper containment */
+.site-section {
+  width: 100%;
   overflow: hidden;
   position: relative;
 }
 
-section > .container-center {
-  z-index: 1;
+/* Ensure content is properly bounded */
+.site-section-inner {
+  width: 100%;
+  position: relative;
 }
 
 :root {
