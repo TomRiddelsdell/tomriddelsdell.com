@@ -11,6 +11,8 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import MemoryStore from "memorystore";
 import { registerAdminRoutes } from "./admin";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 
 const SessionStore = MemoryStore(session);
 
