@@ -39,9 +39,8 @@ export class AuthController {
       // Sign in the user
       req.session.userId = localUser.id;
       
-      // Return user info without sensitive fields
-      const { password: _, ...userWithoutPassword } = cognitoUser;
-      return res.status(201).json({ user: userWithoutPassword });
+      // Return user info directly
+      return res.status(201).json({ user: cognitoUser });
     } catch (error) {
       console.error('Registration error:', error);
       return res.status(500).json({ message: 'Error creating user' });
