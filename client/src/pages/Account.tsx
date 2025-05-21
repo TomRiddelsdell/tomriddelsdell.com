@@ -2,7 +2,6 @@ import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import TopNavbar from "@/components/TopNavbar";
 import LanguageModal from "@/components/LanguageModal";
-import AuthModal from "@/components/AuthModal";
 import { useLanguage } from "@/context/LanguageContext";
 import { useMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/context/AuthContext";
@@ -415,7 +414,6 @@ export default function Account() {
       </main>
       
       <LanguageModal />
-      <AuthModal />
     </>
   );
 }
