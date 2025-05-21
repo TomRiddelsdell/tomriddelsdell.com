@@ -341,10 +341,12 @@ export default function Home() {
               <h1 className="text-4xl md:text-5xl font-bold mb-6 gradient-text sr-only">
                 Tom Riddelsdell
               </h1>
-              <p className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-white mb-8 leading-relaxed drop-shadow-sm">
-                Strategist & Software Engineer with expertise in financial
-                modeling, algorithmic trading, and full-stack development.
-              </p>
+              <div className="bg-white/70 backdrop-blur-sm p-5 rounded-lg shadow-md mb-8">
+                <p className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-slate-900 leading-relaxed">
+                  Strategist & Software Engineer with expertise in financial
+                  modeling, algorithmic trading, and full-stack development.
+                </p>
+              </div>
               <div className="flex flex-col sm:flex-row gap-4 sm:space-x-4">
                 <Button
                   size="lg"
