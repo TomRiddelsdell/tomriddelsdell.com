@@ -13,11 +13,13 @@ export function setupAwsAuth() {
   // Determine the domain based on environment
   const isProduction = process.env.NODE_ENV === 'production';
   const appDomain = isProduction 
-    ? process.env.APP_DOMAIN || 'https://your-app.replit.app'
+    ? process.env.APP_DOMAIN || 'https://portfolio-tr.replit.app'
     : 'http://localhost:5000';
 
-  const region = 'us-east-1'; // Change this to your Cognito region
-  const userPoolDomain = `https://your-domain.auth.${region}.amazoncognito.com`; // Replace with your domain
+  // Use environment variables if available, otherwise use defaults
+  const region = process.env.AWS_COGNITO_REGION || 'us-east-1';
+  const userPoolDomain = process.env.AWS_USER_POOL_DOMAIN || 
+                        `https://tom-riddelsdell-portfolio.auth.${region}.amazoncognito.com`;
 
   passport.use('aws', new OAuthStrategy({
     authorizationURL: `${userPoolDomain}/oauth2/authorize`,
