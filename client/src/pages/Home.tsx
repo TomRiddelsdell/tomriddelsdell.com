@@ -465,10 +465,10 @@ export default function Home() {
                   <div className="flex items-center">
                     <LinkedinIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400 mr-3 sm:mr-4 flex-shrink-0" />
                     <a
-                      href="https://linkedin.com"
+                      href="https://www.linkedin.com/in/thomas-riddelsdell-1140bb16/"
                       className="text-sm sm:text-base text-blue-600 dark:text-blue-400 hover:underline break-all"
                     >
-                      linkedin.com/in/tomriddelsdell
+                      linkedin.com/in/thomas-riddelsdell-1140bb16
                     </a>
                   </div>
                   <div className="flex items-center">
