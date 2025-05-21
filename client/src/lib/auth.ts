@@ -89,13 +89,17 @@ export async function awsSignIn(): Promise<AuthUser> {
     // Use a default test account for the simplified experience
     const defaultEmail = "t.riddelsdell@gmail.com";
     
-    // Call our simplified AWS-style signin endpoint
+    // Call our simplified AWS-style signin endpoint with proper format
     const res = await fetch('/api/auth/aws-signin', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email: defaultEmail }),
+      body: JSON.stringify({ 
+        email: defaultEmail,
+        provider: 'aws', 
+        displayName: 'Tom Riddelsdell'
+      }),
       credentials: 'include'
     });
     
