@@ -298,7 +298,7 @@ export default function Home() {
       <main className="flex-1">
         {/* Hero Section */}
         <section
-          className="relative py-16 md:py-24 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between bg-white dark:bg-gray-900"
+          className="relative py-16 md:py-24 px-6 md:px-12 bg-white dark:bg-gray-900"
           style={{
             backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.35)), url(${backgroundImage})`,
             backgroundSize: "cover",
@@ -306,48 +306,50 @@ export default function Home() {
             backgroundAttachment: "fixed",
           }}
         >
-          <div className="w-full md:w-1/2 mb-10 md:mb-0 flex flex-col justify-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent sr-only">
-              Tom Riddelsdell
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-              Strategist & Software Engineer with expertise in financial
-              modeling, algorithmic trading, and full-stack development.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 sm:space-x-4">
-              <Button
-                size="lg"
-                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600"
-                onClick={() => {
-                  setAuthMode("signup");
-                  setShowAuthModal(true);
-                }}
-              >
-                Join My Network
-              </Button>
-              {isAuthenticated && (
-                <Link href="/career" className="w-full sm:w-auto">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                    View Career
-                  </Button>
-                </Link>
-              )}
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
+            <div className="w-full md:w-1/2 mb-10 md:mb-0 flex flex-col justify-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent sr-only">
+                Tom Riddelsdell
+              </h1>
+              <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+                Strategist & Software Engineer with expertise in financial
+                modeling, algorithmic trading, and full-stack development.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 sm:space-x-4">
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600"
+                  onClick={() => {
+                    setAuthMode("signup");
+                    setShowAuthModal(true);
+                  }}
+                >
+                  Join My Network
+                </Button>
+                {isAuthenticated && (
+                  <Link href="/career" className="w-full sm:w-auto">
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                      View Career
+                    </Button>
+                  </Link>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="w-full md:w-1/2 flex justify-center items-center mt-8 md:mt-0">
-            <div className="w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/30 dark:border-gray-700/30 shadow-xl">
-              <img
-                src={profilePic}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
+            <div className="w-full md:w-1/2 flex justify-center items-center mt-8 md:mt-0">
+              <div className="w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/30 dark:border-gray-700/30 shadow-xl">
+                <img
+                  src={profilePic}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
           </div>
         </section>
 
         {/* Quant Developer Quote Section with Volatility Surface */}
         <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-12 bg-gradient-to-r from-blue-900/90 via-slate-900/90 to-gray-900/90 text-white">
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
             <div className="w-full md:w-1/2 order-2 md:order-1 mt-8 md:mt-0">
               <p className="text-lg sm:text-xl md:text-2xl font-light leading-relaxed mb-4 sm:mb-6 text-gray-200">
                 "In quantitative finance, the most elegant models are those that
