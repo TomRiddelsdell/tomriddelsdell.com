@@ -1,44 +1,59 @@
 /**
- * Authentication provider interface
- * This defines a provider-agnostic interface for auth operations
+ * Auth user represents a user as returned by the authentication provider
  */
-
 export interface AuthUser {
   id: string;
   email: string;
-  displayName: string | null;
-  photoURL: string | null;
+  username?: string;
+  displayName?: string;
+  photoURL?: string;
   provider: string;
-  createdAt: Date;
-  lastLogin: Date | null;
-  attributes?: Record<string, any>;
 }
 
-export interface AuthProviderInterface {
-  // User operations
-  getUserById(id: string): Promise<AuthUser | null>;
-  getUserByEmail(email: string): Promise<AuthUser | null>;
+/**
+ * Credentials for a user when signing in
+ */
+export interface AuthCredentials {
+  username: string;
+  password: string;
+}
+
+/**
+ * Structure for auth provider implementation
+ */
+export interface AuthProvider {
+  // Core authentication methods
   createUser(userData: Partial<AuthUser>): Promise<AuthUser>;
-  updateUser(id: string, userData: Partial<AuthUser>): Promise<AuthUser | null>;
-  deleteUser(id: string): Promise<boolean>;
-  
-  // Authentication operations
   signIn(email: string, password: string): Promise<AuthUser | null>;
-  signInWithProvider(provider: string, token: string): Promise<AuthUser | null>;
   signOut(userId: string): Promise<boolean>;
   
-  // Password operations
+  // User management
+  getUserById(id: string): Promise<AuthUser | null>;
+  getUserByEmail(email: string): Promise<AuthUser | null>;
+  
+  // Password management
   resetPassword(email: string): Promise<boolean>;
   changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean>;
   
-  // User listing operations
-  listUsers(limit?: number, paginationToken?: string): Promise<{
-    users: AuthUser[];
-    nextToken?: string;
-  }>;
+  // Third-party auth
+  authenticateWithGoogle(token: string): Promise<AuthUser | null>;
 }
 
-export interface AuthServiceInterface {
+/**
+ * Authentication service interface
+ */
+export interface AuthService {
   initialize(): Promise<void>;
-  getProvider(): AuthProviderInterface;
+  getProvider(): AuthProvider;
+}
+
+/**
+ * Options for configuring the Auth Service
+ */
+export interface AuthOptions {
+  provider: string;
+  region?: string;
+  userPoolId?: string;
+  clientId?: string;
+  clientSecret?: string;
 }
