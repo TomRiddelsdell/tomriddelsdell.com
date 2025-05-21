@@ -1,6 +1,20 @@
 import React from 'react';
-import { Navigate, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
+
+// Define the auth response type
+interface User {
+  id: number;
+  email: string;
+  username: string;
+  displayName: string | null;
+  photoURL: string | null;
+  role: string;
+}
+
+interface AuthResponse {
+  user: User | null;
+}
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -19,7 +33,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const [, setLocation] = useLocation();
   
   // Check authentication status
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery<AuthResponse>({
     queryKey: ['/api/auth/status'],
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -35,7 +49,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // If there's an error or user is not authenticated
-  if (error || !data?.user) {
+  if (error || !data || !data.user) {
     // Redirect to home page with a message
     setLocation('/?auth=required');
     return null;
