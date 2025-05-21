@@ -485,6 +485,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Register admin routes for user management
+  await registerAdminRoutes(app);
+  
   const httpServer = createServer(app);
 
   return httpServer;
