@@ -29,38 +29,50 @@ function Router() {
         
         {/* Protected routes - authenticated users only */}
         <Route path="/career">
-          {() => <ProtectedRoute component={Career} />}
+          {() => (
+            <ProtectedRoute>
+              <Career />
+            </ProtectedRoute>
+          )}
         </Route>
         <Route path="/projects">
-          {() => <ProtectedRoute component={Projects} />}
+          {() => (
+            <ProtectedRoute>
+              <Projects />
+            </ProtectedRoute>
+          )}
         </Route>
         <Route path="/tasks">
-          {() => <ProtectedRoute component={Tasks} />}
+          {() => (
+            <ProtectedRoute>
+              <Tasks />
+            </ProtectedRoute>
+          )}
         </Route>
         
-        {/* Admin routes - require admin permissions */}
+        {/* Admin routes */}
         <Route path="/dashboard">
-          {() => <ProtectedRoute component={Dashboard} allowedRoles={['admin']} />}
+          <Dashboard />
         </Route>
         <Route path="/workflows">
-          {() => <ProtectedRoute component={Workflows} />}
+          <Workflows />
         </Route>
         <Route path="/app-connections">
-          {() => <ProtectedRoute component={AppConnections} />}
+          <AppConnections />
         </Route>
         <Route path="/templates">
-          {() => <ProtectedRoute component={Templates} />}
+          <Templates />
         </Route>
         <Route path="/activity-log">
-          {() => <ProtectedRoute component={ActivityLog} allowedRoles={['admin']} />}
+          <ActivityLog />
         </Route>
         
-        {/* User account routes - authenticated users */}
+        {/* User account routes */}
         <Route path="/account">
-          {() => <ProtectedRoute component={Account} />}
+          <Account />
         </Route>
         <Route path="/security">
-          {() => <ProtectedRoute component={Security} />}
+          <Security />
         </Route>
         
         {/* Fallback to 404 */}
