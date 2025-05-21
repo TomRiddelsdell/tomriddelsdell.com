@@ -14,6 +14,7 @@ import {
   AttributeType,
   MessageActionType
 } from "@aws-sdk/client-cognito-identity-provider";
+import { calculateSecretHash } from "./cognito-utils";
 import { AuthOptions, AuthProvider, AuthUser } from "./types";
 
 export class AwsCognitoProvider implements AuthProvider {
@@ -98,16 +99,41 @@ export class AwsCognitoProvider implements AuthProvider {
    */
   async signIn(email: string, password: string): Promise<AuthUser | null> {
     try {
-      // In Cognito, we can use either username or email to sign in
-      // In our case, we'll use email as the username
+      console.log(`Attempting Cognito sign-in for: ${email}`);
+      
+      // First, get the user to check if they exist and to get their username
+      let username = email;
+      try {
+        const user = await this.getUserByEmail(email);
+        if (user && user.username) {
+          username = user.username;
+          console.log(`Found user by email, using username: ${username}`);
+        }
+      } catch (error) {
+        console.log(`Error getting user by email, using email as username:`, error);
+      }
+      
+      // Set up auth parameters
+      const authParameters: Record<string, string> = {
+        USERNAME: username,
+        PASSWORD: password
+      };
+      
+      // Add SECRET_HASH if client secret is provided
+      if (this.clientSecret) {
+        authParameters.SECRET_HASH = calculateSecretHash(
+          username,
+          this.clientId,
+          this.clientSecret
+        );
+      }
+      
+      // Create auth command
       const authCommand = new AdminInitiateAuthCommand({
         UserPoolId: this.userPoolId,
         ClientId: this.clientId,
         AuthFlow: AuthFlowType.ADMIN_USER_PASSWORD_AUTH,
-        AuthParameters: {
-          USERNAME: email,
-          PASSWORD: password
-        }
+        AuthParameters: authParameters
       });
       
       const authResponse = await this.client.send(authCommand);
