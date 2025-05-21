@@ -67,10 +67,23 @@ export default function Security() {
         credentials: 'include',
       });
       
-      const result = await response.json();
-      
       if (!response.ok) {
-        throw new Error(result.message || 'Failed to update password');
+        // Handle non-OK responses without trying to parse them
+        throw new Error(`Failed to update password: ${response.status} ${response.statusText}`);
+      }
+      
+      // Check if there is content to parse before attempting to parse JSON
+      const contentType = response.headers.get('content-type');
+      let result;
+      
+      if (contentType && contentType.includes('application/json') && response.status !== 204) {
+        const text = await response.text();
+        try {
+          result = text ? JSON.parse(text) : {};
+        } catch (e) {
+          console.error('Error parsing JSON response:', e);
+          result = {};
+        }
       }
       
       toast({
