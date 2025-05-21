@@ -385,36 +385,36 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12">
               <div className="bg-white/40 dark:bg-gray-800/40 p-6 rounded-lg shadow-md backdrop-blur-sm">
-                <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white drop-shadow-sm">
+                <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-gray-900 dark:text-white drop-shadow-sm">
                   Contact Information
                 </h3>
-                <p className="text-gray-800 dark:text-gray-200 mb-6 font-medium">
+                <p className="text-sm sm:text-base text-gray-800 dark:text-gray-200 mb-4 sm:mb-6 font-medium">
                   I'm always open to discussing new projects, opportunities, or
                   partnerships. Feel free to reach out through any of the
                   following channels:
                 </p>
 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div className="flex items-center">
-                    <MailIcon className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-4" />
-                    <span className="text-gray-600 dark:text-gray-300">
+                    <MailIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400 mr-3 sm:mr-4 flex-shrink-0" />
+                    <span className="text-sm sm:text-base text-gray-600 dark:text-gray-300 break-all">
                       tom.riddelsdell@example.com
                     </span>
                   </div>
                   <div className="flex items-center">
-                    <LinkedinIcon className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-4" />
+                    <LinkedinIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400 mr-3 sm:mr-4 flex-shrink-0" />
                     <a
                       href="https://linkedin.com"
-                      className="text-blue-600 dark:text-blue-400 hover:underline"
+                      className="text-sm sm:text-base text-blue-600 dark:text-blue-400 hover:underline break-all"
                     >
                       linkedin.com/in/tomriddelsdell
                     </a>
                   </div>
                   <div className="flex items-center">
-                    <GithubIcon className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-4" />
+                    <GithubIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400 mr-3 sm:mr-4 flex-shrink-0" />
                     <a
                       href="https://github.com"
-                      className="text-blue-600 dark:text-blue-400 hover:underline"
+                      className="text-sm sm:text-base text-blue-600 dark:text-blue-400 hover:underline break-all"
                     >
                       github.com/tomriddelsdell
                     </a>
