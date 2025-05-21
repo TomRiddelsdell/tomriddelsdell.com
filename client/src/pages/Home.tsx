@@ -459,7 +459,7 @@ export default function Home() {
                   <div className="flex items-center">
                     <MailIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400 mr-3 sm:mr-4 flex-shrink-0" />
                     <span className="text-sm sm:text-base text-gray-600 dark:text-gray-300 break-all">
-                      tom.riddelsdell@example.com
+                      t.riddelsdell@gmail.com
                     </span>
                   </div>
                   <div className="flex items-center">
