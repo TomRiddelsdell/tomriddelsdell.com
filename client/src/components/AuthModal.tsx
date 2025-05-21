@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import ForgotPasswordModal from "./ForgotPasswordModal";
 
 type AuthMode = 'signin' | 'signup';
 
@@ -27,6 +28,7 @@ export default function AuthModal({ defaultOpen = false }: AuthModalProps) {
   const { signIn, signUp, signInWithGoogle, signInWithAWS } = useAuth();
   const { t } = useLanguage();
   const [mode, setMode] = useState<AuthMode>('signin');
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
   const authSchema = z.object({
     email: z.string().email(t('invalidEmail') || "Invalid email"),
@@ -170,7 +172,15 @@ export default function AuthModal({ defaultOpen = false }: AuthModalProps) {
                 )}
               />
               
-              <Button variant="link" size="sm" className="text-sm p-0 h-auto">
+              <Button 
+                variant="link" 
+                size="sm" 
+                className="text-sm p-0 h-auto"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setForgotPasswordOpen(true);
+                }}
+              >
                 {t('forgotPassword') || "Forgot password?"}
               </Button>
             </div>
