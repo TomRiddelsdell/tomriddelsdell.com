@@ -7,7 +7,6 @@ import ConnectedApps from "@/components/ConnectedApps";
 import PopularTemplates from "@/components/PopularTemplates";
 import CreateWorkflowButton from "@/components/CreateWorkflowButton";
 import LanguageModal from "@/components/LanguageModal";
-import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useMobile } from "@/hooks/use-mobile";
@@ -50,7 +49,6 @@ export default function Dashboard() {
       
       <CreateWorkflowButton />
       <LanguageModal />
-      <AuthModal />
     </>
   );
 }
