@@ -380,7 +380,7 @@ export default function Home() {
             backgroundPosition: "center",
           }}
         >
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 text-center text-gray-900 dark:text-white drop-shadow-sm">
               Get In Touch
             </h2>
