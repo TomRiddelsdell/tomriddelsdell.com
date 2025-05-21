@@ -119,6 +119,32 @@ export default function Home() {
       window.removeEventListener('authSuccess', handleAuthSuccess);
     };
   }, [toast]);
+  
+  // Section animation on scroll
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const sections = document.querySelectorAll('.section-fade-in');
+      
+      sections.forEach(section => {
+        const sectionTop = section.getBoundingClientRect().top;
+        const windowHeight = window.innerHeight;
+        
+        if (sectionTop < windowHeight * 0.85) {
+          section.classList.add('visible');
+        }
+      });
+    };
+    
+    // Initial check
+    handleScroll();
+    
+    // Add scroll listener
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 overflow-hidden page-container">
@@ -322,7 +348,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4 sm:space-x-4">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto gradient-bg gradient-bg-hover"
+                  className="w-full sm:w-auto gradient-bg gradient-bg-hover btn-hover-lift"
                   onClick={() => {
                     setAuthMode("signup");
                     setShowAuthModal(true);
@@ -332,7 +358,7 @@ export default function Home() {
                 </Button>
                 {isAuthenticated && (
                   <Link href="/career" className="w-full sm:w-auto">
-                    <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto btn-hover-lift">
                       View Career
                     </Button>
                   </Link>
@@ -352,7 +378,7 @@ export default function Home() {
         </section>
 
         {/* Quant Developer Quote Section with Volatility Surface */}
-        <section className="py-16 sm:py-20 bg-gradient-to-r from-blue-900/90 via-slate-900/90 to-gray-900/90 text-white full-width-section">
+        <section className="py-16 sm:py-20 bg-gradient-to-r from-blue-900/90 via-slate-900/90 to-gray-900/90 text-white full-width-section section-fade-in">
           <div className="content-width flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
             <div className="w-full md:w-1/2 order-2 md:order-1 mt-8 md:mt-0">
               <p className="text-lg sm:text-xl md:text-2xl font-light leading-relaxed mb-4 sm:mb-6 text-gray-200">
@@ -377,7 +403,7 @@ export default function Home() {
         {/* Contact Section */}
         <section
           id="contact"
-          className="pt-16 sm:pt-20 md:pt-28 pb-12 sm:pb-16 md:pb-24 bg-cover bg-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8 full-width-section"
+          className="pt-16 sm:pt-20 md:pt-28 pb-12 sm:pb-16 md:pb-24 bg-cover bg-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8 full-width-section section-fade-in"
           style={{
             backgroundImage: `linear-gradient(to bottom, var(--overlay-light), var(--overlay-light-strong)), url(${familyImage})`,
             backgroundSize: "cover",
@@ -485,26 +511,26 @@ export default function Home() {
                       Subject
                     </label>
                   </div>
-                  <div>
-                    <label
-                      htmlFor="message"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                    >
-                      Message
-                    </label>
+                  <div className="form-field">
                     <textarea
                       id="message"
                       rows={4}
                       value={contactForm.message}
                       onChange={handleInputChange}
-                      className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900"
-                      placeholder="Your message..."
+                      className="w-full p-2 pt-5 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-900 focus:border-blue-500 outline-none"
+                      placeholder=" "
                       required
                     ></textarea>
+                    <label
+                      htmlFor="message"
+                      className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >
+                      Message
+                    </label>
                   </div>
                   <Button
                     type="submit"
-                    className="w-full gradient-bg gradient-bg-hover"
+                    className="w-full gradient-bg gradient-bg-hover btn-hover-lift"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Sending..." : "Send Message"}
