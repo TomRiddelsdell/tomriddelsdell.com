@@ -14,8 +14,11 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   provider: text("provider").default("email").notNull(), // 'email', 'google', etc.
-  role: text("role").default("user").notNull(), // 'user', 'admin', etc.
+  role: text("role").default("user").notNull(), // 'user', 'admin', 'editor', etc.
   preferredLanguage: text("preferred_language").default("en").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  loginCount: integer("login_count").default(0),
+  lastIP: text("last_ip"),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
