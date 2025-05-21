@@ -24,19 +24,45 @@ function Router() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       <Switch>
+        {/* Public route - accessible to everyone */}
         <Route path="/" component={Home} />
+        
+        {/* Protected routes - authenticated users only */}
         <Route path="/career">
-          {(params) => <ProtectedRoute component={Career} {...params} />}
+          {() => <ProtectedRoute component={Career} />}
         </Route>
-        <Route path="/projects" component={Projects} />
-        <Route path="/tasks" component={Tasks} />
-        <Route path="/dashboard" component={Dashboard} />
-        <Route path="/workflows" component={Workflows} />
-        <Route path="/app-connections" component={AppConnections} />
-        <Route path="/templates" component={Templates} />
-        <Route path="/activity-log" component={ActivityLog} />
-        <Route path="/account" component={Account} />
-        <Route path="/security" component={Security} />
+        <Route path="/projects">
+          {() => <ProtectedRoute component={Projects} />}
+        </Route>
+        <Route path="/tasks">
+          {() => <ProtectedRoute component={Tasks} />}
+        </Route>
+        
+        {/* Admin routes - require admin permissions */}
+        <Route path="/dashboard">
+          {() => <ProtectedRoute component={Dashboard} allowedRoles={['admin']} />}
+        </Route>
+        <Route path="/workflows">
+          {() => <ProtectedRoute component={Workflows} />}
+        </Route>
+        <Route path="/app-connections">
+          {() => <ProtectedRoute component={AppConnections} />}
+        </Route>
+        <Route path="/templates">
+          {() => <ProtectedRoute component={Templates} />}
+        </Route>
+        <Route path="/activity-log">
+          {() => <ProtectedRoute component={ActivityLog} allowedRoles={['admin']} />}
+        </Route>
+        
+        {/* User account routes - authenticated users */}
+        <Route path="/account">
+          {() => <ProtectedRoute component={Account} />}
+        </Route>
+        <Route path="/security">
+          {() => <ProtectedRoute component={Security} />}
+        </Route>
+        
         {/* Fallback to 404 */}
         <Route component={NotFound} />
       </Switch>
