@@ -300,7 +300,7 @@ export default function Home() {
       <main className="flex-1">
         {/* Hero Section */}
         <section
-          className="relative py-16 md:py-24 px-6 md:px-12 bg-white dark:bg-gray-900"
+          className="relative py-16 md:py-24 bg-white dark:bg-gray-900"
           style={{
             backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.35)), url(${backgroundImage})`,
             backgroundSize: "cover",
@@ -308,7 +308,7 @@ export default function Home() {
             backgroundAttachment: "fixed",
           }}
         >
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between">
+          <div className="container-center flex flex-col md:flex-row items-center justify-between">
             <div className="w-full md:w-1/2 mb-10 md:mb-0 flex flex-col justify-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent sr-only">
                 Tom Riddelsdell
@@ -350,8 +350,8 @@ export default function Home() {
         </section>
 
         {/* Quant Developer Quote Section with Volatility Surface */}
-        <section className="py-16 sm:py-20 px-4 sm:px-6 md:px-12 bg-gradient-to-r from-blue-900/90 via-slate-900/90 to-gray-900/90 text-white">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
+        <section className="py-16 sm:py-20 bg-gradient-to-r from-blue-900/90 via-slate-900/90 to-gray-900/90 text-white">
+          <div className="container-center flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
             <div className="w-full md:w-1/2 order-2 md:order-1 mt-8 md:mt-0">
               <p className="text-lg sm:text-xl md:text-2xl font-light leading-relaxed mb-4 sm:mb-6 text-gray-200">
                 "In quantitative finance, the most elegant models are those that
@@ -375,14 +375,14 @@ export default function Home() {
         {/* Contact Section */}
         <section
           id="contact"
-          className="pt-16 sm:pt-20 md:pt-28 pb-12 sm:pb-16 md:pb-24 px-4 sm:px-6 md:px-12 bg-cover bg-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8"
+          className="pt-16 sm:pt-20 md:pt-28 pb-12 sm:pb-16 md:pb-24 bg-cover bg-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8"
           style={{
             backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.35)), url(${familyImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         >
-          <div className="max-w-7xl mx-auto">
+          <div className="container-center">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 text-center text-gray-900 dark:text-white drop-shadow-sm">
               Get In Touch
             </h2>
