@@ -204,6 +204,13 @@ export default function AuthModal({ defaultOpen = false }: AuthModalProps) {
           {mode === 'signin' ? (t('signUp') || "Sign Up") : (t('signIn') || "Sign In")}
         </Button>
       </div>
+      
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal 
+        open={forgotPasswordOpen} 
+        onOpenChange={setForgotPasswordOpen}
+        onBack={() => setForgotPasswordOpen(false)}
+      />
     </div>
   );
 }
