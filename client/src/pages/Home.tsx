@@ -121,84 +121,86 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
       {/* Navigation */}
-      <header className="py-4 px-6 md:px-12 flex justify-between items-center border-b bg-white dark:bg-gray-900">
-        <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
-          Tom Riddelsdell
-        </div>
-        <nav className="hidden md:flex space-x-8 items-center">
-          {isAuthenticated && (
-            <>
-              <Link
-                href="/career"
-                className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
-              >
-                Career
-              </Link>
-              <Link
-                href="/projects"
-                className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
-              >
-                Projects
-              </Link>
-              <Link
-                href="/tasks"
-                className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
-              >
-                Tasks
-              </Link>
-            </>
-          )}
-          <a
-            href="#contact"
-            className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
-          >
-            Contact
-          </a>
-          {isAuthenticated ? (
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-sm">
-                <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                <span>Logged In</span>
-              </div>
-              <Link href="/dashboard">
-                <Button variant="outline">Dashboard</Button>
-              </Link>
-            </div>
-          ) : (
-            <Button
-              onClick={() => {
-                setAuthMode("signin");
-                setShowAuthModal(true);
-              }}
+      <header className="py-4 border-b bg-white dark:bg-gray-900">
+        <div className="container-center flex justify-between items-center">
+          <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text">
+            Tom Riddelsdell
+          </div>
+          <nav className="hidden md:flex space-x-8 items-center">
+            {isAuthenticated && (
+              <>
+                <Link
+                  href="/career"
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                >
+                  Career
+                </Link>
+                <Link
+                  href="/projects"
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                >
+                  Projects
+                </Link>
+                <Link
+                  href="/tasks"
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+                >
+                  Tasks
+                </Link>
+              </>
+            )}
+            <a
+              href="#contact"
+              className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
             >
-              Sign In
-            </Button>
-          )}
-        </nav>
-        {/* Mobile nav toggle */}
-        <Button
-          variant="ghost"
-          className="md:hidden"
-          size="icon"
-          onClick={() => setShowMobileMenu(!showMobileMenu)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-6 w-6"
+              Contact
+            </a>
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-sm">
+                  <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                  <span>Logged In</span>
+                </div>
+                <Link href="/dashboard">
+                  <Button variant="outline">Dashboard</Button>
+                </Link>
+              </div>
+            ) : (
+              <Button
+                onClick={() => {
+                  setAuthMode("signin");
+                  setShowAuthModal(true);
+                }}
+              >
+                Sign In
+              </Button>
+            )}
+          </nav>
+          {/* Mobile nav toggle */}
+          <Button
+            variant="ghost"
+            className="md:hidden"
+            size="icon"
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
           >
-            <line x1="4" x2="20" y1="12" y2="12" />
-            <line x1="4" x2="20" y1="6" y2="6" />
-            <line x1="4" x2="20" y1="18" y2="18" />
-          </svg>
-        </Button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-6 w-6"
+            >
+              <line x1="4" x2="20" y1="12" y2="12" />
+              <line x1="4" x2="20" y1="6" y2="6" />
+              <line x1="4" x2="20" y1="18" y2="18" />
+            </svg>
+          </Button>
+        </div>
       </header>
 
       {/* Mobile Menu */}
