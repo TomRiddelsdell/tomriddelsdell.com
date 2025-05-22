@@ -55,16 +55,23 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
       subject: 'Reset Your Password',
       trackingSettings: {
         clickTracking: {
+          enable: false,
+          enableText: false
+        },
+        openTracking: {
+          enable: false
+        },
+        subscriptionTracking: {
           enable: false
         }
       },
       text: `
 You requested a password reset for your account.
 
-To reset your password, please use the following code: ${resetCode}
-
-Or click the link below:
+To reset your password, please copy and paste this link into your browser:
 ${resetLink}
+
+Or use this confirmation code: ${resetCode}
 
 If you didn't request this password reset, you can safely ignore this email.
 
@@ -75,15 +82,12 @@ This link will expire in 24 hours.
           <h2 style="color: #4a5568;">Password Reset Request</h2>
           <p>You requested a password reset for your account.</p>
           
-          <p>To reset your password, please use the following code:</p>
-          <div style="margin: 20px 0; padding: 15px; background-color: #f7fafc; border-left: 4px solid #4299e1; font-family: monospace; font-size: 18px;">
-            ${resetCode}
+          <p><strong>Copy and paste this link into your browser:</strong></p>
+          <div style="margin: 20px 0; padding: 15px; background-color: #f7fafc; border-left: 4px solid #4299e1; font-family: monospace; font-size: 12px; word-break: break-all;">
+            ${resetLink}
           </div>
           
-          <p>Or click the button below:</p>
-          <div style="margin: 20px 0;">
-            <a href="${resetLink}" style="background-color: #4299e1; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Reset Password</a>
-          </div>
+          <p>Or use this confirmation code: <strong>${resetCode}</strong></p>
           
           <p>If you didn't request this password reset, you can safely ignore this email.</p>
           
