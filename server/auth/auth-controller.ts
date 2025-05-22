@@ -281,6 +281,41 @@ export class AuthController {
       });
     }
   }
+
+  /**
+   * Confirm password reset with code
+   */
+  static async confirmResetPassword(req: Request, res: Response) {
+    try {
+      const { email, confirmationCode, newPassword } = req.body;
+      
+      if (!email || !confirmationCode || !newPassword) {
+        return res.status(400).json({ 
+          message: 'Email, confirmation code, and new password are required' 
+        });
+      }
+      
+      // Confirm password reset in Cognito
+      const success = await authService.getProvider().confirmResetPassword(
+        email,
+        confirmationCode,
+        newPassword
+      );
+      
+      if (!success) {
+        return res.status(400).json({ 
+          message: 'Failed to reset password. The code may be invalid or expired.' 
+        });
+      }
+      
+      return res.json({ message: 'Password reset successfully' });
+    } catch (error) {
+      console.error('Confirm password reset error:', error);
+      return res.status(500).json({ 
+        message: 'Failed to reset password. Please try again.' 
+      });
+    }
+  }
   
   /**
    * Change a user's password
