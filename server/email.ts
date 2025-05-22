@@ -38,8 +38,9 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
     }
     
     // Get the host URL for the password reset link based on environment
-    // Use REPLIT_DEPLOYMENT_URL for production, or construct dev URL from REPL environment
+    // Check if we're in a deployed environment first
     const hostUrl = process.env.REPLIT_DEPLOYMENT_URL || 
+                    process.env.REPL_DEPLOYMENT_URL ||
                     process.env.HOST_URL || 
                     (process.env.REPL_SLUG && process.env.REPL_OWNER ? 
                       `https://${process.env.REPL_SLUG}--${process.env.REPL_OWNER}.repl.co` : 
