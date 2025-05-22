@@ -49,6 +49,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/aws-signin', AuthController.socialLogin);
   app.post('/api/auth/signout', AuthController.logout);
   app.post('/api/auth/reset-password', AuthController.resetPassword);
+  app.post('/api/auth/confirm-reset-password', AuthController.confirmResetPassword);
   app.post('/api/auth/change-password', AuthController.isAuthenticated, AuthController.changePassword);
   app.get('/api/auth/status', AuthController.status);
 
