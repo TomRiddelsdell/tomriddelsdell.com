@@ -18,6 +18,7 @@ import Templates from "@/pages/Templates";
 import ActivityLog from "@/pages/ActivityLog";
 import Account from "@/pages/Account";
 import Security from "@/pages/Security";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 
 function Router() {
@@ -26,6 +27,9 @@ function Router() {
       <Switch>
         {/* Public route - accessible to everyone */}
         <Route path="/" component={Home} />
+        
+        {/* Password reset route - public */}
+        <Route path="/reset-password" component={ResetPasswordPage} />
         
         {/* Protected routes - authenticated users only */}
         <Route path="/career">
