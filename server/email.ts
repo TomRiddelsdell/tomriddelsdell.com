@@ -70,10 +70,8 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
       text: `
 You requested a password reset for your account.
 
-To reset your password, please copy and paste this link into your browser:
+To reset your password, please click the link below or copy and paste it into your browser:
 ${resetLink}
-
-Or use this confirmation code: ${resetCode}
 
 If you didn't request this password reset, you can safely ignore this email.
 
