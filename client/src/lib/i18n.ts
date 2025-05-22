@@ -57,6 +57,8 @@ export const languages: LanguageConfig[] = [
       done: 'Done',
       createWorkflow: 'Create Workflow',
       continueWithGoogle: 'Continue with Google',
+      continueWithAWS: 'Continue with AWS',
+      resetPassword: 'Reset Password',
       or: 'or',
       emailAddress: 'Email address',
       password: 'Password',
