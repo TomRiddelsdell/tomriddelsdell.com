@@ -74,6 +74,16 @@ export default function ForgotPasswordModal({
       });
       
       if (!response.ok) {
+        // Handle rate limit error specifically
+        if (response.status === 429) {
+          const errorData = await response.json();
+          toast({
+            title: "Too Many Attempts",
+            description: errorData.message || "Please wait 15-30 minutes before trying again.",
+            variant: "destructive",
+          });
+          return;
+        }
         throw new Error('Failed to send password reset email');
       }
       
