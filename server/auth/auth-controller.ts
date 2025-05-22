@@ -249,8 +249,15 @@ export class AuthController {
         } else {
           console.log(`No user found with email: ${email}, skipping password reset`);
         }
-      } catch (innerError) {
-        // Log error but don't expose to client
+      } catch (innerError: any) {
+        // Check for rate limit exception
+        if (innerError?.__type === 'LimitExceededException' || innerError?.message?.includes('Attempt limit exceeded')) {
+          return res.status(429).json({
+            message: 'Too many password reset attempts. Please wait 15-30 minutes before trying again.',
+            code: 'RATE_LIMIT_EXCEEDED'
+          });
+        }
+        // Log error but don't expose other errors to client for security
         console.error('Error during password reset process:', innerError);
       }
       
