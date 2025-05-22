@@ -304,7 +304,8 @@ export class AuthController {
       
       if (!success) {
         return res.status(400).json({ 
-          message: 'Failed to reset password. The code may be invalid or expired.' 
+          message: 'The reset code has expired or is invalid. Please request a new password reset email.',
+          code: 'EXPIRED_CODE'
         });
       }
       

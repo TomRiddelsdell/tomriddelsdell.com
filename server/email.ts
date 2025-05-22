@@ -53,6 +53,11 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
       to: email,
       from: 't.riddelsdell@gmail.com', // Must be verified in SendGrid
       subject: 'Reset Your Password',
+      trackingSettings: {
+        clickTracking: {
+          enable: false
+        }
+      },
       text: `
 You requested a password reset for your account.
 
