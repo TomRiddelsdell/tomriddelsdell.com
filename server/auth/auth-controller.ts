@@ -237,25 +237,12 @@ export class AuthController {
         const cognitoUser = await authService.getProvider().getUserByEmail(email);
         
         if (cognitoUser) {
-          // Import the sendPasswordResetEmail function
-          const { sendPasswordResetEmail } = await import('../email');
-          
-          // Generate a secure random code
-          const resetCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-          
-          // Initiate password reset in Cognito only if user exists
+          // Initiate password reset in Cognito - it will send its own email
           console.log(`User found, initiating password reset for: ${email}`);
           const cognitoResetSuccess = await authService.getProvider().resetPassword(email);
           
           if (cognitoResetSuccess) {
-            // Send a password reset email with the code
-            const emailSuccess = await sendPasswordResetEmail(email, resetCode);
-            
-            if (emailSuccess) {
-              console.log(`Password reset initiated successfully and email sent to: ${email}`);
-            } else {
-              console.error(`Password reset initiated but failed to send email to: ${email}`);
-            }
+            console.log(`Password reset initiated successfully and email sent by Cognito to: ${email}`);
           } else {
             console.error(`Failed to initiate password reset in Cognito for: ${email}`);
           }
