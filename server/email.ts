@@ -38,9 +38,14 @@ export async function sendPasswordResetEmail(email: string, resetCode: string): 
     }
     
     // Get the host URL for the password reset link based on environment
-    // Use production URL if deployed, otherwise fall back to development
-    const hostUrl = process.env.REPLIT_DEPLOYMENT_URL || 
-                    'https://tomriddelsdell.replit.app';
+    // Construct proper URL from REPLIT_DEPLOYMENT_URL or use fallback
+    let hostUrl;
+    if (process.env.REPLIT_DEPLOYMENT_URL) {
+      // REPLIT_DEPLOYMENT_URL comes without protocol, so we need to add https://
+      hostUrl = `https://${process.env.REPLIT_DEPLOYMENT_URL}`;
+    } else {
+      hostUrl = 'https://tomriddelsdell.replit.app';
+    }
     
     // Form the reset link - this will now work in both development and production
     const resetLink = `${hostUrl}/reset-password?code=${resetCode}&email=${encodeURIComponent(email)}`;
