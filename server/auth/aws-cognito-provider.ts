@@ -28,11 +28,15 @@ export class AwsCognitoProvider implements AuthProvider {
       throw new Error("AWS Cognito provider requires region, userPoolId, and clientId options");
     }
 
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+      throw new Error("AWS credentials are required: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables must be set");
+    }
+
     this.client = new CognitoIdentityProviderClient({
       region: options.region,
       credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'AKIAIOSFODNN7EXAMPLE',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
       }
     });
     
