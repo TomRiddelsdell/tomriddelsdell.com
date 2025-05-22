@@ -108,7 +108,7 @@ export default function ForgotPasswordModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t('resetPassword') || "Reset Your Password"}</DialogTitle>
+          <DialogTitle>{t('resetPassword') || "Reset Password"}</DialogTitle>
           <DialogDescription>
             {isSuccess 
               ? "Check your email for a link to reset your password."
