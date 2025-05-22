@@ -33,6 +33,7 @@ export interface AuthProvider {
   
   // Password management
   resetPassword(email: string): Promise<boolean>;
+  confirmResetPassword(email: string, confirmationCode: string, newPassword: string): Promise<boolean>;
   changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean>;
   
   // Third-party auth
