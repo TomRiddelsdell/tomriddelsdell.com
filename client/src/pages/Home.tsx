@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { AuthModal } from "@/components/AmplifyAuth";
+import { OIDCAuthModal } from "@/components/OIDCAuth";
 import { Link, useLocation } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -610,7 +610,7 @@ export default function Home() {
               </button>
             </div>
 
-            <AuthModal 
+            <OIDCAuthModal 
               isOpen={showAuthModal}
               onOpenChange={setShowAuthModal}
               authMode={authMode}
