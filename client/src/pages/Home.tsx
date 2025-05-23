@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "react-oidc-context";
 import { OIDCAuthModal } from "@/components/OIDCAuth";
 import { Link, useLocation } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
@@ -14,7 +14,8 @@ import BackgroundSection from "@/components/BackgroundSection";
 import ContentContainer from "@/components/ContentContainer";
 
 export default function Home() {
-  const { isAuthenticated, signOut: authSignOut } = useAuth();
+  const auth = useAuth();
+  const isAuthenticated = auth.isAuthenticated;
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [showAuthModal, setShowAuthModal] = React.useState(false);
@@ -25,13 +26,12 @@ export default function Home() {
   // Handle user sign out
   const handleSignOut = async () => {
     try {
-      await authSignOut(); // This will update the auth context state
+      await auth.signoutRedirect();
       toast({
         title: "Signed out successfully",
         description: "You have been logged out of your account.",
         variant: "default",
       });
-      // No need to redirect - the UI will update automatically
     } catch (error) {
       console.error("Error signing out:", error);
       toast({
