@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import AuthModal from "@/components/AuthModal";
+import { AuthModal } from "@/components/AmplifyAuth";
 import { Link, useLocation } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -610,31 +610,11 @@ export default function Home() {
               </button>
             </div>
 
-            <AuthModal />
-
-            <div className="mt-4 text-center">
-              {authMode === "signin" ? (
-                <p className="text-gray-600 dark:text-gray-400">
-                  Don't have an account?{" "}
-                  <button
-                    onClick={() => setAuthMode("signup")}
-                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
-                  >
-                    Sign up
-                  </button>
-                </p>
-              ) : (
-                <p className="text-gray-600 dark:text-gray-400">
-                  Already have an account?{" "}
-                  <button
-                    onClick={() => setAuthMode("signin")}
-                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
-                  >
-                    Sign in
-                  </button>
-                </p>
-              )}
-            </div>
+            <AuthModal 
+              isOpen={showAuthModal}
+              onOpenChange={setShowAuthModal}
+              authMode={authMode}
+            />
           </div>
         </div>
       )}
