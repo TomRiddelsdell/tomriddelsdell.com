@@ -91,11 +91,24 @@ function AuthModal({ isOpen, onOpenChange, authMode = 'signin' }: AuthModalProps
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md mx-auto">
+      <DialogContent className="max-w-lg mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="sr-only">Authentication</DialogTitle>
         </DialogHeader>
-        <div className="p-4">
+        <div className="p-2">
+          <style>{`
+            .amplify-authenticator {
+              --amplify-components-authenticator-router-box-shadow: none;
+              --amplify-components-authenticator-router-border-width: 0;
+            }
+            .amplify-tabs {
+              --amplify-components-tabs-item-border-width: 0 0 2px 0;
+            }
+            .amplify-button[data-variation="primary"] {
+              --amplify-components-button-primary-background-color: rgb(59 130 246);
+              --amplify-components-button-primary-background-color-hover: rgb(37 99 235);
+            }
+          `}</style>
           <Authenticator
             components={components}
             formFields={formFields}
