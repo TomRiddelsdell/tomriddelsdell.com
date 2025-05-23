@@ -1,7 +1,15 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import "./lib/amplify-config";
+import { AuthProvider } from "react-oidc-context";
+
+const cognitoAuthConfig = {
+  authority: "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_g2Bs4XiwN",
+  client_id: "483n96q9sudb248kp2sgto7i47", 
+  redirect_uri: "https://tomriddelsdell.replit.app",
+  response_type: "code",
+  scope: "email openid phone",
+};
 
 document.addEventListener("DOMContentLoaded", () => {
   const metaTag = document.createElement("meta");
@@ -32,4 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.head.appendChild(ogTypeTag);
 });
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <AuthProvider {...cognitoAuthConfig}>
+    <App />
+  </AuthProvider>
+);

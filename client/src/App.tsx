@@ -20,7 +20,6 @@ import Account from "@/pages/Account";
 import Security from "@/pages/Security";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import { ThemeProvider } from "@/components/ui/theme-provider";
-import AmplifyAuth from "@/components/AmplifyAuth";
 
 function Router() {
   return (
@@ -91,16 +90,14 @@ function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="flowcreate-theme">
       <QueryClientProvider client={queryClient}>
-        <AmplifyAuth>
-          <AuthProvider>
-            <LanguageProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Router />
-              </TooltipProvider>
-            </LanguageProvider>
-          </AuthProvider>
-        </AmplifyAuth>
+        <AuthProvider>
+          <LanguageProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </LanguageProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );
