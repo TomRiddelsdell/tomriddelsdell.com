@@ -91,7 +91,7 @@ function AuthModal({ isOpen, onOpenChange, authMode = 'signin' }: AuthModalProps
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg mx-auto max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-xl mx-auto max-h-[90vh] overflow-y-auto w-full">
         <DialogHeader>
           <DialogTitle className="sr-only">Authentication</DialogTitle>
         </DialogHeader>
