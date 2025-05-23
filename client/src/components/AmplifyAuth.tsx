@@ -1,26 +1,29 @@
-import { Authenticator } from '@aws-amplify/ui-react';
+import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { getCurrentUser } from 'aws-amplify/auth';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface AmplifyAuthProps {
   children: React.ReactNode;
 }
 
-export default function AmplifyAuth({ children }: AmplifyAuthProps) {
+interface AuthModalProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  authMode?: 'signin' | 'signup';
+}
+
+function AuthModal({ isOpen, onOpenChange, authMode = 'signin' }: AuthModalProps) {
+  const { user } = useAuthenticator();
+
+  // Close modal when user authenticates
   useEffect(() => {
-    // Check if user is already authenticated on component mount
-    const checkAuthState = async () => {
-      try {
-        const user = await getCurrentUser();
-        console.log('User is authenticated:', user.username);
-      } catch (error) {
-        console.log('User is not authenticated');
-      }
-    };
-    
-    checkAuthState();
-  }, []);
+    if (user) {
+      onOpenChange(false);
+    }
+  }, [user, onOpenChange]);
 
   const components = {
     Header() {
@@ -87,16 +90,77 @@ export default function AmplifyAuth({ children }: AmplifyAuthProps) {
   };
 
   return (
-    <Authenticator
-      components={components}
-      formFields={formFields}
-      loginMechanisms={['email']}
-    >
-      {({ signOut, user }) => (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md mx-auto">
+        <DialogHeader>
+          <DialogTitle className="sr-only">Authentication</DialogTitle>
+        </DialogHeader>
+        <div className="p-4">
+          <Authenticator
+            components={components}
+            formFields={formFields}
+            loginMechanisms={['email']}
+            hideSignUp={false}
+            initialState={authMode === 'signup' ? 'signUp' : 'signIn'}
+          />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Export the AuthModal component so it can be used in Home.tsx
+export { AuthModal };
+
+export default function AmplifyAuth({ children }: AmplifyAuthProps) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user is already authenticated on component mount
+    const checkAuthState = async () => {
+      try {
+        const user = await getCurrentUser();
+        console.log('User is authenticated:', user.username);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.log('User is not authenticated');
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    checkAuthState();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Authenticator.Provider>
+      {isAuthenticated ? (
+        <Authenticator>
+          {({ signOut, user }) => (
+            <div className="min-h-screen">
+              {children}
+            </div>
+          )}
+        </Authenticator>
+      ) : (
         <div className="min-h-screen">
+          {/* Render children (main page) even when not authenticated */}
           {children}
         </div>
       )}
-    </Authenticator>
+    </Authenticator.Provider>
   );
 }
