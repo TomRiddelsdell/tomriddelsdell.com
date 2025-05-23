@@ -3,11 +3,21 @@ import App from "./App";
 import "./index.css";
 import { AuthProvider } from "react-oidc-context";
 
+// Use production URL for authentication since dev URLs are dynamic
+const getRedirectUri = () => {
+  // In production, use the configured domain
+  if (window.location.hostname.includes('tomriddelsdell.replit.app')) {
+    return 'https://tomriddelsdell.replit.app/';
+  }
+  // For development, we'll need to deploy to test authentication
+  return 'https://tomriddelsdell.replit.app/';
+};
+
 const cognitoAuthConfig = {
   authority: "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_g2Bs4XiwN",
   client_id: "483n96q9sudb248kp2sgto7i47",
-  redirect_uri: window.location.origin + "/",
-  post_logout_redirect_uri: window.location.origin + "/",
+  redirect_uri: getRedirectUri(),
+  post_logout_redirect_uri: getRedirectUri(),
   response_type: "code",
   scope: "email openid phone",
   automaticSilentRenew: true,
