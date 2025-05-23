@@ -33,6 +33,18 @@ function AuthModal({ isOpen, onOpenChange, authMode = 'signin' }: AuthModalProps
           <p className="text-gray-600 mt-2">Sign in to your account or create a new one</p>
         </div>
       );
+    },
+    Footer() {
+      return (
+        <div className="text-center mt-4">
+          <button
+            onClick={() => onOpenChange(false)}
+            className="text-sm text-gray-500 hover:text-gray-700 underline"
+          >
+            Close
+          </button>
+        </div>
+      );
     }
   };
 
