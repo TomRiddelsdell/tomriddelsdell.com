@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "react-oidc-context";
-import { OIDCAuthModal } from "@/components/OIDCAuth";
+
 import { Link, useLocation } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -18,8 +18,7 @@ export default function Home() {
   const isAuthenticated = auth.isAuthenticated;
   const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const [showAuthModal, setShowAuthModal] = React.useState(false);
-  const [authMode, setAuthMode] = React.useState<"signin" | "signup">("signin");
+
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   
@@ -114,32 +113,16 @@ export default function Home() {
     }
   };
 
-  // Check URL for login parameter which indicates a redirect from a protected route
+  // Listen for successful authentication
   React.useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.get("login") === "true" && !isAuthenticated) {
-      setAuthMode("signin");
-      setShowAuthModal(true);
-    }
-  }, [isAuthenticated]);
-  
-  // Listen for auth success event
-  React.useEffect(() => {
-    const handleAuthSuccess = () => {
-      setShowAuthModal(false);
+    if (isAuthenticated && auth.user) {
       toast({
         title: "Welcome!",
         description: "You have successfully signed in",
         variant: "default",
       });
-    };
-    
-    window.addEventListener('authSuccess', handleAuthSuccess);
-    
-    return () => {
-      window.removeEventListener('authSuccess', handleAuthSuccess);
-    };
-  }, [toast]);
+    }
+  }, [isAuthenticated, auth.user, toast]);
   
   // Section animation on scroll
   React.useEffect(() => {
@@ -223,8 +206,7 @@ export default function Home() {
             ) : (
               <Button
                 onClick={() => {
-                  setAuthMode("signin");
-                  setShowAuthModal(true);
+                  auth.signinRedirect();
                 }}
               >
                 Sign In
@@ -340,8 +322,7 @@ export default function Home() {
               <Button
                 className="w-full mt-2"
                 onClick={() => {
-                  setAuthMode("signin");
-                  setShowAuthModal(true);
+                  auth.signinRedirect();
                   setShowMobileMenu(false);
                 }}
               >
@@ -582,42 +563,7 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Auth Modal */}
-      {showAuthModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-md w-full p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">
-                {authMode === "signin" ? "Sign In" : "Create Account"}
-              </h2>
-              <button
-                onClick={() => setShowAuthModal(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
 
-            <OIDCAuthModal 
-              isOpen={showAuthModal}
-              onOpenChange={setShowAuthModal}
-              authMode={authMode}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
