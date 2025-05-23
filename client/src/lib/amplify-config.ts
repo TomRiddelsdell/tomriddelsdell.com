@@ -9,6 +9,7 @@ const amplifyConfig = {
       loginWith: {
         email: true,
       },
+      region: 'eu-west-2',
     },
   },
 };
