@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import "./lib/amplify-config";
 
 document.addEventListener("DOMContentLoaded", () => {
   const metaTag = document.createElement("meta");
