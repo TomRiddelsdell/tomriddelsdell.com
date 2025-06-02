@@ -206,7 +206,21 @@ export default function Home() {
             ) : (
               <Button
                 onClick={() => {
-                  auth.signinRedirect();
+                  console.log('Sign in clicked, auth state:', {
+                    isLoading: auth.isLoading,
+                    isAuthenticated: auth.isAuthenticated,
+                    error: auth.error
+                  });
+                  try {
+                    auth.signinRedirect();
+                  } catch (error) {
+                    console.error('Sign in error:', error);
+                    toast({
+                      title: "Sign in failed",
+                      description: "There was a problem with the authentication system.",
+                      variant: "destructive",
+                    });
+                  }
                 }}
               >
                 Sign In
@@ -322,8 +336,22 @@ export default function Home() {
               <Button
                 className="w-full mt-2"
                 onClick={() => {
-                  auth.signinRedirect();
-                  setShowMobileMenu(false);
+                  console.log('Mobile sign in clicked, auth state:', {
+                    isLoading: auth.isLoading,
+                    isAuthenticated: auth.isAuthenticated,
+                    error: auth.error
+                  });
+                  try {
+                    auth.signinRedirect();
+                    setShowMobileMenu(false);
+                  } catch (error) {
+                    console.error('Mobile sign in error:', error);
+                    toast({
+                      title: "Sign in failed",
+                      description: "There was a problem with the authentication system.",
+                      variant: "destructive",
+                    });
+                  }
                 }}
               >
                 Sign In
