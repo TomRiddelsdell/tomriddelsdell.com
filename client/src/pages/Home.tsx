@@ -206,21 +206,9 @@ export default function Home() {
             ) : (
               <Button
                 onClick={() => {
-                  console.log('Sign in clicked, auth state:', {
-                    isLoading: auth.isLoading,
-                    isAuthenticated: auth.isAuthenticated,
-                    error: auth.error
-                  });
-                  try {
-                    auth.signinRedirect();
-                  } catch (error) {
-                    console.error('Sign in error:', error);
-                    toast({
-                      title: "Sign in failed",
-                      description: "There was a problem with the authentication system.",
-                      variant: "destructive",
-                    });
-                  }
+                  // Direct redirect to Cognito hosted UI
+                  const cognitoUrl = `https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com/login?client_id=483n96q9sudb248kp2sgto7i47&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/')}`;
+                  window.location.href = cognitoUrl;
                 }}
               >
                 Sign In
@@ -336,22 +324,10 @@ export default function Home() {
               <Button
                 className="w-full mt-2"
                 onClick={() => {
-                  console.log('Mobile sign in clicked, auth state:', {
-                    isLoading: auth.isLoading,
-                    isAuthenticated: auth.isAuthenticated,
-                    error: auth.error
-                  });
-                  try {
-                    auth.signinRedirect();
-                    setShowMobileMenu(false);
-                  } catch (error) {
-                    console.error('Mobile sign in error:', error);
-                    toast({
-                      title: "Sign in failed",
-                      description: "There was a problem with the authentication system.",
-                      variant: "destructive",
-                    });
-                  }
+                  // Direct redirect to Cognito hosted UI
+                  const cognitoUrl = `https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com/login?client_id=483n96q9sudb248kp2sgto7i47&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/')}`;
+                  window.location.href = cognitoUrl;
+                  setShowMobileMenu(false);
                 }}
               >
                 Sign In
