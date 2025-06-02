@@ -5,6 +5,10 @@ import { AuthProvider } from "react-oidc-context";
 
 // Use production URL for authentication since dev URLs are dynamic
 const getRedirectUri = () => {
+  // Check if we're on the custom domain
+  if (window.location.hostname === 'tomriddelsdell.com' || window.location.hostname === 'www.tomriddelsdell.com') {
+    return window.location.origin + '/';
+  }
   // In production, use the configured domain
   if (window.location.hostname.includes('tomriddelsdell.replit.app')) {
     return 'https://tomriddelsdell.replit.app/';
