@@ -18,14 +18,17 @@ const getRedirectUri = () => {
 };
 
 const cognitoAuthConfig = {
-  authority: "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_g2Bs4XiwN",
+  authority: "https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com",
   client_id: "483n96q9sudb248kp2sgto7i47",
   redirect_uri: getRedirectUri(),
   post_logout_redirect_uri: getRedirectUri(),
   response_type: "code",
   scope: "email openid phone",
-  automaticSilentRenew: true,
+  automaticSilentRenew: false,
   loadUserInfo: true,
+  extraQueryParams: {
+    response_mode: "query"
+  }
 };
 
 document.addEventListener("DOMContentLoaded", () => {
