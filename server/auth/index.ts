@@ -7,7 +7,7 @@ const authService = new AuthServiceImpl({
   provider: 'cognito',
   region: process.env.AWS_REGION || 'eu-west-2',
   userPoolId: process.env.AWS_USER_POOL_ID || 'eu-west-2_g2Bs4XiwN',
-  clientId: process.env.AWS_CLIENT_ID || '5ul4gn8k517s87iv49t6qd9l1m',
+  clientId: process.env.AWS_CLIENT_ID || '483n96q9sudb248kp2sgto7i47',
   clientSecret: process.env.AWS_CLIENT_SECRET || ''
 });
 
@@ -17,7 +17,7 @@ const authService = new AuthServiceImpl({
     console.log('Initializing AWS Cognito authentication with:', {
       region: process.env.AWS_REGION || 'eu-west-2',
       userPoolId: process.env.AWS_USER_POOL_ID || 'eu-west-2_g2Bs4XiwN',
-      clientId: process.env.AWS_CLIENT_ID || '5ul4gn8k517s87iv49t6qd9l1m',
+      clientId: process.env.AWS_CLIENT_ID || '483n96q9sudb248kp2sgto7i47',
       hasClientSecret: !!process.env.AWS_CLIENT_SECRET
     });
     await authService.initialize();
