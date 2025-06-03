@@ -357,7 +357,7 @@ export class AuthController {
    */
   static async cognitoCallback(req: Request, res: Response) {
     try {
-      const { code, redirectUri } = req.body;
+      const { code } = req.body;
       
       if (!code) {
         return res.status(400).json({ 
@@ -366,16 +366,17 @@ export class AuthController {
         });
       }
 
-      // Exchange authorization code for tokens
+      const redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`;
+      
+      // Exchange authorization code for tokens (public client - no secret needed)
       const tokenResponse = await fetch('https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com/oauth2/token', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${Buffer.from(`${process.env.AWS_CLIENT_ID}:${process.env.AWS_COGNITO_CLIENT_SECRET}`).toString('base64')}`
+          'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: new URLSearchParams({
           grant_type: 'authorization_code',
-          client_id: process.env.AWS_CLIENT_ID!,
+          client_id: process.env.VITE_AWS_COGNITO_CLIENT_ID!,
           code: code,
           redirect_uri: redirectUri
         })
