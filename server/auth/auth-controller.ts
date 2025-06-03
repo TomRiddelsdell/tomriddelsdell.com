@@ -366,7 +366,7 @@ export class AuthController {
         });
       }
 
-      const redirectUri = `${req.protocol}://${req.get('host')}/`;
+      const redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`;
       
       // Exchange authorization code for tokens (public client - no secret needed)
       const hostedUIDomain = process.env.AWS_COGNITO_HOSTED_UI_DOMAIN || 'https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com';
