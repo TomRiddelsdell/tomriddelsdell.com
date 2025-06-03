@@ -16,12 +16,17 @@ export const authRateLimit = rateLimit({
 
 export const generalRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === 'development' ? 1000 : 100, // Higher limit for development
   message: {
     error: 'Too many requests. Please try again later.'
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for development on localhost
+    return process.env.NODE_ENV === 'development' && 
+           (req.hostname === 'localhost' || req.hostname === '127.0.0.1');
+  }
 });
 
 /**

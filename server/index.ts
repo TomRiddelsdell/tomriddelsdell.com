@@ -13,7 +13,9 @@ app.set('trust proxy', true);
 
 // Security middleware
 app.use(securityHeaders);
-app.use(generalRateLimit);
+if (process.env.NODE_ENV === 'production') {
+  app.use(generalRateLimit);
+}
 app.use(sanitizeInput);
 
 app.use(express.json({ limit: '10mb' }));
