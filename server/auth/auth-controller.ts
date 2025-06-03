@@ -353,6 +353,97 @@ export class AuthController {
   }
   
   /**
+   * Handle Cognito OAuth callback
+   */
+  static async cognitoCallback(req: Request, res: Response) {
+    try {
+      const { code, redirectUri } = req.body;
+      
+      if (!code) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Authorization code is required' 
+        });
+      }
+
+      // Exchange authorization code for tokens
+      const tokenResponse = await fetch('https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com/oauth2/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${Buffer.from(`${process.env.AWS_CLIENT_ID}:${process.env.AWS_COGNITO_CLIENT_SECRET}`).toString('base64')}`
+        },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          client_id: process.env.AWS_CLIENT_ID!,
+          code: code,
+          redirect_uri: redirectUri
+        })
+      });
+
+      if (!tokenResponse.ok) {
+        const errorText = await tokenResponse.text();
+        console.error('Token exchange failed:', errorText);
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Failed to exchange authorization code' 
+        });
+      }
+
+      const tokens = await tokenResponse.json();
+      
+      // Get user info from ID token
+      const idTokenPayload = JSON.parse(Buffer.from(tokens.id_token.split('.')[1], 'base64').toString());
+      
+      // Find or create user in our database
+      let user = await UserAdapter.getUserByEmail(idTokenPayload.email);
+      
+      if (!user) {
+        // Create new user
+        user = await UserAdapter.createUser({
+          email: idTokenPayload.email,
+          displayName: idTokenPayload.name || idTokenPayload.email,
+          photoURL: idTokenPayload.picture,
+          provider: 'cognito',
+          cognitoId: idTokenPayload.sub,
+          role: 'user'
+        });
+      } else {
+        // Update existing user with Cognito ID if not set
+        if (!user.cognitoId) {
+          await UserAdapter.updateUser(user.id.toString(), {
+            cognitoId: idTokenPayload.sub,
+            provider: 'cognito'
+          });
+        }
+      }
+
+      // Set session
+      req.session.userId = user.id;
+      req.session.userEmail = user.email;
+      
+      return res.json({ 
+        success: true, 
+        user: {
+          id: user.id,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          provider: user.provider,
+          role: user.role
+        }
+      });
+      
+    } catch (error) {
+      console.error('Cognito callback error:', error);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Authentication callback failed' 
+      });
+    }
+  }
+
+  /**
    * Middleware to check if user is authenticated
    */
   static isAuthenticated(req: Request, res: Response, next: NextFunction) {

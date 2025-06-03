@@ -113,16 +113,48 @@ export default function Home() {
     }
   };
 
-  // Listen for successful authentication
+  // Handle Cognito callback
   React.useEffect(() => {
-    if (isAuthenticated && auth.user) {
-      toast({
-        title: "Welcome!",
-        description: "You have successfully signed in",
-        variant: "default",
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    
+    if (code) {
+      // Exchange authorization code for tokens
+      fetch('/api/auth/cognito-callback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code, redirectUri: window.location.origin + '/' })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          toast({
+            title: "Welcome!",
+            description: "You have successfully signed in",
+            variant: "default",
+          });
+          // Clean URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } else {
+          toast({
+            title: "Authentication failed",
+            description: "There was a problem completing your sign-in.",
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Auth callback error:', error);
+        toast({
+          title: "Authentication failed",
+          description: "There was a problem completing your sign-in.",
+          variant: "destructive",
+        });
       });
     }
-  }, [isAuthenticated, auth.user, toast]);
+  }, [toast]);
   
   // Section animation on scroll
   React.useEffect(() => {
