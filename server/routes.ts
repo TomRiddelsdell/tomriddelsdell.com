@@ -185,7 +185,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/templates/popular', AuthController.isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : 5;
+      const limitParam = req.query.limit as string;
+      const limit = limitParam ? Math.max(1, Math.min(50, parseInt(limitParam))) : 5;
+      
+      if (limitParam && isNaN(limit)) {
+        return res.status(400).json({ message: 'Invalid limit parameter' });
+      }
+      
       const templates = await storage.getPopularTemplates(limit);
       return res.json(templates);
     } catch (error) {
