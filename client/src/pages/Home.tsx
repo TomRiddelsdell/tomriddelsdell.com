@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext";
+import { useSimpleCognitoAuth } from "@/context/SimpleCognitoAuth";
 
 import { Link, useLocation } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
@@ -14,8 +14,8 @@ import BackgroundSection from "@/components/BackgroundSection";
 import ContentContainer from "@/components/ContentContainer";
 
 export default function Home() {
-  const auth = useAuth();
-  const isAuthenticated = auth.isAuthenticated;
+  const auth = useSimpleCognitoAuth();
+  const isAuthenticated = !!auth.user;
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -23,22 +23,8 @@ export default function Home() {
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   
   // Handle user sign out
-  const handleSignOut = async () => {
-    try {
-      await auth.signOut();
-      toast({
-        title: "Signed out successfully",
-        description: "You have been logged out of your account.",
-        variant: "default",
-      });
-    } catch (error) {
-      console.error("Error signing out:", error);
-      toast({
-        title: "Sign out failed",
-        description: "There was a problem signing you out. Please try again.",
-        variant: "destructive",
-      });
-    }
+  const handleSignOut = () => {
+    auth.signOut();
   };
 
   // Form state
@@ -236,14 +222,7 @@ export default function Home() {
                 </Link>
               </div>
             ) : (
-              <Button
-                onClick={() => {
-                  // Direct redirect to Cognito hosted UI
-                  const hostedUIDomain = import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || 'https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com';
-                  const cognitoUrl = `${hostedUIDomain}/login?client_id=${import.meta.env.VITE_AWS_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/callback')}`;
-                  window.location.href = cognitoUrl;
-                }}
-              >
+              <Button onClick={auth.signIn}>
                 Sign In
               </Button>
             )}
