@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@/context/AuthContext";
 
 import { Link, useLocation } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
@@ -25,7 +25,7 @@ export default function Home() {
   // Handle user sign out
   const handleSignOut = async () => {
     try {
-      await auth.signoutRedirect();
+      await auth.signOut();
       toast({
         title: "Signed out successfully",
         description: "You have been logged out of your account.",
