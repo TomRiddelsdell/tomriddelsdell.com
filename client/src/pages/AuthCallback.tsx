@@ -28,7 +28,7 @@ export default function AuthCallback() {
 
         if (code) {
           // Send the authorization code to our backend
-          const response = await fetch('/api/auth/cognito/callback', {
+          const response = await fetch('/api/auth/cognito-callback', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
