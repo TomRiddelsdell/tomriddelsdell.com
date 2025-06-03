@@ -52,6 +52,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/confirm-reset-password', AuthController.confirmResetPassword);
   app.post('/api/auth/change-password', AuthController.isAuthenticated, AuthController.changePassword);
   app.get('/api/auth/status', AuthController.status);
+  app.post('/api/auth/cognito-callback', AuthController.cognitoCallback);
 
   // Dashboard stats
   app.get('/api/dashboard/stats', AuthController.isAuthenticated, async (req: Request, res: Response) => {
