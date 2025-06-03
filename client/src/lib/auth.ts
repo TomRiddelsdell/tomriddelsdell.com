@@ -11,8 +11,7 @@ export interface AuthUser {
 // Check if user is logged in
 export async function checkAuthStatus(): Promise<AuthUser | null> {
   try {
-    const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin;
-    const res = await fetch(`${baseUrl}/api/auth/status`, {
+    const res = await fetch('/api/auth/status', {
       method: 'GET',
       credentials: 'include'
     });
@@ -28,9 +27,8 @@ export async function emailSignIn(email: string, password: string, rememberMe?: 
   console.log('Attempting sign in with:', { email, rememberMe });
   
   try {
-    // Use the correct server port for API requests
-    const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin;
-    const url = `${baseUrl}/api/auth/signin`;
+    // For Replit environment, use relative URLs
+    const url = '/api/auth/signin';
     console.log('Making request to:', url);
     
     const res = await fetch(url, {
