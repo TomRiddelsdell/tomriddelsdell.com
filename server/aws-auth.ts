@@ -5,7 +5,7 @@ import { storage } from './storage';
 
 // AWS Cognito OAuth2 strategy
 export function setupAwsAuth() {
-  if (!process.env.AWS_CLIENT_ID || !process.env.AWS_CLIENT_SECRET) {
+  if (!process.env.VITE_AWS_COGNITO_CLIENT_ID || !process.env.AWS_COGNITO_CLIENT_SECRET) {
     console.warn('AWS credentials not found. AWS authentication will not be available.');
     return;
   }
@@ -17,15 +17,15 @@ export function setupAwsAuth() {
     : 'http://localhost:5000';
 
   // Use environment variables if available, otherwise use defaults
-  const region = process.env.AWS_COGNITO_REGION || 'us-east-1';
+  const region = process.env.VITE_AWS_COGNITO_REGION || 'us-east-1';
   const userPoolDomain = process.env.AWS_USER_POOL_DOMAIN || 
                         `https://tom-riddelsdell-portfolio.auth.${region}.amazoncognito.com`;
 
   passport.use('aws', new OAuthStrategy({
     authorizationURL: `${userPoolDomain}/oauth2/authorize`,
     tokenURL: `${userPoolDomain}/oauth2/token`,
-    clientID: process.env.AWS_CLIENT_ID,
-    clientSecret: process.env.AWS_CLIENT_SECRET,
+    clientID: process.env.VITE_AWS_COGNITO_CLIENT_ID!,
+    clientSecret: process.env.AWS_COGNITO_CLIENT_SECRET!,
     callbackURL: `${appDomain}/auth/aws/callback`,
     passReqToCallback: true
   }, async (req: Request, accessToken: string, refreshToken: string, profile: any, done: any) => {
