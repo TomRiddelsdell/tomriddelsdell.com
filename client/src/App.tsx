@@ -19,6 +19,7 @@ import ActivityLog from "@/pages/ActivityLog";
 import Account from "@/pages/Account";
 import Security from "@/pages/Security";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import AuthCallback from "@/pages/AuthCallback";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 
 function Router() {
@@ -30,6 +31,9 @@ function Router() {
         
         {/* Password reset route - public */}
         <Route path="/reset-password" component={ResetPasswordPage} />
+        
+        {/* Auth callback route - public */}
+        <Route path="/auth/callback" component={AuthCallback} />
         
         {/* Protected routes - authenticated users only */}
         <Route path="/career">
