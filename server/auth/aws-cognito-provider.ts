@@ -133,12 +133,12 @@ export class AwsCognitoProvider implements AuthProvider {
         );
       }
       
-      // Try USER_PASSWORD_AUTH flow first, then fallback to ADMIN_USER_PASSWORD_AUTH
-      console.log(`Using authentication flow: USER_PASSWORD_AUTH for user ${username}`);
+      // Use ADMIN_USER_PASSWORD_AUTH flow for server-side authentication
+      console.log(`Using authentication flow: ADMIN_USER_PASSWORD_AUTH for user ${username}`);
       const authCommand = new AdminInitiateAuthCommand({
         UserPoolId: this.userPoolId,
         ClientId: this.clientId,
-        AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
+        AuthFlow: AuthFlowType.ADMIN_USER_PASSWORD_AUTH,
         AuthParameters: authParameters
       });
       
