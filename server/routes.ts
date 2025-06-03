@@ -42,17 +42,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // API Routes
-  // Auth Routes - Now using AWS Cognito
-  app.post('/api/auth/signup', AuthController.register);
-  app.post('/api/auth/signin', AuthController.login);
-  app.post('/api/auth/google-signin', AuthController.socialLogin);
-  app.post('/api/auth/aws-signin', AuthController.socialLogin);
-  app.post('/api/auth/signout', AuthController.logout);
-  app.post('/api/auth/reset-password', AuthController.resetPassword);
-  app.post('/api/auth/confirm-reset-password', AuthController.confirmResetPassword);
-  app.post('/api/auth/change-password', AuthController.isAuthenticated, AuthController.changePassword);
-  app.get('/api/auth/status', AuthController.status);
-  app.post('/api/auth/cognito-callback', AuthController.cognitoCallback);
+  // Simple Cognito authentication routes
+  const { simpleCognitoHandler } = await import('./auth/simple-cognito');
+  app.post('/api/auth/callback', simpleCognitoHandler.handleCallback.bind(simpleCognitoHandler));
+  app.get('/api/auth/me', simpleCognitoHandler.getCurrentUser.bind(simpleCognitoHandler));
+  app.post('/api/auth/signout', simpleCognitoHandler.signOut.bind(simpleCognitoHandler));
 
   // Dashboard stats
   app.get('/api/dashboard/stats', AuthController.isAuthenticated, async (req: Request, res: Response) => {
