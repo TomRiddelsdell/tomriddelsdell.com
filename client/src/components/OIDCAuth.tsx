@@ -1,4 +1,4 @@
-import { useAuth } from "react-oidc-context";
+import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -10,27 +10,38 @@ interface OIDCAuthModalProps {
 }
 
 export function OIDCAuthModal({ isOpen, onOpenChange, authMode = 'signin' }: OIDCAuthModalProps) {
-  const auth = useAuth();
+  const { isAuthenticated, signIn, signUp } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Close modal when user authenticates
   useEffect(() => {
-    if (auth.isAuthenticated) {
+    if (isAuthenticated) {
       onOpenChange(false);
     }
-  }, [auth.isAuthenticated, onOpenChange]);
+  }, [isAuthenticated, onOpenChange]);
 
-  const handleSignIn = () => {
-    auth.signinRedirect();
+  const handleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      await signIn(email, password);
+    } catch (error) {
+      console.error('Sign in failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSignUp = () => {
-    // For OIDC, we can add signup parameter to the auth request
-    auth.signinRedirect({
-      extraQueryParams: { 
-        prompt: 'login',
-        signup: 'true'
-      }
-    });
+  const handleSignUp = async () => {
+    setIsLoading(true);
+    try {
+      await signUp(email, password);
+    } catch (error) {
+      console.error('Sign up failed:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -46,12 +57,32 @@ export function OIDCAuthModal({ isOpen, onOpenChange, authMode = 'signin' }: OID
           </div>
 
           <div className="space-y-4">
+            <div className="space-y-3">
+              <input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={isLoading}
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={isLoading}
+              />
+            </div>
+            
             <Button 
               onClick={handleSignIn}
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
               size="lg"
+              disabled={isLoading || !email || !password}
             >
-              Sign In
+              {isLoading ? 'Signing In...' : 'Sign In'}
             </Button>
             
             <Button 
@@ -59,8 +90,9 @@ export function OIDCAuthModal({ isOpen, onOpenChange, authMode = 'signin' }: OID
               variant="outline"
               className="w-full"
               size="lg"
+              disabled={isLoading || !email || !password}
             >
-              Create Account
+              {isLoading ? 'Creating Account...' : 'Create Account'}
             </Button>
           </div>
 
@@ -79,18 +111,9 @@ export function OIDCAuthModal({ isOpen, onOpenChange, authMode = 'signin' }: OID
 }
 
 export function OIDCAuthProvider({ children }: { children: React.ReactNode }) {
-  const auth = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
+  const { isLoading } = useAuth();
 
-  useEffect(() => {
-    // Check authentication state when component mounts
-    if (auth.isLoading) {
-      return;
-    }
-    setIsLoading(false);
-  }, [auth.isLoading]);
-
-  if (isLoading || auth.isLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -99,11 +122,6 @@ export function OIDCAuthProvider({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     );
-  }
-
-  // Handle authentication errors
-  if (auth.error) {
-    console.error("Authentication error:", auth.error);
   }
 
   return (
