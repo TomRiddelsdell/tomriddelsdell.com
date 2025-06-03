@@ -12,7 +12,6 @@ import familyImage from "../assets/family.jpg";
 import ImpliedVolDisplay from "@/components/ImpliedVolDisplay";
 import BackgroundSection from "@/components/BackgroundSection";
 import ContentContainer from "@/components/ContentContainer";
-import AuthModal from "@/components/AuthModal";
 
 export default function Home() {
   const auth = useAuth();
@@ -22,7 +21,6 @@ export default function Home() {
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
-  const [showAuthModal, setShowAuthModal] = React.useState(false);
   
   // Handle user sign out
   const handleSignOut = async () => {
@@ -239,7 +237,11 @@ export default function Home() {
               </div>
             ) : (
               <Button
-                onClick={() => setShowAuthModal(true)}
+                onClick={() => {
+                  // Direct redirect to Cognito hosted UI
+                  const cognitoUrl = `https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com/login?client_id=${import.meta.env.VITE_AWS_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/callback')}`;
+                  window.location.href = cognitoUrl;
+                }}
               >
                 Sign In
               </Button>
@@ -354,7 +356,9 @@ export default function Home() {
               <Button
                 className="w-full mt-2"
                 onClick={() => {
-                  setShowAuthModal(true);
+                  // Direct redirect to Cognito hosted UI
+                  const cognitoUrl = `https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com/login?client_id=${import.meta.env.VITE_AWS_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/callback')}`;
+                  window.location.href = cognitoUrl;
                   setShowMobileMenu(false);
                 }}
               >
@@ -596,19 +600,7 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Authentication Modal */}
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)}
-        onSuccess={() => {
-          setShowAuthModal(false);
-          toast({
-            title: "Welcome back!",
-            description: "You have successfully signed in.",
-            variant: "default",
-          });
-        }}
-      />
+
 
     </div>
   );
