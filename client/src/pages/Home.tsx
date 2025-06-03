@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { useSimpleCognitoAuth } from "@/context/SimpleCognitoAuth";
+import { redirectToCognito, redirectToSignOut, getCurrentUser } from '@/lib/simple-auth';
 
 import { Link, useLocation } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
@@ -14,17 +14,26 @@ import BackgroundSection from "@/components/BackgroundSection";
 import ContentContainer from "@/components/ContentContainer";
 
 export default function Home() {
-  const auth = useSimpleCognitoAuth();
-  const isAuthenticated = !!auth.user;
+  const [user, setUser] = React.useState(null);
+  const [isLoadingAuth, setIsLoadingAuth] = React.useState(true);
+  const isAuthenticated = !!user;
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   
+  // Check authentication status on mount
+  React.useEffect(() => {
+    getCurrentUser().then(userData => {
+      setUser(userData);
+      setIsLoadingAuth(false);
+    });
+  }, []);
+  
   // Handle user sign out
   const handleSignOut = () => {
-    auth.signOut();
+    redirectToSignOut();
   };
 
   // Form state
@@ -222,7 +231,7 @@ export default function Home() {
                 </Link>
               </div>
             ) : (
-              <Button onClick={auth.signIn}>
+              <Button onClick={redirectToCognito}>
                 Sign In
               </Button>
             )}
@@ -336,7 +345,7 @@ export default function Home() {
               <Button
                 className="w-full mt-2"
                 onClick={() => {
-                  auth.signIn();
+                  redirectToCognito();
                   setShowMobileMenu(false);
                 }}
               >

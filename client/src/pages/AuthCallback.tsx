@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { cognitoAuth } from '@/lib/cognito-auth';
+import { handleAuthCallback } from '@/lib/simple-auth';
 import { useToast } from '@/hooks/use-toast';
 
 export default function AuthCallback() {
@@ -27,7 +27,7 @@ export default function AuthCallback() {
 
         if (code) {
           // Use the simple Cognito handler
-          await cognitoAuth.handleCallback(code);
+          await handleAuthCallback(code);
           
           toast({
             title: "Welcome back!",
