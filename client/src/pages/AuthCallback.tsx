@@ -1,11 +1,10 @@
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { useAuth } from '@/context/AuthContext';
+import { cognitoAuth } from '@/lib/cognito-auth';
 import { useToast } from '@/hooks/use-toast';
 
 export default function AuthCallback() {
   const [, setLocation] = useLocation();
-  const auth = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -27,31 +26,16 @@ export default function AuthCallback() {
         }
 
         if (code) {
-          // Send the authorization code to our backend
-          const response = await fetch('/api/auth/cognito-callback', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ code }),
-            credentials: 'include'
+          // Use the simple Cognito handler
+          await cognitoAuth.handleCallback(code);
+          
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully signed in.",
+            variant: "default",
           });
-
-          if (response.ok) {
-            const data = await response.json();
-            
-            // The auth context will automatically update through the session
-            
-            toast({
-              title: "Welcome back!",
-              description: "You have successfully signed in.",
-              variant: "default",
-            });
-            
-            setLocation('/dashboard');
-          } else {
-            throw new Error('Failed to complete authentication');
-          }
+          
+          setLocation('/dashboard');
         } else {
           throw new Error('No authorization code received');
         }
@@ -67,7 +51,7 @@ export default function AuthCallback() {
     };
 
     handleCallback();
-  }, [setLocation, auth, toast]);
+  }, [setLocation, toast]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
