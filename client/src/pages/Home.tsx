@@ -396,8 +396,9 @@ export default function Home() {
                   size="lg"
                   className="w-full sm:w-auto gradient-bg gradient-bg-hover btn-hover-lift"
                   onClick={() => {
-                    setAuthMode("signup");
-                    setShowAuthModal(true);
+                    // Direct redirect to Cognito hosted UI for signup
+                    const cognitoUrl = `https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com/signup?client_id=483n96q9sudb248kp2sgto7i47&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/')}`;
+                    window.location.href = cognitoUrl;
                   }}
                 >
                   Join My Network
