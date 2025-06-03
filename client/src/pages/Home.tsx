@@ -22,68 +22,6 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   
-  // Handle Cognito callback on page load
-  React.useEffect(() => {
-    const handleCognitoCallback = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      const error = urlParams.get('error');
-
-      if (error) {
-        console.error('Auth error:', error);
-        toast({
-          title: "Authentication failed",
-          description: error === 'access_denied' ? 'Access was denied' : `Error: ${error}`,
-          variant: "destructive",
-        });
-        // Clean up URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-        return;
-      }
-
-      if (code) {
-        try {
-          // Send the authorization code to our backend
-          const response = await fetch('/api/auth/cognito-callback', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ code }),
-            credentials: 'include'
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            
-            toast({
-              title: "Welcome back!",
-              description: "You have successfully signed in.",
-              variant: "default",
-            });
-            
-            // Clean up URL and redirect to dashboard
-            window.history.replaceState({}, document.title, window.location.pathname);
-            setLocation('/dashboard');
-          } else {
-            throw new Error('Failed to complete authentication');
-          }
-        } catch (error) {
-          console.error('Callback error:', error);
-          toast({
-            title: "Authentication failed",
-            description: "There was a problem completing your sign in.",
-            variant: "destructive",
-          });
-          // Clean up URL
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }
-      }
-    };
-
-    handleCognitoCallback();
-  }, [toast, setLocation]);
-  
   // Handle user sign out
   const handleSignOut = async () => {
     try {
@@ -302,7 +240,7 @@ export default function Home() {
                 onClick={() => {
                   // Direct redirect to Cognito hosted UI
                   const hostedUIDomain = import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || 'https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com';
-                  const cognitoUrl = `${hostedUIDomain}/login?client_id=${import.meta.env.VITE_AWS_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/')}`;
+                  const cognitoUrl = `${hostedUIDomain}/login?client_id=${import.meta.env.VITE_AWS_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/callback')}`;
                   window.location.href = cognitoUrl;
                 }}
               >
@@ -421,7 +359,7 @@ export default function Home() {
                 onClick={() => {
                   // Direct redirect to Cognito hosted UI
                   const hostedUIDomain = import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || 'https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com';
-                  const cognitoUrl = `${hostedUIDomain}/login?client_id=${import.meta.env.VITE_AWS_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/')}`;
+                  const cognitoUrl = `${hostedUIDomain}/login?client_id=${import.meta.env.VITE_AWS_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/callback')}`;
                   window.location.href = cognitoUrl;
                   setShowMobileMenu(false);
                 }}
