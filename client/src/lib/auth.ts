@@ -24,6 +24,9 @@ export async function emailSignIn(email: string, password: string, rememberMe?: 
   console.log('Attempting sign in with:', { email, rememberMe });
   
   try {
+    const url = `${window.location.origin}/api/auth/signin`;
+    console.log('Making request to:', url);
+    
     const res = await apiRequest('POST', '/api/auth/signin', { 
       email, 
       password,
