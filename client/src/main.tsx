@@ -18,8 +18,8 @@ const getRedirectUri = () => {
 };
 
 const cognitoAuthConfig = {
-  authority: "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_g2Bs4XiwN",
-  client_id: "483n96q9sudb248kp2sgto7i47",
+  authority: `https://cognito-idp.${import.meta.env.VITE_AWS_COGNITO_REGION}.amazonaws.com/${import.meta.env.VITE_AWS_COGNITO_USER_POOL_ID}`,
+  client_id: import.meta.env.VITE_AWS_COGNITO_CLIENT_ID,
   redirect_uri: getRedirectUri(),
   post_logout_redirect_uri: getRedirectUri(),
   response_type: "code",
