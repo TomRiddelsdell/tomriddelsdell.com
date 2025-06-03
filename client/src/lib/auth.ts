@@ -21,19 +21,27 @@ export async function checkAuthStatus(): Promise<AuthUser | null> {
 
 // Sign in with email and password
 export async function emailSignIn(email: string, password: string, rememberMe?: boolean): Promise<AuthUser> {
-  const res = await apiRequest('POST', '/api/auth/signin', { 
-    email, 
-    password,
-    rememberMe: !!rememberMe
-  });
+  console.log('Attempting sign in with:', { email, rememberMe });
   
-  const data = await res.json();
-  
-  if (!data.user) {
-    throw new Error(data.message || 'Failed to sign in');
+  try {
+    const res = await apiRequest('POST', '/api/auth/signin', { 
+      email, 
+      password,
+      rememberMe: !!rememberMe
+    });
+    
+    const data = await res.json();
+    console.log('Sign in response:', data);
+    
+    if (!data.user) {
+      throw new Error(data.message || 'Failed to sign in');
+    }
+    
+    return data.user;
+  } catch (error) {
+    console.error('Sign in error details:', error);
+    throw error;
   }
-  
-  return data.user;
 }
 
 // Sign up with email and password
