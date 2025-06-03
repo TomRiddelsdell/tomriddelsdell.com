@@ -58,15 +58,33 @@ export class AuthController {
         return res.status(400).json({ message: 'Email and password are required' });
       }
       
-      // Authenticate with Cognito
-      const cognitoUser = await authService.getProvider().signIn(email, password);
+      let localUser;
       
-      if (!cognitoUser) {
-        return res.status(401).json({ message: 'Invalid email or password' });
+      try {
+        // Try Cognito authentication first
+        const cognitoUser = await authService.getProvider().signIn(email, password);
+        if (cognitoUser) {
+          // Sync with our database
+          localUser = await UserAdapter.syncUser(cognitoUser);
+        }
+      } catch (cognitoError) {
+        console.log('Cognito authentication failed, trying local authentication:', cognitoError);
+        
+        // Fallback to local authentication
+        try {
+          localUser = await UserAdapter.authenticateUser(email, password);
+          if (!localUser) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+          }
+        } catch (localError) {
+          console.log('Local authentication also failed:', localError);
+          return res.status(401).json({ message: 'Invalid email or password' });
+        }
       }
       
-      // Sync with our database
-      const localUser = await UserAdapter.syncUser(cognitoUser);
+      if (!localUser) {
+        return res.status(401).json({ message: 'Invalid email or password' });
+      }
       
       // Track login
       const clientIP = req.headers['x-forwarded-for'] || 
