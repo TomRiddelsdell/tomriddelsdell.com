@@ -8,6 +8,9 @@ import { env } from "./config";
 
 const app = express();
 
+// Trust proxy for Replit environment
+app.set('trust proxy', true);
+
 // Security middleware
 app.use(securityHeaders);
 app.use(generalRateLimit);
