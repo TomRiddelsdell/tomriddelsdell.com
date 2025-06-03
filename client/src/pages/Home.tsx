@@ -12,6 +12,7 @@ import familyImage from "../assets/family.jpg";
 import ImpliedVolDisplay from "@/components/ImpliedVolDisplay";
 import BackgroundSection from "@/components/BackgroundSection";
 import ContentContainer from "@/components/ContentContainer";
+import AuthModal from "@/components/AuthModal";
 
 export default function Home() {
   const auth = useAuth();
@@ -21,6 +22,7 @@ export default function Home() {
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+  const [showAuthModal, setShowAuthModal] = React.useState(false);
   
   // Handle user sign out
   const handleSignOut = async () => {
@@ -594,6 +596,19 @@ export default function Home() {
         </div>
       </footer>
 
+      {/* Authentication Modal */}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={() => {
+          setShowAuthModal(false);
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully signed in.",
+            variant: "default",
+          });
+        }}
+      />
 
     </div>
   );
