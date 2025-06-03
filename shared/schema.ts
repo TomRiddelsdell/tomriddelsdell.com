@@ -37,7 +37,7 @@ export const workflows = pgTable("workflows", {
   userId: integer("user_id").notNull().references(() => users.id),
   name: text("name").notNull(),
   description: text("description"),
-  status: text("status").notNull(), // 'active', 'paused', 'error'
+  status: text("status", { enum: ['active', 'paused', 'error', 'draft'] }).notNull().default('draft'),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   lastRun: timestamp("last_run"),
@@ -63,7 +63,7 @@ export const connectedApps = pgTable("connected_apps", {
   name: text("name").notNull(),
   description: text("description"),
   icon: text("icon"),
-  status: text("status").notNull(), // 'connected', 'disconnected'
+  status: text("status", { enum: ['connected', 'disconnected', 'error'] }).notNull().default('disconnected'),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   config: json("config"),

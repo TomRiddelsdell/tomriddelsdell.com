@@ -2,10 +2,19 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeTemplates } from "./initTemplates";
+import { securityHeaders, generalRateLimit, sanitizeInput } from "./security";
+import { logger } from "./logger";
+import { env } from "./config";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+// Security middleware
+app.use(securityHeaders);
+app.use(generalRateLimit);
+app.use(sanitizeInput);
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -44,10 +53,12 @@ app.use((req, res, next) => {
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    logger.error('Unhandled error:', { error: err.message, stack: err.stack });
+    
     const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    const message = env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message || "Internal Server Error";
 
-    res.status(status).json({ message });
+    res.status(status).json({ message, status: 'error' });
     throw err;
   });
 
