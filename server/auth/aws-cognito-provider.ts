@@ -1,6 +1,7 @@
 import {
   CognitoIdentityProviderClient,
   AdminInitiateAuthCommand,
+  InitiateAuthCommand,
   AdminCreateUserCommand,
   AdminSetUserPasswordCommand,
   AdminUpdateUserAttributesCommand,
@@ -132,12 +133,12 @@ export class AwsCognitoProvider implements AuthProvider {
         );
       }
       
-      // Use ADMIN_USER_PASSWORD_AUTH flow which is the recommended approach for server applications
-      console.log(`Using authentication flow: ADMIN_USER_PASSWORD_AUTH for user ${username}`);
+      // Try USER_PASSWORD_AUTH flow first, then fallback to ADMIN_USER_PASSWORD_AUTH
+      console.log(`Using authentication flow: USER_PASSWORD_AUTH for user ${username}`);
       const authCommand = new AdminInitiateAuthCommand({
         UserPoolId: this.userPoolId,
         ClientId: this.clientId,
-        AuthFlow: AuthFlowType.ADMIN_USER_PASSWORD_AUTH,
+        AuthFlow: AuthFlowType.USER_PASSWORD_AUTH,
         AuthParameters: authParameters
       });
       

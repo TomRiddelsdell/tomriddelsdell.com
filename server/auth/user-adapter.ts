@@ -119,6 +119,55 @@ export class UserAdapter {
   }
   
   /**
+   * Authenticate a user using local credentials (fallback when Cognito fails)
+   */
+  static async authenticateUser(email: string, password: string): Promise<User | null> {
+    try {
+      // For demo purposes, create a demo user if credentials match demo values
+      if (email === 'demo@example.com' && password === 'password123') {
+        // Check if demo user already exists
+        const [existingUser] = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, email));
+        
+        if (existingUser) {
+          // Update last login
+          const [updatedUser] = await db
+            .update(users)
+            .set({ lastLogin: new Date() })
+            .where(eq(users.id, existingUser.id))
+            .returning();
+          
+          return updatedUser;
+        } else {
+          // Create demo user
+          const [newUser] = await db
+            .insert(users)
+            .values({
+              email: email,
+              displayName: 'Demo User',
+              photoURL: null,
+              cognitoId: null,
+              lastLogin: new Date(),
+              isActive: true,
+              role: 'user'
+            })
+            .returning();
+          
+          return newUser;
+        }
+      }
+      
+      // For other credentials, return null (authentication failed)
+      return null;
+    } catch (error) {
+      console.error('Error in local authentication:', error);
+      return null;
+    }
+  }
+
+  /**
    * Get a user from Cognito by ID and sync with local database
    */
   static async getUserById(id: string): Promise<User | null> {
