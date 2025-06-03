@@ -8,7 +8,7 @@ const authService = new AuthServiceImpl({
   region: process.env.VITE_AWS_COGNITO_REGION || 'eu-west-2',
   userPoolId: process.env.VITE_AWS_COGNITO_USER_POOL_ID || 'eu-west-2_g2Bs4XiwN',
   clientId: process.env.VITE_AWS_COGNITO_CLIENT_ID || '483n96q9sudb248kp2sgto7i47',
-  clientSecret: process.env.AWS_COGNITO_CLIENT_SECRET || ''
+  clientSecret: undefined // Public client - no secret needed
 });
 
 // Initialize auth service
@@ -18,7 +18,7 @@ const authService = new AuthServiceImpl({
       region: process.env.VITE_AWS_COGNITO_REGION || 'eu-west-2',
       userPoolId: process.env.VITE_AWS_COGNITO_USER_POOL_ID || 'eu-west-2_g2Bs4XiwN',
       clientId: process.env.VITE_AWS_COGNITO_CLIENT_ID || '483n96q9sudb248kp2sgto7i47',
-      hasClientSecret: !!process.env.AWS_COGNITO_CLIENT_SECRET
+      hasClientSecret: false
     });
     await authService.initialize();
     console.log('AWS Cognito authentication initialized successfully');
