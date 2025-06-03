@@ -51,20 +51,29 @@ export default function AuthModal({ defaultOpen = false }: AuthModalProps) {
   };
 
   const onSubmit = async (data: AuthFormData) => {
+    console.log('Form submitted with:', data);
     try {
       if (mode === 'signin') {
+        console.log('Calling signIn function...');
         await signIn(data.email, data.password, data.rememberMe);
+        console.log('signIn completed successfully');
         // Signal to parent component that auth was successful
         const event = new CustomEvent('authSuccess');
         window.dispatchEvent(event);
       } else {
+        console.log('Calling signUp function...');
         await signUp(data.email, data.password);
+        console.log('signUp completed successfully');
         // Signal to parent component that auth was successful
         const event = new CustomEvent('authSuccess');
         window.dispatchEvent(event);
       }
     } catch (error) {
-      console.error('Authentication error:', error);
+      console.error('Authentication error details:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
     }
   };
 
