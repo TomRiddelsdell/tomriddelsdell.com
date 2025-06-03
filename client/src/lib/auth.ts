@@ -11,7 +11,11 @@ export interface AuthUser {
 // Check if user is logged in
 export async function checkAuthStatus(): Promise<AuthUser | null> {
   try {
-    const res = await apiRequest('GET', '/api/auth/status', undefined);
+    const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin;
+    const res = await fetch(`${baseUrl}/api/auth/status`, {
+      method: 'GET',
+      credentials: 'include'
+    });
     const data = await res.json();
     return data.user || null;
   } catch (error) {
@@ -24,14 +28,26 @@ export async function emailSignIn(email: string, password: string, rememberMe?: 
   console.log('Attempting sign in with:', { email, rememberMe });
   
   try {
-    const url = `${window.location.origin}/api/auth/signin`;
+    // Use the correct server port for API requests
+    const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin;
+    const url = `${baseUrl}/api/auth/signin`;
     console.log('Making request to:', url);
     
-    const res = await apiRequest('POST', '/api/auth/signin', { 
-      email, 
-      password,
-      rememberMe: !!rememberMe
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        email, 
+        password,
+        rememberMe: !!rememberMe
+      }),
+      credentials: 'include'
     });
+    
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`${res.status}: ${text}`);
+    }
     
     const data = await res.json();
     console.log('Sign in response:', data);
