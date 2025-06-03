@@ -9,7 +9,7 @@ const envSchema = z.object({
   VITE_AWS_COGNITO_CLIENT_ID: z.string().min(1),
   VITE_AWS_COGNITO_REGION: z.string().min(1),
   VITE_AWS_COGNITO_USER_POOL_ID: z.string().min(1),
-  AWS_COGNITO_CLIENT_SECRET: z.string().min(1),
+  AWS_COGNITO_CLIENT_SECRET: z.string().min(1).optional(),
   AWS_ACCESS_KEY_ID: z.string().min(1),
   AWS_SECRET_ACCESS_KEY: z.string().min(1),
   
