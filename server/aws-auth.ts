@@ -44,7 +44,6 @@ export function setupAwsAuth() {
         user = await storage.createUser({
           username,
           email: userInfo.email,
-          password: 'aws-auth-' + Math.random().toString(36).substring(2), // Random password not used
           provider: 'aws',
           displayName,
           photoURL: userInfo.picture || null
@@ -63,10 +62,7 @@ export function setupAwsAuth() {
         console.error('Error tracking login:', error);
       }
       
-      // Remove password from response
-      const { password: _, ...userWithoutPassword } = user;
-      
-      return done(null, userWithoutPassword);
+      return done(null, user);
     } catch (error) {
       console.error('Error during AWS authentication:', error);
       return done(error);
