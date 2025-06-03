@@ -366,7 +366,7 @@ export class AuthController {
         });
       }
 
-      const redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`;
+      const redirectUri = `${req.protocol}://${req.get('host')}/`;
       
       // Exchange authorization code for tokens (public client - no secret needed)
       const tokenResponse = await fetch('https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com/oauth2/token', {
