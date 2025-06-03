@@ -4,12 +4,12 @@ import { Amplify } from 'aws-amplify';
 const amplifyConfig = {
   Auth: {
     Cognito: {
-      userPoolId: 'eu-west-2_g2Bs4XiwN',
-      userPoolClientId: '483n96q9sudb248kp2sgto7i47',
+      userPoolId: import.meta.env.VITE_AWS_USER_POOL_ID,
+      userPoolClientId: import.meta.env.VITE_AWS_USER_POOL_CLIENT_ID,
       loginWith: {
         email: true,
       },
-      region: 'eu-west-2',
+      region: import.meta.env.VITE_AWS_REGION,
     },
   },
 };
