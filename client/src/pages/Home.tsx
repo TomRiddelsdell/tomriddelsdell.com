@@ -301,7 +301,8 @@ export default function Home() {
               <Button
                 onClick={() => {
                   // Direct redirect to Cognito hosted UI
-                  const cognitoUrl = `https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com/login?client_id=${import.meta.env.VITE_AWS_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/')}`;
+                  const hostedUIDomain = import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || 'https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com';
+                  const cognitoUrl = `${hostedUIDomain}/login?client_id=${import.meta.env.VITE_AWS_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/')}`;
                   window.location.href = cognitoUrl;
                 }}
               >
@@ -419,7 +420,8 @@ export default function Home() {
                 className="w-full mt-2"
                 onClick={() => {
                   // Direct redirect to Cognito hosted UI
-                  const cognitoUrl = `https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com/login?client_id=${import.meta.env.VITE_AWS_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/')}`;
+                  const hostedUIDomain = import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || 'https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com';
+                  const cognitoUrl = `${hostedUIDomain}/login?client_id=${import.meta.env.VITE_AWS_COGNITO_CLIENT_ID}&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + '/')}`;
                   window.location.href = cognitoUrl;
                   setShowMobileMenu(false);
                 }}
