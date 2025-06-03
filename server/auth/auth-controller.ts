@@ -395,32 +395,20 @@ export class AuthController {
       // Get user info from ID token
       const idTokenPayload = JSON.parse(Buffer.from(tokens.id_token.split('.')[1], 'base64').toString());
       
-      // Find or create user in our database
-      let user = await UserAdapter.getUserByEmail(idTokenPayload.email);
-      
-      if (!user) {
-        // Create new user
-        user = await UserAdapter.createUser({
-          email: idTokenPayload.email,
-          displayName: idTokenPayload.name || idTokenPayload.email,
-          photoURL: idTokenPayload.picture,
-          provider: 'cognito',
-          cognitoId: idTokenPayload.sub,
-          role: 'user'
-        });
-      } else {
-        // Update existing user with Cognito ID if not set
-        if (!user.cognitoId) {
-          await UserAdapter.updateUser(user.id.toString(), {
-            cognitoId: idTokenPayload.sub,
-            provider: 'cognito'
-          });
-        }
-      }
+      // Sync user with our database using UserAdapter
+      const user = await UserAdapter.syncUser({
+        id: idTokenPayload.sub,
+        email: idTokenPayload.email,
+        displayName: idTokenPayload.name || idTokenPayload.email,
+        photoURL: idTokenPayload.picture,
+        provider: 'cognito'
+      });
 
       // Set session
       req.session.userId = user.id;
-      req.session.userEmail = user.email;
+      
+      // Define userEmail property for session
+      (req.session as any).userEmail = user.email;
       
       return res.json({ 
         success: true, 
@@ -430,7 +418,7 @@ export class AuthController {
           displayName: user.displayName,
           photoURL: user.photoURL,
           provider: user.provider,
-          role: user.role
+          role: user.role || 'user'
         }
       });
       
