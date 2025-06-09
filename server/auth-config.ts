@@ -36,12 +36,9 @@ function getBaseUrl(): string {
     return process.env.PRODUCTION_DOMAIN || 'https://tomriddelsdell.replit.app';
   }
   
-  // Fallback to current domain for local testing
-  if (process.env.REPLIT_DOMAINS) {
-    return `https://${process.env.REPLIT_DOMAINS}`;
-  }
-  
-  return 'http://localhost:5000';
+  // Always use stable production domain for Cognito callbacks
+  // This eliminates the need to update AWS configuration for dev URL changes
+  return 'https://tomriddelsdell.replit.app';
 }
 
 /**
