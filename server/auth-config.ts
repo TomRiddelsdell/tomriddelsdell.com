@@ -36,12 +36,9 @@ function getBaseUrl(): string {
     return process.env.PRODUCTION_DOMAIN || 'https://tomriddelsdell.replit.app';
   }
   
-  // Fallback to current domain for local testing
-  if (process.env.REPLIT_DOMAINS) {
-    return `https://${process.env.REPLIT_DOMAINS}`;
-  }
-  
-  return 'http://localhost:5000';
+  // Temporarily force stable domain until environment variables are set
+  console.log('Using stable domain for Cognito authentication');
+  return 'https://tomriddelsdell.replit.app';
 }
 
 /**
