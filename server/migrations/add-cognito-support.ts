@@ -11,8 +11,20 @@ export async function migrateToCognito() {
     // Add cognitoId column to users table
     await db.execute(sql`
       ALTER TABLE users 
-      ADD COLUMN IF NOT EXISTS cognito_id TEXT,
-      ADD CONSTRAINT cognito_id_unique UNIQUE (cognito_id)
+      ADD COLUMN IF NOT EXISTS cognito_id TEXT
+    `);
+    
+    // Add unique constraint only if it doesn't exist
+    await db.execute(sql`
+      DO $$ 
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint 
+          WHERE conname = 'cognito_id_unique'
+        ) THEN
+          ALTER TABLE users ADD CONSTRAINT cognito_id_unique UNIQUE (cognito_id);
+        END IF;
+      END $$
     `);
     
     console.log('Added cognito_id column to users table');
@@ -20,16 +32,31 @@ export async function migrateToCognito() {
     // For existing users, we'll keep the password column temporarily
     // But make it nullable so new users won't need it
     await db.execute(sql`
-      ALTER TABLE users 
-      ALTER COLUMN password DROP NOT NULL
+      DO $$ 
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'users' AND column_name = 'password' AND is_nullable = 'NO'
+        ) THEN
+          ALTER TABLE users ALTER COLUMN password DROP NOT NULL;
+        END IF;
+      END $$
     `);
     
     console.log('Modified password column to be nullable');
     
     // Update default provider to cognito
     await db.execute(sql`
-      ALTER TABLE users 
-      ALTER COLUMN provider SET DEFAULT 'cognito'
+      DO $$ 
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'users' AND column_name = 'provider' 
+          AND column_default IS DISTINCT FROM '''cognito'''
+        ) THEN
+          ALTER TABLE users ALTER COLUMN provider SET DEFAULT 'cognito';
+        END IF;
+      END $$
     `);
     
     console.log('Set default provider to cognito');
