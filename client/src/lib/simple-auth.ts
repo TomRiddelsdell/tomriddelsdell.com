@@ -5,7 +5,11 @@ export function redirectToCognito() {
   validateClientAuthConfig();
   const config = getClientAuthConfig();
   
+  console.log('=== SIGN IN DEBUG ===');
+  console.log('Current window location:', window.location.href);
   console.log('Using redirect URI:', config.urls.callbackUrl);
+  console.log('Cognito Client ID:', config.cognito.clientId);
+  console.log('Cognito Domain:', config.cognito.hostedUIDomain);
   
   const params = new URLSearchParams({
     'response_type': 'code',
@@ -17,6 +21,7 @@ export function redirectToCognito() {
   const url = `${config.cognito.hostedUIDomain}/login?${params.toString()}`;
   
   console.log('Final Cognito URL:', url);
+  console.log('Redirecting to Cognito...');
   
   window.location.href = url;
 }
@@ -42,6 +47,10 @@ export async function getCurrentUser() {
 }
 
 export async function handleAuthCallback(code: string) {
+  console.log('=== FRONTEND CALLBACK DEBUG ===');
+  console.log('Authorization code received:', code.substring(0, 20) + '...');
+  console.log('Making callback request to /api/auth/callback');
+  
   const response = await fetch('/api/auth/callback', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -49,9 +58,16 @@ export async function handleAuthCallback(code: string) {
     credentials: 'include'
   });
   
+  console.log('Callback response status:', response.status);
+  console.log('Callback response ok:', response.ok);
+  
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Callback error response:', errorText);
     throw new Error('Authentication failed');
   }
   
-  return await response.json();
+  const result = await response.json();
+  console.log('Callback successful, user data:', result);
+  return result;
 }
