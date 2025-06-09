@@ -3,26 +3,12 @@ export function redirectToCognito() {
   const clientId = import.meta.env.VITE_AWS_COGNITO_CLIENT_ID;
   const hostedDomain = import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN;
   
-  // Use the configured redirect URI that matches Cognito app client settings
-  // Detect which domain we're actually on and use the matching configured URI
+  // Use dynamic redirect URI based on current domain
   const currentOrigin = window.location.origin;
-  
-  let redirectUri;
-  if (currentOrigin.includes('tomriddelsdell.com')) {
-    redirectUri = 'https://tomriddelsdell.com/auth/callback';
-  } else if (currentOrigin.includes('tomriddelsdell.replit.app')) {
-    redirectUri = 'https://tomriddelsdell.replit.app/auth/callback';
-  } else {
-    redirectUri = 'https://workspace--triddelsdell.repl.co/auth/callback';
-  }
+  const redirectUri = `${currentOrigin}/auth/callback`;
   
   console.log('Current origin:', currentOrigin);
-  console.log('Selected redirect URI:', redirectUri);
-  console.log('Available Cognito redirect URIs:', [
-    'https://workspace--triddelsdell.repl.co/auth/callback',
-    'https://tomriddelsdell.com/auth/callback', 
-    'https://tomriddelsdell.replit.app/auth/callback'
-  ]);
+  console.log('Using redirect URI:', redirectUri);
   
   console.log('Cognito redirect attempt:', {
     clientId,
