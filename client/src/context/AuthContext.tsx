@@ -24,8 +24,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const currentUser = await checkAuthStatus();
-        setUser(currentUser);
+        const response = await fetch('/api/auth/me', { credentials: 'include' });
+        if (response.ok) {
+          const userData = await response.json();
+          setUser({
+            id: userData.id,
+            email: userData.email,
+            displayName: userData.displayName || userData.email,
+            photoURL: null
+          });
+        }
       } catch (error) {
         console.error("Error checking auth status:", error);
       } finally {

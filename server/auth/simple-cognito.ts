@@ -50,14 +50,38 @@ export class SimpleCognitoHandler {
       const user = this.parseIdToken(tokens.id_token);
       console.log('User parsed from token:', JSON.stringify(user, null, 2));
       
-      // Store user in session
+      // Create or find user in database
+      console.log('Creating or finding user in database...');
+      const { storage } = await import('../storage');
+      
+      let dbUser = await storage.getUserByCognitoId(user.id);
+      if (!dbUser) {
+        // Create new user with Cognito ID
+        dbUser = await storage.createUser({
+          username: user.email.split('@')[0],
+          email: user.email,
+          displayName: user.name || user.email.split('@')[0],
+          cognitoId: user.id,
+          provider: 'cognito'
+        });
+        console.log('Created new user:', dbUser);
+      } else {
+        console.log('Found existing user:', dbUser);
+      }
+      
+      // Store database user ID in session
       console.log('Storing user in session...');
-      (req.session as any).userId = user.id;
-      (req.session as any).user = user;
+      (req.session as any).userId = dbUser.id;
+      (req.session as any).user = {
+        id: dbUser.id,
+        email: dbUser.email,
+        displayName: dbUser.displayName,
+        cognitoId: dbUser.cognitoId
+      };
       
       console.log('Session after storing user:');
       console.log('- Session ID:', req.sessionID);
-      console.log('- User ID:', (req.session as any).userId);
+      console.log('- Database User ID:', (req.session as any).userId);
       console.log('- User data:', JSON.stringify((req.session as any).user, null, 2));
       
       console.log('Authentication callback completed successfully');
