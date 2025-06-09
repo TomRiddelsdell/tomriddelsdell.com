@@ -16,7 +16,7 @@ export function redirectToCognito() {
     'client_id': config.cognito.clientId,
     'redirect_uri': config.urls.callbackUrl,
     'scope': 'openid email profile',
-    'state': encodeURIComponent(window.location.origin) // Pass current origin in state parameter
+    'state': window.location.origin // Pass current origin in state parameter (URLSearchParams handles encoding)
   });
   
   const url = `${config.cognito.hostedUIDomain}/login?${params.toString()}`;
