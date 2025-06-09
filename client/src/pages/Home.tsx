@@ -231,9 +231,30 @@ export default function Home() {
                 </Link>
               </div>
             ) : (
-              <Button onClick={redirectToCognito}>
-                Sign In
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={redirectToCognito}>
+                  Sign In
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    const clientId = import.meta.env.VITE_AWS_COGNITO_CLIENT_ID;
+                    const hostedDomain = import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN;
+                    const redirectUri = `${window.location.origin}/auth/callback`;
+                    const params = new URLSearchParams({
+                      'response_type': 'code',
+                      'client_id': clientId,
+                      'redirect_uri': redirectUri,
+                      'scope': 'openid email profile'
+                    });
+                    const url = `${hostedDomain}/login?${params.toString()}`;
+                    
+                    alert(`URL: ${url}\n\nParameters:\n${params.toString()}\n\nRedirect URI: ${redirectUri}`);
+                  }}
+                >
+                  Debug URL
+                </Button>
+              </div>
             )}
           </nav>
           {/* Mobile nav toggle */}
