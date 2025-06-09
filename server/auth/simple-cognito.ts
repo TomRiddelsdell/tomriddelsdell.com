@@ -56,15 +56,35 @@ export class SimpleCognitoHandler {
       
       let dbUser = await storage.getUserByCognitoId(user.id);
       if (!dbUser) {
-        // Create new user with Cognito ID
-        dbUser = await storage.createUser({
-          username: user.email.split('@')[0],
-          email: user.email,
-          displayName: user.name || user.email.split('@')[0],
-          cognitoId: user.id,
-          provider: 'cognito'
-        });
-        console.log('Created new user:', dbUser);
+        // Check if user exists by email first
+        dbUser = await storage.getUserByEmail(user.email);
+        if (dbUser) {
+          // Update existing user with Cognito ID
+          dbUser = await storage.updateUser(dbUser.id, {
+            cognitoId: user.id,
+            provider: 'cognito'
+          });
+          console.log('Updated existing user with Cognito ID:', dbUser);
+        } else {
+          // Create new user with unique username
+          let username = user.email.split('@')[0];
+          let counter = 1;
+          
+          // Ensure username is unique
+          while (await storage.getUserByUsername(username)) {
+            username = `${user.email.split('@')[0]}${counter}`;
+            counter++;
+          }
+          
+          dbUser = await storage.createUser({
+            username,
+            email: user.email,
+            displayName: user.name || user.email.split('@')[0],
+            cognitoId: user.id,
+            provider: 'cognito'
+          });
+          console.log('Created new user:', dbUser);
+        }
       } else {
         console.log('Found existing user:', dbUser);
       }
