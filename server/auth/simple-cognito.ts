@@ -16,12 +16,10 @@ interface CognitoUser {
 
 export class SimpleCognitoHandler {
   private clientId: string;
-  private clientSecret: string;
   private hostedUIDomain: string;
 
   constructor() {
     this.clientId = process.env.VITE_AWS_COGNITO_CLIENT_ID!;
-    this.clientSecret = process.env.AWS_COGNITO_CLIENT_SECRET!;
     this.hostedUIDomain = process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN!;
   }
 
@@ -75,17 +73,14 @@ export class SimpleCognitoHandler {
   private async exchangeCodeForTokens(code: string, req: Request): Promise<TokenResponse> {
     const redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`;
     
-    // Create Basic Auth header with client credentials
-    const credentials = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
-    
     const response = await fetch(`${this.hostedUIDomain}/oauth2/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${credentials}`,
       },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
+        client_id: this.clientId,
         code,
         redirect_uri: redirectUri,
       }),
