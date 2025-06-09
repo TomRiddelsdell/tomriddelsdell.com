@@ -240,7 +240,11 @@ export default function Home() {
                   onClick={() => {
                     const clientId = import.meta.env.VITE_AWS_COGNITO_CLIENT_ID;
                     const hostedDomain = import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN;
-                    const redirectUri = `${window.location.origin}/auth/callback`;
+                    
+                    // Force use of Replit domain to match configured redirect URIs
+                    const forceReplatDomain = 'https://workspace--triddelsdell.repl.co';
+                    const redirectUri = `${forceReplatDomain}/auth/callback`;
+                    
                     const params = new URLSearchParams({
                       'response_type': 'code',
                       'client_id': clientId,
@@ -249,7 +253,7 @@ export default function Home() {
                     });
                     const url = `${hostedDomain}/login?${params.toString()}`;
                     
-                    alert(`URL: ${url}\n\nParameters:\n${params.toString()}\n\nRedirect URI: ${redirectUri}`);
+                    alert(`Current Origin: ${window.location.origin}\nForced Origin: ${forceReplatDomain}\nURL: ${url}\n\nParameters:\n${params.toString()}\n\nRedirect URI: ${redirectUri}`);
                   }}
                 >
                   Debug URL
