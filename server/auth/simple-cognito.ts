@@ -25,35 +25,67 @@ export class SimpleCognitoHandler {
   // Handle the callback from Cognito with authorization code
   async handleCallback(req: Request, res: Response) {
     try {
+      console.log('=== AUTH CALLBACK DEBUG ===');
+      console.log('Request method:', req.method);
+      console.log('Request body:', JSON.stringify(req.body, null, 2));
+      console.log('Request query:', JSON.stringify(req.query, null, 2));
+      console.log('Session ID before auth:', req.sessionID);
+      
       const { code } = req.body;
       
       if (!code) {
+        console.log('ERROR: No authorization code in request body');
         return res.status(400).json({ error: 'Authorization code required' });
       }
 
+      console.log('Authorization code received:', code.substring(0, 20) + '...');
+
       // Exchange code for tokens
+      console.log('Exchanging code for tokens...');
       const tokens = await this.exchangeCodeForTokens(code, req);
+      console.log('Token exchange successful');
       
       // Parse user info from ID token
+      console.log('Parsing ID token...');
       const user = this.parseIdToken(tokens.id_token);
+      console.log('User parsed from token:', JSON.stringify(user, null, 2));
       
       // Store user in session
+      console.log('Storing user in session...');
       (req.session as any).userId = user.id;
       (req.session as any).user = user;
       
+      console.log('Session after storing user:');
+      console.log('- Session ID:', req.sessionID);
+      console.log('- User ID:', (req.session as any).userId);
+      console.log('- User data:', JSON.stringify((req.session as any).user, null, 2));
+      
+      console.log('Authentication callback completed successfully');
       res.json(user);
     } catch (error) {
-      console.error('Callback error:', error);
+      console.error('=== CALLBACK ERROR ===');
+      console.error('Error details:', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       res.status(500).json({ error: 'Authentication failed' });
     }
   }
 
   // Get current user from session
   getCurrentUser(req: Request, res: Response) {
+    console.log('Checking authentication - Session ID:', req.sessionID);
+    console.log('Session data:', JSON.stringify(req.session, null, 2));
+    
     const user = (req.session as any).user;
+    const userId = (req.session as any).userId;
+    
+    console.log('User from session:', user);
+    console.log('UserId from session:', userId);
+    
     if (user) {
+      console.log('User authenticated successfully');
       res.json(user);
     } else {
+      console.log('User not authenticated - no user in session');
       res.status(401).json({ error: 'Not authenticated' });
     }
   }
