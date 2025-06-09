@@ -10,11 +10,12 @@ export function setupAwsAuth() {
     return;
   }
 
-  // Determine the domain based on environment
-  const isProduction = process.env.NODE_ENV === 'production';
-  const appDomain = isProduction 
-    ? process.env.APP_DOMAIN || 'https://portfolio-tr.replit.app'
-    : 'http://localhost:5000';
+  // Use dynamic domain from environment or headers
+  const appDomain = process.env.REPLIT_DOMAINS 
+    ? `https://${process.env.REPLIT_DOMAINS}`
+    : (process.env.NODE_ENV === 'production' 
+        ? process.env.APP_DOMAIN || 'https://tomriddelsdell.replit.app'
+        : 'http://localhost:5000');
 
   // Use environment variables if available, otherwise use defaults
   const region = process.env.VITE_AWS_COGNITO_REGION || 'us-east-1';
