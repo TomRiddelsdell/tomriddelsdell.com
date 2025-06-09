@@ -13,6 +13,8 @@ export default function AuthCallback() {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         const error = urlParams.get('error');
+        const state = urlParams.get('state');
+        const returnUrl = state ? decodeURIComponent(state) : null;
 
         if (error) {
           console.error('Auth error:', error);
@@ -26,7 +28,19 @@ export default function AuthCallback() {
         }
 
         if (code) {
-          // Use the simple Cognito handler
+          console.log('Processing authentication callback...');
+          
+          // Check if this is running on the production domain
+          const isProductionDomain = window.location.hostname === 'tomriddelsdell.replit.app';
+          
+          if (isProductionDomain && returnUrl) {
+            // This is the production bridge - redirect back to development with the code
+            console.log('Redirecting back to development with auth code');
+            window.location.href = `${returnUrl}/auth/callback?code=${encodeURIComponent(code)}`;
+            return;
+          }
+          
+          // This is the development environment - process the authentication
           await handleAuthCallback(code);
           
           toast({
