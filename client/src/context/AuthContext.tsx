@@ -113,12 +113,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     setIsLoading(true);
     try {
-      await authSignOut();
-      setUser(null);
-      toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
+      const response = await fetch('/api/auth/signout', {
+        method: 'POST',
+        credentials: 'include'
       });
+      
+      if (response.ok) {
+        setUser(null);
+        toast({
+          title: "Signed out",
+          description: "You have been successfully signed out.",
+        });
+      } else {
+        throw new Error('Sign out failed');
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to sign out";
       toast({
