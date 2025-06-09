@@ -20,7 +20,9 @@ export interface ClientAuthConfig {
  * Get the current base URL dynamically
  */
 function getBaseUrl(): string {
-  return window.location.origin;
+  // Always use stable production domain for Cognito callbacks
+  // This eliminates the need to update AWS configuration for dev URL changes
+  return 'https://tomriddelsdell.replit.app';
 }
 
 /**
