@@ -18,9 +18,13 @@ import { getAuthConfig, validateAuthConfig } from "./auth-config";
 const SessionStore = MemoryStore(session);
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Configure session
+  // Validate authentication configuration
+  validateAuthConfig();
+  const authConfig = getAuthConfig();
+  
+  // Configure session with centralized config
   const sessionMiddleware = session({
-    secret: process.env.SESSION_SECRET || 'flowcreate_secret',
+    secret: authConfig.session.secret,
     resave: false,
     saveUninitialized: false,
     cookie: { 
