@@ -19,6 +19,7 @@ import Security from "@/pages/Security";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import AuthCallback from "@/pages/AuthCallback";
 import { ThemeProvider } from "@/components/ui/theme-provider";
+import { AuthProvider } from "@/context/AuthContext";
 
 function Router() {
   return (
@@ -74,12 +75,14 @@ function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="flowcreate-theme">
       <QueryClientProvider client={queryClient}>
-        <LanguageProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </LanguageProvider>
+        <AuthProvider>
+          <LanguageProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </LanguageProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );
