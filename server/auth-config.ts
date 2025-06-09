@@ -25,17 +25,20 @@ export interface AuthConfig {
  * Get the current base URL dynamically
  */
 function getBaseUrl(): string {
-  // Priority: Replit domain > custom domain > localhost
+  // Use static production domain for AWS Cognito compatibility
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.PRODUCTION_DOMAIN || 'https://tomriddelsdell.replit.app';
+  }
+  
+  // For development, still use production domain for Cognito callbacks
+  // This ensures consistent callback URLs that don't change with dev restarts
+  if (process.env.USE_PRODUCTION_DOMAIN_FOR_DEV === 'true') {
+    return process.env.PRODUCTION_DOMAIN || 'https://tomriddelsdell.replit.app';
+  }
+  
+  // Fallback to current domain for local testing
   if (process.env.REPLIT_DOMAINS) {
     return `https://${process.env.REPLIT_DOMAINS}`;
-  }
-  
-  if (process.env.CUSTOM_DOMAIN) {
-    return `https://${process.env.CUSTOM_DOMAIN}`;
-  }
-  
-  if (process.env.NODE_ENV === 'production') {
-    return process.env.APP_DOMAIN || 'https://tomriddelsdell.replit.app';
   }
   
   return 'http://localhost:5000';
