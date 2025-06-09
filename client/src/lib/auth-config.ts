@@ -20,7 +20,9 @@ export interface ClientAuthConfig {
  * Get the current base URL dynamically
  */
 function getBaseUrl(): string {
-  return window.location.origin;
+  // Temporarily force stable domain until environment variables are set
+  console.log('Using stable domain for Cognito authentication');
+  return 'https://tomriddelsdell.replit.app';
 }
 
 /**
