@@ -231,34 +231,9 @@ export default function Home() {
                 </Link>
               </div>
             ) : (
-              <div className="flex gap-2">
-                <Button onClick={redirectToCognito}>
-                  Sign In
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    const clientId = import.meta.env.VITE_AWS_COGNITO_CLIENT_ID;
-                    const hostedDomain = import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN;
-                    
-                    // Force use of Replit domain to match configured redirect URIs
-                    const forceReplatDomain = 'https://workspace--triddelsdell.repl.co';
-                    const redirectUri = `${forceReplatDomain}/auth/callback`;
-                    
-                    const params = new URLSearchParams({
-                      'response_type': 'code',
-                      'client_id': clientId,
-                      'redirect_uri': redirectUri,
-                      'scope': 'openid email profile'
-                    });
-                    const url = `${hostedDomain}/login?${params.toString()}`;
-                    
-                    alert(`Current Origin: ${window.location.origin}\nForced Origin: ${forceReplatDomain}\nURL: ${url}\n\nParameters:\n${params.toString()}\n\nRedirect URI: ${redirectUri}`);
-                  }}
-                >
-                  Debug URL
-                </Button>
-              </div>
+              <Button onClick={redirectToCognito}>
+                Sign In
+              </Button>
             )}
           </nav>
           {/* Mobile nav toggle */}
