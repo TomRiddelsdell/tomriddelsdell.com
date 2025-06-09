@@ -71,7 +71,12 @@ export class SimpleCognitoHandler {
   }
 
   private async exchangeCodeForTokens(code: string, req: Request): Promise<TokenResponse> {
-    const redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`;
+    // Use the same redirect URI that was used in the authorization request
+    const host = req.get('host');
+    const protocol = req.get('x-forwarded-proto') || req.protocol;
+    const redirectUri = `${protocol}://${host}/auth/callback`;
+    
+    console.log('Token exchange redirect URI:', redirectUri);
     
     const response = await fetch(`${this.hostedUIDomain}/oauth2/token`, {
       method: 'POST',

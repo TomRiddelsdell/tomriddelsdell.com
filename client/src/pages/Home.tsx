@@ -115,7 +115,7 @@ export default function Home() {
     
     if (code) {
       // Exchange authorization code for tokens
-      fetch('/api/auth/cognito-callback', {
+      fetch('/api/auth/callback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
