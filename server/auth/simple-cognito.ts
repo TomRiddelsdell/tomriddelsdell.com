@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { getAuthConfig } from '../auth-config';
 
 interface TokenResponse {
   access_token: string;
@@ -15,12 +16,10 @@ interface CognitoUser {
 }
 
 export class SimpleCognitoHandler {
-  private clientId: string;
-  private hostedUIDomain: string;
+  private config = getAuthConfig();
 
   constructor() {
-    this.clientId = process.env.VITE_AWS_COGNITO_CLIENT_ID!;
-    this.hostedUIDomain = process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN!;
+    // Configuration is now centralized
   }
 
   // Handle the callback from Cognito with authorization code
@@ -71,21 +70,19 @@ export class SimpleCognitoHandler {
   }
 
   private async exchangeCodeForTokens(code: string, req: Request): Promise<TokenResponse> {
-    // Use the same redirect URI that was used in the authorization request
-    const host = req.get('host');
-    const protocol = req.get('x-forwarded-proto') || req.protocol;
-    const redirectUri = `${protocol}://${host}/auth/callback`;
+    // Use the centralized callback URL
+    const redirectUri = this.config.urls.callbackUrl;
     
     console.log('Token exchange redirect URI:', redirectUri);
     
-    const response = await fetch(`${this.hostedUIDomain}/oauth2/token`, {
+    const response = await fetch(`${this.config.cognito.hostedUIDomain}/oauth2/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
-        client_id: this.clientId,
+        client_id: this.config.cognito.clientId,
         code,
         redirect_uri: redirectUri,
       }),
