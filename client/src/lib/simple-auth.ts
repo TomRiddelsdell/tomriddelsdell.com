@@ -4,7 +4,18 @@ export function redirectToCognito() {
   const hostedDomain = import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN;
   
   // Use the configured redirect URI that matches Cognito app client settings
-  const redirectUri = `${window.location.origin}/auth/callback`;
+  // Force use of Replit domain since custom domain might be causing redirects
+  const currentOrigin = window.location.origin;
+  const replitDomain = 'https://workspace--triddelsdell.repl.co';
+  const redirectUri = `${replitDomain}/auth/callback`;
+  
+  console.log('Current origin:', currentOrigin);
+  console.log('Using Replit domain for callback:', replitDomain);
+  console.log('Expected origins from Cognito config:', [
+    'https://workspace--triddelsdell.repl.co',
+    'https://tomriddelsdell.com', 
+    'https://tomriddelsdell.replit.app'
+  ]);
   
   console.log('Cognito redirect attempt:', {
     clientId,
