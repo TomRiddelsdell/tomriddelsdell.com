@@ -2,9 +2,20 @@
 export function redirectToCognito() {
   const clientId = import.meta.env.VITE_AWS_COGNITO_CLIENT_ID;
   const hostedDomain = import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN;
-  const redirectUri = encodeURIComponent(`${window.location.origin}/auth/callback`);
   
-  const url = `${hostedDomain}/login?client_id=${clientId}&response_type=code&scope=openid+email+profile&redirect_uri=${redirectUri}`;
+  // Use the configured redirect URI that matches Cognito app client settings
+  const redirectUri = `${window.location.origin}/auth/callback`;
+  
+  console.log('Cognito redirect attempt:', {
+    clientId,
+    hostedDomain, 
+    redirectUri,
+    origin: window.location.origin
+  });
+  
+  const url = `${hostedDomain}/login?client_id=${clientId}&response_type=code&scope=openid+email+profile&redirect_uri=${encodeURIComponent(redirectUri)}`;
+  
+  console.log('Final Cognito URL:', url);
   window.location.href = url;
 }
 
