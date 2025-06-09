@@ -12,10 +12,12 @@ export class GoogleAuthProvider implements AuthProvider {
     this.clientId = options.clientId || process.env.GOOGLE_CLIENT_ID || "";
     this.clientSecret = options.clientSecret || process.env.GOOGLE_CLIENT_SECRET || "";
     
-    // Use a dynamic callback URL based on the environment
-    const host = process.env.NODE_ENV === 'production' 
-      ? process.env.HOST_URL || 'https://portfolio.replit.app'
-      : 'http://localhost:5000';
+    // Use dynamic callback URL based on current environment
+    const host = process.env.REPLIT_DOMAINS 
+      ? `https://${process.env.REPLIT_DOMAINS}`
+      : (process.env.NODE_ENV === 'production' 
+          ? process.env.HOST_URL || 'https://tomriddelsdell.replit.app'
+          : 'http://localhost:5000');
     
     this.callbackURL = `${host}/api/auth/google/callback`;
     
