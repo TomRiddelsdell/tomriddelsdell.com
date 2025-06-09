@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { redirectToCognito, redirectToSignOut, getCurrentUser } from '@/lib/simple-auth';
+import { redirectToCognito, getCurrentUser } from '@/lib/simple-auth';
+import { useAuth } from "@/context/AuthContext";
 
 import { Link, useLocation } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
@@ -14,26 +15,21 @@ import BackgroundSection from "@/components/BackgroundSection";
 import ContentContainer from "@/components/ContentContainer";
 
 export default function Home() {
-  const [user, setUser] = React.useState(null);
-  const [isLoadingAuth, setIsLoadingAuth] = React.useState(true);
-  const isAuthenticated = !!user;
+  const { user: authUser, signOut, isLoading: isLoadingAuth } = useAuth();
+  const isAuthenticated = !!authUser;
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   
-  // Check authentication status on mount
-  React.useEffect(() => {
-    getCurrentUser().then(userData => {
-      setUser(userData);
-      setIsLoadingAuth(false);
-    });
-  }, []);
-  
   // Handle user sign out
-  const handleSignOut = () => {
-    redirectToSignOut();
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
   };
 
   // Form state

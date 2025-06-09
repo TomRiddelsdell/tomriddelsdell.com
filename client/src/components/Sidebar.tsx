@@ -147,7 +147,23 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
                   {user.email || ""}
                 </p>
               </div>
-              <Button variant="ghost" size="icon" className="ml-2 text-gray-500 hover:text-gray-700" onClick={signOut}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="ml-2 text-gray-500 hover:text-gray-700" 
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Sign out button clicked');
+                  try {
+                    await signOut();
+                    console.log('Sign out completed');
+                  } catch (error) {
+                    console.error('Sign out error:', error);
+                  }
+                }}
+                title="Sign out"
+              >
                 <LogOut size={18} />
               </Button>
             </div>
