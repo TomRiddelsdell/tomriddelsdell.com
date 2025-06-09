@@ -1,3 +1,5 @@
+import { getClientAuthConfig } from './auth-config';
+
 // Simple AWS Cognito authentication using the hosted UI
 export interface CognitoUser {
   id: string;
@@ -6,36 +8,32 @@ export interface CognitoUser {
 }
 
 class CognitoAuth {
-  private clientId: string;
-  private hostedUIDomain: string;
-  private redirectUri: string;
+  private config = getClientAuthConfig();
 
   constructor() {
-    this.clientId = import.meta.env.VITE_AWS_COGNITO_CLIENT_ID;
-    this.hostedUIDomain = import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN;
-    this.redirectUri = `${window.location.origin}/auth/callback`;
+    // Configuration is now centralized
   }
 
   // Redirect to Cognito hosted UI for login
   signIn() {
     const params = new URLSearchParams({
-      client_id: this.clientId,
+      client_id: this.config.cognito.clientId,
       response_type: 'code',
       scope: 'openid email profile',
-      redirect_uri: this.redirectUri
+      redirect_uri: this.config.urls.callbackUrl
     });
 
-    window.location.href = `${this.hostedUIDomain}/login?${params}`;
+    window.location.href = `${this.config.cognito.hostedUIDomain}/login?${params}`;
   }
 
   // Sign out by redirecting to Cognito logout
   signOut() {
     const params = new URLSearchParams({
-      client_id: this.clientId,
-      logout_uri: window.location.origin
+      client_id: this.config.cognito.clientId,
+      logout_uri: this.config.urls.logoutUrl
     });
 
-    window.location.href = `${this.hostedUIDomain}/logout?${params}`;
+    window.location.href = `${this.config.cognito.hostedUIDomain}/logout?${params}`;
   }
 
   // Check authentication status
