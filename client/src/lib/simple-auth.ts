@@ -13,9 +13,27 @@ export function redirectToCognito() {
     origin: window.location.origin
   });
   
-  const url = `${hostedDomain}/login?client_id=${clientId}&response_type=code&scope=openid+email+profile&redirect_uri=${encodeURIComponent(redirectUri)}`;
+  // Try different parameter orders and formats that Cognito might expect
+  const params = new URLSearchParams({
+    'response_type': 'code',
+    'client_id': clientId,
+    'redirect_uri': redirectUri,
+    'scope': 'openid email profile'
+  });
+  
+  const url = `${hostedDomain}/login?${params.toString()}`;
   
   console.log('Final Cognito URL:', url);
+  console.log('URL parameters:', params.toString());
+  
+  // Log each parameter separately for debugging
+  console.log('Individual parameters:', {
+    response_type: 'code',
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    scope: 'openid email profile'
+  });
+  
   window.location.href = url;
 }
 
