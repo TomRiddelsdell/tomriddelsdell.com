@@ -13,6 +13,7 @@ import { sql } from "drizzle-orm";
 import { AuthController } from "./auth/auth-controller";
 // Import the migration function
 import { migrateToCognito } from "./migrations/add-cognito-support";
+import { getAuthConfig, validateAuthConfig } from "./auth-config";
 
 const SessionStore = MemoryStore(session);
 
