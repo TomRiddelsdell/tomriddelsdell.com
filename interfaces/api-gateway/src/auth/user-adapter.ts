@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { users, type User } from '@shared/schema';
+import { users, type User } from '../../../../shared/schema';
 import { eq } from 'drizzle-orm';
 import { AuthUser } from './types';
 import authService from './index';
