@@ -57,7 +57,7 @@ export class NotificationCommandHandler {
       const notification = Notification.create(
         command.userId,
         command.title,
-        command.message,
+        command.content,
         command.type,
         priority,
         channels
@@ -109,7 +109,7 @@ export class NotificationCommandHandler {
         const notification = Notification.create(
           command.userId,
           command.title,
-          command.message,
+          command.content,
           command.type,
           priority,
           channels
@@ -251,7 +251,7 @@ export class NotificationCommandHandler {
       const notification = Notification.create(
         command.userId,
         command.title,
-        command.message,
+        command.content,
         command.type,
         priority,
         channels
@@ -282,19 +282,19 @@ export class NotificationCommandHandler {
     const errors: string[] = [];
 
     if (!title || title.trim().length === 0) {
-      errors.push('Title cannot be empty');
+      errors.push('Title is required');
     } else if (title.length > 100) {
       errors.push('Title too long (max 100 characters)');
     }
 
     if (!content || content.trim().length === 0) {
-      errors.push('Content cannot be empty');
+      errors.push('Content is required');
     } else if (content.length > 500) {
       errors.push('Content too long (max 500 characters)');
     }
 
     if (!channels || channels.length === 0) {
-      errors.push('At least one channel must be specified');
+      errors.push('At least one delivery channel is required');
     }
 
     // Channel-specific validation
