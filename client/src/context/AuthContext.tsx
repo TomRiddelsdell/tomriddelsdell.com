@@ -131,7 +131,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       if (response.ok) {
+        const data = await response.json();
         setUser(null);
+        
+        // If we have a Cognito logout URL, redirect to it
+        if (data.cognitoLogoutUrl) {
+          window.location.href = data.cognitoLogoutUrl;
+          return; // Don't show toast since we're redirecting
+        }
+        
         toast({
           title: "Signed out",
           description: "You have been successfully signed out.",

@@ -141,7 +141,15 @@ export class SimpleCognitoHandler {
         console.error('Session destroy error:', err);
         return res.status(500).json({ error: 'Sign out failed' });
       }
-      res.json({ message: 'Signed out successfully' });
+      
+      // Return the Cognito logout URL so frontend can redirect
+      const logoutUri = encodeURIComponent(this.config.urls.logoutUrl);
+      const cognitoLogoutUrl = `${this.config.cognito.hostedUIDomain}/logout?client_id=${this.config.cognito.clientId}&logout_uri=${logoutUri}`;
+      
+      res.json({ 
+        message: 'Signed out successfully',
+        cognitoLogoutUrl: cognitoLogoutUrl
+      });
     });
   }
 
