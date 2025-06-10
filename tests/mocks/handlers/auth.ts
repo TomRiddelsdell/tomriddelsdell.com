@@ -1,22 +1,61 @@
 import { http, HttpResponse } from 'msw';
 
+let currentUser: any = null;
+
 export const authHandlers = [
-  http.get('/api/auth/status', () => {
-    return HttpResponse.json({ user: null });
+  // Current user endpoint
+  http.get('/api/auth/me', () => {
+    if (currentUser) {
+      return HttpResponse.json(currentUser);
+    }
+    return HttpResponse.json(
+      { error: 'Not authenticated' },
+      { status: 401 }
+    );
   }),
 
+  // Auth callback endpoint (simulates Cognito callback)
+  http.post('/api/auth/callback', async ({ request }) => {
+    const { code } = await request.json() as any;
+    
+    if (code === 'valid_test_code') {
+      currentUser = {
+        id: 1,
+        email: 'test@example.com',
+        displayName: 'Test User',
+        cognitoId: 'test-cognito-id-123'
+      };
+      
+      return HttpResponse.json(currentUser);
+    }
+    
+    return HttpResponse.json(
+      { error: 'Authentication failed' },
+      { status: 500 }
+    );
+  }),
+
+  // Sign out endpoint
+  http.post('/api/auth/signout', () => {
+    currentUser = null;
+    return HttpResponse.json({ 
+      message: 'Signed out successfully',
+      cognitoLogoutUrl: 'https://test-cognito.auth.us-east-1.amazoncognito.com/logout?client_id=test&logout_uri=http://localhost:5173'
+    });
+  }),
+
+  // Legacy auth endpoints for backward compatibility tests
   http.post('/api/auth/signin', async ({ request }) => {
     const { email, password } = await request.json() as any;
     
     if (email === 'test@example.com' && password === 'password123') {
-      return HttpResponse.json({
-        user: {
-          id: 1,
-          email: 'test@example.com',
-          displayName: 'Test User',
-          provider: 'cognito'
-        }
-      });
+      currentUser = {
+        id: 1,
+        email: 'test@example.com',
+        displayName: 'Test User',
+        provider: 'cognito'
+      };
+      return HttpResponse.json({ user: currentUser });
     }
     
     return HttpResponse.json(
@@ -24,21 +63,4 @@ export const authHandlers = [
       { status: 401 }
     );
   }),
-
-  http.post('/api/auth/signup', async ({ request }) => {
-    const { email, password } = await request.json() as any;
-    
-    return HttpResponse.json({
-      user: {
-        id: 2,
-        email,
-        displayName: email.split('@')[0],
-        provider: 'cognito'
-      }
-    }, { status: 201 });
-  }),
-
-  http.post('/api/auth/signout', () => {
-    return HttpResponse.json({ message: 'Signed out successfully' });
-  })
 ];
