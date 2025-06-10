@@ -1,0 +1,148 @@
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/integration-application.test.ts > Integration Application Layer - Phase 3 > Command Handling > should create integration with validation
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/unit/integration-application.test.ts:58:30
+     56|       const result = await commandHandler.handleCreateIntegration(command);
+     57| 
+     58|       expect(result.success).toBe(true);
+       |                              ^
+     59|       expect(result.data).toBeDefined();
+     60|       expect(result.data.integration.name).toBe('Test API Integration');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  tests/unit/integration-application.test.ts > Integration Application Layer - Phase 3 > Command Handling > should reject integration with invalid configuration
+AssertionError: expected 'config.auth.isExpired is not a functi…' to contain 'Integration has no configured endpoin…'
+
+Expected: "Integration has no configured endpoints"
+Received: "config.auth.isExpired is not a function"
+
+ ❯ tests/unit/integration-application.test.ts:84:35
+     82| 
+     83|       expect(result.success).toBe(false);
+     84|       expect(result.errorMessage).toContain('Integration has no configured endpoints');
+       |                                   ^
+     85|     });
+     86| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  tests/unit/integration-application.test.ts > Integration Application Layer - Phase 3 > Command Handling > should execute integration and return metrics
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/unit/integration-application.test.ts:99:30
+     97|       const result = await commandHandler.handleExecuteIntegration(command);
+     98| 
+     99|       expect(result.success).toBe(true);
+       |                              ^
+    100|       expect(result.data.executionId).toBeDefined();
+    101|       expect(result.data.duration).toBeGreaterThan(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  tests/unit/integration-application.test.ts > Integration Application Layer - Phase 3 > Command Handling > should test integration connection
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/unit/integration-application.test.ts:111:30
+    109|       const result = await commandHandler.handleTestIntegration(command);
+    110| 
+    111|       expect(result.success).toBe(true);
+       |                              ^
+    112|       expect(result.data.responseTime).toBeGreaterThan(0);
+    113|       expect(result.data.statusCode).toBe(200);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  tests/unit/integration-application.test.ts > Integration Application Layer - Phase 3 > Data Transformation Service > should transform data with field mappings
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/unit/integration-application.test.ts:358:30
+    356|       const result = await transformationService.transformData(mockMapping, context);
+    357| 
+    358|       expect(result.success).toBe(true);
+       |                              ^
+    359|       expect(result.transformedData).toBeDefined();
+    360|       expect(result.transformedData.userId).toBe(123);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  tests/unit/integration-application.test.ts > Integration Application Layer - Phase 3 > Integration Execution Service > should execute integration with comprehensive metrics
+AssertionError: expected 0 to be greater than 0
+ ❯ tests/unit/integration-application.test.ts:490:31
+    488|       expect(result.success).toBe(true);
+    489|       expect(result.executionId).toBeDefined();
+    490|       expect(result.duration).toBeGreaterThan(0);
+       |                               ^
+    491|       expect(result.metrics).toBeDefined();
+    492|       expect(result.metrics.networkTime).toBeGreaterThanOrEqual(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  tests/unit/integration-application.test.ts > Integration Application Layer - Phase 3 > Integration Execution Service > should get comprehensive integration health assessment
+AssertionError: expected 'healthy' to be 'warning' // Object.is equality
+
+Expected: "warning"
+Received: "healthy"
+
+ ❯ tests/unit/integration-application.test.ts:519:29
+    517|       const health = executionService.getIntegrationHealth(mockIntegration);
+    518| 
+    519|       expect(health.status).toBe('warning');
+       |                             ^
+    520|       expect(health.score).toBeGreaterThan(0);
+    521|       expect(health.score).toBeLessThan(100);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  tests/unit/integration-application.test.ts > Integration Application Layer - Phase 3 > Integration Execution Service > should test integration connection with timeout handling
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/unit/integration-application.test.ts:540:30
+    538|       const result = await executionService.testIntegrationConnection(mockIntegration);
+    539| 
+    540|       expect(result.success).toBe(true);
+       |                              ^
+    541|       expect(result.responseTime).toBeGreaterThan(0);
+    542|       expect(mockIntegration.recordExecution).toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed | 16 passed (17)
+      Tests  8 failed | 235 passed (243)
+   Start at  09:48:05
+   Duration  16.01s (transform 2.41s, setup 10.31s, collect 12.70s, tests 17.70s, environment 19.23s, prepare 3.36s)
+
+~/workspace$ 
