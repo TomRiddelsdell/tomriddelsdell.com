@@ -115,7 +115,7 @@ export default function RecentWorkflows() {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">{workflow.name}</div>
-                          <div className="text-sm text-gray-500">{workflow.createdAt}</div>
+                          <div className="text-sm text-gray-500">{new Date(workflow.createdAt).toLocaleDateString()}</div>
                         </div>
                       </div>
                     </td>
