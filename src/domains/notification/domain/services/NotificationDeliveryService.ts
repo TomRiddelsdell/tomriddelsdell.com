@@ -314,8 +314,11 @@ export class NotificationDeliveryService {
     // In a real implementation, this would schedule the retry
     // For now, we'll just update metadata
     notification.updateMetadata({
-      nextRetryAt: new Date(Date.now() + delay).toISOString(),
-      retryScheduled: true
+      customData: {
+        ...notification.getMetadata().customData,
+        nextRetryAt: new Date(Date.now() + delay).toISOString(),
+        retryScheduled: true
+      }
     });
   }
 
