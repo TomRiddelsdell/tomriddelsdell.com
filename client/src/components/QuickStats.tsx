@@ -17,7 +17,7 @@ export default function QuickStats() {
     timeSaved: '0h'
   };
 
-  const displayStats = stats || defaultStats;
+  const displayStats = (stats as typeof defaultStats) || defaultStats;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
