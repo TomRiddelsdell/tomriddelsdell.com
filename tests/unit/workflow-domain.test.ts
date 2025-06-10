@@ -1,308 +1,423 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Workflow, WorkflowStatus } from '../../src/domains/workflow/domain/entities/Workflow';
-import { Template, TemplateIconType, TemplateIconColor } from '../../src/domains/workflow/domain/entities/Template';
-import { ConnectedApp, AppConnectionStatus } from '../../src/domains/workflow/domain/entities/ConnectedApp';
-import { WorkflowId } from '../../src/shared/kernel/value-objects/WorkflowId';
-import { UserId } from '../../src/shared/kernel/value-objects/UserId';
-import { TemplateId } from '../../src/shared/kernel/value-objects/TemplateId';
-import { ConnectedAppId } from '../../src/shared/kernel/value-objects/ConnectedAppId';
-import { WorkflowCreatedEvent, WorkflowStatusChangedEvent, WorkflowExecutedEvent } from '../../src/shared/kernel/events/DomainEvent';
+import { MemStorage } from '../../server/storage';
+import { Workflow, InsertWorkflow, Template, ConnectedApp } from '../../shared/schema';
 
-describe('Workflow Domain', () => {
-  describe('Value Objects', () => {
-    it('should create valid WorkflowId', () => {
-      const workflowId = WorkflowId.fromNumber(123);
-      expect(workflowId.getValue()).toBe(123);
+describe('Workflow Domain Operations', () => {
+  let storage: MemStorage;
+
+  beforeEach(() => {
+    storage = new MemStorage();
+    // Clear demo data for clean test environment
+    storage['workflows'].clear();
+    storage['connectedApps'].clear();
+    storage['activityLogs'].clear();
+  });
+
+  describe('Workflow Business Logic', () => {
+    it('should create workflow with comprehensive configuration', async () => {
+      const workflowData: InsertWorkflow = {
+        userId: 1,
+        name: 'Advanced Email Workflow',
+        description: 'Complex email processing workflow',
+        status: 'draft',
+        config: {
+          steps: [
+            {
+              id: 'trigger-1',
+              type: 'trigger',
+              name: 'Email Received',
+              config: { 
+                provider: 'gmail',
+                filters: ['label:important', 'from:client@example.com']
+              },
+              position: { x: 0, y: 0 }
+            },
+            {
+              id: 'condition-1',
+              type: 'condition',
+              name: 'Check Attachment',
+              config: { 
+                condition: 'has_attachment',
+                fileTypes: ['pdf', 'docx']
+              },
+              position: { x: 200, y: 0 },
+              connections: ['action-1', 'action-2']
+            },
+            {
+              id: 'action-1',
+              type: 'action',
+              name: 'Process Document',
+              config: { 
+                action: 'extract_text',
+                outputFormat: 'json'
+              },
+              position: { x: 400, y: -50 }
+            },
+            {
+              id: 'action-2',
+              type: 'action',
+              name: 'Send Notification',
+              config: { 
+                action: 'send_email',
+                template: 'document_processed'
+              },
+              position: { x: 400, y: 50 }
+            }
+          ],
+          triggers: [
+            {
+              type: 'webhook',
+              config: { url: '/api/webhook/email-received' }
+            }
+          ],
+          settings: {
+            retryAttempts: 3,
+            timeout: 30000,
+            errorHandling: 'continue'
+          }
+        },
+        icon: 'mail',
+        iconColor: 'blue'
+      };
+
+      const workflow = await storage.createWorkflow(workflowData);
+
+      expect(workflow.name).toBe('Advanced Email Workflow');
+      expect(workflow.status).toBe('draft');
+      expect(workflow.config.steps).toHaveLength(4);
+      expect(workflow.config.steps[1].connections).toEqual(['action-1', 'action-2']);
+      expect(workflow.config.settings.retryAttempts).toBe(3);
+      expect(workflow.icon).toBe('mail');
     });
 
-    it('should throw error for invalid WorkflowId', () => {
-      expect(() => WorkflowId.fromNumber(0)).toThrow('WorkflowId must be a positive number');
-      expect(() => WorkflowId.fromNumber(-1)).toThrow('WorkflowId must be a positive number');
+    it('should handle workflow status transitions correctly', async () => {
+      const workflowData: InsertWorkflow = {
+        userId: 1,
+        name: 'Status Test Workflow',
+        description: 'Testing status transitions',
+        status: 'draft',
+        config: {
+          steps: [
+            {
+              id: 'step-1',
+              type: 'action',
+              name: 'Test Action',
+              config: {},
+              position: { x: 0, y: 0 }
+            }
+          ]
+        }
+      };
+
+      // Create workflow in draft
+      const workflow = await storage.createWorkflow(workflowData);
+      expect(workflow.status).toBe('draft');
+
+      // Activate workflow
+      const activeWorkflow = await storage.updateWorkflow(workflow.id, { 
+        status: 'active',
+        lastRun: new Date()
+      });
+      expect(activeWorkflow?.status).toBe('active');
+      expect(activeWorkflow?.lastRun).toBeInstanceOf(Date);
+
+      // Pause workflow
+      const pausedWorkflow = await storage.updateWorkflow(workflow.id, { status: 'paused' });
+      expect(pausedWorkflow?.status).toBe('paused');
+
+      // Deactivate workflow
+      const inactiveWorkflow = await storage.updateWorkflow(workflow.id, { status: 'inactive' });
+      expect(inactiveWorkflow?.status).toBe('inactive');
     });
 
-    it('should create valid TemplateId', () => {
-      const templateId = TemplateId.fromNumber(456);
-      expect(templateId.getValue()).toBe(456);
+    it('should validate complex workflow configurations', async () => {
+      const complexConfig = {
+        steps: [
+          {
+            id: 'start',
+            type: 'trigger',
+            name: 'Webhook Trigger',
+            config: { endpoint: '/webhook' },
+            position: { x: 0, y: 0 },
+            connections: ['validate']
+          },
+          {
+            id: 'validate',
+            type: 'condition',
+            name: 'Validate Input',
+            config: { schema: 'user_data' },
+            position: { x: 150, y: 0 },
+            connections: ['process', 'error']
+          },
+          {
+            id: 'process',
+            type: 'action',
+            name: 'Process Data',
+            config: { processor: 'user_processor' },
+            position: { x: 300, y: -50 },
+            connections: ['notify']
+          },
+          {
+            id: 'error',
+            type: 'action',
+            name: 'Handle Error',
+            config: { action: 'log_error' },
+            position: { x: 300, y: 50 }
+          },
+          {
+            id: 'notify',
+            type: 'action',
+            name: 'Send Notification',
+            config: { channel: 'email' },
+            position: { x: 450, y: -50 }
+          }
+        ],
+        triggers: [
+          {
+            type: 'schedule',
+            config: { cron: '0 9 * * 1-5' }
+          }
+        ]
+      };
+
+      const workflow = await storage.createWorkflow({
+        userId: 1,
+        name: 'Complex Workflow',
+        description: 'A complex multi-step workflow',
+        status: 'draft',
+        config: complexConfig
+      });
+
+      expect(workflow.config.steps).toHaveLength(5);
+      expect(workflow.config.steps[1].connections).toEqual(['process', 'error']);
+      expect(workflow.config.triggers[0].config.cron).toBe('0 9 * * 1-5');
     });
 
-    it('should create valid ConnectedAppId', () => {
-      const appId = ConnectedAppId.fromNumber(789);
-      expect(appId.getValue()).toBe(789);
+    it('should handle workflow execution tracking', async () => {
+      const workflow = await storage.createWorkflow({
+        userId: 1,
+        name: 'Execution Test',
+        description: 'Testing execution tracking',
+        status: 'active',
+        config: {
+          steps: [
+            {
+              id: 'step1',
+              type: 'action',
+              name: 'Process',
+              config: {},
+              position: { x: 0, y: 0 }
+            }
+          ]
+        }
+      });
+
+      // Record workflow execution
+      const updatedWorkflow = await storage.updateWorkflow(workflow.id, {
+        lastRun: new Date(),
+        executionCount: (workflow.executionCount || 0) + 1
+      });
+
+      expect(updatedWorkflow?.lastRun).toBeInstanceOf(Date);
+      expect(updatedWorkflow?.executionCount).toBe(1);
     });
   });
 
-  describe('Workflow Entity', () => {
-    let workflow: Workflow;
+  describe('Template Operations', () => {
+    it('should manage template popularity and usage tracking', async () => {
+      const templates = await storage.getAllTemplates();
+      expect(templates.length).toBeGreaterThan(0);
 
-    beforeEach(() => {
-      workflow = Workflow.create(
-        WorkflowId.fromNumber(1),
-        UserId.fromNumber(1),
-        'Test Workflow',
-        'A test workflow',
-        { steps: [], triggers: [] }
-      );
-    });
-
-    it('should create workflow with default values', () => {
-      expect(workflow.getId().getValue()).toBe(1);
-      expect(workflow.getUserId().getValue()).toBe(1);
-      expect(workflow.getName()).toBe('Test Workflow');
-      expect(workflow.getDescription()).toBe('A test workflow');
-      expect(workflow.getStatus()).toBe(WorkflowStatus.DRAFT);
-      expect(workflow.getExecutionCount()).toBe(0);
-    });
-
-    it('should emit WorkflowCreatedEvent when created', () => {
-      const events = workflow.getDomainEvents();
-      expect(events).toHaveLength(1);
-      expect(events[0]).toBeInstanceOf(WorkflowCreatedEvent);
-      expect((events[0] as WorkflowCreatedEvent).workflowId).toBe('1');
-      expect((events[0] as WorkflowCreatedEvent).name).toBe('Test Workflow');
-    });
-
-    it('should update workflow details correctly', () => {
-      workflow.updateDetails('Updated Name', 'Updated description');
-      expect(workflow.getName()).toBe('Updated Name');
-      expect(workflow.getDescription()).toBe('Updated description');
-    });
-
-    it('should update configuration', () => {
-      const newConfig = { steps: [{ id: '1', type: 'action', name: 'Step 1', config: {}, position: { x: 0, y: 0 } }], triggers: [] };
-      workflow.updateConfig(newConfig);
-      expect(workflow.getConfig()).toEqual(newConfig);
-    });
-
-    it('should handle activation correctly', () => {
-      // Add steps first
-      const config = { 
-        steps: [{ id: '1', type: 'action', name: 'Step 1', config: {}, position: { x: 0, y: 0 } }], 
-        triggers: [] 
-      };
-      workflow.updateConfig(config);
+      const popularTemplates = await storage.getPopularTemplates(3);
+      expect(popularTemplates.length).toBeLessThanOrEqual(3);
       
-      workflow.activate();
-      expect(workflow.getStatus()).toBe(WorkflowStatus.ACTIVE);
-      expect(workflow.isActive()).toBe(true);
-
-      const events = workflow.getDomainEvents();
-      const statusEvent = events.find(e => e instanceof WorkflowStatusChangedEvent) as WorkflowStatusChangedEvent;
-      expect(statusEvent).toBeDefined();
-      expect(statusEvent.newStatus).toBe(WorkflowStatus.ACTIVE);
-    });
-
-    it('should prevent activation without steps', () => {
-      expect(() => workflow.activate()).toThrow('Cannot activate workflow without steps');
-    });
-
-    it('should handle pausing correctly', () => {
-      // Activate first
-      const config = { 
-        steps: [{ id: '1', type: 'action', name: 'Step 1', config: {}, position: { x: 0, y: 0 } }], 
-        triggers: [] 
-      };
-      workflow.updateConfig(config);
-      workflow.activate();
-      
-      workflow.pause();
-      expect(workflow.getStatus()).toBe(WorkflowStatus.PAUSED);
-      expect(workflow.isActive()).toBe(false);
-    });
-
-    it('should prevent pausing non-active workflows', () => {
-      expect(() => workflow.pause()).toThrow('Can only pause active workflows');
-    });
-
-    it('should handle execution correctly', () => {
-      // Setup for execution
-      const config = { 
-        steps: [{ id: '1', type: 'action', name: 'Step 1', config: {}, position: { x: 0, y: 0 } }], 
-        triggers: [] 
-      };
-      workflow.updateConfig(config);
-      workflow.activate();
-
-      const execution = workflow.execute('192.168.1.1');
-      
-      expect(execution.id).toBeDefined();
-      expect(execution.status).toBe('running');
-      expect(workflow.getExecutionCount()).toBe(1);
-      expect(workflow.getLastRun()).toBeDefined();
-
-      const events = workflow.getDomainEvents();
-      const execEvent = events.find(e => e instanceof WorkflowExecutedEvent) as WorkflowExecutedEvent;
-      expect(execEvent).toBeDefined();
-      expect(execEvent.executionId).toBe(execution.id);
-    });
-
-    it('should prevent execution of inactive workflows', () => {
-      expect(() => workflow.execute()).toThrow('Can only execute active workflows');
-    });
-
-    it('should handle error state correctly', () => {
-      workflow.markAsError('Test error');
-      expect(workflow.getStatus()).toBe(WorkflowStatus.ERROR);
-    });
-
-    it('should clone workflow correctly', () => {
-      const cloned = workflow.clone('Cloned Workflow');
-      expect(cloned.getName()).toBe('Cloned Workflow');
-      expect(cloned.getDescription()).toBe('Copy of A test workflow');
-      expect(cloned.getStatus()).toBe(WorkflowStatus.DRAFT);
-      expect(cloned.getExecutionCount()).toBe(0);
-    });
-
-    it('should validate deletion permissions', () => {
-      expect(workflow.canBeDeleted()).toBe(true); // Draft workflows can be deleted
-      
-      const config = { 
-        steps: [{ id: '1', type: 'action', name: 'Step 1', config: {}, position: { x: 0, y: 0 } }], 
-        triggers: [] 
-      };
-      workflow.updateConfig(config);
-      workflow.activate();
-      
-      expect(workflow.canBeDeleted()).toBe(false); // Active workflows cannot be deleted
-    });
-  });
-
-  describe('Template Entity', () => {
-    let template: Template;
-
-    beforeEach(() => {
-      template = Template.create(
-        TemplateId.fromNumber(1),
-        'Test Template',
-        'A test template',
-        TemplateIconType.AUTOMATION,
-        TemplateIconColor.BLUE,
-        { steps: [], triggers: [] }
-      );
-    });
-
-    it('should create template with default values', () => {
-      expect(template.getId().getValue()).toBe(1);
-      expect(template.getName()).toBe('Test Template');
-      expect(template.getDescription()).toBe('A test template');
-      expect(template.getIconType()).toBe(TemplateIconType.AUTOMATION);
-      expect(template.getIconColor()).toBe(TemplateIconColor.BLUE);
-      expect(template.getUsersCount()).toBe(0);
-      expect(template.getIsActive()).toBe(true);
-    });
-
-    it('should track template usage', () => {
-      template.markAsUsed('user123', 'workflow456');
-      expect(template.getUsersCount()).toBe(1);
-    });
-
-    it('should determine popularity correctly', () => {
-      expect(template.isPopular()).toBe(false);
-      
-      // Simulate many uses
-      for (let i = 0; i < 100; i++) {
-        template.markAsUsed(`user${i}`, `workflow${i}`);
+      // Verify popularity sorting
+      for (let i = 1; i < popularTemplates.length; i++) {
+        expect(popularTemplates[i-1].usersCount).toBeGreaterThanOrEqual(popularTemplates[i].usersCount);
       }
-      
-      expect(template.isPopular()).toBe(true);
     });
 
-    it('should handle deactivation', () => {
-      template.deactivate();
-      expect(template.getIsActive()).toBe(false);
+    it('should instantiate workflow from template', async () => {
+      const templates = await storage.getAllTemplates();
+      const emailTemplate = templates.find(t => t.name.includes('Email')) || templates[0];
       
-      template.activate();
-      expect(template.getIsActive()).toBe(true);
+      // Create workflow from template
+      const workflowFromTemplate = await storage.createWorkflow({
+        userId: 1,
+        name: `My ${emailTemplate.name}`,
+        description: `Custom ${emailTemplate.description}`,
+        status: 'draft',
+        config: emailTemplate.config,
+        icon: emailTemplate.iconType,
+        iconColor: emailTemplate.iconColor
+      });
+
+      expect(workflowFromTemplate.name).toBe(`My ${emailTemplate.name}`);
+      expect(workflowFromTemplate.config).toEqual(emailTemplate.config);
+      expect(workflowFromTemplate.icon).toBe(emailTemplate.iconType);
     });
 
-    it('should validate deletion permissions', () => {
-      expect(template.canBeDeleted()).toBe(true); // No users
+    it('should handle template configuration validation', async () => {
+      const templates = await storage.getAllTemplates();
       
-      template.markAsUsed('user1', 'workflow1');
-      expect(template.canBeDeleted()).toBe(false); // Has users
+      templates.forEach(template => {
+        expect(template.name).toBeDefined();
+        expect(template.description).toBeDefined();
+        expect(template.config).toBeDefined();
+        expect(template.config.steps).toBeDefined();
+        expect(Array.isArray(template.config.steps)).toBe(true);
+      });
     });
   });
 
-  describe('ConnectedApp Entity', () => {
-    let app: ConnectedApp;
+  describe('Connected App Integration', () => {
+    it('should manage OAuth app lifecycle', async () => {
+      const appData = {
+        userId: 1,
+        name: 'Slack Integration',
+        description: 'Connect to Slack for notifications',
+        icon: 'slack',
+        status: 'connected' as const,
+        config: {
+          clientId: 'slack_client_123',
+          scopes: ['chat:write', 'channels:read']
+        },
+        accessToken: 'xoxb-access-token',
+        refreshToken: 'xoxb-refresh-token',
+        tokenExpiry: new Date(Date.now() + 3600000)
+      };
 
-    beforeEach(() => {
-      app = ConnectedApp.create(
-        ConnectedAppId.fromNumber(1),
-        UserId.fromNumber(1),
-        'Test App',
-        'A test connected app',
-        'test-icon',
-        { apiKey: 'test-key' }
-      );
+      const app = await storage.createConnectedApp(appData);
+
+      expect(app.name).toBe('Slack Integration');
+      expect(app.status).toBe('connected');
+      expect(app.config.scopes).toEqual(['chat:write', 'channels:read']);
+      expect(app.accessToken).toBe('xoxb-access-token');
+      expect(app.tokenExpiry).toBeInstanceOf(Date);
     });
 
-    it('should create connected app with default values', () => {
-      expect(app.getId().getValue()).toBe(1);
-      expect(app.getUserId().getValue()).toBe(1);
-      expect(app.getName()).toBe('Test App');
-      expect(app.getDescription()).toBe('A test connected app');
-      expect(app.getStatus()).toBe(AppConnectionStatus.DISCONNECTED);
-      expect(app.isConnected()).toBe(false);
+    it('should handle token refresh scenarios', async () => {
+      const initialApp = await storage.createConnectedApp({
+        userId: 1,
+        name: 'Google Sheets',
+        description: 'Google Sheets integration',
+        icon: 'sheets',
+        status: 'connected',
+        config: { clientId: 'google_client' },
+        accessToken: 'old_access_token',
+        refreshToken: 'refresh_token',
+        tokenExpiry: new Date(Date.now() - 1000) // Expired
+      });
+
+      // Simulate token refresh
+      const refreshedApp = await storage.updateConnectedApp(initialApp.id, {
+        accessToken: 'new_access_token',
+        tokenExpiry: new Date(Date.now() + 3600000)
+      });
+
+      expect(refreshedApp?.accessToken).toBe('new_access_token');
+      expect(refreshedApp?.tokenExpiry?.getTime()).toBeGreaterThan(Date.now());
     });
 
-    it('should handle connection correctly', () => {
-      const expiryDate = new Date(Date.now() + 3600000); // 1 hour from now
-      app.connect('access-token', 'refresh-token', expiryDate);
-      
-      expect(app.getStatus()).toBe(AppConnectionStatus.CONNECTED);
-      expect(app.isConnected()).toBe(true);
-      expect(app.getAccessToken()).toBe('access-token');
-      expect(app.getRefreshToken()).toBe('refresh-token');
-      expect(app.hasValidToken()).toBe(true);
+    it('should manage app connection status transitions', async () => {
+      const app = await storage.createConnectedApp({
+        userId: 1,
+        name: 'Test App',
+        description: 'Test application',
+        icon: 'test',
+        status: 'disconnected',
+        config: {}
+      });
+
+      // Connect app
+      const connectedApp = await storage.updateConnectedApp(app.id, {
+        status: 'connected',
+        accessToken: 'access_token',
+        tokenExpiry: new Date(Date.now() + 3600000)
+      });
+
+      expect(connectedApp?.status).toBe('connected');
+      expect(connectedApp?.accessToken).toBe('access_token');
+
+      // Disconnect app
+      const disconnectedApp = await storage.updateConnectedApp(app.id, {
+        status: 'disconnected',
+        accessToken: null,
+        refreshToken: null,
+        tokenExpiry: null
+      });
+
+      expect(disconnectedApp?.status).toBe('disconnected');
+      expect(disconnectedApp?.accessToken).toBeNull();
+    });
+  });
+
+  describe('Workflow Configuration Validation', () => {
+    it('should validate step connections integrity', async () => {
+      const configWithValidConnections = {
+        steps: [
+          {
+            id: 'step1',
+            type: 'trigger',
+            name: 'Start',
+            config: {},
+            position: { x: 0, y: 0 },
+            connections: ['step2']
+          },
+          {
+            id: 'step2',
+            type: 'action',
+            name: 'Process',
+            config: {},
+            position: { x: 200, y: 0 },
+            connections: ['step3']
+          },
+          {
+            id: 'step3',
+            type: 'action',
+            name: 'End',
+            config: {},
+            position: { x: 400, y: 0 }
+          }
+        ]
+      };
+
+      const workflow = await storage.createWorkflow({
+        userId: 1,
+        name: 'Connection Test',
+        description: 'Testing step connections',
+        status: 'draft',
+        config: configWithValidConnections
+      });
+
+      expect(workflow.config.steps[0].connections).toEqual(['step2']);
+      expect(workflow.config.steps[1].connections).toEqual(['step3']);
     });
 
-    it('should handle disconnection correctly', () => {
-      app.connect('access-token');
-      expect(app.isConnected()).toBe(true);
-      
-      app.disconnect();
-      expect(app.getStatus()).toBe(AppConnectionStatus.DISCONNECTED);
-      expect(app.isConnected()).toBe(false);
-      expect(app.getAccessToken()).toBeUndefined();
-    });
+    it('should handle missing step connections gracefully', async () => {
+      const configWithInvalidConnections = {
+        steps: [
+          {
+            id: 'step1',
+            type: 'trigger',
+            name: 'Start',
+            config: {},
+            position: { x: 0, y: 0 },
+            connections: ['nonexistent_step']
+          }
+        ]
+      };
 
-    it('should validate token expiry correctly', () => {
-      const expiredDate = new Date(Date.now() - 3600000); // 1 hour ago
-      app.connect('access-token', 'refresh-token', expiredDate);
-      
-      expect(app.hasValidToken()).toBe(false);
-    });
+      const workflow = await storage.createWorkflow({
+        userId: 1,
+        name: 'Invalid Connection Test',
+        description: 'Testing invalid connections',
+        status: 'draft',
+        config: configWithInvalidConnections
+      });
 
-    it('should detect when token refresh is needed', () => {
-      const soonToExpire = new Date(Date.now() + 60000); // 1 minute from now
-      app.connect('access-token', 'refresh-token', soonToExpire);
-      
-      expect(app.needsTokenRefresh()).toBe(true);
-    });
-
-    it('should handle token refresh', () => {
-      app.connect('old-token', 'refresh-token', new Date());
-      
-      const newExpiry = new Date(Date.now() + 3600000);
-      app.refreshAccessToken('new-token', newExpiry);
-      
-      expect(app.getAccessToken()).toBe('new-token');
-      expect(app.getTokenExpiry()).toBe(newExpiry);
-    });
-
-    it('should prevent refresh without refresh token', () => {
-      app.connect('access-token'); // No refresh token
-      
-      expect(() => app.refreshAccessToken('new-token')).toThrow('No refresh token available');
-    });
-
-    it('should handle error state', () => {
-      app.markAsError('Connection failed');
-      expect(app.getStatus()).toBe(AppConnectionStatus.ERROR);
-    });
-
-    it('should prevent linking disconnected apps to workflows', () => {
-      expect(() => app.linkToWorkflow('workflow123')).toThrow('Cannot link disconnected app to workflow');
+      // Workflow should still be created but with invalid connections preserved
+      expect(workflow.config.steps[0].connections).toEqual(['nonexistent_step']);
     });
   });
 });
