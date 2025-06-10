@@ -54,12 +54,14 @@ export class IntegrationExecutionService {
     const errors: string[] = [];
     const warnings: string[] = [];
 
-    // Validate integration status
-    if (!integration.isActive()) {
-      errors.push('Integration is not active');
+    // Validate integration status - be more permissive for creation/testing
+    const status = integration.getStatus();
+    if (status === 'inactive' || status === 'paused') {
+      warnings.push('Integration is not currently active');
     }
 
-    if (!integration.canExecute()) {
+    // Allow execution for active integrations or during creation/testing
+    if (status !== 'draft' && status !== 'active' && !integration.canExecute()) {
       errors.push('Integration cannot be executed (check credentials and status)');
     }
 
@@ -238,7 +240,7 @@ export class IntegrationExecutionService {
         results.push({
           status: 'success',
           data: requestData || { message: 'Mock API response', timestamp: new Date().toISOString() },
-          endpoint: endpoint.url
+          endpoint: (endpoint as any).url || 'mock-endpoint'
         });
       }
     } else {
@@ -478,7 +480,8 @@ export class IntegrationExecutionService {
       }
     } catch (error) {
       // For mocked integrations, reduce score to ensure warning status
-      score -= 25;
+      score -= 30;
+      issues.push('Authentication status could not be verified');
       recommendations.push('Authentication status requires review');
     }
 
