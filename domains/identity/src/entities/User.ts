@@ -1,7 +1,7 @@
-import { UserId } from '../../shared-kernel/src/value-objects/UserId';
-import { Email } from '../../shared-kernel/src/value-objects/Email';
-import { CognitoId } from '../../shared-kernel/src/value-objects/CognitoId';
-import { DomainEvent, UserRegisteredEvent, UserAuthenticatedEvent } from '../../shared-kernel/src/events/DomainEvent';
+import { UserId } from '../../../shared-kernel/src/value-objects/UserId';
+import { Email } from '../../../shared-kernel/src/value-objects/Email';
+import { CognitoId } from '../../../shared-kernel/src/value-objects/CognitoId';
+import { DomainEvent, UserRegisteredEvent, UserAuthenticatedEvent } from '../../../shared-kernel/src/events/DomainEvent';
 
 export enum UserRole {
   USER = 'user',
