@@ -12,6 +12,7 @@ import Projects from "@/pages/Projects";
 import Tasks from "@/pages/Tasks";
 import Dashboard from "@/pages/Dashboard";
 import Workflows from "@/pages/Workflows";
+import WorkflowCreate from "@/pages/WorkflowCreate";
 import AppConnections from "@/pages/AppConnections";
 import Templates from "@/pages/Templates";
 import ActivityLog from "@/pages/ActivityLog";
@@ -46,6 +47,9 @@ function Router() {
         </Route>
         <Route path="/workflows">
           <Workflows />
+        </Route>
+        <Route path="/workflows/new">
+          <WorkflowCreate />
         </Route>
         <Route path="/app-connections">
           <AppConnections />

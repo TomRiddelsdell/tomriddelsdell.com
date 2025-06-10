@@ -4,7 +4,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/context/LanguageContext";
 import { Template } from "@shared/schema";
-import { Share, Mail, Calendar, Video, MessageSquare } from "lucide-react";
+import { Share, Mail, Calendar, Video, MessageSquare, Play } from "lucide-react";
+import { Link } from "wouter";
 
 export default function PopularTemplates() {
   const { t } = useLanguage();
@@ -72,17 +73,29 @@ export default function PopularTemplates() {
                     <div className={`h-10 w-10 rounded-md ${colorClasses.bg} flex items-center justify-center ${colorClasses.text} mr-3 flex-shrink-0`}>
                       {getTemplateIcon(template.iconType)}
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <h3 className="text-sm font-medium text-gray-900 mb-1">{template.name}</h3>
                       <p className="text-xs text-gray-500 mb-2">{template.description}</p>
-                      <div className="flex items-center text-xs text-gray-400">
-                        <span className="mr-1 inline-flex items-center">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
-                            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          {template.usersCount} {t('users')}
-                        </span>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center text-xs text-gray-400">
+                          <span className="mr-1 inline-flex items-center">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-1">
+                              <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            {template.usersCount} {t('users')}
+                          </span>
+                        </div>
+                        <Link href={`/workflows/new?template=${template.id}`}>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className="text-xs h-7 px-2"
+                          >
+                            <Play className="h-3 w-3 mr-1" />
+                            Use Template
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   </div>
