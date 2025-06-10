@@ -11,6 +11,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithAWS: () => Promise<void>;
   signOut: () => Promise<void>;
+  refetchUser: () => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,25 +21,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
+  // Function to refetch user data
+  const refetchUser = async () => {
+    try {
+      const response = await fetch('/api/auth/me', { credentials: 'include' });
+      if (response.ok) {
+        const userData = await response.json();
+        setUser({
+          id: userData.id,
+          email: userData.email,
+          displayName: userData.displayName || userData.email,
+          photoURL: null
+        });
+        return userData;
+      } else {
+        setUser(null);
+        return null;
+      }
+    } catch (error) {
+      console.error("Error checking auth status:", error);
+      setUser(null);
+      return null;
+    }
+  };
+
   // Check if user is already logged in on component mount
   useEffect(() => {
     const checkAuth = async () => {
-      try {
-        const response = await fetch('/api/auth/me', { credentials: 'include' });
-        if (response.ok) {
-          const userData = await response.json();
-          setUser({
-            id: userData.id,
-            email: userData.email,
-            displayName: userData.displayName || userData.email,
-            photoURL: null
-          });
-        }
-      } catch (error) {
-        console.error("Error checking auth status:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      setIsLoading(true);
+      await refetchUser();
+      setIsLoading(false);
     };
 
     checkAuth();
@@ -171,6 +183,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signInWithGoogle,
     signInWithAWS,
     signOut,
+    refetchUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

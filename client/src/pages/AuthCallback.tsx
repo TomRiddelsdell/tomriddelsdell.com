@@ -2,10 +2,12 @@ import { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { handleAuthCallback } from '@/lib/simple-auth';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AuthCallback() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { refetchUser } = useAuth();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -30,6 +32,9 @@ export default function AuthCallback() {
           
           // Process the authentication directly
           await handleAuthCallback(code);
+          
+          // Refresh user data in AuthContext
+          await refetchUser();
           
           toast({
             title: "Welcome back!",
