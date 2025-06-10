@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { MemStorage } from '@server/storage';
+import { MemStorage } from '../../server/storage';
 
 describe('Database Storage', () => {
   let storage: MemStorage;
