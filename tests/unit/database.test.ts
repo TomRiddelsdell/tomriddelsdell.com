@@ -157,15 +157,47 @@ describe('Database Storage', () => {
     });
   });
 
-  describe('Dashboard Stats', () => {
-    it('should return dashboard statistics', async () => {
-      const stats = await storage.getDashboardStats(1);
+  describe('Dashboard Stats with Integration Metrics', () => {
+    it('should return enhanced dashboard statistics', async () => {
+      const userId = 1;
+      
+      // Create test data to ensure meaningful stats
+      await storage.createWorkflow({
+        userId,
+        name: 'Active Workflow',
+        description: 'Test workflow',
+        status: 'active',
+        config: { steps: [] }
+      });
+
+      await storage.createConnectedApp({
+        userId,
+        name: 'Test Integration',
+        description: 'Test app',
+        icon: 'test',
+        status: 'connected',
+        config: { apiKey: 'test' }
+      });
+
+      const stats = await storage.getDashboardStats(userId);
       
       expect(stats).toBeDefined();
       expect(typeof stats.activeWorkflows).toBe('number');
       expect(typeof stats.tasksAutomated).toBe('number');
       expect(typeof stats.connectedApps).toBe('number');
       expect(typeof stats.timeSaved).toBe('string');
+      expect(stats.activeWorkflows).toBeGreaterThanOrEqual(0);
+      expect(stats.connectedApps).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should handle empty user statistics', async () => {
+      const userId = 999; // Non-existent user
+      const stats = await storage.getDashboardStats(userId);
+      
+      expect(stats).toBeDefined();
+      expect(stats.activeWorkflows).toBe(0);
+      expect(stats.connectedApps).toBe(0);
+      expect(stats.tasksAutomated).toBe(0);
     });
   });
 });
