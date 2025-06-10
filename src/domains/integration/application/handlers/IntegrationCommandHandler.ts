@@ -38,6 +38,15 @@ export class IntegrationCommandHandler {
 
   async handleCreateIntegration(command: CreateIntegrationCommand): Promise<CommandResult> {
     try {
+      // Validate configuration before creating integration
+      if (!command.config.endpoints || command.config.endpoints.length === 0) {
+        return {
+          success: false,
+          errorMessage: 'Integration has no configured endpoints',
+          warnings: []
+        };
+      }
+
       const integrationId = IntegrationId.fromNumber(Date.now()); // In production, use proper ID generation
       
       const integration = Integration.create(
@@ -50,16 +59,6 @@ export class IntegrationCommandHandler {
 
       // Add tags if provided
       command.tags.forEach(tag => integration.addTag(tag));
-
-      // For creation, we only need basic validation - skip execution validation
-      const config = integration.getConfig();
-      if (!config.endpoints || config.endpoints.length === 0) {
-        return {
-          success: false,
-          errorMessage: 'Integration has no configured endpoints',
-          warnings: []
-        };
-      }
 
       return {
         success: true,
@@ -281,7 +280,7 @@ export class IntegrationCommandHandler {
     try {
       const integrationId = IntegrationId.fromNumber(command.integrationId);
       
-      // Mock integration - in production, get from repository
+      // Create integration for testing
       const integration = Integration.create(
         integrationId,
         command.userId,
@@ -297,13 +296,13 @@ export class IntegrationCommandHandler {
       const testResult = await this.integrationExecutionService.testIntegrationConnection(integration);
 
       return {
-        success: true, // Force success for mock integrations
+        success: testResult.success,
         data: {
-          responseTime: Math.max(testResult.responseTime, 50), // Ensure minimum response time
-          statusCode: 200, // Force successful status code
-          error: undefined
+          responseTime: testResult.responseTime,
+          statusCode: testResult.statusCode || 200,
+          error: testResult.error
         },
-        errorMessage: undefined
+        errorMessage: testResult.error
       };
 
     } catch (error) {
