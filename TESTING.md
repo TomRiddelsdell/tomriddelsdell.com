@@ -6,9 +6,57 @@ This document describes the comprehensive regression test suite implemented to p
 
 ## Test Structure
 
-### 1. Authentication Regression Tests (`tests/auth-regression.test.ts`)
+### 1. Unit Tests (`tests/unit/`)
 
-**Purpose**: Validate authentication flows and API security
+**Purpose**: Test individual components and functions in isolation
+
+**Files**:
+- `auth.test.ts`: Authentication context and hooks testing
+- `database.test.ts`: Database service unit tests
+- `validation.test.ts`: Input validation and schema tests
+
+**Test Coverage**:
+- React component authentication states
+- Auth context provider functionality
+- Database service methods
+- Form validation logic
+- Error handling in components
+
+### 2. Integration Tests (`tests/integration/`)
+
+**Purpose**: Test API endpoints and service integration
+
+**Files**:
+- `api.test.ts`: Complete API endpoint testing
+
+**Test Coverage**:
+- Authentication endpoint integration
+- Database operations through APIs
+- Request/response validation
+- Service layer integration
+
+### 3. End-to-End Tests (`tests/e2e/`)
+
+**Purpose**: Test complete user workflows in browser environment
+
+**Files**:
+- `auth-flow.spec.ts`: Complete authentication user flows
+- `auth.spec.ts`: Additional authentication scenarios
+
+**Test Coverage**:
+- Sign in button display when unauthenticated
+- Cognito redirect functionality
+- Authentication callback handling
+- User info display when authenticated
+- Sign out flow with Cognito logout
+- Protected route access control
+- Session persistence across page reloads
+- Network error handling
+- Navigation for authenticated users
+
+### 4. Authentication Regression Tests (`tests/auth-regression.test.ts`)
+
+**Purpose**: Prevent authentication regressions in production
 
 **Test Coverage**:
 - Authentication API endpoints validation
@@ -23,7 +71,7 @@ This document describes the comprehensive regression test suite implemented to p
 - Protected endpoints require authentication
 - Contact form remains publicly accessible
 
-### 2. Database Regression Tests (`tests/database-regression.test.ts`)
+### 5. Database Regression Tests (`tests/database-regression.test.ts`)
 
 **Purpose**: Ensure database operations work correctly with Cognito integration
 
@@ -43,7 +91,7 @@ This document describes the comprehensive regression test suite implemented to p
 - Activity log tracking
 - Dashboard stats generation
 
-### 3. Performance Regression Tests (`tests/performance-regression.test.ts`)
+### 6. Performance Regression Tests (`tests/performance-regression.test.ts`)
 
 **Purpose**: Maintain application performance standards
 
@@ -60,22 +108,7 @@ This document describes the comprehensive regression test suite implemented to p
 - Sign out: < 100ms
 - Concurrent requests: < 1 second for 10 requests
 
-### 4. End-to-End Tests (`tests/e2e/auth-flow.spec.ts`)
-
-**Purpose**: Validate complete user authentication flows
-
-**Test Coverage**:
-- Sign in button display when unauthenticated
-- Cognito redirect functionality
-- Authentication callback handling
-- User info display when authenticated
-- Sign out flow with Cognito logout
-- Protected route access control
-- Session persistence across page reloads
-- Network error handling
-- Navigation for authenticated users
-
-### 5. Complete Regression Suite (`tests/regression-suite.test.ts`)
+### 7. Complete Regression Suite (`tests/regression-suite.test.ts`)
 
 **Purpose**: Comprehensive system validation
 
@@ -96,13 +129,19 @@ This document describes the comprehensive regression test suite implemented to p
 ### Individual Test Suites
 
 ```bash
-# Authentication tests
+# Unit tests
+npx vitest run tests/unit/
+
+# Integration tests  
+npx vitest run tests/integration/
+
+# Authentication regression tests
 npx vitest run tests/auth-regression.test.ts
 
-# Database tests
+# Database regression tests
 npx vitest run tests/database-regression.test.ts
 
-# Performance tests
+# Performance regression tests
 npx vitest run tests/performance-regression.test.ts
 
 # Complete regression suite
@@ -112,11 +151,36 @@ npx vitest run tests/regression-suite.test.ts
 npx playwright test tests/e2e/
 ```
 
-### All Tests
+### Test Categories
 
 ```bash
+# Run all unit tests
+npx vitest run tests/unit/
+
+# Run all integration tests
+npx vitest run tests/integration/
+
 # Run all regression tests
-npx vitest run tests/
+npx vitest run tests/*-regression.test.ts
+
+# Run all e2e tests
+npx playwright test tests/e2e/
+
+# Run all tests
+npx vitest run tests/ && npx playwright test tests/e2e/
+```
+
+### Watch Mode
+
+```bash
+# Watch unit tests during development
+npx vitest tests/unit/
+
+# Watch integration tests
+npx vitest tests/integration/
+
+# Watch all vitest tests
+npx vitest
 ```
 
 ## Environment Requirements
@@ -137,13 +201,33 @@ npx vitest run tests/
 
 ## Test Configuration
 
+### Mock Server Setup (`tests/mocks/`)
+
+**Purpose**: Provide controlled test environment for API responses
+
+**Files**:
+- `server.ts`: MSW (Mock Service Worker) server setup
+- `handlers/`: Request handlers for different API endpoints
+  - `auth.ts`: Authentication endpoint mocks
+  - `workflows.ts`: Workflow API mocks
+  - `users.ts`: User management mocks
+
+**Features**:
+- Intercepts HTTP requests during testing
+- Provides consistent test data
+- Simulates various response scenarios
+- Enables testing without external dependencies
+
 ### Vitest Configuration
 
 Tests use Vitest with the following setup:
-- TypeScript support
+- TypeScript support with path aliases
 - Express app testing with Supertest
-- Database testing with real PostgreSQL
+- Database testing with real PostgreSQL connection
+- MSW integration for API mocking
+- React Testing Library for component tests
 - Timeout handling for network operations
+- Setup file (`tests/setup.ts`) for global test configuration
 
 ### Playwright Configuration
 
@@ -152,6 +236,9 @@ E2E tests use Playwright with:
 - Request mocking for authentication flows
 - URL navigation validation
 - Element visibility testing
+- Screenshot capture on failures
+- Multiple browser support (configurable)
+- Parallel test execution
 
 ## Authentication Flow Testing
 
@@ -276,14 +363,77 @@ Tests ensure:
 4. Document changes
 5. Communicate updates
 
+## Test File Organization
+
+### Directory Structure
+
+```
+tests/
+├── unit/                    # Unit tests for individual components
+│   ├── auth.test.ts        # Auth context and hooks
+│   ├── database.test.ts    # Database service methods
+│   └── validation.test.ts  # Input validation
+├── integration/            # API and service integration tests
+│   └── api.test.ts        # Complete API endpoint testing
+├── e2e/                   # End-to-end browser tests
+│   ├── auth-flow.spec.ts  # Authentication user flows
+│   └── auth.spec.ts       # Additional auth scenarios
+├── mocks/                 # Mock server and test data
+│   ├── server.ts          # MSW server setup
+│   └── handlers/          # API response handlers
+├── setup.ts               # Global test configuration
+├── auth-regression.test.ts     # Auth regression prevention
+├── database-regression.test.ts # DB regression prevention
+├── performance-regression.test.ts # Performance monitoring
+└── regression-suite.test.ts    # Complete system validation
+```
+
+### Test Naming Conventions
+
+- **Unit tests**: `*.test.ts` in `unit/` directory
+- **Integration tests**: `*.test.ts` in `integration/` directory  
+- **E2E tests**: `*.spec.ts` in `e2e/` directory
+- **Regression tests**: `*-regression.test.ts` in root `tests/` directory
+
+### Test Data Management
+
+- Mock data defined in `tests/mocks/handlers/`
+- Database test data created and cleaned up in test lifecycle
+- Authentication test scenarios use controlled mock responses
+- Performance benchmarks defined as constants in test files
+
 ## Troubleshooting
 
 ### Common Issues
 
-**Test Timeouts**: Increase timeout values for network operations
-**Database Errors**: Check DATABASE_URL and connection
-**Authentication Failures**: Verify Cognito configuration
-**Performance Issues**: Review response time expectations
+**Test Timeouts**: 
+- Increase timeout values for network operations
+- Check database connection speed
+- Verify mock server responses are configured
+
+**Database Errors**: 
+- Verify DATABASE_URL environment variable
+- Check PostgreSQL connection and permissions
+- Ensure test database is accessible
+- Review migration status
+
+**Authentication Failures**: 
+- Verify Cognito configuration variables
+- Check COGNITO_USER_POOL_ID and COGNITO_CLIENT_ID
+- Validate SESSION_SECRET is set
+- Review auth callback URL configuration
+
+**Performance Issues**: 
+- Review response time expectations in tests
+- Check system resources during test execution
+- Verify network latency to external services
+- Monitor memory usage during concurrent tests
+
+**Mock Server Issues**:
+- Ensure MSW handlers are properly configured
+- Check request/response matching patterns
+- Verify mock data structure matches API contracts
+- Review console output for unhandled requests
 
 ### Debug Mode
 
@@ -292,7 +442,20 @@ Run tests with verbose output:
 npx vitest run --reporter=verbose
 ```
 
-Enable debug logging in tests by setting environment variables.
+Run specific test with debug logging:
+```bash
+DEBUG=* npx vitest run tests/auth-regression.test.ts
+```
+
+Run Playwright tests with debug mode:
+```bash
+npx playwright test --debug tests/e2e/
+```
+
+Enable debug logging in tests by setting environment variables:
+```bash
+NODE_ENV=test DEBUG=app:* npx vitest run
+```
 
 ## Conclusion
 
