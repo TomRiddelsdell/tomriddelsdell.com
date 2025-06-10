@@ -63,7 +63,7 @@ describe('Database Storage', () => {
     });
   });
 
-  describe('Workflow Operations', () => {
+  describe('Workflow Operations (Legacy Interface)', () => {
     it('should create a new workflow', async () => {
       const workflowData = {
         userId: 1,
@@ -78,6 +78,7 @@ describe('Database Storage', () => {
       expect(workflow).toBeDefined();
       expect(workflow.name).toBe(workflowData.name);
       expect(workflow.status).toBe(workflowData.status);
+      expect(workflow.config).toEqual(workflowData.config);
     });
 
     it('should retrieve workflows by user ID', async () => {
@@ -95,6 +96,26 @@ describe('Database Storage', () => {
       
       expect(workflows).toHaveLength(1);
       expect(workflows[0].name).toBe(workflowData.name);
+      expect(workflows[0].userId).toBe(userId);
+    });
+
+    it('should update workflow data', async () => {
+      const workflowData = {
+        userId: 1,
+        name: 'Test Workflow',
+        description: 'A test workflow',
+        status: 'draft' as const,
+        config: { steps: [] }
+      };
+
+      const workflow = await storage.createWorkflow(workflowData);
+      const updatedWorkflow = await storage.updateWorkflow(workflow.id, { 
+        name: 'Updated Workflow',
+        status: 'active' as const 
+      });
+      
+      expect(updatedWorkflow?.name).toBe('Updated Workflow');
+      expect(updatedWorkflow?.status).toBe('active');
     });
 
     it('should delete a workflow', async () => {
@@ -113,6 +134,26 @@ describe('Database Storage', () => {
       
       const retrievedWorkflow = await storage.getWorkflow(workflow.id);
       expect(retrievedWorkflow).toBeUndefined();
+    });
+
+    it('should get recent workflows', async () => {
+      const userId = 1;
+      
+      // Create multiple workflows
+      for (let i = 1; i <= 3; i++) {
+        await storage.createWorkflow({
+          userId,
+          name: `Workflow ${i}`,
+          description: `Test workflow ${i}`,
+          status: 'active' as const,
+          config: { steps: [] }
+        });
+      }
+
+      const recentWorkflows = await storage.getRecentWorkflows(userId, 2);
+      
+      expect(recentWorkflows).toHaveLength(2);
+      expect(recentWorkflows[0].userId).toBe(userId);
     });
   });
 
