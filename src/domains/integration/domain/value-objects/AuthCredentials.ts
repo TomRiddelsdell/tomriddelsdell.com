@@ -47,12 +47,12 @@ export class AuthCredentials {
 
   private validateCredentials(): void {
     if (!this.credentials || Object.keys(this.credentials).length === 0) {
-      throw new Error('Credentials cannot be empty');
+      return; // Allow empty credentials for cloning/templates
     }
 
     switch (this.type) {
       case 'api_key':
-        if (!this.credentials.apiKey) {
+        if (!this.credentials.apiKey && Object.keys(this.credentials).length > 0) {
           throw new Error('API key is required for api_key auth type');
         }
         break;
