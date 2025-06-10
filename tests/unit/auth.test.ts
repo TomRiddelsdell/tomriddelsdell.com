@@ -1,18 +1,29 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { server } from '../mocks/server';
 
 // Mock component to test auth context
 function TestComponent() {
-  const { user, isLoading, signIn, signOut } = useAuth();
+  const { user, isLoading, signOut, refetchUser } = useAuth();
+  
+  const handleSignIn = async () => {
+    // Simulate auth callback with valid code
+    await fetch('/api/auth/callback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: 'valid_test_code' })
+    });
+    await refetchUser();
+  };
   
   return (
     <div>
       <div data-testid="user-status">
         {isLoading ? 'Loading...' : user ? `Welcome ${user.email}` : 'Not authenticated'}
       </div>
-      <button onClick={() => signIn('test@example.com', 'password123')}>
+      <button onClick={handleSignIn}>
         Sign In
       </button>
       <button onClick={signOut}>Sign Out</button>
