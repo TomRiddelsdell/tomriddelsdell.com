@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import profilePic from "../assets/profile.jpg";
 import backgroundImage from "../assets/background.jpg";
-import familyImage from "../assets/family.jpg";
+
 import ImpliedVolDisplay from "@/components/ImpliedVolDisplay";
 import BackgroundSection from "@/components/BackgroundSection";
 import ContentContainer from "@/components/ContentContainer";
