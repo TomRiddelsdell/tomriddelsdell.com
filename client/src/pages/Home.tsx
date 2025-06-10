@@ -13,6 +13,7 @@ import backgroundImage from "../assets/background.jpg";
 import ImpliedVolDisplay from "@/components/ImpliedVolDisplay";
 import BackgroundSection from "@/components/BackgroundSection";
 import ContentContainer from "@/components/ContentContainer";
+import NavigationLinks from "@/components/NavigationLinks";
 
 export default function Home() {
   const { user: authUser, signOut, isLoading: isLoadingAuth } = useAuth();
@@ -182,40 +183,7 @@ export default function Home() {
             Tom Riddelsdell
           </div>
           <nav className="hidden md:flex space-x-8 items-center">
-            {isAuthenticated && (
-              <>
-                <Link
-                  href="/career"
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
-                >
-                  Career
-                </Link>
-                <Link
-                  href="/projects"
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
-                >
-                  Projects
-                </Link>
-                <Link
-                  href="/tasks"
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
-                >
-                  Tasks
-                </Link>
-                <Link
-                  href="/dashboard"
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/workflows"
-                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
-                >
-                  Workflows
-                </Link>
-              </>
-            )}
+            <NavigationLinks isAuthenticated={isAuthenticated} />
             <a
               href="#contact"
               className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
@@ -301,45 +269,11 @@ export default function Home() {
             </Button>
           </div>
           <nav className="flex flex-col p-4 space-y-4">
-            {isAuthenticated && (
-              <>
-                <Link
-                  href="/career"
-                  className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  Career
-                </Link>
-                <Link
-                  href="/projects"
-                  className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  Projects
-                </Link>
-                <Link
-                  href="/tasks"
-                  className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  Tasks
-                </Link>
-                <Link
-                  href="/dashboard"
-                  className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/workflows"
-                  className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  Workflows
-                </Link>
-              </>
-            )}
+            <NavigationLinks 
+              isAuthenticated={isAuthenticated}
+              className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+              onClick={() => setShowMobileMenu(false)}
+            />
             <a
               href="#contact"
               className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
