@@ -64,9 +64,18 @@ export class IntegrationExecutionService {
       // For mock integrations, continue validation
     }
 
-    // Allow execution for most integrations during testing
+    // Check if integration is active
     try {
-      if (!integration.canExecute() && integration.isActive && !integration.isActive()) {
+      if (integration.isActive && !integration.isActive()) {
+        errors.push('Integration is not active');
+      }
+    } catch (error) {
+      // Skip for mock integrations
+    }
+
+    // Check if integration can execute
+    try {
+      if (!integration.canExecute()) {
         errors.push('Integration cannot be executed (check credentials and status)');
       }
     } catch (error) {
