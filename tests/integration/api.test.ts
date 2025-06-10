@@ -10,7 +10,7 @@ let server: any;
 beforeAll(async () => {
   app = express();
   app.use(express.json());
-  server = await registerRoutes(app);
+  server = await registerRoutes(app as any);
 });
 
 afterAll(async () => {
