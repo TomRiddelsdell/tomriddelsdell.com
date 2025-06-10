@@ -1,5 +1,5 @@
 import { db } from './db';
-import { templates, InsertTemplate } from '../../../../shared/schema';
+import { templates, InsertTemplate } from '../../../../domains/shared-kernel/src/schema';
 
 export async function initializeTemplates() {
   // First check if templates already exist
