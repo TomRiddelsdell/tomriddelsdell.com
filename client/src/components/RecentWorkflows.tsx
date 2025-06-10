@@ -120,13 +120,13 @@ export default function RecentWorkflows() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {renderAppAbbreviations(workflow.connectedApps)}
+                      {renderAppAbbreviations([])}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {renderStatusBadge(workflow.status)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {workflow.lastRun}
+                      {workflow.lastRun ? new Date(workflow.lastRun).toLocaleDateString() : 'Never'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <Link href={`/workflows/edit/${workflow.id}`}>
