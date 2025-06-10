@@ -1,0 +1,37 @@
+{
+  "name": "flowcreate-platform",
+  "version": "1.0.0",
+  "description": "FlowCreate - DDD Monorepo Architecture for Workflow Automation Platform",
+  "private": true,
+  "workspaces": [
+    "domains/*",
+    "services/*",
+    "interfaces/*",
+    "libs/*",
+    "infrastructure/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "dev": "concurrently \"npm run dev:services\" \"npm run dev:frontend\"",
+    "dev:services": "npm run dev --workspace=services/identity-service & npm run dev --workspace=services/workflow-service",
+    "dev:frontend": "npm run dev --workspace=interfaces/web-frontend",
+    "start:prod": "npm run start --workspaces --if-present",
+    "clean": "npm run clean --workspaces",
+    "migration:up": "cd infrastructure/database && npm run migrate:up",
+    "migration:down": "cd infrastructure/database && npm run migrate:down",
+    "seed": "cd infrastructure/database && npm run seed"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typescript": "^5.0.0",
+    "concurrently": "^7.6.0",
+    "nx": "^16.0.0",
+    "lerna": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
