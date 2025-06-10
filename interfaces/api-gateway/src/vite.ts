@@ -57,8 +57,8 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   const clientDistPath = path.resolve(import.meta.dirname, "..", "..", "..", "dist", "public");
-  app.use(express.static(clientDistPath));
-
+  // Static file serving would go here in production
+  
   app.use("*", (_req, res) => {
     res.sendFile(path.resolve(clientDistPath, "index.html"));
   });
