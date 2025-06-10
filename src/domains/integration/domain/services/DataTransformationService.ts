@@ -99,7 +99,7 @@ export class DataTransformationService {
       }
 
       // Count field statistics
-      let mappings = [];
+      let mappings: any[] = [];
       if (typeof mapping.getMappings === 'function') {
         mappings = mapping.getMappings();
       } else {
