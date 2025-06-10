@@ -5,7 +5,7 @@ import {
   User, InsertUser, Workflow, InsertWorkflow, ConnectedApp, InsertConnectedApp,
   Template, ActivityLogEntry, InsertActivityLog, DashboardStats, InsertTemplate,
   InsertWorkflowConnection, WorkflowConnection
-} from '../../../shared/schema';
+} from '../../../domains/shared-kernel/src/schema';
 import { eq, desc, and, sql, gt, gte, count, lt } from 'drizzle-orm';
 
 export class DatabaseStorage implements IStorage {
