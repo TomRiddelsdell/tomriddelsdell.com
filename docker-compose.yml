@@ -1,0 +1,154 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: flowcreate_dev
+      POSTGRES_USER: flowcreate
+      POSTGRES_PASSWORD: flowcreate_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/database/schemas:/docker-entrypoint-initdb.d
+    networks:
+      - flowcreate-network
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - flowcreate-network
+
+  # RabbitMQ for message bus
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: flowcreate
+      RABBITMQ_DEFAULT_PASS: flowcreate_dev_password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - flowcreate-network
+
+  # Identity Service
+  identity-service:
+    build:
+      context: .
+      dockerfile: services/identity-service/Dockerfile
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://flowcreate:flowcreate_dev_password@postgres:5432/flowcreate_dev
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://flowcreate:flowcreate_dev_password@rabbitmq:5672
+    ports:
+      - "3001:3000"
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - flowcreate-network
+    volumes:
+      - ./services/identity-service:/app
+      - ./domains:/app/domains
+      - ./libs:/app/libs
+
+  # Workflow Service
+  workflow-service:
+    build:
+      context: .
+      dockerfile: services/workflow-service/Dockerfile
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://flowcreate:flowcreate_dev_password@postgres:5432/flowcreate_dev
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://flowcreate:flowcreate_dev_password@rabbitmq:5672
+    ports:
+      - "3002:3000"
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - flowcreate-network
+    volumes:
+      - ./services/workflow-service:/app
+      - ./domains:/app/domains
+      - ./libs:/app/libs
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: interfaces/api-gateway/Dockerfile
+    environment:
+      - NODE_ENV=development
+      - IDENTITY_SERVICE_URL=http://identity-service:3000
+      - WORKFLOW_SERVICE_URL=http://workflow-service:3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - identity-service
+      - workflow-service
+    networks:
+      - flowcreate-network
+
+  # Web Frontend
+  web-frontend:
+    build:
+      context: .
+      dockerfile: interfaces/web-frontend/Dockerfile
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api-gateway
+    networks:
+      - flowcreate-network
+    volumes:
+      - ./interfaces/web-frontend:/app
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/observability/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - flowcreate-network
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=flowcreate_admin
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infrastructure/observability/grafana:/etc/grafana/provisioning
+    networks:
+      - flowcreate-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  flowcreate-network:
+    driver: bridge
