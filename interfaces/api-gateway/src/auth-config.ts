@@ -42,11 +42,11 @@ export function getAuthConfig(): AuthConfig {
   
   return {
     cognito: {
-      clientId: process.env.AWS_COGNITO_CLIENT_ID || '',
+      clientId: process.env.VITE_AWS_COGNITO_CLIENT_ID || process.env.AWS_COGNITO_CLIENT_ID || '',
       clientSecret: process.env.AWS_COGNITO_CLIENT_SECRET,
-      userPoolId: process.env.AWS_COGNITO_USER_POOL_ID || '',
-      region: process.env.AWS_COGNITO_REGION || 'eu-west-2',
-      hostedUIDomain: process.env.AWS_COGNITO_HOSTED_UI_DOMAIN || '',
+      userPoolId: process.env.VITE_AWS_COGNITO_USER_POOL_ID || process.env.AWS_COGNITO_USER_POOL_ID || '',
+      region: process.env.VITE_AWS_COGNITO_REGION || process.env.AWS_COGNITO_REGION || 'eu-west-2',
+      hostedUIDomain: process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || process.env.AWS_COGNITO_HOSTED_UI_DOMAIN || '',
     },
     urls: {
       baseUrl,
