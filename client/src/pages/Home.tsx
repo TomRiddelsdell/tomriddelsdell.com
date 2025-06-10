@@ -435,7 +435,7 @@ export default function Home() {
           id="contact"
           className="pt-16 sm:pt-20 md:pt-28 pb-12 sm:pb-16 md:pb-24 bg-cover bg-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8 full-width-section section-fade-in"
           style={{
-            backgroundImage: `linear-gradient(to bottom, var(--overlay-light), var(--overlay-light-strong)), url(${familyImage})`,
+            backgroundImage: `linear-gradient(to bottom, var(--overlay-light), var(--overlay-light-strong)), url(${backgroundImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
