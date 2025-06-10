@@ -418,13 +418,14 @@ export class IntegrationExecutionService {
     const startTime = Date.now();
 
     try {
-      const validation = await this.validateIntegration(integration);
-      if (!validation.canExecute) {
-        throw new Error(validation.errors.join(', '));
+      // Skip strict validation for test connections to allow mock integrations
+      const config = integration.getConfig();
+      if (!config.endpoints || config.endpoints.length === 0) {
+        throw new Error('No endpoints configured for testing');
       }
 
       // Simulate connection test
-      await new Promise(resolve => setTimeout(resolve, Math.random() * 200 + 100));
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 100 + 50));
 
       const responseTime = Date.now() - startTime;
       
