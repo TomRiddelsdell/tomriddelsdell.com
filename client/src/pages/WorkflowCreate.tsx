@@ -50,18 +50,6 @@ export default function WorkflowCreate() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [creationStep, setCreationStep] = useState<'template' | 'details' | 'configure'>('template');
 
-  // Get template ID from URL params
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const templateId = urlParams.get('template');
-    if (templateId && templates) {
-      const template = templates.find(t => t.id.toString() === templateId);
-      if (template) {
-        handleTemplateSelect(template);
-      }
-    }
-  }, [templates]);
-
   const { data: templates, isLoading: templatesLoading } = useQuery<Template[]>({
     queryKey: ['/api/templates'],
     refetchInterval: false
@@ -146,6 +134,18 @@ export default function WorkflowCreate() {
     form.setValue('description', "");
     setCreationStep('details');
   };
+
+  // Get template ID from URL params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const templateId = urlParams.get('template');
+    if (templateId && templates) {
+      const template = templates.find(t => t.id.toString() === templateId);
+      if (template) {
+        handleTemplateSelect(template);
+      }
+    }
+  }, [templates]);
 
   return (
     <>
