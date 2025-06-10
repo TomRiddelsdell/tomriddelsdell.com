@@ -202,6 +202,18 @@ export default function Home() {
                 >
                   Tasks
                 </Link>
+                <Link
+                  href="/dashboard"
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/workflows"
+                  className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
+                >
+                  Workflows
+                </Link>
               </>
             )}
             <a
@@ -311,6 +323,20 @@ export default function Home() {
                   onClick={() => setShowMobileMenu(false)}
                 >
                   Tasks
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/workflows"
+                  className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Workflows
                 </Link>
               </>
             )}

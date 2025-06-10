@@ -15,7 +15,10 @@ import {
   Globe, 
   LogOut, 
   ChevronDown, 
-  Menu 
+  Menu,
+  Briefcase,
+  FolderOpen,
+  CheckSquare
 } from "lucide-react";
 
 interface SidebarProps {
@@ -41,9 +44,18 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
 
   const navItems = [
     { 
+      title: "Portfolio", 
+      items: [
+        { name: "Home", path: "/", icon: <LayoutDashboard className="mr-3 text-lg" /> },
+        { name: "Career", path: "/career", icon: <Briefcase className="mr-3 text-lg" /> },
+        { name: "Projects", path: "/projects", icon: <FolderOpen className="mr-3 text-lg" /> },
+        { name: "Tasks", path: "/tasks", icon: <CheckSquare className="mr-3 text-lg" /> }
+      ]
+    },
+    { 
       title: t("mainMenu"), 
       items: [
-        { name: t("dashboard"), path: "/", icon: <LayoutDashboard className="mr-3 text-lg" /> },
+        { name: t("dashboard"), path: "/dashboard", icon: <LayoutDashboard className="mr-3 text-lg" /> },
         { name: t("myWorkflows"), path: "/workflows", icon: <ChartGantt className="mr-3 text-lg" /> },
         { name: t("appConnections"), path: "/app-connections", icon: <AppWindow className="mr-3 text-lg" /> },
         { name: t("templates"), path: "/templates", icon: <FileSymlink className="mr-3 text-lg" /> },
