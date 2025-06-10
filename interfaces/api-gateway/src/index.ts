@@ -1,10 +1,10 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "../../../server/routes";
-import { setupVite, serveStatic, log } from "../../../server/vite";
-import { initializeTemplates } from "../../../server/initTemplates";
-import { securityHeaders, generalRateLimit, sanitizeInput } from "../../../server/security";
-import { logger } from "../../../server/logger";
-import { env } from "../../../server/config";
+import { registerRoutes } from "./routes/routes";
+import { setupVite, serveStatic, log } from "./vite";
+import { initializeTemplates } from "../../../services/workflow-service/src/infrastructure/initTemplates";
+import { securityHeaders, generalRateLimit, sanitizeInput } from "../../../infrastructure/security/middleware/security";
+import { logger } from "../../../libs/logging/src/logger";
+import { env } from "../../../infrastructure/database/config/config";
 
 const app = express();
 
