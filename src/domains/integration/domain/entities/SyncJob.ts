@@ -377,8 +377,8 @@ export class SyncJob {
     this.currentProgress = undefined;
 
     // Check if we should retry
+    this.retryCount++;
     if (this.retryCount < this.maxRetries) {
-      this.retryCount++;
       this.status = 'pending';
       this.calculateNextRun(true); // Schedule retry
     } else {
