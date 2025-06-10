@@ -305,9 +305,15 @@ export class SyncJob {
       throw new Error(`Cannot start sync job in status: ${this.status}`);
     }
 
+    // Check if this is a retry (status was 'pending') before changing status
+    const isRetry = this.status === 'pending';
+    
     this.status = 'running';
     this.lastRunAt = new Date();
-    this.retryCount = 0;
+    // Only reset retry count if this is a fresh start, not a retry
+    if (!isRetry) {
+      this.retryCount = 0;
+    }
     this.currentProgress = {
       phase: 'initializing',
       totalRecords: 0,
