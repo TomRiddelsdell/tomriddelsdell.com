@@ -91,18 +91,22 @@ export class SimpleCognitoHandler {
       
       // Store database user ID in session
       console.log('Storing user in session...');
-      (req.session as any).userId = dbUser.id;
-      (req.session as any).user = {
-        id: dbUser.id,
-        email: dbUser.email,
-        displayName: dbUser.displayName,
-        cognitoId: dbUser.cognitoId
-      };
+      if (dbUser) {
+        (req.session as any).userId = dbUser.id;
+        (req.session as any).user = {
+          id: dbUser.id,
+          email: dbUser.email,
+          displayName: dbUser.displayName,
+          cognitoId: dbUser.cognitoId
+        };
+        
+        console.log('Session after storing user:');
+        console.log('- Session ID:', req.sessionID);
+        console.log('- Database User ID:', (req.session as any).userId);
+        console.log('- User data:', JSON.stringify((req.session as any).user, null, 2));
+      }
       
-      console.log('Session after storing user:');
-      console.log('- Session ID:', req.sessionID);
-      console.log('- Database User ID:', (req.session as any).userId);
-      console.log('- User data:', JSON.stringify((req.session as any).user, null, 2));
+
       
       console.log('Authentication callback completed successfully');
       res.json(user);
