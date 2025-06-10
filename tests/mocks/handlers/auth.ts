@@ -63,4 +63,20 @@ export const authHandlers = [
       { status: 401 }
     );
   }),
+
+  // Contact form endpoint
+  http.post('/api/contact', async ({ request }) => {
+    const { name, email, message } = await request.json() as any;
+    
+    if (!name || !email || !message) {
+      return HttpResponse.json(
+        { message: 'Name, email and message are required' },
+        { status: 400 }
+      );
+    }
+    
+    return HttpResponse.json({ 
+      message: 'Message sent successfully' 
+    });
+  }),
 ];
