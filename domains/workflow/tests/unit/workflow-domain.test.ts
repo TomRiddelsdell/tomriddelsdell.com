@@ -1,16 +1,108 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { MemStorage } from '../../server/storage';
-import { Workflow, InsertWorkflow, Template, ConnectedApp } from '../../shared/schema';
+import { Workflow, WorkflowStatus, TriggerType, WorkflowId } from '../../src/entities/Workflow';
+import { WorkflowAggregate } from '../../src/aggregates/WorkflowAggregate';
+import { UserId } from '../../../shared-kernel/src/value-objects/UserId';
+import { DomainException } from '../../../shared-kernel/src/exceptions/DomainException';
+import { WorkflowCreatedEvent, WorkflowExecutedEvent } from '../../../shared-kernel/src/events/DomainEvent';
 
-describe('Workflow Domain Operations', () => {
-  let storage: MemStorage;
+describe('Workflow Domain - Pure DDD Architecture', () => {
+  describe('Value Objects', () => {
+    it('should create valid WorkflowId', () => {
+      const workflowId = WorkflowId.fromNumber(123);
+      expect(workflowId.getValue()).toBe(123);
+      expect(workflowId.toString()).toBe('123');
+    });
 
-  beforeEach(() => {
-    storage = new MemStorage();
-    // Clear demo data for clean test environment
-    storage['workflows'].clear();
-    storage['connectedApps'].clear();
-    storage['activityLogs'].clear();
+    it('should enforce WorkflowId validation', () => {
+      expect(() => WorkflowId.fromNumber(0)).toThrow('WorkflowId must be a positive number');
+      expect(() => WorkflowId.fromNumber(-1)).toThrow('WorkflowId must be a positive number');
+    });
+
+    it('should support WorkflowId equality', () => {
+      const id1 = WorkflowId.fromNumber(123);
+      const id2 = WorkflowId.fromNumber(123);
+      const id3 = WorkflowId.fromNumber(456);
+      
+      expect(id1.equals(id2)).toBe(true);
+      expect(id1.equals(id3)).toBe(false);
+    });
+  });
+
+  describe('Workflow Aggregate Root', () => {
+    let workflowAggregate: WorkflowAggregate;
+    let userId: UserId;
+
+    beforeEach(() => {
+      userId = UserId.generate();
+      workflowAggregate = WorkflowAggregate.create(
+        userId,
+        'Test Workflow',
+        'A test workflow for DDD validation',
+        TriggerType.MANUAL
+      );
+    });
+
+    it('should enforce business rules during creation', () => {
+      expect(() => {
+        WorkflowAggregate.create(userId, '', 'Description', TriggerType.MANUAL);
+      }).toThrow(DomainException);
+
+      expect(() => {
+        WorkflowAggregate.create(userId, 'a'.repeat(101), 'Description', TriggerType.MANUAL);
+      }).toThrow(DomainException);
+
+      expect(() => {
+        WorkflowAggregate.create(userId, '   ', 'Description', TriggerType.MANUAL);
+      }).toThrow(DomainException);
+    });
+
+    it('should create aggregate with proper domain events', () => {
+      const events = workflowAggregate.getDomainEvents();
+      expect(events).toHaveLength(1);
+      expect(events[0]).toBeInstanceOf(WorkflowCreatedEvent);
+    });
+
+    it('should prevent activation without valid configuration', () => {
+      expect(() => {
+        workflowAggregate.activateWorkflow();
+      }).toThrow(DomainException);
+    });
+
+    it('should allow activation with valid configuration', () => {
+      const workflow = workflowAggregate.getWorkflow();
+      workflow.updateActions([
+        {
+          id: 'action-1',
+          type: 'email',
+          config: { to: 'test@example.com', subject: 'Test' },
+          order: 1
+        }
+      ]);
+
+      expect(() => {
+        workflowAggregate.activateWorkflow();
+      }).not.toThrow();
+
+      expect(workflow.getStatus()).toBe(WorkflowStatus.ACTIVE);
+    });
+
+    it('should manage domain events properly', () => {
+      const workflow = workflowAggregate.getWorkflow();
+      workflow.updateActions([
+        {
+          id: 'action-1',
+          type: 'email',
+          config: { to: 'test@example.com', subject: 'Test' },
+          order: 1
+        }
+      ]);
+
+      workflowAggregate.activateWorkflow();
+      expect(workflowAggregate.getDomainEvents().length).toBeGreaterThan(0);
+
+      workflowAggregate.clearDomainEvents();
+      expect(workflowAggregate.getDomainEvents()).toHaveLength(0);
+    });
   });
 
   describe('Workflow Business Logic', () => {
