@@ -6,6 +6,12 @@ describe('Database Storage', () => {
 
   beforeEach(() => {
     storage = new MemStorage();
+    // Clear demo data for clean test environment
+    storage['workflows'].clear();
+    storage['users'].clear();
+    storage['connectedApps'].clear();
+    storage['activityLogs'].clear();
+    storage['templates'].clear();
   });
 
   describe('User Operations', () => {
