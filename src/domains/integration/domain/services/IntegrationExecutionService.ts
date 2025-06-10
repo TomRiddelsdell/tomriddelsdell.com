@@ -472,15 +472,16 @@ export class IntegrationExecutionService {
         score -= 40;
         issues.push(`Low success rate: ${successRate.toFixed(1)}%`);
         recommendations.push('Review integration configuration and error logs');
-      } else if (successRate < 80) {
-        score -= 20;
+      } else if (successRate < 90) {
+        score -= 15;
+        issues.push(`Success rate below optimal: ${successRate.toFixed(1)}%`);
         recommendations.push('Monitor integration performance closely');
       }
 
-      // Check response time
-      if (metrics.averageResponseTime > 10000) { // 10 seconds
-        score -= 20;
-        issues.push('High average response time');
+      // Check response time - be more strict
+      if (metrics.averageResponseTime > 2000) { // 2 seconds
+        score -= 10;
+        issues.push('Response time above threshold');
         recommendations.push('Optimize API calls or increase timeout values');
       }
     }
@@ -497,7 +498,7 @@ export class IntegrationExecutionService {
       }
     } catch (error) {
       // For mocked integrations, reduce score to ensure warning status
-      score -= 30;
+      score -= 40;
       issues.push('Authentication status could not be verified');
       recommendations.push('Authentication status requires review');
     }
