@@ -126,6 +126,10 @@ export class NotificationCommandHandler {
         data: {
           totalNotifications: notifications.length,
           results,
+          deliveryResults: results.reduce((acc, result, index) => {
+            acc[index] = result;
+            return acc;
+          }, {} as Record<number, any>),
           summary: {
             successful: results.filter(r => r.success).length,
             failed: results.filter(r => !r.success).length
@@ -210,7 +214,8 @@ export class NotificationCommandHandler {
         data: {
           templateId: command.templateId,
           deleted: true,
-          deletedAt: new Date().toISOString()
+          deletedAt: new Date().toISOString(),
+          message: 'Template has been deactivated successfully'
         }
       };
 
@@ -228,6 +233,13 @@ export class NotificationCommandHandler {
         return {
           success: false,
           errorMessage: 'Scheduled time is required'
+        };
+      }
+
+      if (command.scheduledAt <= new Date()) {
+        return {
+          success: false,
+          errorMessage: 'Scheduled time must be in the future'
         };
       }
 
@@ -293,7 +305,7 @@ export class NotificationCommandHandler {
 
     // Channel-specific validation
     if (channels.includes(ChannelType.SMS) && content.length > 160) {
-      errors.push('SMS content too long (max 160 characters)');
+      errors.push('SMS content exceeds maximum size (160 characters)');
     }
 
     return {
