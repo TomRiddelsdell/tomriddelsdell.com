@@ -30,7 +30,7 @@ export class UserAggregate {
       throw new DomainException('Username can only contain letters, numbers, hyphens, and underscores');
     }
 
-    const userId = new UserId(Date.now()); // Temporary ID generation
+    const userId = UserId.generate();
     const user = User.create(userId, email, cognitoId, username.trim(), displayName, provider);
     
     return new UserAggregate(user);
