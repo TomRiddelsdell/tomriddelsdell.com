@@ -20,4 +20,8 @@ export class UserId {
   static fromNumber(value: number): UserId {
     return new UserId(value);
   }
+
+  static generate(): UserId {
+    return new UserId(Date.now() + Math.floor(Math.random() * 1000));
+  }
 }
