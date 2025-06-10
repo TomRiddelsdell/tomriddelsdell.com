@@ -35,3 +35,63 @@ waitForPort = 5000
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 33215
+externalPort = 6000
+
+[[ports]]
+localPort = 33339
+externalPort = 3001
+
+[[ports]]
+localPort = 33857
+externalPort = 8000
+
+[[ports]]
+localPort = 35137
+externalPort = 5173
+
+[[ports]]
+localPort = 35465
+externalPort = 3003
+
+[[ports]]
+localPort = 35643
+externalPort = 8008
+
+[[ports]]
+localPort = 36217
+externalPort = 8081
+
+[[ports]]
+localPort = 36851
+externalPort = 8080
+
+[[ports]]
+localPort = 37517
+externalPort = 5000
+
+[[ports]]
+localPort = 37539
+externalPort = 3002
+
+[[ports]]
+localPort = 39793
+externalPort = 3000
+
+[[ports]]
+localPort = 41901
+externalPort = 9000
+
+[[ports]]
+localPort = 43449
+externalPort = 6800
+
+[[ports]]
+localPort = 44021
+externalPort = 4200
+
+[[ports]]
+localPort = 44245
+externalPort = 8099
