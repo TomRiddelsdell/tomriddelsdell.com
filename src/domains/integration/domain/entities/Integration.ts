@@ -360,8 +360,8 @@ export class Integration {
   clone(newId: IntegrationId, newName: string): Integration {
     const clonedConfig = {
       ...this.config,
-      // Don't clone auth credentials for security
-      auth: AuthCredentials.createCustom({})
+      // Don't clone auth credentials for security - use placeholder API key
+      auth: AuthCredentials.createApiKey('PLACEHOLDER_KEY_CONFIGURE_BEFORE_USE')
     };
 
     return Integration.create(
