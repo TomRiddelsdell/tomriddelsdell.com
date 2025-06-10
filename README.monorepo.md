@@ -1,163 +1,214 @@
-# FlowCreate Platform - DDD Monorepo
-
-A workflow automation platform built with Domain-Driven Design (DDD) principles and hexagonal architecture.
+# FlowCreate DDD Monorepo
 
 ## Architecture Overview
 
+FlowCreate has been restructured as a Domain-Driven Design (DDD) monorepo with clear separation of concerns across five bounded contexts:
+
+- **Identity**: User management and authentication
+- **Workflow**: Automation and process management  
+- **Integration**: External service connections
+- **Analytics**: Metrics and reporting
+- **Notification**: Communication channels
+
+## Directory Structure
+
 ```
-flowcreate-platform/
-├── domains/                    # Pure domain logic (bounded contexts)
-│   ├── identity/              # User authentication & authorization
-│   ├── workflow/              # Workflow automation logic
-│   ├── integration/           # App connections & data mapping
-│   ├── analytics/             # Metrics & reporting
-│   ├── notification/          # Multi-channel notifications
-│   └── shared-kernel/         # Shared domain concepts
-├── services/                  # Application services (microservices)
-│   ├── identity-service/      # Identity management API
-│   ├── workflow-service/      # Workflow orchestration
-│   ├── integration-service/   # External API integrations
-│   ├── analytics-service/     # Analytics & reporting
-│   └── notification-service/  # Notification delivery
-├── infrastructure/            # Cross-cutting infrastructure
-│   ├── database/             # Database schemas & migrations
-│   ├── message-bus/          # Event messaging
-│   └── observability/        # Monitoring & logging
-├── interfaces/               # External interfaces
-│   ├── api-gateway/          # API routing & authentication
-│   ├── web-frontend/         # React user interface
-│   └── admin-dashboard/      # Administrative interface
-└── libs/                     # Shared utilities
-    ├── logging/              # Centralized logging
-    ├── monitoring/           # Metrics collection
-    ├── http-client/          # HTTP client utilities
-    └── validation/           # Shared validation logic
+FlowCreate/
+├── domains/                    # Pure business logic
+│   ├── identity/
+│   ├── workflow/
+│   ├── integration/
+│   ├── analytics/
+│   ├── notification/
+│   └── shared-kernel/
+├── services/                   # Application services
+│   ├── identity-service/
+│   ├── workflow-service/
+│   ├── integration-service/
+│   ├── analytics-service/
+│   └── notification-service/
+├── infrastructure/             # Cross-cutting concerns
+│   ├── database/
+│   ├── security/
+│   ├── message-bus/
+│   └── observability/
+├── interfaces/                 # External touchpoints
+│   ├── web-frontend/
+│   ├── api-gateway/
+│   └── admin-dashboard/
+└── libs/                      # Shared utilities
+    ├── logging/
+    ├── validation/
+    ├── http-client/
+    └── testing-utils/
 ```
 
-## Domain-Driven Design Structure
+## Development Commands
 
-### Bounded Contexts
+### Monorepo Management
+```bash
+make install        # Install all dependencies
+make build          # Build all services
+make test           # Run all tests
+```
 
-1. **Identity Domain** - User management, authentication, authorization
-2. **Workflow Domain** - Automation workflows, triggers, actions
-3. **Integration Domain** - External app connections, data transformation
-4. **Analytics Domain** - Metrics, dashboards, reporting
-5. **Notification Domain** - Email, SMS, push notifications
+### Individual Services
+```bash
+make dev-frontend      # Start web frontend
+make dev-gateway       # Start API gateway
+make dev-identity      # Start identity service
+make dev-workflow      # Start workflow service
+make dev-notification  # Start notification service
+```
 
-### Layer Responsibilities
+### Docker Development
+```bash
+docker-compose up              # Start all services
+docker-compose up frontend     # Start frontend only
+docker-compose up identity     # Start identity service only
+```
 
-- **Domain Layer**: Pure business logic, entities, value objects, domain services
-- **Application Layer**: Use cases, command/query handlers, application services
-- **Infrastructure Layer**: Database, external APIs, messaging, frameworks
-- **Interface Layer**: REST APIs, web interfaces, GraphQL endpoints
+## Service Communication
+
+Services communicate through:
+- **REST APIs**: Synchronous operations
+- **Message Bus**: Asynchronous events
+- **Shared Database**: Read-only cross-service queries (limited)
+
+## Domain Boundaries
+
+### Identity Domain
+- User registration and authentication
+- Role and permission management
+- Session handling
+- OAuth integration
+
+### Workflow Domain
+- Workflow creation and execution
+- Template management
+- Step processing
+- Automation logic
+
+### Integration Domain
+- External API connections
+- Third-party service management
+- Data synchronization
+- Webhook handling
+
+### Analytics Domain
+- User activity tracking
+- Performance metrics
+- Dashboard data
+- Reporting generation
+
+### Notification Domain
+- Email notifications
+- SMS alerts
+- In-app messages
+- Template management
+
+## Technology Stack
+
+### Frontend
+- React 18 with TypeScript
+- Tailwind CSS + shadcn/ui
+- TanStack Query for state management
+- Wouter for routing
+
+### Backend
+- Node.js with Express
+- TypeScript throughout
+- Drizzle ORM with PostgreSQL
+- AWS Cognito for authentication
+
+### Infrastructure
+- Docker containers
+- PostgreSQL database
+- Redis for caching
+- RabbitMQ for messaging
 
 ## Getting Started
 
-### Prerequisites
+1. **Install dependencies**:
+   ```bash
+   make install
+   ```
 
-- Node.js 18+
-- PostgreSQL 14+
-- Docker & Docker Compose
-- npm 8+
+2. **Start development environment**:
+   ```bash
+   make dev
+   ```
 
-### Development Setup
+3. **Run specific service**:
+   ```bash
+   make dev-identity    # For identity service
+   make dev-workflow    # For workflow service
+   ```
 
-```bash
-# Install dependencies
-npm install
+4. **Build for production**:
+   ```bash
+   make build
+   ```
 
-# Set up development environment
-docker-compose up -d
+## Testing Strategy
 
-# Run database migrations
-npm run migration:up
+### Unit Tests
+- Domain logic testing in isolation
+- Service layer functionality
+- Infrastructure component testing
 
-# Start all services
-npm run dev
-```
+### Integration Tests
+- Cross-service communication
+- Database interactions
+- API endpoint validation
 
-### Available Commands
-
-```bash
-npm run build          # Build all packages
-npm run test           # Run all tests
-npm run lint           # Lint all packages
-npm run dev            # Start development environment
-npm run start:prod     # Start production environment
-npm run clean          # Clean all build artifacts
-```
-
-## Service Architecture
-
-Each service follows hexagonal architecture:
-
-- **Application Layer**: Use case orchestration
-- **Domain Layer**: Business logic (imported from domains/)
-- **Infrastructure Layer**: External integrations
-- **API Layer**: HTTP endpoints and controllers
-
-## Infrastructure
-
-### Database
-- PostgreSQL with domain-specific schemas
-- Separate migrations per domain
-- Event sourcing for audit trails
-
-### Messaging
-- RabbitMQ for domain events
-- Redis for caching and sessions
-- Event-driven inter-service communication
-
-### Observability
-- Prometheus metrics
-- Grafana dashboards
-- Jaeger distributed tracing
-- ELK stack for centralized logging
-
-## Development Guidelines
-
-### Domain Rules
-- No infrastructure dependencies in domain layer
-- Rich domain models with business logic
-- Domain events for cross-boundary communication
-- Repository pattern for data access
-
-### Service Communication
-- Async messaging for domain events
-- Synchronous HTTP for queries
-- API Gateway for external interfaces
-- Circuit breakers for resilience
-
-### Testing Strategy
-- Unit tests for domain logic
-- Integration tests for services
-- Contract tests for APIs
-- End-to-end tests for user journeys
+### End-to-End Tests
+- Complete user workflows
+- Multi-service scenarios
+- UI automation testing
 
 ## Deployment
 
-### Local Development
+Each service can be deployed independently:
+
 ```bash
-docker-compose up -d
-npm run dev
+# Deploy identity service
+cd services/identity-service
+npm run build
+npm run start
+
+# Deploy workflow service  
+cd services/workflow-service
+npm run build
+npm run start
 ```
 
-### Production
-```bash
-docker-compose -f docker-compose.prod.yml up -d
-```
+## Migration Status
 
-### Environment Variables
-See individual service README files for specific configuration.
+✅ **Completed**:
+- Domain structure created
+- Service foundations established
+- Infrastructure separation
+- Interface layer organization
+- Development tooling setup
+
+🔄 **In Progress**:
+- Import path updates
+- Service activation
+- Cross-service testing
 
 ## Contributing
 
-1. Follow DDD principles
-2. Keep domains pure
-3. Test domain logic thoroughly
-4. Document architectural decisions
-5. Use conventional commits
+1. Choose a bounded context (domain)
+2. Work within the appropriate service directory
+3. Follow DDD principles for domain logic
+4. Use shared infrastructure components
+5. Write tests for new functionality
 
-## License
+## Architecture Benefits
 
-MIT License - see LICENSE file for details
+- **Scalability**: Independent service scaling
+- **Maintainability**: Clear separation of concerns
+- **Team Ownership**: Bounded context responsibility
+- **Technology Flexibility**: Service-specific tech choices
+- **Deployment Independence**: Individual service releases
