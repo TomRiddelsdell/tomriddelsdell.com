@@ -28,14 +28,6 @@ export class NotificationCommandHandler {
 
   async handleSendNotification(command: SendNotificationCommand): Promise<CommandResult> {
     try {
-      // Input validation
-      if (!command.title || command.title.trim().length === 0) {
-        return {
-          success: false,
-          errorMessage: 'Notification title cannot be empty'
-        };
-      }
-
       // Create notification directly for fast execution
       const channels = command.channels.map(channelType => {
         switch (channelType) {
@@ -72,6 +64,7 @@ export class NotificationCommandHandler {
         errorMessage: undefined
       }));
 
+      notification.markAsSent();
       notification.markAsDelivered();
 
       return {
@@ -84,6 +77,7 @@ export class NotificationCommandHandler {
       };
 
     } catch (error) {
+      console.error('NotificationCommandHandler error:', error);
       return {
         success: false,
         errorMessage: error instanceof Error ? error.message : 'Failed to send notification'
