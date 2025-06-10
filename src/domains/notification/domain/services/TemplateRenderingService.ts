@@ -471,11 +471,11 @@ export class TemplateRenderingService {
     };
   }
 
-  previewTemplate(
+  async previewTemplate(
     template: NotificationTemplate,
     channel: ChannelType,
     sampleVariables: Record<string, any> = {}
-  ): RenderedTemplate {
+  ): Promise<RenderedTemplate> {
     // Generate sample data for variables not provided
     const variables = template.getVariables();
     const previewContext: Record<string, any> = { ...sampleVariables };
