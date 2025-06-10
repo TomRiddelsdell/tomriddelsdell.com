@@ -581,21 +581,4 @@ export class IntegrationCommandHandler {
       isEnabled: syncJob.isJobEnabled()
     };
   }
-
-  private serializeIntegration(integration: Integration): any {
-    return {
-      id: integration.getId().getValue(),
-      userId: integration.getUserId(),
-      name: integration.getName(),
-      description: integration.getDescription(),
-      status: integration.getStatus(),
-      config: integration.getConfig(),
-      tags: integration.getTags(),
-      createdAt: integration.getCreatedAt(),
-      updatedAt: integration.getUpdatedAt(),
-      lastExecutedAt: integration.getLastExecutedAt(),
-      healthStatus: integration.getHealthStatus(),
-      metrics: integration.getMetrics()
-    };
-  }
 }
