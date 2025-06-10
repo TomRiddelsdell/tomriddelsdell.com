@@ -22,7 +22,8 @@ export enum TemplateIconColor {
   SKY = 'sky',
   PURPLE = 'purple',
   EMERALD = 'emerald',
-  ORANGE = 'orange'
+  ORANGE = 'orange',
+  BLUE = 'blue'
 }
 
 export class Template extends DomainEntity {
