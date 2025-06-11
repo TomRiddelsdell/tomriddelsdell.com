@@ -20,7 +20,7 @@ export async function setupVite(app: Express, server: Server) {
   const vite = await createViteServer({
     server: { middlewareMode: true },
     appType: "spa",
-    root: path.resolve(import.meta.dirname, "..", "..", "..", "interfaces", "web-frontend"),
+    root: path.resolve(import.meta.dirname, "..", "..", "..", "client"),
   });
 
   app.use(vite.ssrFixStacktrace);
@@ -35,8 +35,7 @@ export async function setupVite(app: Express, server: Server) {
         "..",
         "..",
         "..",
-        "interfaces",
-        "web-frontend",
+        "client",
         "index.html",
       );
 
