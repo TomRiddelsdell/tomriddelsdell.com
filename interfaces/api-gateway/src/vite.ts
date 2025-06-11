@@ -20,7 +20,7 @@ export async function setupVite(app: Express, server: Server) {
   const vite = await createViteServer({
     server: { middlewareMode: true },
     appType: "spa",
-    root: path.resolve(import.meta.dirname, "..", "..", "..", "client"),
+    root: path.resolve(import.meta.dirname, "..", "..", "web-frontend"),
   });
 
   app.use(vite.ssrFixStacktrace);
@@ -34,8 +34,7 @@ export async function setupVite(app: Express, server: Server) {
         import.meta.dirname,
         "..",
         "..",
-        "..",
-        "client",
+        "web-frontend",
         "index.html",
       );
 
@@ -55,7 +54,7 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const clientDistPath = path.resolve(import.meta.dirname, "..", "..", "..", "dist", "public");
+  const clientDistPath = path.resolve(import.meta.dirname, "..", "..", "web-frontend", "dist");
   // Static file serving would go here in production
   
   app.use("*", (_req, res) => {
