@@ -68,7 +68,7 @@ export default function MonitoringDashboard() {
   });
   const [refreshing, setRefreshing] = useState(false);
 
-  // Fetch real analytics data from our domain
+  // Fetch analytics data from our domain
   const { data: dashboardData, refetch } = useQuery({
     queryKey: ['/api/analytics/dashboard', selectedTimeRange],
     queryFn: () => fetchAnalyticsData(selectedTimeRange),
@@ -135,7 +135,7 @@ export default function MonitoringDashboard() {
         />
         <MetricCard
           title="Active Alerts"
-          value={activeAlerts?.filter(a => a.status === 'active').length || 0}
+          value={activeAlerts?.filter((a: Alert) => a.status === 'active').length || 0}
           icon={AlertTriangle}
           color="destructive"
           description="Requiring attention"
