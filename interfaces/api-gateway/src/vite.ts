@@ -17,40 +17,62 @@ export function log(message: string, source = "express") {
 }
 
 export async function setupVite(app: Express, server: Server) {
-  const vite = await createViteServer({
-    server: { middlewareMode: true },
-    appType: "spa",
-    root: path.resolve(import.meta.dirname, "..", "..", "web-frontend"),
-  });
+  try {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: "spa",
+      root: path.resolve(import.meta.dirname, "..", "..", "web-frontend"),
+    });
 
-  app.use(vite.ssrFixStacktrace);
-  app.use(vite.middlewares);
+    app.use(vite.ssrFixStacktrace);
+    app.use(vite.middlewares);
 
-  app.use("*", async (req, res, next) => {
-    const url = req.originalUrl;
+    app.use("*", async (req, res, next) => {
+      const url = req.originalUrl;
 
-    try {
-      const clientTemplate = path.resolve(
-        import.meta.dirname,
-        "..",
-        "..",
-        "web-frontend",
-        "index.html",
-      );
+      // Skip API routes
+      if (url.startsWith('/api/') || url.startsWith('/health') || url.startsWith('/test-frontend')) {
+        return next();
+      }
 
-      // always reload the index.html file from disk incase it changes
-      let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      template = template.replace(
-        `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${nanoid()}"`,
-      );
-      const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
-    } catch (e) {
-      vite.ssrFixStacktrace(e as Error);
-      next(e);
-    }
-  });
+      try {
+        const clientTemplate = path.resolve(
+          import.meta.dirname,
+          "..",
+          "..",
+          "web-frontend",
+          "index.html",
+        );
+
+        // always reload the index.html file from disk incase it changes
+        let template = await fs.promises.readFile(clientTemplate, "utf-8");
+        const page = await vite.transformIndexHtml(url, template);
+        res.status(200).set({ "Content-Type": "text/html" }).end(page);
+      } catch (e) {
+        vite.ssrFixStacktrace(e as Error);
+        console.error('Vite transform error:', e);
+        res.status(500).send('Frontend build error');
+      }
+    });
+  } catch (error) {
+    console.error('Failed to setup Vite:', error);
+    // Fallback to serving static HTML without Vite
+    app.use("*", async (req, res, next) => {
+      if (req.url.startsWith('/api/') || req.url.startsWith('/health') || req.url.startsWith('/test-frontend')) {
+        return next();
+      }
+      
+      try {
+        const template = await fs.promises.readFile(
+          path.resolve(import.meta.dirname, "..", "..", "web-frontend", "index.html"),
+          "utf-8"
+        );
+        res.status(200).set({ "Content-Type": "text/html" }).end(template);
+      } catch (e) {
+        res.status(500).send('Frontend not available');
+      }
+    });
+  }
 }
 
 export function serveStatic(app: Express) {
