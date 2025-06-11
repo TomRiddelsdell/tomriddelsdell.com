@@ -4,85 +4,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FlowCreate - Workflow Management Platform</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>FlowCreate Platform</title>
   </head>
   <body>
-    <div id="root">
-      <div class="min-h-screen bg-gray-50 p-8">
-        <h1 class="text-3xl font-bold mb-6">FlowCreate Workflow Platform</h1>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div class="bg-white p-6 rounded-lg shadow">
-            <h2 class="text-xl font-semibold mb-3">System Analytics</h2>
-            <p class="text-gray-600 mb-4">Real-time monitoring and performance metrics</p>
-            <a href="/monitoring" class="text-blue-600 hover:underline">View Dashboard →</a>
-          </div>
-          
-          <div class="bg-white p-6 rounded-lg shadow">
-            <h2 class="text-xl font-semibold mb-3">API Endpoints</h2>
-            <p class="text-gray-600 mb-4">Direct access to backend analytics services</p>
-            <div class="space-y-2">
-              <a href="/api/analytics/dashboard?timeRange=1h" class="block text-blue-600 text-sm hover:underline" target="_blank">Dashboard Data</a>
-              <a href="/api/analytics/system-health" class="block text-blue-600 text-sm hover:underline" target="_blank">Health Status</a>
-            </div>
-          </div>
-          
-          <div class="bg-white p-6 rounded-lg shadow">
-            <h2 class="text-xl font-semibold mb-3">Architecture</h2>
-            <p class="text-gray-600 mb-4">Domain-driven design with comprehensive testing</p>
-            <ul class="text-sm text-gray-600 space-y-1">
-              <li>✓ Identity Domain</li>
-              <li>✓ Workflow Domain</li>
-              <li>✓ Analytics Domain</li>
-              <li>✓ Anti-corruption Layer</li>
-            </ul>
-          </div>
-        </div>
-        
-        <div class="mt-8 bg-white p-6 rounded-lg shadow">
-          <h2 class="text-xl font-semibold mb-3">Live System Status</h2>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="metrics">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-blue-600" id="responseTime">--</div>
-              <div class="text-sm text-gray-600">Response Time (ms)</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-green-600" id="activeUsers">--</div>
-              <div class="text-sm text-gray-600">Active Users</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-purple-600" id="totalRequests">--</div>
-              <div class="text-sm text-gray-600">Total Requests</div>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-red-600" id="errorRate">--</div>
-              <div class="text-sm text-gray-600">Error Rate (%)</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <script>
-      // Fetch and display live metrics
-      async function updateMetrics() {
-        try {
-          const response = await fetch('/api/analytics/dashboard?timeRange=1h');
-          if (response.ok) {
-            const data = await response.json();
-            document.getElementById('responseTime').textContent = data.metrics.avgResponseTime;
-            document.getElementById('activeUsers').textContent = data.metrics.activeUsers;
-            document.getElementById('totalRequests').textContent = data.metrics.totalRequests;
-            document.getElementById('errorRate').textContent = data.metrics.errorRate.toFixed(1);
-          }
-        } catch (error) {
-          console.error('Failed to fetch metrics:', error);
-        }
-      }
-
-      // Update metrics immediately and every 30 seconds
-      updateMetrics();
-      setInterval(updateMetrics, 30000);
-    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
