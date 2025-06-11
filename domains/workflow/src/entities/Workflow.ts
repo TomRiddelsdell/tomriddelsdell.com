@@ -1,5 +1,6 @@
 import { UserId } from '../../../shared-kernel/src/value-objects/UserId';
 import { DomainEvent, WorkflowCreatedEvent, WorkflowExecutedEvent } from '../../../shared-kernel/src/events/DomainEvent';
+import { DomainException } from '../../../shared-kernel/src/exceptions/DomainException';
 
 export class WorkflowId {
   constructor(private readonly value: number) {
@@ -64,7 +65,8 @@ export class Workflow {
     private successCount: number,
     private errorCount: number,
     private readonly createdAt: Date,
-    private updatedAt: Date
+    private updatedAt: Date,
+    private lastError?: string
   ) {}
 
   // Getters
@@ -112,7 +114,7 @@ export class Workflow {
   // Business methods
   activate(): void {
     if (this.status === WorkflowStatus.DRAFT && this.actions.length === 0) {
-      throw new Error('Cannot activate workflow without actions');
+      throw new DomainException('Cannot activate workflow without actions');
     }
 
     this.status = WorkflowStatus.ACTIVE;
@@ -137,10 +139,29 @@ export class Workflow {
     this.updatedAt = new Date();
   }
 
-  markAsError(errorMessage?: string): void {
+  markAsError(errorMessage?: string | Error): void {
     this.status = WorkflowStatus.ERROR;
     this.errorCount += 1;
+    
+    if (errorMessage instanceof Error) {
+      this.lastError = errorMessage.message;
+    } else {
+      this.lastError = errorMessage || 'Unknown error';
+    }
+    
     this.updatedAt = new Date();
+  }
+
+  execute(): void {
+    if (this.status !== WorkflowStatus.ACTIVE) {
+      throw new Error('Cannot execute non-active workflow');
+    }
+    // Execution logic would be implemented here
+    this.recordSuccessfulExecution(100);
+  }
+
+  getLastError(): string | undefined {
+    return this.lastError;
   }
 
   recordSuccessfulExecution(executionTime: number): void {
@@ -183,6 +204,29 @@ export class Workflow {
   }
 
   updateActions(actions: WorkflowAction[]): void {
+    // Enforce business rules
+    if (this.status === WorkflowStatus.ACTIVE) {
+      throw new DomainException('Cannot modify actions of active workflow');
+    }
+    
+    if (actions.length > 10) {
+      throw new DomainException('Workflow cannot have more than 10 actions');
+    }
+
+    // Validate action IDs are unique
+    const actionIds = actions.map(a => a.id);
+    const uniqueIds = new Set(actionIds);
+    if (uniqueIds.size !== actionIds.length) {
+      throw new DomainException('Action IDs must be unique');
+    }
+
+    // Validate action ordering
+    const orderValues = actions.map(a => a.order);
+    const uniqueOrders = new Set(orderValues);
+    if (uniqueOrders.size !== orderValues.length) {
+      throw new DomainException('Action orders must be unique');
+    }
+
     this.actions = [...actions];
     this.updatedAt = new Date();
   }
