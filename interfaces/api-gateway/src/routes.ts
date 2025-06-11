@@ -14,6 +14,7 @@ import { AuthController } from "./auth/auth-controller";
 // Import the migration function
 import { migrateToCognito } from "./migrations/add-cognito-support";
 import { getAuthConfig, validateAuthConfig } from "./auth-config";
+import analyticsRouter from "../../../server/routes/analytics";
 
 const SessionStore = MemoryStore(session);
 
@@ -282,6 +283,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Register analytics routes for monitoring dashboard
+  app.use('/api/analytics', analyticsRouter);
+  
   // Register admin routes for user management
   await registerAdminRoutes(app);
   
