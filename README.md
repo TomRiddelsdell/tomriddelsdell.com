@@ -1,6 +1,8 @@
 # FlowCreate - Workflow Automation Platform
 
-A professional TypeScript-based personal portfolio website with advanced authentication mechanisms, focusing on workflow automation and user authentication reliability.
+A professional TypeScript-based workflow automation platform built with pure Domain Driven Design (DDD) architecture, focusing on intelligent workflow creation and enterprise-grade reliability.
+
+📖 **[Complete Architecture Documentation](./ARCHITECTURE.md)**
 
 ## Technologies
 
