@@ -43,4 +43,8 @@ export class DomainEventPublisher implements IDomainEventPublisher {
   async publishMany(events: DomainEvent[]): Promise<void> {
     await Promise.all(events.map(event => this.publish(event)));
   }
+
+  clear(): void {
+    this.handlers.clear();
+  }
 }
