@@ -123,27 +123,24 @@ The application uses Drizzle ORM for database operations:
 ### Running Tests
 
 ```bash
-# Unit and integration tests
+# Run all DDD tests
 npm run test
 
-# Test with coverage
-npm run test:coverage
-
-# End-to-end tests
-npm run test:e2e
-
-# All tests
-npm run test:all
+# Current test status: 52/60 passing
+# ✅ Identity Domain: 19/19 tests passing
+# ✅ Workflow Domain: 21/21 tests passing  
+# ✅ Shared Kernel: 9/10 tests passing
+# ⚠️  Infrastructure Layer: 3/10 tests passing
 ```
 
 ### Test Coverage
 
-- Authentication flows
-- API endpoint validation
-- Database operations
-- Input validation
-- User interface interactions
-- Security headers and rate limiting
+- **Domain Layer**: Pure business logic testing with comprehensive coverage
+- **Value Objects**: Email, UserId, CognitoId validation and behavior
+- **Aggregates**: UserAggregate and WorkflowAggregate business rules
+- **Domain Events**: Event publishing and cross-domain communication
+- **Business Rules**: Workflow activation, action validation, status transitions
+- **Anti-Corruption Layer**: External service integration testing
 
 ## Security Features
 
