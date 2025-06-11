@@ -4,7 +4,8 @@ import { IssueReproductionService } from '../../domains/analytics/src/services/I
 import { LogEntry, LogLevel, LogCategory } from '../../domains/analytics/src/entities/LogEntry';
 import { SystemHealth } from '../../domains/analytics/src/entities/SystemHealth';
 import { Alert } from '../../domains/analytics/src/entities/Alert';
-import { Metric, MetricType, MetricCategory } from '../../domains/analytics/src/entities/Metric';
+import { Metric, MetricCategory } from '../../domains/analytics/src/entities/Metric';
+import { MetricType } from '../../domains/analytics/src/value-objects/MetricValue';
 
 const router = Router();
 
