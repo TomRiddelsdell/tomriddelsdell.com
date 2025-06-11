@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { MetricCollectionService } from '../../domains/analytics/src/services/MetricCollectionService';
-import { IssueReproductionService } from '../../domains/analytics/src/services/IssueReproductionService';
-import { LogEntry, LogLevel, LogCategory } from '../../domains/analytics/src/entities/LogEntry';
-import { SystemHealth } from '../../domains/analytics/src/entities/SystemHealth';
-import { Alert } from '../../domains/analytics/src/entities/Alert';
-import { Metric, MetricCategory } from '../../domains/analytics/src/entities/Metric';
-import { MetricType } from '../../domains/analytics/src/value-objects/MetricValue';
+import { MetricCollectionService } from '../../../../domains/analytics/src/services/MetricCollectionService';
+import { IssueReproductionService } from '../../../../domains/analytics/src/services/IssueReproductionService';
+import { LogEntry, LogLevel, LogCategory } from '../../../../domains/analytics/src/entities/LogEntry';
+import { SystemHealth } from '../../../../domains/analytics/src/entities/SystemHealth';
+import { Alert } from '../../../../domains/analytics/src/entities/Alert';
+import { Metric, MetricCategory } from '../../../../domains/analytics/src/entities/Metric';
+import { MetricType } from '../../../../domains/analytics/src/value-objects/MetricValue';
 
 const router = Router();
 
