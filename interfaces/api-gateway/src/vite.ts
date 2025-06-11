@@ -17,62 +17,39 @@ export function log(message: string, source = "express") {
 }
 
 export async function setupVite(app: Express, server: Server) {
-  try {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-      root: path.resolve(import.meta.dirname, "..", "..", "web-frontend"),
-    });
+  console.log('Setting up direct HTML serving (Vite disabled for debugging)');
+  
+  // Direct HTML serving without Vite middleware
+  app.use("*", async (req, res, next) => {
+    const url = req.originalUrl;
+    console.log(`Direct serving handling request: ${req.method} ${url}`);
 
-    app.use(vite.ssrFixStacktrace);
-    app.use(vite.middlewares);
+    // Skip API routes
+    if (url.startsWith('/api/') || url.startsWith('/health') || url.startsWith('/test-frontend') || url.startsWith('/auth/')) {
+      console.log(`Skipping ${url} - API route`);
+      return next();
+    }
 
-    app.use("*", async (req, res, next) => {
-      const url = req.originalUrl;
+    try {
+      console.log(`Processing frontend request for: ${url}`);
+      const clientTemplate = path.resolve(
+        import.meta.dirname,
+        "..",
+        "..",
+        "web-frontend",
+        "index.html",
+      );
 
-      // Skip API routes
-      if (url.startsWith('/api/') || url.startsWith('/health') || url.startsWith('/test-frontend')) {
-        return next();
-      }
-
-      try {
-        const clientTemplate = path.resolve(
-          import.meta.dirname,
-          "..",
-          "..",
-          "web-frontend",
-          "index.html",
-        );
-
-        // always reload the index.html file from disk incase it changes
-        let template = await fs.promises.readFile(clientTemplate, "utf-8");
-        const page = await vite.transformIndexHtml(url, template);
-        res.status(200).set({ "Content-Type": "text/html" }).end(page);
-      } catch (e) {
-        vite.ssrFixStacktrace(e as Error);
-        console.error('Vite transform error:', e);
-        res.status(500).send('Frontend build error');
-      }
-    });
-  } catch (error) {
-    console.error('Failed to setup Vite:', error);
-    // Fallback to serving static HTML without Vite
-    app.use("*", async (req, res, next) => {
-      if (req.url.startsWith('/api/') || req.url.startsWith('/health') || req.url.startsWith('/test-frontend')) {
-        return next();
-      }
+      // always reload the index.html file from disk incase it changes
+      let template = await fs.promises.readFile(clientTemplate, "utf-8");
+      console.log(`Template loaded, serving directly for: ${url}`);
       
-      try {
-        const template = await fs.promises.readFile(
-          path.resolve(import.meta.dirname, "..", "..", "web-frontend", "index.html"),
-          "utf-8"
-        );
-        res.status(200).set({ "Content-Type": "text/html" }).end(template);
-      } catch (e) {
-        res.status(500).send('Frontend not available');
-      }
-    });
-  }
+      res.status(200).set({ "Content-Type": "text/html" }).end(template);
+    } catch (e) {
+      console.error('Direct serve error:', e);
+      res.status(500).send('Frontend build error');
+    }
+  });
 }
 
 export function serveStatic(app: Express) {
