@@ -1,6 +1,7 @@
 import { Router, Route, Switch } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
+import { Toaster } from "./components/ui/toaster";
 import MonitoringDashboard from "./pages/MonitoringDashboard";
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
             </Route>
           </Switch>
         </div>
+        <Toaster />
       </Router>
     </QueryClientProvider>
   );
