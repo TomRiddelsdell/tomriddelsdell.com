@@ -14,7 +14,7 @@ import { AuthController } from "./auth/auth-controller";
 // Import the migration function
 import { migrateToCognito } from "./migrations/add-cognito-support";
 import { getAuthConfig, validateAuthConfig } from "./auth-config";
-import analyticsRouter from "../../../server/routes/analytics";
+import analyticsRouter from "./routes/analytics";
 
 const SessionStore = MemoryStore(session);
 
