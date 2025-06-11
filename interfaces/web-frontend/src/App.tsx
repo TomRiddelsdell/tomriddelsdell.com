@@ -25,7 +25,7 @@ import Tasks from "@/pages/Tasks";
 import Career from "@/pages/Career";
 import AuthCallback from "@/pages/AuthCallback";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
-import MonitoringDashboard from "../../../client/src/pages/MonitoringDashboard";
+import MonitoringDashboard from "@/pages/MonitoringDashboard";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({

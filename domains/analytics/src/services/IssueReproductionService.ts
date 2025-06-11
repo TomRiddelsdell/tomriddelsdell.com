@@ -1,6 +1,7 @@
 import { LogEntry, LogLevel, LogCategory } from '../entities/LogEntry';
 import { MetricCollectionService } from './MetricCollectionService';
-import { Metric, MetricType } from '../entities/Metric';
+import { Metric, MetricCategory } from '../entities/Metric';
+import { MetricType } from '../value-objects/MetricValue';
 
 /**
  * Service for reproducing and analyzing issues using centralized logs

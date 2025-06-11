@@ -18,7 +18,8 @@ import {
   Menu,
   Briefcase,
   FolderOpen,
-  CheckSquare
+  CheckSquare,
+  Activity
 } from "lucide-react";
 
 interface SidebarProps {
@@ -59,7 +60,8 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
         { name: t("myWorkflows"), path: "/workflows", icon: <ChartGantt className="mr-3 text-lg" /> },
         { name: t("appConnections"), path: "/app-connections", icon: <AppWindow className="mr-3 text-lg" /> },
         { name: t("templates"), path: "/templates", icon: <FileSymlink className="mr-3 text-lg" /> },
-        { name: t("activityLog"), path: "/activity-log", icon: <History className="mr-3 text-lg" /> }
+        { name: t("activityLog"), path: "/activity-log", icon: <History className="mr-3 text-lg" /> },
+        { name: "Monitoring", path: "/monitoring", icon: <Activity className="mr-3 text-lg" /> }
       ]
     },
     { 
