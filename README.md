@@ -59,24 +59,30 @@ SESSION_SECRET=your_session_secret_minimum_32_chars
 
 The application will be available at `http://localhost:5000`
 
-## Project Structure
+## Pure DDD Architecture
 
 ```
-├── client/src/          # React frontend
-│   ├── components/      # Reusable UI components
-│   ├── context/         # React context providers
-│   ├── lib/             # Utility libraries
-│   └── pages/           # Application pages
-├── server/              # Express backend
-│   ├── auth/            # Authentication logic
-│   ├── migrations/      # Database migrations
-│   └── routes.ts        # API routes
-├── shared/              # Shared types and schemas
-├── tests/               # Test suites
-│   ├── unit/            # Unit tests
-│   ├── integration/     # Integration tests
-│   └── e2e/             # End-to-end tests
-└── docs/                # Documentation
+FlowCreate/
+├── domains/                    # Pure Domain Layer
+│   ├── identity/              # User authentication & authorization
+│   ├── workflow/              # Workflow creation & execution
+│   ├── analytics/             # Data analysis & reporting
+│   ├── integration/           # Third-party connections
+│   ├── notification/          # Communication services
+│   └── shared-kernel/         # Shared domain concepts
+├── services/                  # Application Services
+│   ├── identity-service/      # Identity workflows
+│   ├── workflow-service/      # Workflow orchestration
+│   └── notification-service/  # Event handling
+├── infrastructure/            # Infrastructure Layer
+│   ├── database/             # Data persistence
+│   ├── security/             # Auth & authorization
+│   └── anti-corruption-layer/ # External service adapters
+├── interfaces/               # Interface Layer
+│   ├── api-gateway/          # REST API
+│   ├── web-frontend/         # React UI
+│   └── admin-dashboard/      # Admin interface
+└── libs/                     # Shared utilities
 ```
 
 ## Development
