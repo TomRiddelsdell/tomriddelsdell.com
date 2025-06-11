@@ -72,4 +72,45 @@ export class CognitoAdapter {
   private static generateNumericId(): number {
     return Math.floor(Math.random() * 1000000) + Date.now();
   }
+
+  /**
+   * Extract user status from Cognito user data
+   */
+  static extractUserStatus(cognitoUser: any): string {
+    return cognitoUser.UserStatus || 'CONFIRMED';
+  }
+
+  /**
+   * Convert Cognito authentication result to application format
+   */
+  static toAuthenticationResult(authResult: any): any {
+    return {
+      accessToken: authResult.AuthenticationResult?.AccessToken || '',
+      refreshToken: authResult.AuthenticationResult?.RefreshToken || '',
+      idToken: authResult.AuthenticationResult?.IdToken || '',
+      expiresIn: authResult.AuthenticationResult?.ExpiresIn || 3600
+    };
+  }
+
+  /**
+   * Validate Cognito user data structure
+   */
+  static validateCognitoUserData(cognitoUser: any): void {
+    if (!cognitoUser) {
+      throw new Error('Cognito user data is required');
+    }
+
+    if (!cognitoUser.Username) {
+      throw new Error('Cognito Username is required');
+    }
+
+    if (!cognitoUser.UserAttributes || !Array.isArray(cognitoUser.UserAttributes)) {
+      throw new Error('UserAttributes array is required');
+    }
+
+    const emailAttr = cognitoUser.UserAttributes.find((attr: any) => attr.Name === 'email');
+    if (!emailAttr) {
+      throw new Error('Email attribute is required in Cognito user data');
+    }
+  }
 }

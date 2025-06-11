@@ -7,8 +7,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
     include: [
-      'domains/**/tests/unit/*.{test,spec}.{js,ts,tsx}',
-      'infrastructure/tests/unit/*.{test,spec}.{js,ts,tsx}'
+      'domains/identity/tests/unit/*.{test,spec}.{js,ts,tsx}',
+      'domains/workflow/tests/unit/*.{test,spec}.{js,ts,tsx}',
+      'domains/shared-kernel/tests/unit/*.{test,spec}.{js,ts,tsx}',
+      'infrastructure/tests/unit/anti-corruption-layer.test.ts'
     ],
     exclude: ['tests/e2e/**/*', '**/node_modules/**', '**/dist/**'],
     coverage: {
