@@ -1,8 +1,26 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { 
+  MetricValue, 
+  TimeRange, 
+  Dimension, 
+  DimensionCollection, 
+  Threshold, 
+  Metric, 
+  Alert, 
+  Report, 
+  SystemHealth, 
+  LogEntry,
+  MetricCategory,
+  AlertStatus,
+  ReportType,
+  ReportStatus,
+  HealthStatus,
+  ComponentType,
+  LogLevel,
+  LogCategory
+} from '../../src';
 
-// Analytics domain tests - skipping until domain implementation is complete
-describe.skip('Analytics Domain - Complete', () => {
-  // Tests will be implemented when analytics domain structure is created
+describe('Analytics Domain - Complete Implementation', () => {
   describe('MetricValue Value Object', () => {
     it('should create counter metrics correctly', () => {
       const counter = MetricValue.counter(42, 'requests');
