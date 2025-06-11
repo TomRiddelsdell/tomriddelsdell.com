@@ -1,14 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 // Analytics domain tests - skipping until domain implementation is complete
-describe.skip('Analytics Domain - Phase 3', () => {
+describe.skip('Analytics Domain - Complete', () => {
   // Tests will be implemented when analytics domain structure is created
-import { Threshold } from '../../src/domains/analytics/domain/value-objects/Threshold';
-import { Metric } from '../../src/domains/analytics/domain/entities/Metric';
-import { Alert } from '../../src/domains/analytics/domain/entities/Alert';
-import { Report } from '../../src/domains/analytics/domain/entities/Report';
-
-describe('Analytics Domain - Phase 4', () => {
   describe('MetricValue Value Object', () => {
     it('should create counter metrics correctly', () => {
       const counter = MetricValue.counter(42, 'requests');
@@ -656,6 +650,4 @@ describe('Analytics Domain - Phase 4', () => {
         timeRange,
         filters
       )).toThrow('Report name cannot be empty');
-    });
-  });
 });

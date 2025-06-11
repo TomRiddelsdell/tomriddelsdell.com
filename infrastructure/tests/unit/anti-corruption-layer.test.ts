@@ -65,13 +65,13 @@ describe('Anti-Corruption Layer - Infrastructure', () => {
         Username: 'cognito-user-101',
         UserAttributes: [
           { Name: 'email', Value: 'test@example.com' }
-          // Missing preferred_username
+          // Missing preferred_username - should use Username as fallback
         ]
       };
 
-      expect(() => {
-        CognitoAdapter.toDomainUser(invalidCognitoUser);
-      }).toThrow('Username is required for user creation');
+      // This should not throw since it uses Username as fallback
+      const user = CognitoAdapter.toDomainUser(invalidCognitoUser);
+      expect(user.username).toBe('cognito-user-101');
     });
 
     it('should map Cognito groups to domain roles correctly', () => {

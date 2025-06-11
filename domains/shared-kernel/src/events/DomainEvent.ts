@@ -12,12 +12,15 @@ export abstract class DomainEvent {
 }
 
 export class UserRegisteredEvent extends DomainEvent {
-  constructor(
-    userId: string,
-    readonly email: string,
-    readonly cognitoId: string
-  ) {
+  public readonly userId: string;
+  public readonly email: string;
+  public readonly cognitoId: string;
+
+  constructor(userId: string, email: string, cognitoId: string) {
     super(userId, 'UserRegistered');
+    this.userId = userId;
+    this.email = email;
+    this.cognitoId = cognitoId;
   }
 }
 
