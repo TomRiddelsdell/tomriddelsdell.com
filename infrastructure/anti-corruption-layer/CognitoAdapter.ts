@@ -17,7 +17,8 @@ export class CognitoAdapter {
     const attributes = cognitoUser.UserAttributes || cognitoUser.Attributes || [];
     
     const email = this.extractAttribute(attributes, 'email');
-    const username = cognitoUser.Username || this.extractAttribute(attributes, 'preferred_username');
+    const preferredUsername = this.extractAttribute(attributes, 'preferred_username');
+    const username = preferredUsername || cognitoUser.Username;
     const displayName = this.extractAttribute(attributes, 'name') || 
                        this.extractAttribute(attributes, 'given_name');
     
