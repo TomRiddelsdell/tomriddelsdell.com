@@ -285,6 +285,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Test frontend file access
+  app.get('/test-frontend', async (req: Request, res: Response) => {
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const frontendPath = path.resolve(process.cwd(), 'interfaces', 'web-frontend', 'index.html');
+      const content = await fs.promises.readFile(frontendPath, 'utf-8');
+      res.set('Content-Type', 'text/html');
+      res.send(content);
+    } catch (error) {
+      res.status(500).json({ error: 'Frontend file not accessible', details: error.message });
+    }
+  });
+
   // Register analytics routes for monitoring dashboard
   app.use('/api/analytics', analyticsRouter);
   
