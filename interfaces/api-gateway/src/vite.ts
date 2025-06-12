@@ -20,7 +20,15 @@ export async function setupVite(app: Express, server: Server) {
   try {
     console.log('Setting up Vite development server...');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { 
+        middlewareMode: true,
+        host: "0.0.0.0",
+        allowedHosts: [
+          "951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev",
+          ".replit.dev",
+          "localhost"
+        ]
+      },
       appType: "spa",
       root: path.resolve(import.meta.dirname, "..", "..", "web-frontend"),
       optimizeDeps: {
