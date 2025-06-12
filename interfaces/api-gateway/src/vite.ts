@@ -19,15 +19,26 @@ export function log(message: string, source = "express") {
 export async function setupVite(app: Express, server: Server) {
   try {
     console.log('Setting up Vite development server...');
+    // Get current Replit domain dynamically
+    const replitDomain = process.env.REPL_SLUG && process.env.REPL_OWNER 
+      ? `${process.env.REPL_ID}-00-${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.dev`
+      : null;
+
+    const allowedHosts = [
+      ".replit.dev",
+      "localhost",
+      "127.0.0.1"
+    ];
+
+    if (replitDomain) {
+      allowedHosts.push(replitDomain);
+    }
+
     const vite = await createViteServer({
       server: { 
         middlewareMode: true,
         host: "0.0.0.0",
-        allowedHosts: [
-          "951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev",
-          ".replit.dev",
-          "localhost"
-        ]
+        allowedHosts
       },
       appType: "spa",
       root: path.resolve(import.meta.dirname, "..", "..", "web-frontend"),
