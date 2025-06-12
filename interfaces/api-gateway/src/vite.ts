@@ -17,39 +17,45 @@ export function log(message: string, source = "express") {
 }
 
 export async function setupVite(app: Express, server: Server) {
-  console.log('Setting up direct HTML serving (Vite disabled for debugging)');
-  
-  // Direct HTML serving without Vite middleware
-  app.use("*", async (req, res, next) => {
-    const url = req.originalUrl;
-    console.log(`Direct serving handling request: ${req.method} ${url}`);
+  try {
+    console.log('Setting up Vite development server...');
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: "spa",
+      root: path.resolve(import.meta.dirname, "..", "..", "web-frontend"),
+      optimizeDeps: {
+        include: ['react', 'react-dom']
+      }
+    });
 
-    // Skip API routes
-    if (url.startsWith('/api/') || url.startsWith('/health') || url.startsWith('/test-frontend') || url.startsWith('/auth/')) {
-      console.log(`Skipping ${url} - API route`);
-      return next();
-    }
-
-    try {
-      console.log(`Processing frontend request for: ${url}`);
-      const clientTemplate = path.resolve(
-        import.meta.dirname,
-        "..",
-        "..",
-        "web-frontend",
-        "index.html",
-      );
-
-      // always reload the index.html file from disk incase it changes
-      let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      console.log(`Template loaded, serving directly for: ${url}`);
+    // Let Vite handle all frontend requests
+    app.use(vite.middlewares);
+    
+    console.log('Vite setup completed - all frontend requests handled by Vite');
+  } catch (error) {
+    console.error('Vite setup failed, using fallback static serving:', error);
+    
+    // Fallback static serving
+    app.use("*", async (req, res, next) => {
+      // Skip API routes
+      if (req.url.startsWith('/api/') || 
+          req.url.startsWith('/health') || 
+          req.url.startsWith('/test-frontend') || 
+          req.url.startsWith('/auth/')) {
+        return next();
+      }
       
-      res.status(200).set({ "Content-Type": "text/html" }).end(template);
-    } catch (e) {
-      console.error('Direct serve error:', e);
-      res.status(500).send('Frontend build error');
-    }
-  });
+      try {
+        const template = await fs.promises.readFile(
+          path.resolve(import.meta.dirname, "..", "..", "web-frontend", "index.html"),
+          "utf-8"
+        );
+        res.status(200).set({ "Content-Type": "text/html" }).end(template);
+      } catch (e) {
+        res.status(500).send('Frontend not available');
+      }
+    });
+  }
 }
 
 export function serveStatic(app: Express) {
