@@ -66,9 +66,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Initialize templates
-  await initializeTemplates();
-  
+  // Start server first to bind port quickly
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -82,17 +80,6 @@ app.use((req, res, next) => {
     }
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    console.log('Starting Vite setup...');
-    await setupVite(app, server);
-    console.log('Vite setup completed');
-  } else {
-    serveStatic(app);
-  }
-
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
@@ -100,4 +87,25 @@ app.use((req, res, next) => {
   server.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
   });
+
+  // Initialize templates and vite in parallel after server starts
+  const initPromises = [];
+  
+  // Initialize templates asynchronously
+  initPromises.push(initializeTemplates().catch(console.error));
+  
+  // Setup vite in development
+  if (app.get("env") === "development") {
+    console.log('Starting Vite setup...');
+    initPromises.push(
+      setupVite(app, server)
+        .then(() => console.log('Vite setup completed'))
+        .catch(console.error)
+    );
+  } else {
+    serveStatic(app);
+  }
+
+  // Wait for all initialization to complete
+  await Promise.all(initPromises);
 })();
