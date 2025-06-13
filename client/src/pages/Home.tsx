@@ -1,15 +1,15 @@
 import * as React from "react";
-import { Button } from "@/components/ui/button";
-import { redirectToCognito } from "@/lib/simple-auth";
-import { useAuth } from "@/context/AuthContext";
+import { Button } from "../components/ui/button";
+import { redirectToCognito } from "../lib/simple-auth";
+import { useAuth } from "../context/AuthContext";
 import { Link } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import profilePic from "@assets/me.jpg";
-import backgroundImage from "@assets/background.jpg";
-import ImpliedVolDisplay from "@/components/ImpliedVolDisplay";
-import NavigationLinks from "@/components/NavigationLinks";
+import { useToast } from "../hooks/use-toast";
+import { apiRequest } from "../lib/queryClient";
+import profilePic from "../assets/profile.jpg";
+import backgroundImage from "../assets/background.jpg";
+import ImpliedVolDisplay from "../components/ImpliedVolDisplay";
+import NavigationLinks from "../components/NavigationLinks";
 
 export default function Home() {
   const { user: authUser, signOut } = useAuth();
