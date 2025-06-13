@@ -29,12 +29,16 @@ function getBaseUrl(): string {
 export function getClientAuthConfig(): ClientAuthConfig {
   const baseUrl = getBaseUrl();
   
+  // Clean the hosted UI domain to remove any protocol prefix
+  const rawDomain = import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN;
+  const hostedUIDomain = rawDomain?.replace(/^https?:\/\//, '') || '';
+  
   return {
     cognito: {
       clientId: import.meta.env.VITE_AWS_COGNITO_CLIENT_ID,
       region: import.meta.env.VITE_AWS_COGNITO_REGION,
       userPoolId: import.meta.env.VITE_AWS_COGNITO_USER_POOL_ID,
-      hostedUIDomain: import.meta.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN,
+      hostedUIDomain,
     },
     urls: {
       baseUrl,
