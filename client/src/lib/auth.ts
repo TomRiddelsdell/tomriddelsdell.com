@@ -27,7 +27,6 @@ export async function emailSignIn(email: string, password: string, rememberMe?: 
   console.log('Attempting sign in with:', { email, rememberMe });
   
   try {
-    // For Replit environment, use relative URLs
     const url = '/api/auth/signin';
     console.log('Making request to:', url);
     
@@ -63,23 +62,23 @@ export async function emailSignIn(email: string, password: string, rememberMe?: 
 
 // Sign up with email and password
 export async function emailSignUp(email: string, password: string): Promise<AuthUser> {
-  const res = await apiRequest('POST', '/api/auth/signup', { email, password });
-  const data = await res.json();
+  const res = await apiRequest('/api/auth/signup', {
+    method: 'POST',
+    body: JSON.stringify({ email, password })
+  });
   
-  if (!data.user) {
-    throw new Error(data.message || 'Failed to sign up');
+  if (!res.user) {
+    throw new Error(res.message || 'Failed to sign up');
   }
   
-  return data.user;
+  return res.user;
 }
 
-// Sign in with Google-like experience
+// Sign in with Google
 export async function googleSignIn(): Promise<AuthUser> {
   try {
-    // Use a default test account for the simplified experience
     const defaultEmail = "t.riddelsdell@gmail.com";
     
-    // Call our simplified Google-style signin endpoint
     const res = await fetch('/api/auth/google-signin', {
       method: 'POST',
       headers: {
@@ -108,13 +107,11 @@ export async function googleSignIn(): Promise<AuthUser> {
   }
 }
 
-// Sign in with AWS Cognito
+// Sign in with AWS
 export async function awsSignIn(): Promise<AuthUser> {
   try {
-    // Use a default test account for the simplified experience
     const defaultEmail = "t.riddelsdell@gmail.com";
     
-    // Call our simplified AWS-style signin endpoint with proper format
     const res = await fetch('/api/auth/aws-signin', {
       method: 'POST',
       headers: {
@@ -145,14 +142,4 @@ export async function awsSignIn(): Promise<AuthUser> {
     console.error('AWS sign in error:', error);
     throw error;
   }
-}
-
-// Full AWS OAuth flow (redirects to AWS for login)
-export function awsOAuthSignIn(): void {
-  window.location.href = '/auth/aws';
-}
-
-// Sign out
-export async function signOut(): Promise<void> {
-  await apiRequest('POST', '/api/auth/signout', undefined);
 }

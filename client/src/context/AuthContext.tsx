@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { AuthUser, checkAuthStatus, emailSignIn, emailSignUp, googleSignIn, awsSignIn, signOut as authSignOut } from "@/lib/auth";
-import { useToast } from "@/hooks/use-toast";
+import { AuthUser, checkAuthStatus, emailSignIn, emailSignUp, googleSignIn, awsSignIn } from "../lib/auth";
+import { useToast } from "../hooks/use-toast";
 
 interface AuthContextType {
   user: AuthUser | null;
