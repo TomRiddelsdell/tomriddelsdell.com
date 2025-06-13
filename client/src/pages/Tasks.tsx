@@ -1,269 +1,156 @@
-import * as React from "react";
-import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { useAuth } from "@/context/AuthContext";
-import { Redirect } from "wouter";
-import { useState } from "react";
-import { 
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-interface Task {
-  id: string;
-  description: string;
-  completed: boolean;
-  dueDate: string; // ISO string
-  priority: 'low' | 'medium' | 'high';
-}
+import React from "react";
+import { useAuth } from "../context/AuthContext";
 
 export default function Tasks() {
-  const { isAuthenticated, user } = useAuth();
-  const [location, setLocation] = useLocation();
-  const [tasks, setTasks] = useState<Task[]>([
+  const { user } = useAuth();
+
+  const tasks = [
     {
-      id: '1',
-      description: 'Review Q2 trading algorithm performance',
-      completed: false,
-      dueDate: '2025-05-20',
-      priority: 'high'
+      id: 1,
+      title: "Review data migration workflow",
+      priority: "high",
+      status: "pending",
+      dueDate: "2025-06-14",
+      assignee: "Tom Riddelsdell"
     },
     {
-      id: '2',
-      description: 'Prepare presentation for Goldman Sachs leadership meeting',
-      completed: false,
-      dueDate: '2025-05-25',
-      priority: 'medium'
+      id: 2,
+      title: "Configure API rate limiting",
+      priority: "medium",
+      status: "in-progress",
+      dueDate: "2025-06-16",
+      assignee: "Tom Riddelsdell"
     },
     {
-      id: '3',
-      description: 'Optimize market data processing pipeline',
-      completed: false,
-      dueDate: '2025-06-10',
-      priority: 'medium'
+      id: 3,
+      title: "Update integration documentation",
+      priority: "low",
+      status: "completed",
+      dueDate: "2025-06-12",
+      assignee: "Tom Riddelsdell"
     },
     {
-      id: '4',
-      description: 'Analyze new volatility modeling techniques',
-      completed: false,
-      dueDate: '2025-06-15',
-      priority: 'high'
-    },
-    {
-      id: '5',
-      description: 'Schedule family weekend at Wye Valley',
-      completed: true,
-      dueDate: '2025-05-10',
-      priority: 'high'
+      id: 4,
+      title: "Test new authentication flow",
+      priority: "high",
+      status: "pending",
+      dueDate: "2025-06-15",
+      assignee: "Tom Riddelsdell"
     }
-  ]);
-  const [newTask, setNewTask] = useState('');
-
-  // If not authenticated, redirect to home
-  if (!isAuthenticated) {
-    return <Redirect to="/" />;
-  }
-
-  const toggleTaskCompletion = (taskId: string) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, completed: !task.completed } : task
-    ));
-  };
-
-  const addTask = () => {
-    if (newTask.trim() === '') return;
-    
-    const task: Task = {
-      id: Date.now().toString(),
-      description: newTask,
-      completed: false,
-      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 week from now
-      priority: 'medium'
-    };
-    
-    setTasks([...tasks, task]);
-    setNewTask('');
-  };
-
-  const deleteTask = (taskId: string) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'text-red-600 dark:text-red-400';
-      case 'medium':
-        return 'text-amber-600 dark:text-amber-400';
-      case 'low':
-        return 'text-green-600 dark:text-green-400';
-      default:
-        return '';
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Navigation */}
-      <header className="py-4 px-6 md:px-12 flex justify-between items-center border-b">
-        <Link href="/">
-          <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text cursor-pointer">
-            Tom Riddelsdell
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Tasks</h1>
+            <p className="text-gray-600 mt-2">Manage your workflow tasks and assignments</p>
           </div>
-        </Link>
-        <nav className="hidden md:flex space-x-8 items-center">
-          <Link href="/" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
-            Home
-          </Link>
-          <Link href="/career" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
-            Career
-          </Link>
-          {isAuthenticated && (
-            <>
-              <Link href="/projects" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
-                Projects
-              </Link>
-              <Link href="/tasks" className="text-blue-600 dark:text-blue-400 font-medium">
-                Tasks
-              </Link>
-            </>
-          )}
-          {isAuthenticated ? (
-            <Link href="/dashboard">
-              <Button variant="outline">Dashboard</Button>
-            </Link>
-          ) : (
-            <Button>Sign In</Button>
-          )}
-        </nav>
-        {/* Mobile nav toggle */}
-        <Button 
-          variant="ghost" 
-          className="md:hidden" 
-          size="icon"
-          onClick={() => {}}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
-            <line x1="4" x2="20" y1="12" y2="12" />
-            <line x1="4" x2="20" y1="6" y2="6" />
-            <line x1="4" x2="20" y1="18" y2="18" />
-          </svg>
-        </Button>
-      </header>
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            Add Task
+          </button>
+        </div>
 
-      <main className="flex-1">
-        {/* Tasks Header */}
-        <section className="py-12 md:py-16 px-6 md:px-12 bg-gray-50 dark:bg-gray-800">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Personal Task Dashboard</h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-8">
-              Manage your work and personal tasks. This page is only visible to you when logged in.
-            </p>
-            
-            <div className="flex gap-4 mb-6">
-              <Input 
-                type="text" 
-                placeholder="Add a new task..." 
-                value={newTask} 
-                onChange={(e) => setNewTask(e.target.value)}
-                className="flex-1"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    addTask();
-                  }
-                }}
-              />
-              <Button onClick={addTask}>Add Task</Button>
-            </div>
-          </div>
-        </section>
+        <div className="mb-6 flex space-x-4">
+          <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            All Tasks
+          </button>
+          <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            Pending
+          </button>
+          <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            In Progress
+          </button>
+          <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            Completed
+          </button>
+        </div>
 
-        {/* Tasks Table */}
-        <section className="py-12 px-6 md:px-12">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow overflow-hidden">
-              <Table>
-                <TableCaption>Your personal tasks list</TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">Status</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Due Date</TableHead>
-                    <TableHead>Priority</TableHead>
-                    <TableHead className="w-12">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {tasks.map((task) => (
-                    <TableRow 
-                      key={task.id} 
-                      className={task.completed ? "opacity-60" : ""}
-                    >
-                      <TableCell>
-                        <Checkbox 
-                          checked={task.completed} 
-                          onCheckedChange={() => toggleTaskCompletion(task.id)}
-                        />
-                      </TableCell>
-                      <TableCell className={task.completed ? "line-through" : ""}>
-                        {task.description}
-                      </TableCell>
-                      <TableCell>{formatDate(task.dueDate)}</TableCell>
-                      <TableCell>
-                        <span className={getPriorityColor(task.priority)}>
-                          {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          onClick={() => deleteTask(task.id)}
-                          className="h-8 w-8 text-gray-500 hover:text-red-500"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M3 6h18" />
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                            <path d="M10 11v6" />
-                            <path d="M14 11v6" />
-                          </svg>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">Task List</h2>
           </div>
-        </section>
-      </main>
-
-      <footer className="py-8 px-6 md:px-12 border-t bg-white dark:bg-gray-900">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center">
-          <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text mb-4 md:mb-0">
-            Tom Riddelsdell
-          </div>
-          <div className="text-gray-600 dark:text-gray-400">
-            © {new Date().getFullYear()} Tom Riddelsdell. All rights reserved.
+          <div className="divide-y divide-gray-200">
+            {tasks.map((task) => (
+              <div key={task.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        checked={task.status === "completed"}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        readOnly
+                      />
+                      <h3 className={`text-lg font-medium ${
+                        task.status === "completed" ? "line-through text-gray-500" : "text-gray-900"
+                      }`}>
+                        {task.title}
+                      </h3>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          task.priority === "high"
+                            ? "bg-red-100 text-red-800"
+                            : task.priority === "medium"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-green-100 text-green-800"
+                        }`}
+                      >
+                        {task.priority}
+                      </span>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          task.status === "completed"
+                            ? "bg-green-100 text-green-800"
+                            : task.status === "in-progress"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {task.status.replace("-", " ")}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                      <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
+                      <span>Assigned to: {task.assignee}</span>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button className="px-3 py-1 text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                      Edit
+                    </button>
+                    <button className="px-3 py-1 text-gray-600 hover:bg-gray-50 rounded transition-colors">
+                      Details
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </footer>
+
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Pending Tasks</h3>
+            <div className="text-3xl font-bold text-red-600">
+              {tasks.filter(t => t.status === "pending").length}
+            </div>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">In Progress</h3>
+            <div className="text-3xl font-bold text-blue-600">
+              {tasks.filter(t => t.status === "in-progress").length}
+            </div>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Completed</h3>
+            <div className="text-3xl font-bold text-green-600">
+              {tasks.filter(t => t.status === "completed").length}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
