@@ -11,8 +11,6 @@ import profilePic from "../assets/profile.jpg";
 import backgroundImage from "../assets/background.jpg";
 
 import ImpliedVolDisplay from "@/components/ImpliedVolDisplay";
-import BackgroundSection from "@/components/BackgroundSection";
-import ContentContainer from "@/components/ContentContainer";
 import NavigationLinks from "@/components/NavigationLinks";
 
 export default function Home() {
