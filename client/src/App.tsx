@@ -7,11 +7,6 @@ import { AuthProvider } from "./context/AuthContext";
 import Home from "./pages/Home";
 import MonitoringDashboard from "./pages/MonitoringDashboard";
 import AuthCallback from "./pages/AuthCallback";
-import Dashboard from "./pages/Dashboard";
-import Workflows from "./pages/Workflows";
-import Projects from "./pages/Projects";
-import Tasks from "./pages/Tasks";
-import Career from "./pages/Career";
 
 function App() {
   return (
@@ -22,11 +17,6 @@ function App() {
             <Switch>
               <Route path="/" component={Home} />
               <Route path="/auth/callback" component={AuthCallback} />
-              <Route path="/dashboard" component={Dashboard} />
-              <Route path="/workflows" component={Workflows} />
-              <Route path="/projects" component={Projects} />
-              <Route path="/tasks" component={Tasks} />
-              <Route path="/career" component={Career} />
               <Route path="/monitoring" component={MonitoringDashboard} />
               <Route>
                 <div className="p-8">
