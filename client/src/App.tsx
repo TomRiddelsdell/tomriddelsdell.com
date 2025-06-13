@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "./components/ui/toaster";
 import { AuthProvider } from "./context/AuthContext";
-import SimpleHome from "./pages/SimpleHome";
+import Home from "./pages/Home";
 import MonitoringDashboard from "./pages/MonitoringDashboard";
 
 function App() {
@@ -14,7 +14,7 @@ function App() {
         <Router>
           <div className="min-h-screen bg-gray-50">
             <Switch>
-              <Route path="/" component={SimpleHome} />
+              <Route path="/" component={Home} />
               <Route path="/monitoring" component={MonitoringDashboard} />
               <Route>
                 <div className="p-8">
