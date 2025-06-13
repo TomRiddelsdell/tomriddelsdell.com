@@ -1,76 +1,95 @@
-import { Router, Route, Switch } from "wouter";
-import { QueryClientProvider } from "@tanstack/react-query";
+import React from "react";
+import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
-import { Toaster } from "./components/ui/toaster";
-import MonitoringDashboard from "./pages/MonitoringDashboard";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { LanguageProvider } from "./context/LanguageContext";
+import NotFound from "@/pages/not-found";
+import Home from "@/pages/Home";
+import Career from "@/pages/Career";
+import Projects from "@/pages/Projects";
+import Tasks from "@/pages/Tasks";
+import Dashboard from "@/pages/Dashboard";
+import Workflows from "@/pages/Workflows";
+import WorkflowCreate from "@/pages/WorkflowCreate";
+import AppConnections from "@/pages/AppConnections";
+import Templates from "@/pages/Templates";
+import ActivityLog from "@/pages/ActivityLog";
+import Account from "@/pages/Account";
+import Security from "@/pages/Security";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import AuthCallback from "@/pages/AuthCallback";
+import { ThemeProvider } from "@/components/ui/theme-provider";
+import { AuthProvider } from "@/context/AuthContext";
 
-function App() {
+function Router() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Switch>
-            <Route path="/" component={Home} />
-            <Route path="/monitoring" component={MonitoringDashboard} />
-            <Route>
-              <div className="p-8">
-                <h1 className="text-2xl font-bold mb-4">FlowCreate Platform</h1>
-                <p className="text-gray-600 mb-6">
-                  Professional workflow management platform with comprehensive analytics.
-                </p>
-                <div className="space-y-4">
-                  <a href="/monitoring" className="block p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-                    <h2 className="text-lg font-semibold text-blue-600">Monitoring Dashboard</h2>
-                    <p className="text-gray-600">Real-time system analytics and performance metrics</p>
-                  </a>
-                  <div className="block p-4 bg-white rounded-lg shadow">
-                    <h2 className="text-lg font-semibold text-gray-800">Backend API Status</h2>
-                    <p className="text-green-600">✓ Analytics service running on port 5000</p>
-                    <p className="text-green-600">✓ All domain services operational</p>
-                  </div>
-                </div>
-              </div>
-            </Route>
-          </Switch>
-        </div>
-        <Toaster />
-      </Router>
-    </QueryClientProvider>
+    <div className="min-h-screen flex flex-col md:flex-row">
+      <Switch>
+        {/* Public route - accessible to everyone */}
+        <Route path="/" component={Home} />
+
+        {/* Password reset route - public */}
+        <Route path="/reset-password" component={ResetPasswordPage} />
+
+        {/* Auth callback route - public */}
+        <Route path="/auth/callback" component={AuthCallback} />
+
+        {/* Protected routes - authenticated users only */}
+        <Route path="/career" component={Career} />
+        <Route path="/projects" component={Projects} />
+        <Route path="/tasks" component={Tasks} />
+
+        {/* Admin routes */}
+        <Route path="/dashboard">
+          <Dashboard />
+        </Route>
+        <Route path="/workflows">
+          <Workflows />
+        </Route>
+        <Route path="/workflows/new">
+          <WorkflowCreate />
+        </Route>
+        <Route path="/app-connections">
+          <AppConnections />
+        </Route>
+        <Route path="/templates">
+          <Templates />
+        </Route>
+        <Route path="/activity-log">
+          <ActivityLog />
+        </Route>
+
+        {/* User account routes */}
+        <Route path="/account">
+          <Account />
+        </Route>
+        <Route path="/security">
+          <Security />
+        </Route>
+
+        {/* Fallback to 404 */}
+        <Route component={NotFound} />
+      </Switch>
+    </div>
   );
 }
 
-function Home() {
+function App() {
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">FlowCreate Workflow Platform</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-3">System Analytics</h2>
-          <p className="text-gray-600 mb-4">Real-time monitoring and performance metrics</p>
-          <a href="/monitoring" className="text-blue-600 hover:underline">View Dashboard →</a>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-3">API Endpoints</h2>
-          <p className="text-gray-600 mb-4">Direct access to backend analytics services</p>
-          <div className="space-y-2">
-            <a href="/api/analytics/dashboard?timeRange=1h" className="block text-blue-600 text-sm hover:underline" target="_blank">Dashboard Data</a>
-            <a href="/api/analytics/system-health" className="block text-blue-600 text-sm hover:underline" target="_blank">Health Status</a>
-          </div>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-3">Architecture</h2>
-          <p className="text-gray-600 mb-4">Domain-driven design with comprehensive testing</p>
-          <ul className="text-sm text-gray-600 space-y-1">
-            <li>✓ Identity Domain</li>
-            <li>✓ Workflow Domain</li>
-            <li>✓ Analytics Domain</li>
-            <li>✓ Anti-corruption Layer</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+    <ThemeProvider defaultTheme="light" storageKey="flowcreate-theme">
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <LanguageProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </LanguageProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

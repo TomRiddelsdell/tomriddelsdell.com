@@ -1,23 +1,22 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { redirectToCognito, getCurrentUser } from "@/lib/simple-auth";
+import { redirectToCognito } from "@/lib/simple-auth";
 import { useAuth } from "@/context/AuthContext";
 
 import { Link, useLocation } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import profilePic from "../assets/profile.jpg";
-import backgroundImage from "../assets/background.jpg";
+import profilePic from "@assets/me.jpg";
+import backgroundImage from "@assets/background.jpg";
 
 import ImpliedVolDisplay from "@/components/ImpliedVolDisplay";
 import NavigationLinks from "@/components/NavigationLinks";
 
 export default function Home() {
-  const { user: authUser, signOut, isLoading: isLoadingAuth } = useAuth();
+  const { user: authUser, signOut } = useAuth();
   const isAuthenticated = !!authUser;
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
@@ -67,28 +66,27 @@ export default function Home() {
     try {
       setIsSubmitting(true);
 
-      const response = await apiRequest("POST", "/api/contact", contactForm);
+      const response = await apiRequest("/api/contact", {
+        method: "POST",
+        body: JSON.stringify(contactForm)
+      });
 
-      if (response.ok) {
-        // Clear form
-        setContactForm({
-          name: "",
-          email: "",
-          subject: "",
-          message: "",
-        });
+      // apiRequest already handles response parsing and errors
+      // Clear form
+      setContactForm({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
 
-        // Show success message
-        toast({
-          title: "Message Sent",
-          description:
-            "Your message has been sent successfully. Thank you for reaching out!",
-          variant: "default",
-        });
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to send message");
-      }
+      // Show success message
+      toast({
+        title: "Message Sent",
+        description:
+          "Your message has been sent successfully. Thank you for reaching out!",
+        variant: "default",
+      });
     } catch (error) {
       toast({
         title: "Error",
