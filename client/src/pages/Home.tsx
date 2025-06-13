@@ -2,14 +2,12 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { redirectToCognito } from "@/lib/simple-auth";
 import { useAuth } from "@/context/AuthContext";
-
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import profilePic from "@assets/me.jpg";
 import backgroundImage from "@assets/background.jpg";
-
 import ImpliedVolDisplay from "@/components/ImpliedVolDisplay";
 import NavigationLinks from "@/components/NavigationLinks";
 
@@ -66,12 +64,11 @@ export default function Home() {
     try {
       setIsSubmitting(true);
 
-      const response = await apiRequest("/api/contact", {
+      await apiRequest("/api/contact", {
         method: "POST",
         body: JSON.stringify(contactForm)
       });
 
-      // apiRequest already handles response parsing and errors
       // Clear form
       setContactForm({
         name: "",
@@ -83,17 +80,13 @@ export default function Home() {
       // Show success message
       toast({
         title: "Message Sent",
-        description:
-          "Your message has been sent successfully. Thank you for reaching out!",
+        description: "Your message has been sent successfully. Thank you for reaching out!",
         variant: "default",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Failed to send message. Please try again later.",
+        description: error instanceof Error ? error.message : "Failed to send message. Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -320,7 +313,7 @@ export default function Home() {
         <section
           className="relative py-16 md:py-24 bg-white dark:bg-gray-900 full-width-section"
           style={{
-            backgroundImage: `linear-gradient(to bottom, var(--overlay-light), var(--overlay-light-strong)), url(${backgroundImage})`,
+            backgroundImage: `linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.9)), url(${backgroundImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundAttachment: "fixed",
@@ -343,7 +336,6 @@ export default function Home() {
                   size="lg"
                   className="w-full sm:w-auto gradient-bg gradient-bg-hover btn-hover-lift"
                   onClick={() => {
-                    // Direct redirect to Cognito hosted UI for signup
                     const cognitoUrl = `https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com/signup?client_id=483n96q9sudb248kp2sgto7i47&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + "/")}`;
                     window.location.href = cognitoUrl;
                   }}
@@ -403,7 +395,7 @@ export default function Home() {
           id="contact"
           className="pt-16 sm:pt-20 md:pt-28 pb-12 sm:pb-16 md:pb-24 bg-cover bg-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8 full-width-section section-fade-in"
           style={{
-            backgroundImage: `linear-gradient(to bottom, var(--overlay-light), var(--overlay-light-strong)), url(${backgroundImage})`,
+            backgroundImage: `linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.9)), url(${backgroundImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
