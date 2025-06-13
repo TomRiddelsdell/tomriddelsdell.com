@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function SimpleHome() {
   return (
     <div className="min-h-screen bg-white p-8">
