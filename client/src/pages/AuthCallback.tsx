@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "wouter";
+import { useAuth } from "../context/AuthContext";
 
 export default function AuthCallback() {
   const [, setLocation] = useLocation();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [error, setError] = useState<string>('');
+  const { refetchUser } = useAuth();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -37,6 +39,8 @@ export default function AuthCallback() {
 
         if (response.ok) {
           setStatus('success');
+          // Refresh user data to update authentication state
+          await refetchUser();
           // Redirect to home page after successful authentication
           setTimeout(() => {
             setLocation('/');
@@ -54,7 +58,7 @@ export default function AuthCallback() {
     };
 
     handleCallback();
-  }, [setLocation]);
+  }, [setLocation, refetchUser]);
 
   if (status === 'loading') {
     return (
