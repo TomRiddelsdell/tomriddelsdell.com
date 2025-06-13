@@ -6,6 +6,7 @@ import { Toaster } from "./components/ui/toaster";
 import { AuthProvider } from "./context/AuthContext";
 import Home from "./pages/Home";
 import MonitoringDashboard from "./pages/MonitoringDashboard";
+import AuthCallback from "./pages/AuthCallback";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <div className="min-h-screen bg-gray-50">
             <Switch>
               <Route path="/" component={Home} />
+              <Route path="/auth/callback" component={AuthCallback} />
               <Route path="/monitoring" component={MonitoringDashboard} />
               <Route>
                 <div className="p-8">
