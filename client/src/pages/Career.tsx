@@ -1,179 +1,262 @@
-import React from "react";
+import * as React from "react";
+import { Link } from "wouter";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
 import { useAuth } from "../context/AuthContext";
+import { GithubIcon, LinkedinIcon, MailIcon, BookOpenIcon, AwardIcon, BriefcaseIcon, GraduationCapIcon } from "lucide-react";
+import backgroundImage from "../assets/background.jpg";
 
 export default function Career() {
-  const { user } = useAuth();
-
-  const skills = [
-    { name: "Workflow Automation", level: 95, category: "Technical" },
-    { name: "API Integration", level: 90, category: "Technical" },
-    { name: "Data Processing", level: 85, category: "Technical" },
-    { name: "System Design", level: 88, category: "Technical" },
-    { name: "Project Management", level: 92, category: "Leadership" },
-    { name: "Team Collaboration", level: 90, category: "Leadership" }
-  ];
-
-  const certifications = [
-    {
-      name: "AWS Solutions Architect",
-      issuer: "Amazon Web Services",
-      date: "2024",
-      status: "Valid"
-    },
-    {
-      name: "Certified Automation Professional",
-      issuer: "Automation Institute",
-      date: "2024",
-      status: "Valid"
-    },
-    {
-      name: "Agile Project Management",
-      issuer: "PMI",
-      date: "2023",
-      status: "Valid"
-    }
-  ];
-
-  const achievements = [
-    {
-      title: "Automation Excellence Award",
-      description: "Reduced manual processing time by 75% through innovative workflow design",
-      date: "2024"
-    },
-    {
-      title: "Innovation Leadership",
-      description: "Led team that delivered 15+ successful automation projects",
-      date: "2024"
-    },
-    {
-      title: "Technical Mentorship",
-      description: "Mentored 8 junior developers in automation best practices",
-      date: "2023"
-    }
-  ];
+  const { isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Career Development</h1>
-          <p className="text-gray-600 mt-2">Track your professional growth and achievements</p>
-        </div>
+    <div className="min-h-screen flex flex-col">
+      {/* Navigation */}
+      <header className="py-4 px-6 md:px-12 flex justify-between items-center border-b">
+        <Link href="/">
+          <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text cursor-pointer">
+            Tom Riddelsdell
+          </div>
+        </Link>
+        <nav className="hidden md:flex space-x-8 items-center">
+          <Link href="/" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
+            Home
+          </Link>
+          <Link href="/career" className="text-blue-600 dark:text-blue-400 font-medium">
+            Career
+          </Link>
+          {isAuthenticated ? (
+            <Link href="/dashboard">
+              <Button variant="outline">Dashboard</Button>
+            </Link>
+          ) : (
+            <Link href="/">
+              <Button>Contact</Button>
+            </Link>
+          )}
+        </nav>
+        {/* Mobile nav toggle */}
+        <Button 
+          variant="ghost" 
+          className="md:hidden" 
+          size="icon"
+          onClick={() => {}}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
+            <line x1="4" x2="20" y1="12" y2="12" />
+            <line x1="4" x2="20" y1="6" y2="6" />
+            <line x1="4" x2="20" y1="18" y2="18" />
+          </svg>
+        </Button>
+      </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Years Experience</h3>
-            <div className="text-3xl font-bold text-blue-600">8+</div>
-            <p className="text-sm text-gray-500">Automation & Integration</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Projects Completed</h3>
-            <div className="text-3xl font-bold text-green-600">50+</div>
-            <p className="text-sm text-gray-500">Successful deliveries</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Team Size</h3>
-            <div className="text-3xl font-bold text-purple-600">12</div>
-            <p className="text-sm text-gray-500">Current team members</p>
+      {/* Hero Section */}
+      <section 
+        className="relative py-20 bg-cover bg-center"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(${backgroundImage})`,
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-6 md:px-12 text-center text-white">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            Professional Journey
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
+            A passionate strategist and software engineer with expertise in financial modeling, 
+            automated investment strategies, and full-stack development.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+              <MailIcon className="w-4 h-4 mr-2" />
+              Get In Touch
+            </Button>
+            <Button size="lg" variant="outline" className="bg-white/10 border-white text-white hover:bg-white/20">
+              <GithubIcon className="w-4 h-4 mr-2" />
+              View Projects
+            </Button>
           </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Skills Assessment</h2>
-            <div className="space-y-4">
-              {skills.map((skill, index) => (
-                <div key={index}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium text-gray-700">{skill.name}</span>
-                    <span className="text-sm text-gray-500">{skill.level}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${skill.level}%` }}
-                    ></div>
-                  </div>
-                  <span className="text-xs text-gray-400">{skill.category}</span>
-                </div>
-              ))}
+      {/* Experience Overview */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Experience Overview</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BriefcaseIcon className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">8+ Years</h3>
+              <p className="text-gray-600">Professional Experience</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AwardIcon className="w-8 h-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">50+ Projects</h3>
+              <p className="text-gray-600">Successfully Delivered</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <GraduationCapIcon className="w-8 h-8 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Multiple</h3>
+              <p className="text-gray-600">Certifications & Awards</p>
             </div>
           </div>
+        </div>
+      </section>
 
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Certifications</h2>
-            <div className="space-y-4">
-              {certifications.map((cert, index) => (
-                <div key={index} className="border-l-4 border-green-400 pl-4">
-                  <h3 className="font-semibold text-gray-900">{cert.name}</h3>
-                  <p className="text-gray-600">{cert.issuer}</p>
-                  <div className="flex justify-between items-center mt-1">
-                    <span className="text-sm text-gray-500">{cert.date}</span>
-                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                      {cert.status}
-                    </span>
+      {/* Skills & Expertise */}
+      <section className="py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Skills & Expertise</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Technical Skills */}
+            <div>
+              <h3 className="text-2xl font-semibold mb-6 flex items-center">
+                <BookOpenIcon className="w-6 h-6 mr-2 text-blue-600" />
+                Technical Skills
+              </h3>
+              <div className="space-y-4">
+                {[
+                  { name: "Financial Modeling & Analysis", level: 95 },
+                  { name: "Full-Stack Development", level: 90 },
+                  { name: "Quantitative Analysis", level: 88 },
+                  { name: "Risk Management Systems", level: 85 },
+                  { name: "API Development & Integration", level: 92 },
+                  { name: "Database Design & Optimization", level: 87 }
+                ].map((skill, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">{skill.name}</span>
+                      <span className="text-sm text-gray-600">{skill.level}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${skill.level}%` }}
+                      ></div>
+                    </div>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Professional Experience */}
+            <div>
+              <h3 className="text-2xl font-semibold mb-6 flex items-center">
+                <BriefcaseIcon className="w-6 h-6 mr-2 text-green-600" />
+                Professional Experience
+              </h3>
+              <div className="space-y-6">
+                <div className="border-l-4 border-blue-500 pl-4">
+                  <h4 className="font-semibold text-lg">Senior Software Engineer</h4>
+                  <p className="text-blue-600">Financial Technology Company</p>
+                  <p className="text-sm text-gray-600 mb-2">2020 - Present</p>
+                  <p className="text-gray-700">Leading development of quantitative trading systems and risk management platforms.</p>
                 </div>
-              ))}
+                <div className="border-l-4 border-green-500 pl-4">
+                  <h4 className="font-semibold text-lg">Quantitative Analyst</h4>
+                  <p className="text-green-600">Investment Management Firm</p>
+                  <p className="text-sm text-gray-600 mb-2">2018 - 2020</p>
+                  <p className="text-gray-700">Developed automated trading strategies and portfolio optimization models.</p>
+                </div>
+                <div className="border-l-4 border-purple-500 pl-4">
+                  <h4 className="font-semibold text-lg">Financial Analyst</h4>
+                  <p className="text-purple-600">Banking Institution</p>
+                  <p className="text-sm text-gray-600 mb-2">2016 - 2018</p>
+                  <p className="text-gray-700">Built financial models and risk assessment frameworks for institutional clients.</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+      </section>
 
-        <div className="mt-8 bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Achievements</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {achievements.map((achievement, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900">{achievement.title}</h3>
-                  <span className="text-sm text-gray-500">{achievement.date}</span>
+      {/* Achievements & Certifications */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-6 md:px-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Achievements & Certifications</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                title: "CFA Charterholder",
+                issuer: "CFA Institute",
+                year: "2019",
+                type: "certification"
+              },
+              {
+                title: "AWS Solutions Architect",
+                issuer: "Amazon Web Services",
+                year: "2021",
+                type: "certification"
+              },
+              {
+                title: "Innovation Award",
+                issuer: "Tech Excellence Awards",
+                year: "2022",
+                type: "award"
+              },
+              {
+                title: "Financial Modeling Expert",
+                issuer: "Financial Institute",
+                year: "2020",
+                type: "certification"
+              },
+              {
+                title: "Team Leadership Excellence",
+                issuer: "Professional Development",
+                year: "2023",
+                type: "award"
+              },
+              {
+                title: "Quantitative Analysis Specialist",
+                issuer: "Analytics Association",
+                year: "2021",
+                type: "certification"
+              }
+            ].map((item, index) => (
+              <div key={index} className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    item.type === 'certification' ? 'bg-blue-100' : 'bg-yellow-100'
+                  }`}>
+                    {item.type === 'certification' ? 
+                      <GraduationCapIcon className={`w-6 h-6 ${item.type === 'certification' ? 'text-blue-600' : 'text-yellow-600'}`} /> :
+                      <AwardIcon className="w-6 h-6 text-yellow-600" />
+                    }
+                  </div>
+                  <Badge variant="outline">{item.year}</Badge>
                 </div>
-                <p className="text-gray-600 text-sm">{achievement.description}</p>
+                <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
+                <p className="text-gray-600">{item.issuer}</p>
               </div>
             ))}
           </div>
         </div>
+      </section>
 
-        <div className="mt-8 bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Career Goals</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h3 className="font-semibold text-gray-900">Short-term (6 months)</h3>
-              <ul className="space-y-2 text-gray-600">
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                  Complete advanced AI/ML automation certification
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                  Lead cross-functional automation initiative
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                  Mentor 3 additional team members
-                </li>
-              </ul>
-            </div>
-            <div className="space-y-4">
-              <h3 className="font-semibold text-gray-900">Long-term (2 years)</h3>
-              <ul className="space-y-2 text-gray-600">
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                  Advance to Senior Automation Architect role
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                  Establish center of excellence for automation
-                </li>
-                <li className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                  Contribute to open-source automation tools
-                </li>
-              </ul>
-            </div>
+      {/* Contact CTA */}
+      <section className="py-16 bg-blue-600 text-white">
+        <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Let's Work Together</h2>
+          <p className="text-xl mb-8 opacity-90">
+            Interested in collaborating on financial technology projects or quantitative analysis?
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" variant="outline" className="bg-white/10 border-white text-white hover:bg-white hover:text-blue-600">
+              <MailIcon className="w-4 h-4 mr-2" />
+              Send Message
+            </Button>
+            <Button size="lg" variant="outline" className="bg-white/10 border-white text-white hover:bg-white hover:text-blue-600">
+              <LinkedinIcon className="w-4 h-4 mr-2" />
+              Connect on LinkedIn
+            </Button>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
