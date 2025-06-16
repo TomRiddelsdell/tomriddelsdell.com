@@ -13,7 +13,7 @@ import {
   FormLabel, 
   FormMessage 
 } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "../hooks/use-toast";
 import { 
   Dialog,
   DialogContent,
