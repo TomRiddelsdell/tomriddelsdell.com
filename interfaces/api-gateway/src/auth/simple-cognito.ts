@@ -25,10 +25,18 @@ export class SimpleCognitoHandler {
   // Handle the callback from Cognito with authorization code
   async handleCallback(req: Request, res: Response) {
     try {
+      // Check if user is already authenticated to prevent duplicate processing
+      if ((req.session as any)?.user) {
+        console.log('User already authenticated, skipping callback processing');
+        return res.status(200).json({ 
+          id: (req.session as any).user.cognitoId,
+          email: (req.session as any).user.email,
+          name: (req.session as any).user.displayName 
+        });
+      }
+
       console.log('=== AUTH CALLBACK DEBUG ===');
       console.log('Request method:', req.method);
-      console.log('Request body:', JSON.stringify(req.body, null, 2));
-      console.log('Request query:', JSON.stringify(req.query, null, 2));
       console.log('Session ID before auth:', req.sessionID);
       
       const { code } = req.body;
@@ -113,6 +121,22 @@ export class SimpleCognitoHandler {
     } catch (error) {
       console.error('=== CALLBACK ERROR ===');
       console.error('Error details:', error);
+      
+      // Handle specific token exchange errors more gracefully
+      if ((error as Error).message?.includes('invalid_grant')) {
+        console.log('Token already used or expired - this can happen with multiple requests');
+        // Check if user got authenticated in a parallel request
+        if ((req.session as any)?.user) {
+          console.log('User was authenticated in parallel request, returning success');
+          return res.status(200).json({ 
+            id: (req.session as any).user.cognitoId,
+            email: (req.session as any).user.email,
+            name: (req.session as any).user.displayName 
+          });
+        }
+        return res.status(400).json({ error: 'Authorization code expired or already used' });
+      }
+      
       console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       res.status(500).json({ error: 'Authentication failed' });
     }
