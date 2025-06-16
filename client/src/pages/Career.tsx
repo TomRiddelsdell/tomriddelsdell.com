@@ -1,18 +1,33 @@
-import * as React from "react";
-import { Link } from "wouter";
+import { useState } from "react";
+import Sidebar from "../components/Sidebar";
+import TopNavbar from "../components/TopNavbar";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
+import { useMobile } from "../hooks/use-mobile";
 import { GithubIcon, LinkedinIcon, MailIcon, BookOpenIcon, AwardIcon, BriefcaseIcon, GraduationCapIcon } from "lucide-react";
 import backgroundImage from "../assets/background.jpg";
 
 export default function Career() {
-  const { isAuthenticated } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const isMobile = useMobile();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Navigation */}
-      <header className="py-4 px-6 md:px-12 flex justify-between items-center border-b">
+    <>
+      <Sidebar isMobile={isMobile && mobileMenuOpen} />
+      
+      <main className="flex-grow">
+        <TopNavbar 
+          openMobileMenu={() => setMobileMenuOpen(true)} 
+          title="Career"
+        />
+        
+        <div className="min-h-screen flex flex-col">
+      {/* Hero Section */}
+      <section
         <Link href="/">
           <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text cursor-pointer">
             Tom Riddelsdell
