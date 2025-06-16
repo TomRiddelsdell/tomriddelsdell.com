@@ -59,16 +59,16 @@ export default function Projects() {
   ];
 
   return (
-    <>
+    <div className="flex h-screen bg-gray-50">
       <Sidebar isMobile={isMobile && mobileMenuOpen} />
       
-      <main className="flex-grow">
+      <main className="flex-grow flex flex-col overflow-hidden">
         <TopNavbar 
           openMobileMenu={() => setMobileMenuOpen(true)} 
           title="Projects"
         />
         
-        <div className="min-h-screen flex flex-col">
+        <div className="flex-grow overflow-auto">
 
       {/* Hero Section */}
       <section 
@@ -238,6 +238,6 @@ export default function Projects() {
       </section>
         </div>
       </main>
-    </>
+    </div>
   );
 }
