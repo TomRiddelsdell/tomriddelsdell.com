@@ -116,6 +116,12 @@ AWS_COGNITO_CLIENT_SECRET=your_client_secret
 - **Initialization**: Automatic template seeding on first run
 
 ## Changelog
+- June 16, 2025. Fixed DDD architecture configuration and navigation consistency
+  - Corrected Vite configuration to properly serve from interfaces/web-frontend/ 
+  - Updated path aliases in tsconfig.json to maintain pure DDD structure
+  - Standardized navigation across all pages using TopNavbar and Sidebar components
+  - Removed incorrect client/ directory from root, maintaining proper DDD organization
+  - Fixed preview loading issues by updating API gateway Vite integration
 - June 14, 2025. Restored page structure from commit f32ae3d with DDD architecture integration
   - Implemented separate page components (Dashboard, Career, Projects, Tasks, Workflows)
   - Restored sidebar-based navigation with TopNavbar and Sidebar components
