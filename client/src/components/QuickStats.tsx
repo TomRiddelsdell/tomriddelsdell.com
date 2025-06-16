@@ -1,6 +1,6 @@
 import { ChartGantt, Rocket, AppWindow, Clock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function QuickStats() {
   const { t } = useLanguage();
