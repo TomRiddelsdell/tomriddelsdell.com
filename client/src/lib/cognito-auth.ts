@@ -9,6 +9,7 @@ export interface CognitoUser {
 
 class CognitoAuth {
   private config = getClientAuthConfig();
+  private callbackInProgress = false;
 
   constructor() {
     // Configuration is now centralized
