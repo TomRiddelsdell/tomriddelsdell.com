@@ -16,16 +16,16 @@ export default function Career() {
   const isMobile = useMobile();
 
   return (
-    <>
+    <div className="flex h-screen bg-gray-50">
       <Sidebar isMobile={isMobile && mobileMenuOpen} />
       
-      <main className="flex-grow">
+      <main className="flex-grow flex flex-col overflow-hidden">
         <TopNavbar 
           openMobileMenu={() => setMobileMenuOpen(true)} 
           title="Career"
         />
         
-        <div className="min-h-screen flex flex-col">
+        <div className="flex-grow overflow-auto">
           {/* Hero Section */}
           <section 
             className="relative py-20 bg-cover bg-center"
@@ -234,6 +234,6 @@ export default function Career() {
           </section>
         </div>
       </main>
-    </>
+    </div>
   );
 }
