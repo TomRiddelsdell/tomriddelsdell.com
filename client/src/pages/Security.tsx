@@ -31,7 +31,7 @@ type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 export default function Security() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { t } = useLanguage();
+
   const isMobile = useMobile();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -130,7 +130,7 @@ export default function Security() {
       <main className="flex-grow">
         <TopNavbar 
           openMobileMenu={() => setMobileMenuOpen(true)} 
-          title={t('security')}
+          title="Security"
         />
         
         <div className="p-4 sm:p-6 lg:p-8">
@@ -393,7 +393,7 @@ export default function Security() {
         </div>
       </main>
       
-      <LanguageModal />
+
     </>
   );
 }
