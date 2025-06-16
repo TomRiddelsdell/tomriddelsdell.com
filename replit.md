@@ -116,6 +116,11 @@ AWS_COGNITO_CLIENT_SECRET=your_client_secret
 - **Initialization**: Automatic template seeding on first run
 
 ## Changelog
+- June 14, 2025. Restored page structure from commit f32ae3d with DDD architecture integration
+  - Implemented separate page components (Dashboard, Career, Projects, Tasks, Workflows)
+  - Restored sidebar-based navigation with TopNavbar and Sidebar components
+  - Updated routing to support individual page navigation
+  - Maintained DDD architecture while incorporating f32ae3d page structure
 - June 13, 2025. Initial setup
 
 ## User Preferences
