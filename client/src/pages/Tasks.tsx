@@ -51,17 +51,26 @@ export default function Tasks() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Tasks</h1>
-            <p className="text-gray-600 mt-2">Manage your workflow tasks and assignments</p>
-          </div>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            Add Task
-          </button>
-        </div>
+    <>
+      <Sidebar isMobile={isMobile && mobileMenuOpen} />
+      
+      <main className="flex-grow">
+        <TopNavbar 
+          openMobileMenu={() => setMobileMenuOpen(true)} 
+          title="Tasks"
+        />
+        
+        <div className="min-h-screen bg-gray-50 p-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-8 flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Tasks</h1>
+                <p className="text-gray-600 mt-2">Manage your workflow tasks and assignments</p>
+              </div>
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                Add Task
+              </button>
+            </div>
 
         <div className="mb-6 flex space-x-4">
           <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
@@ -161,7 +170,9 @@ export default function Tasks() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+          </div>
+        </div>
+      </main>
+    </>
   );
 }
