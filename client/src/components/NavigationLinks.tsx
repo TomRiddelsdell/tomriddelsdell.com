@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "wouter";
 
 interface NavigationLinksProps {
   isAuthenticated: boolean;
@@ -9,43 +10,39 @@ interface NavigationLinksProps {
 export default function NavigationLinks({ isAuthenticated, className = "", onClick }: NavigationLinksProps) {
   if (!isAuthenticated) return null;
 
-  const baseClasses = "text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link cursor-pointer";
+  const baseClasses = "text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link";
   const linkClasses = className || baseClasses;
-
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-    if (onClick) onClick();
-  };
 
   return (
     <>
-      <span
+      <Link
+        href="/career"
         className={linkClasses}
-        onClick={() => scrollToSection('career')}
+        onClick={onClick}
       >
         Career
-      </span>
-      <span
+      </Link>
+      <Link
+        href="/projects"
         className={linkClasses}
-        onClick={() => scrollToSection('projects')}
+        onClick={onClick}
       >
         Projects
-      </span>
-      <span
+      </Link>
+      <Link
+        href="/tasks"
         className={linkClasses}
-        onClick={() => scrollToSection('tasks')}
+        onClick={onClick}
       >
         Tasks
-      </span>
-      <span
+      </Link>
+      <Link
+        href="/workflows"
         className={linkClasses}
-        onClick={() => scrollToSection('workflows')}
+        onClick={onClick}
       >
         Workflows
-      </span>
+      </Link>
     </>
   );
 }
