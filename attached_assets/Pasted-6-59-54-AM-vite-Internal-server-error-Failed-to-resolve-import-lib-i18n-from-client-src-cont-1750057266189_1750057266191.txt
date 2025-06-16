@@ -1,0 +1,37 @@
+6:59:54 AM [vite] Internal server error: Failed to resolve import "@/lib/i18n" from "client/src/context/LanguageContext.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/runner/workspace/client/src/context/LanguageContext.tsx:2:59
+  1  |  import React, { createContext, useContext, useState, useEffect } from "react";
+  2  |  import { languages, getTranslation } from "@/lib/i18n";
+     |                                             ^
+  3  |  const LanguageContext = createContext(void 0);
+  4  |  const getBrowserLanguage = () => {
+      at TransformPluginContext._formatError (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49257:41)
+      at TransformPluginContext.error (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49252:16)
+      at normalizeUrl (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:64199:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async <anonymous> (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:64331:39)
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:64258:7)
+      at async PluginContainer.transform (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49098:18)
+      at async loadAndTransform (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:51931:27)
+      at async viteTransformMiddleware (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:62031:24)
+6:59:54 AM [vite] Internal server error: Failed to resolve import "@/lib/utils" from "client/src/components/ui/badge.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/runner/workspace/client/src/components/ui/badge.tsx:4:19
+  1  |  import * as React from "react";
+  2  |  import { cva } from "class-variance-authority";
+  3  |  import { cn } from "@/lib/utils";
+     |                      ^
+  4  |  const badgeVariants = cva(
+  5  |    "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+      at TransformPluginContext._formatError (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49257:41)
+      at TransformPluginContext.error (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49252:16)
+      at normalizeUrl (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:64199:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async <anonymous> (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:64331:39)
+      at async Promise.all (index 2)
+      at async TransformPluginContext.transform (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:64258:7)
+      at async PluginContainer.transform (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49098:18)
+      at async loadAndTransform (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:51931:27)
+      at async viteTransformMiddleware (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:62031:24)
