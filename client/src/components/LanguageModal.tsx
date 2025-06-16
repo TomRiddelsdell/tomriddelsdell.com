@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
+import { Button } from "../ui/button";
 import { Check } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
 
 export default function LanguageModal() {
   const [isOpen, setIsOpen] = useState(false);
-  const { currentLanguage, changeLanguage, availableLanguages, t } = useLanguage();
+  const currentLanguage = 'en';
+  const availableLanguages = [
+    { code: 'en', name: 'English' },
+    { code: 'es', name: 'Español' },
+    { code: 'fr', name: 'Français' }
+  ];
+  const changeLanguage = (lang: string) => {};
+  const t = (key: string) => key;
 
   useEffect(() => {
     const handleToggleModal = () => {
