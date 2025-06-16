@@ -51,16 +51,16 @@ export default function Tasks() {
   ];
 
   return (
-    <>
+    <div className="flex h-screen bg-gray-50">
       <Sidebar isMobile={isMobile && mobileMenuOpen} />
       
-      <main className="flex-grow">
+      <main className="flex-grow flex flex-col overflow-hidden">
         <TopNavbar 
           openMobileMenu={() => setMobileMenuOpen(true)} 
           title="Tasks"
         />
         
-        <div className="min-h-screen bg-gray-50 p-8">
+        <div className="flex-grow overflow-auto p-8">
           <div className="max-w-7xl mx-auto">
             <div className="mb-8 flex justify-between items-center">
               <div>
@@ -72,7 +72,7 @@ export default function Tasks() {
               </button>
             </div>
 
-        <div className="mb-6 flex space-x-4">
+            <div className="mb-6 flex space-x-4">
           <button className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
             All Tasks
           </button>
@@ -168,11 +168,10 @@ export default function Tasks() {
             <div className="text-3xl font-bold text-green-600">
               {tasks.filter(t => t.status === "completed").length}
             </div>
-          </div>
         </div>
           </div>
         </div>
       </main>
-    </>
+    </div>
   );
 }
