@@ -1,8 +1,7 @@
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import TopNavbar from "@/components/TopNavbar";
-import LanguageModal from "@/components/LanguageModal";
-import { useLanguage } from "@/context/LanguageContext";
+
 import { useMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";

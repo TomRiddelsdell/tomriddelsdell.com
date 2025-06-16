@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/context/AuthContext";
-import { useLanguage } from "@/context/LanguageContext";
+
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { 
@@ -30,7 +30,6 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
-  const { currentLanguage, t } = useLanguage();
 
   // Close mobile menu when location changes
   useEffect(() => {
@@ -54,21 +53,21 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
       ]
     },
     { 
-      title: t("mainMenu"), 
+      title: "Main Menu", 
       items: [
-        { name: t("dashboard"), path: "/dashboard", icon: <LayoutDashboard className="mr-3 text-lg" /> },
-        { name: t("myWorkflows"), path: "/workflows", icon: <ChartGantt className="mr-3 text-lg" /> },
-        { name: t("appConnections"), path: "/app-connections", icon: <AppWindow className="mr-3 text-lg" /> },
-        { name: t("templates"), path: "/templates", icon: <FileSymlink className="mr-3 text-lg" /> },
-        { name: t("activityLog"), path: "/activity-log", icon: <History className="mr-3 text-lg" /> },
+        { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard className="mr-3 text-lg" /> },
+        { name: "My Workflows", path: "/workflows", icon: <ChartGantt className="mr-3 text-lg" /> },
+        { name: "App Connections", path: "/app-connections", icon: <AppWindow className="mr-3 text-lg" /> },
+        { name: "Templates", path: "/templates", icon: <FileSymlink className="mr-3 text-lg" /> },
+        { name: "Activity Log", path: "/activity-log", icon: <History className="mr-3 text-lg" /> },
         { name: "Monitoring", path: "/monitoring", icon: <Activity className="mr-3 text-lg" /> }
       ]
     },
     { 
-      title: t("settings"), 
+      title: "Settings", 
       items: [
-        { name: t("account"), path: "/account", icon: <UserCog className="mr-3 text-lg" /> },
-        { name: t("security"), path: "/security", icon: <ShieldCheck className="mr-3 text-lg" /> }
+        { name: "Account", path: "/account", icon: <UserCog className="mr-3 text-lg" /> },
+        { name: "Security", path: "/security", icon: <ShieldCheck className="mr-3 text-lg" /> }
       ]
     }
   ];
@@ -119,7 +118,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
                   </li>
                 ))}
                 
-                {section.title === t("settings") && (
+                {section.title === "Settings" && (
                   <li>
                     <Link href="#">
                       <a 
@@ -131,10 +130,10 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
                       >
                         <div className="flex items-center">
                           <Globe className="mr-3 text-lg" />
-                          <span>{t("language")}</span>
+                          <span>Language</span>
                         </div>
                         <div className="inline-flex items-center text-xs text-gray-500">
-                          <span className="mr-1">{currentLanguage}</span>
+                          <span className="mr-1">EN</span>
                           <ChevronDown size={16} />
                         </div>
                       </a>
@@ -155,7 +154,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">
-                  {user.displayName || user.email || t("user")}
+                  {user.displayName || user.email || "User"}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
                   {user.email || ""}
@@ -188,7 +187,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
               className="w-full" 
               onClick={() => document.dispatchEvent(new CustomEvent('toggle-auth-modal'))}
             >
-              {t("signIn")}
+              Sign In
             </Button>
           </div>
         )}
