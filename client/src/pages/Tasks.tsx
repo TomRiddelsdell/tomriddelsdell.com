@@ -1,5 +1,10 @@
-import React from "react";
+import * as React from "react";
+import { Link } from "wouter";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
 import { useAuth } from "../context/AuthContext";
+import { CheckCircleIcon, ClockIcon, AlertTriangleIcon, PlusIcon, CalendarIcon } from "lucide-react";
+import backgroundImage from "../assets/background.jpg";
 
 export default function Tasks() {
   const { user } = useAuth();
