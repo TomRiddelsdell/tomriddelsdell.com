@@ -73,7 +73,7 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
   ];
 
   return (
-    <aside className="bg-white border-r border-gray-200 w-full md:w-64 md:min-h-screen flex-shrink-0 shadow-sm">
+    <aside className={`bg-white border-r border-gray-200 flex-shrink-0 shadow-sm ${isMobile ? 'fixed inset-y-0 left-0 z-50 w-64' : 'w-64 h-full'}`}>
       <div className="p-4 flex items-center justify-between border-b border-gray-200">
         <div className="flex items-center space-x-2">
           <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
