@@ -20,16 +20,16 @@ export default function Dashboard() {
   const userName = user?.displayName || user?.email?.split('@')[0] || '';
 
   return (
-    <>
+    <div className="flex h-screen bg-gray-50">
       <Sidebar isMobile={isMobile && mobileMenuOpen} />
       
-      <main className="flex-grow">
+      <main className="flex-grow flex flex-col overflow-hidden">
         <TopNavbar 
           openMobileMenu={() => setMobileMenuOpen(true)} 
           title={t('dashboard')}
         />
         
-        <div className="p-6 space-y-6">
+        <div className="flex-grow overflow-auto p-6 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{t('welcome')}, {userName}!</h1>
@@ -52,6 +52,6 @@ export default function Dashboard() {
       </main>
 
       <LanguageModal />
-    </>
+    </div>
   );
 }
