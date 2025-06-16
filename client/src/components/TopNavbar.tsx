@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Menu, Bell, HelpCircle, Globe, ChevronDown } from "lucide-react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
+import { Button } from "./ui/button";
 import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/context/AuthContext";
-import { useLanguage } from "@/context/LanguageContext";
+} from "./ui/dropdown-menu";
+import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 
 interface TopNavbarProps {
   openMobileMenu: () => void;
