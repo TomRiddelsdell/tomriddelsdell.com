@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "../context/AuthContext";
 
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "./ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { 
   LayoutDashboard, 
   ChartGantt, 
