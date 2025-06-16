@@ -1,7 +1,4 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
-import { Button } from "../ui/button";
-import { Check } from "lucide-react";
 
 export default function LanguageModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,8 +8,6 @@ export default function LanguageModal() {
     { code: 'es', name: 'Español' },
     { code: 'fr', name: 'Français' }
   ];
-  const changeLanguage = (lang: string) => {};
-  const t = (key: string) => key;
 
   useEffect(() => {
     const handleToggleModal = () => {
@@ -27,56 +22,41 @@ export default function LanguageModal() {
   }, []);
 
   const handleLanguageChange = (langCode: string) => {
-    changeLanguage(langCode);
-  };
-
-  const getLanguageFlag = (langCode: string) => {
-    const flagMap: Record<string, string> = {
-      'en': '🇺🇸',
-      'es': '🇪🇸',
-      'fr': '🇫🇷',
-      'de': '🇩🇪',
-      'ja': '🇯🇵',
-    };
-    
-    return flagMap[langCode] || '🌐';
+    // Handle language change
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="text-lg font-medium text-gray-900 mb-4">
-            {t('selectLanguage')}
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="mt-2 grid grid-cols-1 gap-3">
-          {availableLanguages.map((lang) => (
-            <button
-              key={lang.code}
-              className="p-3 rounded-md hover:bg-gray-100 flex items-center justify-between transition-colors"
-              onClick={() => handleLanguageChange(lang.code)}
-            >
-              <div className="flex items-center">
-                <span className="mr-3 text-lg">{getLanguageFlag(lang.code)}</span>
+    <div className={`fixed inset-0 z-50 ${isOpen ? 'block' : 'hidden'}`}>
+      <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsOpen(false)}></div>
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">Select Language</h2>
+          
+          <div className="grid grid-cols-1 gap-3">
+            {availableLanguages.map((lang) => (
+              <button
+                key={lang.code}
+                className="p-3 rounded-md hover:bg-gray-100 flex items-center justify-between transition-colors"
+                onClick={() => handleLanguageChange(lang.code)}
+              >
                 <span>{lang.name}</span>
-              </div>
-              {currentLanguage === lang.code && (
-                <div className="h-4 w-4 rounded-full bg-primary flex items-center justify-center">
-                  <Check className="h-3 w-3 text-white" />
-                </div>
-              )}
+                {currentLanguage === lang.code && (
+                  <span className="text-blue-600">✓</span>
+                )}
+              </button>
+            ))}
+          </div>
+          
+          <div className="mt-4 flex justify-end">
+            <button 
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              onClick={() => setIsOpen(false)}
+            >
+              Done
             </button>
-          ))}
+          </div>
         </div>
-        
-        <DialogFooter className="mt-4">
-          <Button type="button" onClick={() => setIsOpen(false)}>
-            {t('done')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
