@@ -1,13 +1,19 @@
-import * as React from "react";
-import { Link } from "wouter";
+import { useState } from "react";
+import Sidebar from "../components/Sidebar";
+import TopNavbar from "../components/TopNavbar";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
+import { useMobile } from "../hooks/use-mobile";
 import { FolderOpenIcon, CalendarIcon, UsersIcon, CheckCircleIcon, ClockIcon, AlertCircleIcon } from "lucide-react";
 import backgroundImage from "../assets/background.jpg";
 
 export default function Projects() {
-  const { isAuthenticated } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const isMobile = useMobile();
 
   const projects = [
     {
@@ -53,32 +59,16 @@ export default function Projects() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Navigation */}
-      <header className="py-4 px-6 md:px-12 flex justify-between items-center border-b">
-        <Link href="/">
-          <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text cursor-pointer">
-            Tom Riddelsdell
-          </div>
-        </Link>
-        <nav className="hidden md:flex space-x-8 items-center">
-          <Link href="/" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
-            Home
-          </Link>
-          <Link href="/projects" className="text-blue-600 dark:text-blue-400 font-medium">
-            Projects
-          </Link>
-          {isAuthenticated ? (
-            <Link href="/dashboard">
-              <Button variant="outline">Dashboard</Button>
-            </Link>
-          ) : (
-            <Link href="/">
-              <Button>Contact</Button>
-            </Link>
-          )}
-        </nav>
-      </header>
+    <>
+      <Sidebar isMobile={isMobile && mobileMenuOpen} />
+      
+      <main className="flex-grow">
+        <TopNavbar 
+          openMobileMenu={() => setMobileMenuOpen(true)} 
+          title="Projects"
+        />
+        
+        <div className="min-h-screen flex flex-col">
 
       {/* Hero Section */}
       <section 
@@ -246,6 +236,8 @@ export default function Projects() {
           </div>
         </div>
       </section>
-    </div>
+        </div>
+      </main>
+    </>
   );
 }
