@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/context/LanguageContext";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Skeleton } from "./ui/skeleton";
+import { Button } from "./ui/button";
+
 import { Template } from "@shared/schema";
 import { Share, Mail, Calendar, Video, MessageSquare, Play } from "lucide-react";
 import { Link } from "wouter";
