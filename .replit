@@ -13,7 +13,6 @@ run = ["npm", "run", "start"]
 
 [workflows]
 runButton = "Project"
-run = "NODE_ENV=development tsx interfaces/api-gateway/src/index.ts"
 
 [[workflows.workflow]]
 name = "Project"
