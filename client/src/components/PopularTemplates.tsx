@@ -8,7 +8,6 @@ import { Share, Mail, Calendar, Video, MessageSquare, Play } from "lucide-react"
 import { Link } from "wouter";
 
 export default function PopularTemplates() {
-  const { t } = useLanguage();
   
   const { data: templates, isLoading } = useQuery<Template[]>({
     queryKey: ['/api/templates/popular'],
@@ -44,7 +43,7 @@ export default function PopularTemplates() {
   return (
     <Card>
       <CardHeader className="px-6 py-4 border-b border-gray-200">
-        <CardTitle className="text-lg font-semibold text-gray-900">{t('popularTemplates')}</CardTitle>
+        <CardTitle className="text-lg font-semibold text-gray-900">Popular Templates</CardTitle>
       </CardHeader>
       
       <CardContent className="p-0">
@@ -83,7 +82,7 @@ export default function PopularTemplates() {
                               <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                               <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
-                            {template.usersCount} {t('users')}
+                            {template.usersCount} users
                           </span>
                         </div>
                         <Link href={`/workflows/new?template=${template.id}`}>
@@ -104,7 +103,7 @@ export default function PopularTemplates() {
             })
           ) : (
             <div className="p-4 text-center text-gray-500">
-              {t('noTemplatesFound')}
+              No templates found
             </div>
           )}
           
@@ -116,7 +115,7 @@ export default function PopularTemplates() {
                 window.location.href = "/templates";
               }}
             >
-              {t('viewAllTemplates')}
+              View All Templates
             </Button>
           </div>
         </div>
