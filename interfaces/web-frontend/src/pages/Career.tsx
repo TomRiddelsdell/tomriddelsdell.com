@@ -1,43 +1,56 @@
-import { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import TopNavbar from "../components/TopNavbar";
+import * as React from "react";
+import { Link } from "wouter";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { useAuth } from "../context/AuthContext";
-import { useLanguage } from "../context/LanguageContext";
-import { useMobile } from "../hooks/use-mobile";
 import { GithubIcon, LinkedinIcon, MailIcon, BookOpenIcon, AwardIcon, BriefcaseIcon, GraduationCapIcon } from "lucide-react";
-import backgroundImage from "../assets/background.jpg";
 
 export default function Career() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user } = useAuth();
-  const { t } = useLanguage();
-  const isMobile = useMobile();
+  const { isAuthenticated } = useAuth();
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar isMobile={isMobile && mobileMenuOpen} />
-      
+    <div className="min-h-screen flex flex-col">
+      {/* Navigation */}
+      <header className="py-4 px-6 md:px-12 flex justify-between items-center border-b">
+        <Link href="/">
+          <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text cursor-pointer">
+            Tom Riddelsdell
+          </div>
+        </Link>
+        <nav className="hidden md:flex space-x-8 items-center">
+          <Link href="/" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
+            Home
+          </Link>
+          <Link href="/career" className="text-blue-600 dark:text-blue-400 font-medium">
+            Career
+          </Link>
+          {isAuthenticated ? (
+            <Link href="/dashboard">
+              <Button variant="outline">Dashboard</Button>
+            </Link>
+          ) : (
+            <Link href="/">
+              <Button>Contact</Button>
+            </Link>
+          )}
+        </nav>
+        <Button 
+          variant="ghost" 
+          className="md:hidden"
+        >
+          ☰
+        </Button>
+      </header>
+
       <main className="flex-grow">
-        <TopNavbar 
-          openMobileMenu={() => setMobileMenuOpen(true)} 
-          title="Career"
-        />
-        
-        <div className="min-h-screen flex flex-col">
-          {/* Hero Section */}
-          <section 
-            className="relative py-20 bg-cover bg-center"
-            style={{
-              backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(${backgroundImage})`,
-            }}
-          >
-            <div className="max-w-6xl mx-auto px-6 md:px-12 text-center text-white">
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">
+        {/* Hero Section */}
+        <section className="relative py-20 bg-gradient-to-br from-blue-50 to-teal-50 dark:from-gray-800 dark:to-gray-900">
+          <div className="max-w-5xl mx-auto px-6 md:px-12">
+            <div className="text-center">
+              <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-6">
                 Professional Journey
               </h1>
-              <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-8">
                 A passionate strategist and software engineer with expertise in financial modeling, 
                 automated investment strategies, and full-stack development.
               </p>
@@ -46,194 +59,135 @@ export default function Career() {
                   <MailIcon className="w-4 h-4 mr-2" />
                   Get In Touch
                 </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900">
+                <Button size="lg" variant="outline">
                   <LinkedinIcon className="w-4 h-4 mr-2" />
                   Connect on LinkedIn
                 </Button>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* Experience Timeline */}
-          <section className="py-20 bg-gray-50 dark:bg-gray-900">
-            <div className="max-w-6xl mx-auto px-6 md:px-12">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">Professional Experience</h2>
-                <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                  A journey through strategic leadership, software engineering, and quantitative finance
+        {/* Experience Section */}
+        <section className="py-16 bg-white dark:bg-gray-800">
+          <div className="max-w-5xl mx-auto px-6 md:px-12">
+            <div className="flex items-center gap-3 mb-8">
+              <BriefcaseIcon className="h-7 w-7 text-blue-600" />
+              <h2 className="text-3xl font-bold">Professional Experience</h2>
+            </div>
+            
+            <div className="space-y-8">
+              {/* Experience Item */}
+              <div className="border-l-4 border-blue-600 pl-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Senior Software Engineer</h3>
+                  <span className="text-blue-600 dark:text-blue-400 font-medium">2023 - Present</span>
+                </div>
+                <p className="text-lg text-blue-600 dark:text-blue-400 mb-3">QuantTech Solutions</p>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  Leading algorithmic trading platform development with high-frequency trading systems 
+                  and risk management platforms with real-time data processing capabilities.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">Python</Badge>
+                  <Badge variant="secondary">React</Badge>
+                  <Badge variant="secondary">PostgreSQL</Badge>
+                  <Badge variant="secondary">Redis</Badge>
+                  <Badge variant="secondary">AWS</Badge>
+                </div>
+              </div>
+
+              <div className="border-l-4 border-green-600 pl-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Quantitative Analyst</h3>
+                  <span className="text-green-600 dark:text-green-400 font-medium">2021 - 2023</span>
+                </div>
+                <p className="text-lg text-green-600 dark:text-green-400 mb-3">Financial Strategies Group</p>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  Developed sophisticated quantitative models for portfolio optimization and risk assessment,
+                  delivering insights that drove strategic investment decisions.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">MATLAB</Badge>
+                  <Badge variant="secondary">R</Badge>
+                  <Badge variant="secondary">Bloomberg API</Badge>
+                  <Badge variant="secondary">Monte Carlo</Badge>
+                  <Badge variant="secondary">VaR Modeling</Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Education Section */}
+        <section className="py-16 bg-gray-50 dark:bg-gray-900">
+          <div className="max-w-5xl mx-auto px-6 md:px-12">
+            <div className="flex items-center gap-3 mb-8">
+              <GraduationCapIcon className="h-7 w-7 text-blue-600" />
+              <h2 className="text-3xl font-bold">Education</h2>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">King's College London</h3>
+                  <span className="text-blue-600 dark:text-blue-400 font-medium">2005 - 2009</span>
+                </div>
+                <div className="mb-2">
+                  <span className="text-lg">MSci Mathematics and Computer Science</span>
+                </div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  First Class Honours • Springer-Verlag Award for Best Performance
                 </p>
               </div>
-
-              <div className="space-y-12">
-                {/* Experience Item 1 */}
-                <div className="flex flex-col md:flex-row gap-8 items-start">
-                  <div className="md:w-1/3">
-                    <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-lg">
-                      <h3 className="font-bold text-lg">Senior Software Engineer</h3>
-                      <p className="text-blue-600 dark:text-blue-400">QuantTech Solutions</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">2023 - Present</p>
-                    </div>
-                  </div>
-                  <div className="md:w-2/3">
-                    <h4 className="font-semibold text-xl mb-3">Leading Algorithmic Trading Platform Development</h4>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Spearheading the development of high-frequency trading systems and risk management platforms
-                      with real-time data processing capabilities.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary">Python</Badge>
-                      <Badge variant="secondary">React</Badge>
-                      <Badge variant="secondary">PostgreSQL</Badge>
-                      <Badge variant="secondary">Redis</Badge>
-                      <Badge variant="secondary">AWS</Badge>
-                    </div>
-                  </div>
+              
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Carisbrooke High School</h3>
+                  <span className="text-blue-600 dark:text-blue-400 font-medium">2003 - 2005</span>
                 </div>
-
-                {/* Experience Item 2 */}
-                <div className="flex flex-col md:flex-row gap-8 items-start">
-                  <div className="md:w-1/3">
-                    <div className="bg-green-100 dark:bg-green-900 p-4 rounded-lg">
-                      <h3 className="font-bold text-lg">Quantitative Analyst</h3>
-                      <p className="text-green-600 dark:text-green-400">Financial Strategies Group</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">2021 - 2023</p>
-                    </div>
-                  </div>
-                  <div className="md:w-2/3">
-                    <h4 className="font-semibold text-xl mb-3">Advanced Financial Modeling & Strategy</h4>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Developed sophisticated quantitative models for portfolio optimization and risk assessment,
-                      delivering insights that drove strategic investment decisions.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary">MATLAB</Badge>
-                      <Badge variant="secondary">R</Badge>
-                      <Badge variant="secondary">Bloomberg API</Badge>
-                      <Badge variant="secondary">Monte Carlo</Badge>
-                      <Badge variant="secondary">VaR Modeling</Badge>
-                    </div>
-                  </div>
+                <div className="mb-2">
+                  <span className="text-lg">A-Levels</span>
                 </div>
-
-                {/* Experience Item 3 */}
-                <div className="flex flex-col md:flex-row gap-8 items-start">
-                  <div className="md:w-1/3">
-                    <div className="bg-purple-100 dark:bg-purple-900 p-4 rounded-lg">
-                      <h3 className="font-bold text-lg">Full Stack Developer</h3>
-                      <p className="text-purple-600 dark:text-purple-400">TechStart Innovations</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">2019 - 2021</p>
-                    </div>
-                  </div>
-                  <div className="md:w-2/3">
-                    <h4 className="font-semibold text-xl mb-3">End-to-End Application Development</h4>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Built scalable web applications from concept to deployment, focusing on user experience
-                      and performance optimization.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary">TypeScript</Badge>
-                      <Badge variant="secondary">Node.js</Badge>
-                      <Badge variant="secondary">Vue.js</Badge>
-                      <Badge variant="secondary">MongoDB</Badge>
-                      <Badge variant="secondary">Docker</Badge>
-                    </div>
-                  </div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">A2: Mathematics, Physics, Computing</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">AS: Chemistry, Further Mathematics</p>
+              </div>
+            </div>
+            
+            {/* Honors and Awards */}
+            <div className="mt-10">
+              <div className="flex items-center gap-3 mb-6">
+                <AwardIcon className="h-7 w-7 text-amber-500" />
+                <h3 className="text-xl font-bold">Honors & Awards</h3>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">Springer-Verlag Award (2008)</h4>
+                  <p className="text-gray-700 dark:text-gray-300">Best performing MSci student, School of Physical Sciences and Engineering, King's College London</p>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">MSci Dissertation</h4>
+                  <p className="text-gray-700 dark:text-gray-300 italic">Activity modeling and prediction on mobile devices</p>
+                  <p className="text-gray-700 dark:text-gray-300">Awarded a distinction, receiving a mark of 85/100.</p>
                 </div>
               </div>
             </div>
-          </section>
-
-          {/* Skills & Expertise */}
-          <section className="py-20 bg-white dark:bg-gray-800">
-            <div className="max-w-6xl mx-auto px-6 md:px-12">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">Core Expertise</h2>
-                <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                  Technical skills and domain knowledge developed through years of hands-on experience
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-8">
-                <div className="text-center p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                  <BriefcaseIcon className="w-12 h-12 mx-auto mb-4 text-blue-600" />
-                  <h3 className="text-xl font-semibold mb-3">Financial Engineering</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Quantitative modeling, risk management, algorithmic trading strategies
-                  </p>
-                </div>
-
-                <div className="text-center p-6 bg-green-50 dark:bg-green-900/20 rounded-xl">
-                  <GraduationCapIcon className="w-12 h-12 mx-auto mb-4 text-green-600" />
-                  <h3 className="text-xl font-semibold mb-3">Software Architecture</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Full-stack development, system design, cloud infrastructure
-                  </p>
-                </div>
-
-                <div className="text-center p-6 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
-                  <AwardIcon className="w-12 h-12 mx-auto mb-4 text-purple-600" />
-                  <h3 className="text-xl font-semibold mb-3">Data Science</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Machine learning, statistical analysis, predictive modeling
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Education & Certifications */}
-          <section className="py-20 bg-gray-50 dark:bg-gray-900">
-            <div className="max-w-6xl mx-auto px-6 md:px-12">
-              <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">Education & Certifications</h2>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
-                  <BookOpenIcon className="w-8 h-8 mb-4 text-blue-600" />
-                  <h3 className="text-xl font-semibold mb-2">Master of Financial Engineering</h3>
-                  <p className="text-blue-600 dark:text-blue-400 mb-2">University of Technology</p>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Specialized in quantitative finance, derivatives pricing, and risk management
-                  </p>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
-                  <AwardIcon className="w-8 h-8 mb-4 text-green-600" />
-                  <h3 className="text-xl font-semibold mb-2">AWS Solutions Architect</h3>
-                  <p className="text-green-600 dark:text-green-400 mb-2">Amazon Web Services</p>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Professional certification in cloud architecture and infrastructure design
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Contact CTA */}
-          <section className="py-20 bg-gradient-to-r from-blue-600 to-teal-500 text-white">
-            <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Let's Build Something Amazing Together
-              </h2>
-              <p className="text-xl mb-8 opacity-90">
-                Whether you're looking for strategic consulting or technical expertise, 
-                I'm always open to discussing new opportunities and challenges.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
-                  <MailIcon className="w-4 h-4 mr-2" />
-                  Send Message
-                </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
-                  <LinkedinIcon className="w-4 h-4 mr-2" />
-                  Connect on LinkedIn
-                </Button>
-              </div>
-            </div>
-          </section>
-        </div>
+          </div>
+        </section>
       </main>
+
+      <footer className="py-8 px-6 md:px-12 border-t bg-white dark:bg-gray-900">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center">
+          <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-teal-500 text-transparent bg-clip-text mb-4 md:mb-0">
+            Tom Riddelsdell
+          </div>
+          <div className="text-gray-600 dark:text-gray-400">
+            © {new Date().getFullYear()} Tom Riddelsdell. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
