@@ -47,16 +47,16 @@ export default function Tasks() {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50">
       <Sidebar isMobile={isMobile && mobileMenuOpen} />
       
-      <main className="flex-grow flex flex-col overflow-hidden">
+      <main className="flex-grow">
         <TopNavbar 
           openMobileMenu={() => setMobileMenuOpen(true)} 
           title="Tasks"
         />
         
-        <div className="flex-grow overflow-auto p-8">
+        <div className="p-8">
           <div className="max-w-7xl mx-auto">
             <div className="mb-8 flex justify-between items-center">
               <div>
