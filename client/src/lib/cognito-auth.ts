@@ -55,18 +55,38 @@ class CognitoAuth {
 
   // Handle callback with authorization code
   async handleCallback(code: string): Promise<CognitoUser> {
-    const response = await fetch('/api/auth/callback', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code }),
-      credentials: 'include'
-    });
-
-    if (!response.ok) {
-      throw new Error('Authentication failed');
+    // Prevent multiple concurrent callback attempts
+    if (this.callbackInProgress) {
+      console.log('Callback already in progress, waiting...');
+      // Wait a moment and check if auth is complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const existingUser = await this.checkAuth();
+      if (existingUser) {
+        return existingUser;
+      }
     }
 
-    return await response.json();
+    this.callbackInProgress = true;
+    
+    try {
+      const response = await fetch('/api/auth/callback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('Auth callback failed:', errorText);
+        throw new Error('Authentication failed');
+      }
+
+      const result = await response.json();
+      return result;
+    } finally {
+      this.callbackInProgress = false;
+    }
   }
 }
 
