@@ -29,25 +29,28 @@ export default function Dashboard() {
           title={t('dashboard')}
         />
         
-        <div className="p-4 sm:p-6 lg:p-8">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              {t('welcomeBack')}{userName ? `, ${userName}!` : '!'}
-            </h2>
-            <p className="text-gray-600">{t('createAndManage')}</p>
+        <div className="p-6 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">{t('welcome')}, {userName}!</h1>
+              <p className="mt-1 text-sm text-gray-500">{t('dashboardSubtitle')}</p>
+            </div>
+            <div className="mt-4 sm:mt-0">
+              <CreateWorkflowButton />
+            </div>
           </div>
-          
+
           <QuickStats />
-          <RecentWorkflows />
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <RecentWorkflows />
             <ConnectedApps />
-            <PopularTemplates />
           </div>
+
+          <PopularTemplates />
         </div>
       </main>
-      
-      <CreateWorkflowButton />
+
       <LanguageModal />
     </>
   );
