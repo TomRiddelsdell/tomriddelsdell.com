@@ -1,12 +1,29 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import Sidebar from "../components/Sidebar";
+import TopNavbar from "../components/TopNavbar";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
+import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
+import { useMobile } from "../hooks/use-mobile";
 import { GithubIcon, LinkedinIcon, MailIcon, BookOpenIcon, AwardIcon, BriefcaseIcon, GraduationCapIcon } from "lucide-react";
 import backgroundImage from "../assets/background.jpg";
 
 export default function Career() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const isMobile = useMobile();
+
   return (
-    <div className="min-h-screen bg-gray-50">{/* Temporarily removed sidebar/navbar to test */}
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar isMobile={isMobile && mobileMenuOpen} />
+      
+      <main className="flex-grow">
+        <TopNavbar 
+          openMobileMenu={() => setMobileMenuOpen(true)} 
+          title="Career"
+        />
         
         <div className="min-h-screen flex flex-col">
           {/* Hero Section */}
@@ -216,6 +233,7 @@ export default function Career() {
             </div>
           </section>
         </div>
+      </main>
     </div>
   );
 }
