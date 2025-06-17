@@ -416,7 +416,7 @@ export class AuthController {
         success: true, 
         user: {
           id: user.id,
-          email: user.email,
+          email: user.email?.replace(/(.{2})(.*)(@.*)/, '$1***$3'),
           displayName: user.displayName,
           photoURL: user.photoURL,
           provider: user.provider,
