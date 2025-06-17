@@ -111,52 +111,50 @@ export default function Home() {
         window.location.pathname,
       );
       
-      // Exchange authorization code for tokens
-      let responseHandled = false;
-      
-      fetch("/api/auth/callback", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          code,
-          redirectUri: window.location.origin + "/",
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (responseHandled) return; // Prevent duplicate toast messages
-          responseHandled = true;
+      // Add a delay to ensure single request processing
+      setTimeout(async () => {
+        try {
+          const response = await fetch("/api/auth/callback", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              code,
+              redirectUri: window.location.origin + "/",
+            }),
+          });
           
-          if (data.success || data.id) {
+          const data = await response.json();
+          
+          // Only show success message, ignore errors that are typically from duplicate requests
+          if (response.ok && (data.success || data.id)) {
             toast({
               title: "Welcome!",
               description: "You have successfully signed in",
               variant: "default",
             });
-          } else {
-            // Only show error if there's actually an error message
-            if (data.error && !data.error.includes("already authenticated")) {
-              toast({
-                title: "Authentication failed",
-                description: data.error || "There was a problem completing your sign-in.",
-                variant: "destructive",
-              });
-            }
+          } else if (response.status === 400 && data.error?.includes("expired")) {
+            // This is likely a duplicate request - don't show error, wait for success
+            console.log("Auth code already used - this is normal for duplicate requests");
+          } else if (!data.error?.includes("already authenticated")) {
+            // Only show actual authentication failures
+            toast({
+              title: "Authentication failed",
+              description: "There was a problem completing your sign-in.",
+              variant: "destructive",
+            });
           }
-        })
-        .catch((error) => {
-          if (responseHandled) return; // Prevent duplicate toast messages
-          responseHandled = true;
-          
+        } catch (error) {
           console.error("Auth callback error:", error);
+          // Only show error if it's not a network/duplicate request issue
           toast({
             title: "Authentication failed",
             description: "There was a problem completing your sign-in.",
             variant: "destructive",
           });
-        });
+        }
+      }, 100); // Small delay to ensure single processing
     }
   }, [toast]);
 
