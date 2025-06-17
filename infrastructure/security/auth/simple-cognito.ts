@@ -48,7 +48,11 @@ export class SimpleCognitoHandler {
       // Parse user info from ID token
       console.log('Parsing ID token...');
       const user = this.parseIdToken(tokens.id_token);
-      console.log('User parsed from token:', JSON.stringify(user, null, 2));
+      console.log('User parsed from token:', JSON.stringify({
+        id: user.id,
+        email: user.email?.replace(/(.{2})(.*)(@.*)/, '$1***$3'),
+        name: user.name
+      }, null, 2));
       
       // Create or find user in database
       console.log('Creating or finding user in database...');
@@ -64,7 +68,10 @@ export class SimpleCognitoHandler {
             cognitoId: user.id,
             provider: 'cognito'
           });
-          console.log('Updated existing user with Cognito ID:', dbUser);
+          console.log('Updated existing user with Cognito ID:', {
+            ...dbUser,
+            email: dbUser.email?.replace(/(.{2})(.*)(@.*)/, '$1***$3')
+          });
         } else {
           // Create new user with unique username
           let username = user.email.split('@')[0];
@@ -83,7 +90,10 @@ export class SimpleCognitoHandler {
             cognitoId: user.id,
             provider: 'cognito'
           });
-          console.log('Created new user:', dbUser);
+          console.log('Created new user:', {
+            ...dbUser,
+            email: dbUser.email?.replace(/(.{2})(.*)(@.*)/, '$1***$3')
+          });
         }
       } else {
         console.log('Found existing user:', {
@@ -133,7 +143,10 @@ export class SimpleCognitoHandler {
     const user = (req.session as any).user;
     const userId = (req.session as any).userId;
     
-    console.log('User from session:', user);
+    console.log('User from session:', user ? {
+      ...user,
+      email: user.email?.replace(/(.{2})(.*)(@.*)/, '$1***$3')
+    } : user);
     console.log('UserId from session:', userId);
     
     if (user) {
