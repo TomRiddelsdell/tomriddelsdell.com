@@ -51,7 +51,7 @@ export default function Tasks() {
   ];
 
   return (
-    <>
+    <div className="flex min-h-screen bg-gray-50">
       <Sidebar isMobile={isMobile && mobileMenuOpen} />
       
       <main className="flex-grow">
@@ -173,6 +173,6 @@ export default function Tasks() {
           </div>
         </div>
       </main>
-    </>
+    </div>
   );
 }
