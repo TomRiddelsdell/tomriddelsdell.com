@@ -1,6 +1,13 @@
 {
-  "include": ["client/src/**/*", "shared/**/*", "server/**/*"],
-  "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
+  "include": [
+    "interfaces/web-frontend/src/**/*", 
+    "interfaces/api-gateway/src/**/*",
+    "shared/**/*", 
+    "domains/**/*",
+    "infrastructure/**/*",
+    "libs/**/*"
+  ],
+  "exclude": ["node_modules", "build", "dist", "**/*.test.ts", "**/*.spec.ts"],
   "compilerOptions": {
     "incremental": true,
     "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo",
