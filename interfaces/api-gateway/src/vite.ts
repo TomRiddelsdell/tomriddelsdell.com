@@ -41,7 +41,7 @@ export async function setupVite(app: Express, server: Server) {
         allowedHosts
       },
       appType: "spa",
-      root: path.resolve(import.meta.dirname, "..", "..", "web-frontend"),
+      root: path.resolve(import.meta.dirname, "..", "..", "..", "client"),
       optimizeDeps: {
         include: ['react', 'react-dom']
       }
@@ -66,7 +66,7 @@ export async function setupVite(app: Express, server: Server) {
       
       try {
         const template = await fs.promises.readFile(
-          path.resolve(import.meta.dirname, "..", "..", "web-frontend", "index.html"),
+          path.resolve(import.meta.dirname, "..", "..", "..", "client", "index.html"),
           "utf-8"
         );
         res.status(200).set({ "Content-Type": "text/html" }).end(template);

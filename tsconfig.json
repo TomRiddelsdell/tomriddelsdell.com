@@ -1,12 +1,5 @@
 {
-  "include": [
-    "interfaces/web-frontend/src/**/*",
-    "shared/**/*",
-    "interfaces/api-gateway/src/**/*",
-    "services/**/*",
-    "domains/**/*",
-    "infrastructure/**/*"
-  ],
+  "include": ["client/src/**/*", "shared/**/*", "server/**/*"],
   "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
   "compilerOptions": {
     "incremental": true,
@@ -23,9 +16,8 @@
     "baseUrl": ".",
     "types": ["node", "vite/client"],
     "paths": {
-      "@/*": ["./interfaces/web-frontend/src/*"],
-      "@shared/*": ["./shared/*"],
-      "@assets/*": ["./attached_assets/*"]
+      "@/*": ["./client/src/*"],
+      "@shared/*": ["./shared/*"]
     }
   }
 }
