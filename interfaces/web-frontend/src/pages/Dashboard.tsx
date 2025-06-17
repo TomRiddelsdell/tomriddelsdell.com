@@ -11,7 +11,7 @@ import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { useMobile } from "../hooks/use-mobile";
 
-export default function Dashboard() {
+function Dashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
   const { t } = useLanguage();
@@ -55,3 +55,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+export default Dashboard;
