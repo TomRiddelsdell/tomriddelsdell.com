@@ -86,7 +86,10 @@ export class SimpleCognitoHandler {
           console.log('Created new user:', dbUser);
         }
       } else {
-        console.log('Found existing user:', dbUser);
+        console.log('Found existing user:', {
+        ...dbUser,
+        email: dbUser.email?.replace(/(.{2})(.*)(@.*)/, '$1***$3')
+      });
       }
       
       // Store database user ID in session
@@ -103,7 +106,11 @@ export class SimpleCognitoHandler {
         console.log('Session after storing user:');
         console.log('- Session ID:', req.sessionID);
         console.log('- Database User ID:', (req.session as any).userId);
-        console.log('- User data:', JSON.stringify((req.session as any).user, null, 2));
+        const userData = (req.session as any).user;
+        console.log('- User data:', JSON.stringify({
+          ...userData,
+          email: userData?.email?.replace(/(.{2})(.*)(@.*)/, '$1***$3')
+        }, null, 2));
       }
       
 

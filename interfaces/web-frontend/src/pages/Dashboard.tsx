@@ -20,7 +20,7 @@ export default function Dashboard() {
   const userName = user?.displayName || user?.email?.split('@')[0] || '';
 
   return (
-    <>
+    <div className="flex min-h-screen bg-gray-50">
       <Sidebar isMobile={isMobile && mobileMenuOpen} />
       
       <main className="flex-grow">
@@ -52,6 +52,6 @@ export default function Dashboard() {
       </main>
 
       <LanguageModal />
-    </>
+    </div>
   );
 }

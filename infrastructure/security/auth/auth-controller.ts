@@ -198,7 +198,7 @@ export class AuthController {
         // Return user info
         const userResponse = {
           id: localUser.id,
-          email: localUser.email,
+          email: localUser.email.replace(/(.{2})(.*)(@.*)/, '$1***$3'), // Hide email
           displayName: localUser.displayName,
           photoURL: localUser.photoURL,
           provider: localUser.provider,
