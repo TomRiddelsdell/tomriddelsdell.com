@@ -6,8 +6,9 @@ import { Link } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import { apiRequest } from "../lib/queryClient";
-import profilePic from "../assets/profile.jpg";
-import backgroundImage from "../assets/background.jpg";
+// Use direct asset URLs for now to resolve import issues
+const profilePic = "/attached_assets/me.jpg";
+const backgroundImage = "/attached_assets/background.jpg";
 import ImpliedVolDisplay from "../components/ImpliedVolDisplay";
 import NavigationLinks from "../components/NavigationLinks";
 
@@ -111,6 +112,8 @@ export default function Home() {
       );
       
       // Exchange authorization code for tokens
+      let responseHandled = false;
+      
       fetch("/api/auth/callback", {
         method: "POST",
         headers: {
@@ -123,6 +126,9 @@ export default function Home() {
       })
         .then((response) => response.json())
         .then((data) => {
+          if (responseHandled) return; // Prevent duplicate toast messages
+          responseHandled = true;
+          
           if (data.success || data.id) {
             toast({
               title: "Welcome!",
@@ -130,14 +136,20 @@ export default function Home() {
               variant: "default",
             });
           } else {
-            toast({
-              title: "Authentication failed",
-              description: "There was a problem completing your sign-in.",
-              variant: "destructive",
-            });
+            // Only show error if there's actually an error message
+            if (data.error && !data.error.includes("already authenticated")) {
+              toast({
+                title: "Authentication failed",
+                description: data.error || "There was a problem completing your sign-in.",
+                variant: "destructive",
+              });
+            }
           }
         })
         .catch((error) => {
+          if (responseHandled) return; // Prevent duplicate toast messages
+          responseHandled = true;
+          
           console.error("Auth callback error:", error);
           toast({
             title: "Authentication failed",

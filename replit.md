@@ -116,6 +116,11 @@ AWS_COGNITO_CLIENT_SECRET=your_client_secret
 - **Initialization**: Automatic template seeding on first run
 
 ## Changelog
+- June 17, 2025. Fixed authentication UI flickering and completed DDD migration
+  - Implemented callback protection to prevent duplicate authentication processing
+  - Enhanced error handling to show only one consistent authentication result
+  - Migrated client directory to interfaces/web-frontend following DDD patterns
+  - Updated Tailwind and components.json configurations for new structure
 - June 14, 2025. Restored page structure from commit f32ae3d with DDD architecture integration
   - Implemented separate page components (Dashboard, Career, Projects, Tasks, Workflows)
   - Restored sidebar-based navigation with TopNavbar and Sidebar components
