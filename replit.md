@@ -112,7 +112,7 @@ AWS_COGNITO_CLIENT_SECRET=your_client_secret
 
 ### Database Management
 - **Migrations**: `npm run db:push` applies schema changes
-- **Schema**: Defined in `shared/schema.ts` with Drizzle
+- **Schema**: Defined in `domains/shared-kernel/src/schema.ts` with Drizzle
 - **Initialization**: Automatic template seeding on first run
 
 ## Changelog
