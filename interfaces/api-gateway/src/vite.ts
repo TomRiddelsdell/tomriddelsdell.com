@@ -66,7 +66,7 @@ export async function setupVite(app: Express, server: Server) {
       
       try {
         const template = await fs.promises.readFile(
-          path.resolve(import.meta.dirname, "..", "..", "..", "client", "index.html"),
+          path.resolve(import.meta.dirname, "..", "..", "..", "interfaces", "web-frontend", "index.html"),
           "utf-8"
         );
         res.status(200).set({ "Content-Type": "text/html" }).end(template);
