@@ -18,6 +18,7 @@ export default function Home() {
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
+  const callbackProcessedRef = React.useRef(false);
 
   // Handle user sign out
   const handleSignOut = async () => {
@@ -94,12 +95,21 @@ export default function Home() {
     }
   };
 
-  // Handle Cognito callback
+  // Handle Cognito callback with protection against duplicate processing
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
 
-    if (code) {
+    if (code && !callbackProcessedRef.current) {
+      callbackProcessedRef.current = true;
+      
+      // Clean URL immediately to prevent reprocessing
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname,
+      );
+      
       // Exchange authorization code for tokens
       fetch("/api/auth/callback", {
         method: "POST",
@@ -113,18 +123,12 @@ export default function Home() {
       })
         .then((response) => response.json())
         .then((data) => {
-          if (data.success) {
+          if (data.success || data.id) {
             toast({
               title: "Welcome!",
               description: "You have successfully signed in",
               variant: "default",
             });
-            // Clean URL
-            window.history.replaceState(
-              {},
-              document.title,
-              window.location.pathname,
-            );
           } else {
             toast({
               title: "Authentication failed",
