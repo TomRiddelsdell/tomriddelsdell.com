@@ -17,6 +17,7 @@ interface CognitoUser {
 
 export class SimpleCognitoHandler {
   private config = getAuthConfig();
+  private processingCodes = new Set<string>(); // Track codes being processed
 
   constructor() {
     // Configuration is now centralized
@@ -35,16 +36,21 @@ export class SimpleCognitoHandler {
         });
       }
 
-      console.log('=== AUTH CALLBACK DEBUG ===');
-      console.log('Request method:', req.method);
-      console.log('Session ID before auth:', req.sessionID);
-      
       const { code } = req.body;
       
       if (!code) {
         console.log('ERROR: No authorization code in request body');
         return res.status(400).json({ error: 'Authorization code required' });
       }
+
+      // Check if this code is already being processed
+      if (this.processingCodes.has(code)) {
+        console.log('Code already being processed, waiting for completion...');
+        return res.status(200).json({ message: 'Authentication in progress' });
+      }
+
+      // Mark code as being processed
+      this.processingCodes.add(code);
 
       console.log('Authorization code received:', code.substring(0, 20) + '...');
 
@@ -117,8 +123,17 @@ export class SimpleCognitoHandler {
 
       
       console.log('Authentication callback completed successfully');
+      
+      // Clean up the processing code
+      this.processingCodes.delete(code);
+      
       res.json(user);
     } catch (error) {
+      // Clean up the processing code on error
+      if (code) {
+        this.processingCodes.delete(code);
+      }
+      
       console.error('=== CALLBACK ERROR ===');
       console.error('Error details:', error);
       
