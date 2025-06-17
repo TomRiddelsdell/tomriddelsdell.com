@@ -94,7 +94,7 @@ export default function Workflows() {
               </div>
             </div>
           ))}
-        </div>
+            </div>
 
             <div className="mt-8 bg-white p-6 rounded-lg shadow">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Workflow Templates</h2>
