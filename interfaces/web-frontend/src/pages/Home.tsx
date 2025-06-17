@@ -6,9 +6,9 @@ import { Link } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import { apiRequest } from "../lib/queryClient";
-// Use direct asset URLs for now to resolve import issues
-const profilePic = "/attached_assets/me.jpg";
-const backgroundImage = "/attached_assets/background.jpg";
+// Use public assets path for immediate loading
+const profilePicUrl = "/me.jpg";
+const backgroundImageUrl = "/background.jpg";
 import ImpliedVolDisplay from "../components/ImpliedVolDisplay";
 import NavigationLinks from "../components/NavigationLinks";
 
@@ -327,7 +327,7 @@ export default function Home() {
         <section
           className="relative py-16 md:py-24 bg-white dark:bg-gray-900 full-width-section"
           style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.9)), url(${backgroundImage})`,
+            backgroundImage: `linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.9)), url(${backgroundImageUrl})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundAttachment: "fixed",
@@ -372,7 +372,7 @@ export default function Home() {
             <div className="w-full md:w-1/2 flex justify-center items-center mt-8 md:mt-0">
               <div className="w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-white/30 dark:border-gray-700/30 shadow-xl">
                 <img
-                  src={profilePic}
+                  src={profilePicUrl}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
@@ -409,7 +409,7 @@ export default function Home() {
           id="contact"
           className="pt-16 sm:pt-20 md:pt-28 pb-12 sm:pb-16 md:pb-24 bg-cover bg-center bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8 full-width-section section-fade-in"
           style={{
-            backgroundImage: `linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.9)), url(${backgroundImage})`,
+            backgroundImage: `linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.9)), url(${backgroundImageUrl})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
