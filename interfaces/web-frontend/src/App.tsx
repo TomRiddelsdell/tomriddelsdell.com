@@ -9,7 +9,7 @@ import Home from "./pages/Home";
 import MonitoringDashboard from "./pages/MonitoringDashboard";
 import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
-import Career from "./pages/Career";
+import Career from "./pages/Career-fixed";
 import Projects from "./pages/Projects";
 import Tasks from "./pages/Tasks";
 import Workflows from "./pages/Workflows";
