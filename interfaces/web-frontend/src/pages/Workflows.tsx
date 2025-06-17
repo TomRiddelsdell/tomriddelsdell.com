@@ -1,8 +1,15 @@
-import React from "react";
+import { useState } from "react";
+import Sidebar from "../components/Sidebar";
+import TopNavbar from "../components/TopNavbar";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
+import { useMobile } from "../hooks/use-mobile";
 
 export default function Workflows() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
+  const { t } = useLanguage();
+  const isMobile = useMobile();
 
   const workflows = [
     {
@@ -29,21 +36,30 @@ export default function Workflows() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Workflows</h1>
-            <p className="text-gray-600 mt-2">Manage your automated processes</p>
-          </div>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            Create New Workflow
-          </button>
-        </div>
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar isMobile={isMobile && mobileMenuOpen} />
+      
+      <main className="flex-grow">
+        <TopNavbar 
+          openMobileMenu={() => setMobileMenuOpen(true)} 
+          title="Workflows"
+        />
+        
+        <div className="min-h-screen bg-gray-50 p-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-8 flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Workflows</h1>
+                <p className="text-gray-600 mt-2">Manage your automated processes</p>
+              </div>
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                Create New Workflow
+              </button>
+            </div>
 
-        <div className="grid grid-cols-1 gap-6">
-          {workflows.map((workflow) => (
-            <div key={workflow.id} className="bg-white p-6 rounded-lg shadow">
+            <div className="grid grid-cols-1 gap-6">
+              {workflows.map((workflow) => (
+                <div key={workflow.id} className="bg-white p-6 rounded-lg shadow">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3">
@@ -80,24 +96,26 @@ export default function Workflows() {
           ))}
         </div>
 
-        <div className="mt-8 bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Workflow Templates</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-blue-400 transition-colors cursor-pointer">
-              <div className="text-blue-600 font-semibold">Data Integration</div>
-              <div className="text-sm text-gray-600 mt-1">Connect and sync data sources</div>
-            </div>
-            <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-blue-400 transition-colors cursor-pointer">
-              <div className="text-blue-600 font-semibold">Notification System</div>
-              <div className="text-sm text-gray-600 mt-1">Automated alerts and messages</div>
-            </div>
-            <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-blue-400 transition-colors cursor-pointer">
-              <div className="text-blue-600 font-semibold">Report Generation</div>
-              <div className="text-sm text-gray-600 mt-1">Scheduled data reports</div>
+            <div className="mt-8 bg-white p-6 rounded-lg shadow">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Workflow Templates</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-blue-400 transition-colors cursor-pointer">
+                  <div className="text-blue-600 font-semibold">Data Integration</div>
+                  <div className="text-sm text-gray-600 mt-1">Connect and sync data sources</div>
+                </div>
+                <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-blue-400 transition-colors cursor-pointer">
+                  <div className="text-blue-600 font-semibold">Notification System</div>
+                  <div className="text-sm text-gray-600 mt-1">Automated alerts and messages</div>
+                </div>
+                <div className="p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-blue-400 transition-colors cursor-pointer">
+                  <div className="text-blue-600 font-semibold">Report Generation</div>
+                  <div className="text-sm text-gray-600 mt-1">Scheduled data reports</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
