@@ -1,0 +1,128 @@
+Main.tsx: Starting execution
+main.tsx:7 Main.tsx: App imported: true
+main.tsx:11 Main.tsx: Attempting to get root element
+main.tsx:13 Main.tsx: Root element found: true
+main.tsx:16 Main.tsx: Creating React root
+main.tsx:18 Main.tsx: React root created
+main.tsx:20 Main.tsx: Rendering App
+main.tsx:26 Main.tsx: App rendered successfully
+Career-fixed.tsx:8 Uncaught ReferenceError: React is not defined
+    at Career (Career-fixed.tsx:8:3)
+    at renderWithHooks (chunk-PNGJSGSD.js?v=22c93497:11596:26)
+    at mountIndeterminateComponent (chunk-PNGJSGSD.js?v=22c93497:14974:21)
+    at beginWork (chunk-PNGJSGSD.js?v=22c93497:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-PNGJSGSD.js?v=22c93497:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-PNGJSGSD.js?v=22c93497:3705:24)
+    at invokeGuardedCallback (chunk-PNGJSGSD.js?v=22c93497:3739:39)
+    at beginWork$1 (chunk-PNGJSGSD.js?v=22c93497:19818:15)
+    at performUnitOfWork (chunk-PNGJSGSD.js?v=22c93497:19251:20)
+    at workLoopSync (chunk-PNGJSGSD.js?v=22c93497:19190:13)
+Career @ Career-fixed.tsx:8
+renderWithHooks @ chunk-PNGJSGSD.js?v=22c93497:11596
+mountIndeterminateComponent @ chunk-PNGJSGSD.js?v=22c93497:14974
+beginWork @ chunk-PNGJSGSD.js?v=22c93497:15962
+callCallback2 @ chunk-PNGJSGSD.js?v=22c93497:3680
+invokeGuardedCallbackDev @ chunk-PNGJSGSD.js?v=22c93497:3705
+invokeGuardedCallback @ chunk-PNGJSGSD.js?v=22c93497:3739
+beginWork$1 @ chunk-PNGJSGSD.js?v=22c93497:19818
+performUnitOfWork @ chunk-PNGJSGSD.js?v=22c93497:19251
+workLoopSync @ chunk-PNGJSGSD.js?v=22c93497:19190
+renderRootSync @ chunk-PNGJSGSD.js?v=22c93497:19169
+performConcurrentWorkOnRoot @ chunk-PNGJSGSD.js?v=22c93497:18728
+workLoop @ chunk-PNGJSGSD.js?v=22c93497:197
+flushWork @ chunk-PNGJSGSD.js?v=22c93497:176
+performWorkUntilDeadline @ chunk-PNGJSGSD.js?v=22c93497:384Understand this error
+Career-fixed.tsx:8 Uncaught ReferenceError: React is not defined
+    at Career (Career-fixed.tsx:8:3)
+    at renderWithHooks (chunk-PNGJSGSD.js?v=22c93497:11596:26)
+    at mountIndeterminateComponent (chunk-PNGJSGSD.js?v=22c93497:14974:21)
+    at beginWork (chunk-PNGJSGSD.js?v=22c93497:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-PNGJSGSD.js?v=22c93497:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-PNGJSGSD.js?v=22c93497:3705:24)
+    at invokeGuardedCallback (chunk-PNGJSGSD.js?v=22c93497:3739:39)
+    at beginWork$1 (chunk-PNGJSGSD.js?v=22c93497:19818:15)
+    at performUnitOfWork (chunk-PNGJSGSD.js?v=22c93497:19251:20)
+    at workLoopSync (chunk-PNGJSGSD.js?v=22c93497:19190:13)
+Career @ Career-fixed.tsx:8
+renderWithHooks @ chunk-PNGJSGSD.js?v=22c93497:11596
+mountIndeterminateComponent @ chunk-PNGJSGSD.js?v=22c93497:14974
+beginWork @ chunk-PNGJSGSD.js?v=22c93497:15962
+callCallback2 @ chunk-PNGJSGSD.js?v=22c93497:3680
+invokeGuardedCallbackDev @ chunk-PNGJSGSD.js?v=22c93497:3705
+invokeGuardedCallback @ chunk-PNGJSGSD.js?v=22c93497:3739
+beginWork$1 @ chunk-PNGJSGSD.js?v=22c93497:19818
+performUnitOfWork @ chunk-PNGJSGSD.js?v=22c93497:19251
+workLoopSync @ chunk-PNGJSGSD.js?v=22c93497:19190
+renderRootSync @ chunk-PNGJSGSD.js?v=22c93497:19169
+recoverFromConcurrentError @ chunk-PNGJSGSD.js?v=22c93497:18786
+performConcurrentWorkOnRoot @ chunk-PNGJSGSD.js?v=22c93497:18734
+workLoop @ chunk-PNGJSGSD.js?v=22c93497:197
+flushWork @ chunk-PNGJSGSD.js?v=22c93497:176
+performWorkUntilDeadline @ chunk-PNGJSGSD.js?v=22c93497:384Understand this error
+hook.js:608 The above error occurred in the <Career> component:
+
+    at Career (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/src/pages/Career-fixed.tsx:6:3)
+    at Route (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=22c93497:338:16)
+    at Switch (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=22c93497:394:17)
+    at div
+    at Router (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=22c93497:293:17)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+overrideMethod @ hook.js:608
+logCapturedError @ chunk-PNGJSGSD.js?v=22c93497:14080
+update.callback @ chunk-PNGJSGSD.js?v=22c93497:14100
+callCallback @ chunk-PNGJSGSD.js?v=22c93497:11296
+commitUpdateQueue @ chunk-PNGJSGSD.js?v=22c93497:11313
+commitLayoutEffectOnFiber @ chunk-PNGJSGSD.js?v=22c93497:17141
+commitLayoutMountEffects_complete @ chunk-PNGJSGSD.js?v=22c93497:18030
+commitLayoutEffects_begin @ chunk-PNGJSGSD.js?v=22c93497:18019
+commitLayoutEffects @ chunk-PNGJSGSD.js?v=22c93497:17970
+commitRootImpl @ chunk-PNGJSGSD.js?v=22c93497:19406
+commitRoot @ chunk-PNGJSGSD.js?v=22c93497:19330
+finishConcurrentRender @ chunk-PNGJSGSD.js?v=22c93497:18813
+performConcurrentWorkOnRoot @ chunk-PNGJSGSD.js?v=22c93497:18768
+workLoop @ chunk-PNGJSGSD.js?v=22c93497:197
+flushWork @ chunk-PNGJSGSD.js?v=22c93497:176
+performWorkUntilDeadline @ chunk-PNGJSGSD.js?v=22c93497:384Understand this error
+chunk-PNGJSGSD.js?v=22c93497:19466 Uncaught ReferenceError: React is not defined
+    at Career (Career-fixed.tsx:8:3)
+    at renderWithHooks (chunk-PNGJSGSD.js?v=22c93497:11596:26)
+    at mountIndeterminateComponent (chunk-PNGJSGSD.js?v=22c93497:14974:21)
+    at beginWork (chunk-PNGJSGSD.js?v=22c93497:15962:22)
+    at beginWork$1 (chunk-PNGJSGSD.js?v=22c93497:19806:22)
+    at performUnitOfWork (chunk-PNGJSGSD.js?v=22c93497:19251:20)
+    at workLoopSync (chunk-PNGJSGSD.js?v=22c93497:19190:13)
+    at renderRootSync (chunk-PNGJSGSD.js?v=22c93497:19169:15)
+    at recoverFromConcurrentError (chunk-PNGJSGSD.js?v=22c93497:18786:28)
+    at performConcurrentWorkOnRoot (chunk-PNGJSGSD.js?v=22c93497:18734:30)
+Career @ Career-fixed.tsx:8
+renderWithHooks @ chunk-PNGJSGSD.js?v=22c93497:11596
+mountIndeterminateComponent @ chunk-PNGJSGSD.js?v=22c93497:14974
+beginWork @ chunk-PNGJSGSD.js?v=22c93497:15962
+beginWork$1 @ chunk-PNGJSGSD.js?v=22c93497:19806
+performUnitOfWork @ chunk-PNGJSGSD.js?v=22c93497:19251
+workLoopSync @ chunk-PNGJSGSD.js?v=22c93497:19190
+renderRootSync @ chunk-PNGJSGSD.js?v=22c93497:19169
+recoverFromConcurrentError @ chunk-PNGJSGSD.js?v=22c93497:18786
+performConcurrentWorkOnRoot @ chunk-PNGJSGSD.js?v=22c93497:18734
+workLoop @ chunk-PNGJSGSD.js?v=22c93497:197
+flushWork @ chunk-PNGJSGSD.js?v=22c93497:176
+performWorkUntilDeadline @ chunk-PNGJSGSD.js?v=22c93497:384Understand this error
+client:802 WebSocket connection to 'wss://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev:24678/?token=3i6oXTDooKj-' failed: 
+createConnection @ client:802
+connect @ client:437
+connect @ client:811
+connect @ client:290
+connect @ client:383
+(anonymous) @ client:908Understand this error
+client:841 [vite] failed to connect to websocket (Error: WebSocket closed without opened.). 
+overrideMethod @ hook.js:608
+connect @ client:841
+await in connect
+connect @ client:290
+connect @ client:383
+(anonymous) @ client:908Understand this error
+client:454 Uncaught (in promise) Error: WebSocket closed without opened.
+    at WebSocket.<anonymous> (client:454:22)
