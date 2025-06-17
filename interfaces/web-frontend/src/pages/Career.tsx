@@ -35,8 +35,8 @@ export default function Career() {
                 Professional Journey
               </h1>
               <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-                A passionate strategist and software engineer with expertise in financial modeling, 
-                automated investment strategies, and full-stack development.
+                Strategist & Software Engineer with expertise in financial modeling, 
+                automated investment strategies, risk management, and full-stack development.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
@@ -78,7 +78,7 @@ export default function Career() {
                   <h4 className="font-semibold text-lg mb-3">Leading Algorithmic Trading Platform Development</h4>
                   <p className="text-gray-600 mb-4">
                     Spearheading the development of high-frequency trading systems and risk management platforms
-                    with real-time data processing capabilities. Built scalable microservices handling millions of transactions daily.
+                    with real-time data processing capabilities.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">Python</Badge>
@@ -86,7 +86,6 @@ export default function Career() {
                     <Badge variant="outline">PostgreSQL</Badge>
                     <Badge variant="outline">Redis</Badge>
                     <Badge variant="outline">AWS</Badge>
-                    <Badge variant="outline">Docker</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -106,14 +105,14 @@ export default function Career() {
                   <h4 className="font-semibold text-lg mb-3">Advanced Financial Modeling & Strategy</h4>
                   <p className="text-gray-600 mb-4">
                     Developed sophisticated quantitative models for portfolio optimization and risk assessment,
-                    delivering insights that drove strategic investment decisions and improved returns by 15%.
+                    delivering insights that drove strategic investment decisions.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">MATLAB</Badge>
                     <Badge variant="outline">R</Badge>
                     <Badge variant="outline">Bloomberg API</Badge>
                     <Badge variant="outline">Monte Carlo</Badge>
-                    <Badge variant="outline">VaR Models</Badge>
+                    <Badge variant="outline">VaR Modeling</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -130,18 +129,17 @@ export default function Career() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <h4 className="font-semibold text-lg mb-3">Enterprise Web Application Development</h4>
+                  <h4 className="font-semibold text-lg mb-3">End-to-End Application Development</h4>
                   <p className="text-gray-600 mb-4">
-                    Built and maintained scalable web applications serving 100,000+ users. Led a team of 4 developers
-                    in delivering client projects on time and within budget.
+                    Built scalable web applications from concept to deployment, focusing on user experience
+                    and performance optimization.
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline">JavaScript</Badge>
+                    <Badge variant="outline">TypeScript</Badge>
                     <Badge variant="outline">Node.js</Badge>
-                    <Badge variant="outline">React</Badge>
+                    <Badge variant="outline">Vue.js</Badge>
                     <Badge variant="outline">MongoDB</Badge>
-                    <Badge variant="outline">Express</Badge>
-                    <Badge variant="outline">GraphQL</Badge>
+                    <Badge variant="outline">Docker</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -150,89 +148,74 @@ export default function Career() {
         </section>
 
         {/* Skills Section */}
-        <section className="py-20 bg-gray-50">
+        <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Core Competencies</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Core Expertise</h2>
               <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Technical expertise spanning finance, software engineering, and data science
+                Technical skills and domain knowledge developed through years of hands-on experience
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg text-blue-600">Software Engineering</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-1">
-                      <Badge variant="secondary" className="text-xs">Python</Badge>
-                      <Badge variant="secondary" className="text-xs">JavaScript</Badge>
-                      <Badge variant="secondary" className="text-xs">TypeScript</Badge>
-                      <Badge variant="secondary" className="text-xs">React</Badge>
-                      <Badge variant="secondary" className="text-xs">Node.js</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center p-6 bg-blue-50 rounded-xl">
+                <h3 className="text-xl font-semibold mb-3 text-blue-600">Financial Engineering</h3>
+                <p className="text-gray-600">
+                  Quantitative modeling, risk management, algorithmic trading strategies
+                </p>
+              </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg text-green-600">Financial Engineering</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-1">
-                      <Badge variant="secondary" className="text-xs">Quantitative Analysis</Badge>
-                      <Badge variant="secondary" className="text-xs">Risk Management</Badge>
-                      <Badge variant="secondary" className="text-xs">Portfolio Optimization</Badge>
-                      <Badge variant="secondary" className="text-xs">Derivatives Pricing</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="text-center p-6 bg-green-50 rounded-xl">
+                <h3 className="text-xl font-semibold mb-3 text-green-600">Software Architecture</h3>
+                <p className="text-gray-600">
+                  Full-stack development, system design, cloud infrastructure
+                </p>
+              </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg text-purple-600">Data & Infrastructure</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-1">
-                      <Badge variant="secondary" className="text-xs">PostgreSQL</Badge>
-                      <Badge variant="secondary" className="text-xs">AWS</Badge>
-                      <Badge variant="secondary" className="text-xs">Docker</Badge>
-                      <Badge variant="secondary" className="text-xs">Redis</Badge>
-                      <Badge variant="secondary" className="text-xs">Machine Learning</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="text-center p-6 bg-purple-50 rounded-xl">
+                <h3 className="text-xl font-semibold mb-3 text-purple-600">Data Science</h3>
+                <p className="text-gray-600">
+                  Machine learning, statistical analysis, predictive modeling
+                </p>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Contact Section */}
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Let's Connect</h2>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
               Interested in discussing opportunities or collaborating on innovative projects?
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                <MailIcon className="w-4 h-4 mr-2" />
-                Send Message
-              </Button>
-              <Button size="lg" variant="outline">
-                <LinkedinIcon className="w-4 h-4 mr-2" />
-                LinkedIn Profile
-              </Button>
-              <Button size="lg" variant="outline">
-                <GithubIcon className="w-4 h-4 mr-2" />
-                GitHub Portfolio
-              </Button>
+            <div className="space-y-4 max-w-md mx-auto">
+              <div className="flex items-center justify-center">
+                <MailIcon className="h-5 w-5 text-blue-600 mr-3 flex-shrink-0" />
+                <span className="text-gray-600">t.riddelsdell@gmail.com</span>
+              </div>
+              <div className="flex items-center justify-center">
+                <LinkedinIcon className="h-5 w-5 text-blue-600 mr-3 flex-shrink-0" />
+                <a
+                  href="https://www.linkedin.com/in/thomas-riddelsdell-1140bb16/"
+                  className="text-blue-600 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  linkedin.com/in/thomas-riddelsdell-1140bb16
+                </a>
+              </div>
+              <div className="flex items-center justify-center">
+                <GithubIcon className="h-5 w-5 text-blue-600 mr-3 flex-shrink-0" />
+                <a
+                  href="https://github.com/tomriddelsdell"
+                  className="text-blue-600 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  github.com/tomriddelsdell
+                </a>
+              </div>
             </div>
           </div>
         </section>
