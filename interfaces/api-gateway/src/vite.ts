@@ -41,7 +41,7 @@ export async function setupVite(app: Express, server: Server) {
         allowedHosts
       },
       appType: "spa",
-      root: path.resolve(import.meta.dirname, "..", "..", "..", "client"),
+      root: path.resolve(import.meta.dirname, "..", "..", "..", "interfaces", "web-frontend"),
       optimizeDeps: {
         include: ['react', 'react-dom']
       }
