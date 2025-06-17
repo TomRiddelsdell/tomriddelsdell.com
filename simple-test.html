@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Test</title>
+    <script>
+        window.addEventListener('error', function(e) {
+            console.error('Global Error:', e.error);
+            document.body.innerHTML += '<div style="color:red;">Error: ' + e.error.message + '</div>';
+        });
+    </script>
+</head>
+<body>
+    <div id="root">Loading React...</div>
+    <script type="module">
+        console.log('Testing React import...');
+        try {
+            const React = await import('/@fs/home/runner/workspace/node_modules/.vite/deps/react.js');
+            console.log('React loaded:', !!React);
+            document.getElementById('root').innerHTML = 'React imports successfully';
+        } catch (error) {
+            console.error('React import failed:', error);
+            document.getElementById('root').innerHTML = 'React import failed: ' + error.message;
+        }
+    </script>
+</body>
+</html>
