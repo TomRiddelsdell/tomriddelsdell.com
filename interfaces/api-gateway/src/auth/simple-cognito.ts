@@ -130,6 +130,7 @@ export class SimpleCognitoHandler {
       res.json(user);
     } catch (error) {
       // Clean up the processing code on error
+      const { code } = req.body;
       if (code) {
         this.processingCodes.delete(code);
       }
