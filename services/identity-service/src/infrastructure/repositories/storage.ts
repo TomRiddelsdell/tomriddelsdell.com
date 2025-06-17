@@ -5,7 +5,7 @@ import {
   Template, InsertTemplate, 
   ActivityLogEntry, InsertActivityLog,
   DashboardStats
-} from "@shared/schema";
+} from "../../../../../domains/shared-kernel/src/schema";
 
 export interface IStorage {
   // User operations
