@@ -59,7 +59,7 @@ export default function Projects() {
   ];
 
   return (
-    <>
+    <div className="flex min-h-screen bg-gray-50">
       <Sidebar isMobile={isMobile && mobileMenuOpen} />
       
       <main className="flex-grow">
@@ -238,6 +238,6 @@ export default function Projects() {
       </section>
         </div>
       </main>
-    </>
+    </div>
   );
 }
