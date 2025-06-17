@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+</head>
+<body>
+    <div id="test">Loading...</div>
+    <script type="module">
+        console.log('Starting debug test...');
+        
+        try {
+            // Test if main modules load
+            import('./interfaces/web-frontend/src/main.tsx')
+                .then(() => console.log('Main.tsx imported successfully'))
+                .catch(err => console.error('Main.tsx import failed:', err));
+        } catch (error) {
+            console.error('Critical error:', error);
+            document.getElementById('test').innerHTML = 'Error: ' + error.message;
+        }
+    </script>
+</body>
+</html>
