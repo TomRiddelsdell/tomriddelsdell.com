@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useLocation } from "wouter";
 import { Menu, Bell, HelpCircle, Globe, ChevronDown } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";

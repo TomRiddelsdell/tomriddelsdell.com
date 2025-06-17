@@ -1,0 +1,114 @@
+api/auth/me:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)
+api/auth/me:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)
+api/auth/me:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)
+api/auth/me:1 
+            
+            
+           Failed to load resource: the server responded with a status of 401 (Unauthorized)
+Sidebar.tsx:49 Uncaught ReferenceError: React is not defined
+    at Sidebar (Sidebar.tsx:49:42)
+    at renderWithHooks (chunk-PNGJSGSD.js?v=22c93497:11596:26)
+    at mountIndeterminateComponent (chunk-PNGJSGSD.js?v=22c93497:14974:21)
+    at beginWork (chunk-PNGJSGSD.js?v=22c93497:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-PNGJSGSD.js?v=22c93497:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-PNGJSGSD.js?v=22c93497:3705:24)
+    at invokeGuardedCallback (chunk-PNGJSGSD.js?v=22c93497:3739:39)
+    at beginWork$1 (chunk-PNGJSGSD.js?v=22c93497:19818:15)
+    at performUnitOfWork (chunk-PNGJSGSD.js?v=22c93497:19251:20)
+    at workLoopSync (chunk-PNGJSGSD.js?v=22c93497:19190:13)
+TopNavbar.tsx:30 Uncaught ReferenceError: React is not defined
+    at TopNavbar (TopNavbar.tsx:30:3)
+    at renderWithHooks (chunk-PNGJSGSD.js?v=22c93497:11596:26)
+    at mountIndeterminateComponent (chunk-PNGJSGSD.js?v=22c93497:14974:21)
+    at beginWork (chunk-PNGJSGSD.js?v=22c93497:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-PNGJSGSD.js?v=22c93497:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-PNGJSGSD.js?v=22c93497:3705:24)
+    at invokeGuardedCallback (chunk-PNGJSGSD.js?v=22c93497:3739:39)
+    at beginWork$1 (chunk-PNGJSGSD.js?v=22c93497:19818:15)
+    at performUnitOfWork (chunk-PNGJSGSD.js?v=22c93497:19251:20)
+    at workLoopSync (chunk-PNGJSGSD.js?v=22c93497:19190:13)
+Sidebar.tsx:49 Uncaught ReferenceError: React is not defined
+    at Sidebar (Sidebar.tsx:49:42)
+    at renderWithHooks (chunk-PNGJSGSD.js?v=22c93497:11596:26)
+    at mountIndeterminateComponent (chunk-PNGJSGSD.js?v=22c93497:14974:21)
+    at beginWork (chunk-PNGJSGSD.js?v=22c93497:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-PNGJSGSD.js?v=22c93497:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-PNGJSGSD.js?v=22c93497:3705:24)
+    at invokeGuardedCallback (chunk-PNGJSGSD.js?v=22c93497:3739:39)
+    at beginWork$1 (chunk-PNGJSGSD.js?v=22c93497:19818:15)
+    at performUnitOfWork (chunk-PNGJSGSD.js?v=22c93497:19251:20)
+    at workLoopSync (chunk-PNGJSGSD.js?v=22c93497:19190:13)
+TopNavbar.tsx:30 Uncaught ReferenceError: React is not defined
+    at TopNavbar (TopNavbar.tsx:30:3)
+    at renderWithHooks (chunk-PNGJSGSD.js?v=22c93497:11596:26)
+    at mountIndeterminateComponent (chunk-PNGJSGSD.js?v=22c93497:14974:21)
+    at beginWork (chunk-PNGJSGSD.js?v=22c93497:15962:22)
+    at HTMLUnknownElement.callCallback2 (chunk-PNGJSGSD.js?v=22c93497:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-PNGJSGSD.js?v=22c93497:3705:24)
+    at invokeGuardedCallback (chunk-PNGJSGSD.js?v=22c93497:3739:39)
+    at beginWork$1 (chunk-PNGJSGSD.js?v=22c93497:19818:15)
+    at performUnitOfWork (chunk-PNGJSGSD.js?v=22c93497:19251:20)
+    at workLoopSync (chunk-PNGJSGSD.js?v=22c93497:19190:13)
+hook.js:608 The above error occurred in the <Sidebar> component:
+
+    at Sidebar (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/src/components/Sidebar.tsx:23:35)
+    at div
+    at Career (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/src/pages/Career.tsx:12:47)
+    at Route (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=22c93497:338:16)
+    at Switch (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=22c93497:394:17)
+    at div
+    at Router (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=22c93497:293:17)
+    at LanguageProvider (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/src/context/LanguageContext.tsx:13:36)
+    at AuthProvider (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/src/context/AuthContext.tsx:5:32)
+    at QueryClientProvider (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=22c93497:2881:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+overrideMethod @ hook.js:608
+hook.js:608 The above error occurred in the <TopNavbar> component:
+
+    at TopNavbar (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/src/components/TopNavbar.tsx:14:37)
+    at main
+    at div
+    at Career (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/src/pages/Career.tsx:12:47)
+    at Route (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=22c93497:338:16)
+    at Switch (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=22c93497:394:17)
+    at div
+    at Router (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=22c93497:293:17)
+    at LanguageProvider (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/src/context/LanguageContext.tsx:13:36)
+    at AuthProvider (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/src/context/AuthContext.tsx:5:32)
+    at QueryClientProvider (https://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=22c93497:2881:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+overrideMethod @ hook.js:608
+chunk-PNGJSGSD.js?v=22c93497:9176 Uncaught ReferenceError: React is not defined
+    at Sidebar (Sidebar.tsx:49:42)
+    at renderWithHooks (chunk-PNGJSGSD.js?v=22c93497:11596:26)
+    at mountIndeterminateComponent (chunk-PNGJSGSD.js?v=22c93497:14974:21)
+    at beginWork (chunk-PNGJSGSD.js?v=22c93497:15962:22)
+    at beginWork$1 (chunk-PNGJSGSD.js?v=22c93497:19806:22)
+    at performUnitOfWork (chunk-PNGJSGSD.js?v=22c93497:19251:20)
+    at workLoopSync (chunk-PNGJSGSD.js?v=22c93497:19190:13)
+    at renderRootSync (chunk-PNGJSGSD.js?v=22c93497:19169:15)
+    at recoverFromConcurrentError (chunk-PNGJSGSD.js?v=22c93497:18786:28)
+    at performSyncWorkOnRoot (chunk-PNGJSGSD.js?v=22c93497:18932:28)
+client:802 WebSocket connection to 'wss://951623bd-429c-43fc-aa2e-0735d412df34-00-2ikf5gzb2ea82.kirk.replit.dev:24678/?token=KGiIQwfa21Mz' failed: 
+createConnection @ client:802
+client:841 [vite] failed to connect to websocket (Error: WebSocket closed without opened.). 
+overrideMethod @ hook.js:608
+connect @ client:841
+client:454 Uncaught (in promise) Error: WebSocket closed without opened.
+    at WebSocket.<anonymous> (client:454:22)
+(anonymous) @ client:454
