@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { initializeTemplates } from "../../../services/workflow-service/src/infrastructure/initTemplates";
+import { initializeTemplates } from "../../../infrastructure/database/initTemplates";
 import { securityHeaders, generalRateLimit, sanitizeInput } from "./security";
 import { logger } from "./logger";
 import { env } from "./config";
