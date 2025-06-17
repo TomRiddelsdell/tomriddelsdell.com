@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
 import { useLanguage } from "../context/LanguageContext";
 
-import { ConnectedApp } from "../../../domains/shared-kernel/src/schema";
+import { ConnectedApp } from "@shared/schema";
 
 export default function ConnectedApps() {
   const { t } = useLanguage();

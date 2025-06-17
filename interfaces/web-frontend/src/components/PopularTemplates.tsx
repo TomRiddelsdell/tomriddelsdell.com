@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
 import { Button } from "./ui/button";
 
-import { Template } from "../../../domains/shared-kernel/src/schema";
+import { Template } from "@shared/schema";
 import { Share, Mail, Calendar, Video, MessageSquare, Play } from "lucide-react";
 import { Link } from "wouter";
 

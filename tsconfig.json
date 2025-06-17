@@ -24,7 +24,7 @@
     "types": ["node", "vite/client"],
     "paths": {
       "@/*": ["./interfaces/web-frontend/src/*"],
-      "@shared/*": ["./shared/*"],
+      "@shared/*": ["./domains/shared-kernel/src/*"],
       "@assets/*": ["./attached_assets/*"]
     }
   }
