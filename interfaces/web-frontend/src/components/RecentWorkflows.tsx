@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Skeleton } from "./ui/skeleton";
 import { useLanguage } from "../context/LanguageContext";
-import { Workflow } from "@shared/schema";
+import { Workflow } from "../../../domains/shared-kernel/src/schema";
 
 export default function RecentWorkflows() {
   const { t } = useLanguage();
