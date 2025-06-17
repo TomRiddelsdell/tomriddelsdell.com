@@ -98,8 +98,7 @@ export async function initializeTemplates() {
     await db.insert(templates).values(defaultTemplates.map(template => ({
       name: template.name,
       description: template.description,
-      category: template.category,
-      icon: template.icon,
+      iconType: template.iconType,
       iconColor: template.iconColor as any,
       usersCount: template.usersCount,
       config: template.config
