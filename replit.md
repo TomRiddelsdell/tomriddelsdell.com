@@ -116,6 +116,10 @@ AWS_COGNITO_CLIENT_SECRET=your_client_secret
 - **Initialization**: Automatic template seeding on first run
 
 ## Changelog
+- June 17, 2025. Upgraded to Vite 6.3.5 (latest version)
+  - Migrated from Vite 5.4.15 to 6.3.5 for improved performance and stability
+  - Updated @vitejs/plugin-react to 4.5.2 for enhanced React integration
+  - Maintained full compatibility with existing DDD architecture
 - June 17, 2025. Fixed authentication UI flickering and completed DDD migration
   - Implemented callback protection to prevent duplicate authentication processing
   - Enhanced error handling to show only one consistent authentication result
