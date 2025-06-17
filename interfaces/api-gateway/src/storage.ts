@@ -5,7 +5,7 @@ import {
   Template, InsertTemplate, 
   ActivityLogEntry, InsertActivityLog,
   DashboardStats
-} from "@shared/schema";
+} from "../../../domains/shared-kernel/src/schema";
 
 export interface IStorage {
   // User operations
@@ -79,6 +79,7 @@ export class MemStorage implements IStorage {
     this.connectedApps = new Map();
     this.templates = new Map();
     this.activityLogs = new Map();
+    this.availableApps = [];
     
     this.userId = 1;
     this.workflowId = 1;
@@ -107,6 +108,65 @@ export class MemStorage implements IStorage {
     );
   }
 
+  async getUserByCognitoId(cognitoId: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(
+      (user) => user.cognitoId === cognitoId
+    );
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+
+  async getUserCount(): Promise<number> {
+    return this.users.size;
+  }
+
+  async getActiveUserCount(): Promise<number> {
+    return Array.from(this.users.values()).filter(user => user.isActive).length;
+  }
+
+  async getNewUserCount(days: number): Promise<number> {
+    const cutoffDate = new Date(Date.now() - (days * 24 * 60 * 60 * 1000));
+    return Array.from(this.users.values()).filter(user => 
+      user.createdAt && user.createdAt > cutoffDate
+    ).length;
+  }
+
+  async trackUserLogin(userId: number): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) {
+      user.lastLogin = new Date();
+      user.loginCount = (user.loginCount || 0) + 1;
+      this.users.set(userId, user);
+    }
+  }
+
+  async getTotalLoginCount(): Promise<number> {
+    return Array.from(this.users.values()).reduce((total, user) => 
+      total + (user.loginCount || 0), 0
+    );
+  }
+
+  async getLoginActivity(page: number = 1, limit: number = 20): Promise<{
+    entries: ActivityLogEntry[];
+    totalCount: number;
+  }> {
+    const loginLogs = Array.from(this.activityLogs.values())
+      .filter(log => log.action === 'login')
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    
+    const totalCount = loginLogs.length;
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginatedLogs = loginLogs.slice(start, end);
+    
+    return {
+      entries: paginatedLogs,
+      totalCount
+    };
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userId++;
     const now = new Date();
@@ -116,7 +176,10 @@ export class MemStorage implements IStorage {
       lastLogin: now,
       createdAt: now,
       updatedAt: now,
-      role: 'user'
+      role: 'user',
+      isActive: true,
+      loginCount: 0,
+      lastIP: null
     };
     this.users.set(id, user);
     return user;
