@@ -1,19 +1,11 @@
-import { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import TopNavbar from "../components/TopNavbar";
+import React from "react";
+import UnifiedNavbar from "../components/UnifiedNavbar";
+import LanguageModal from "../components/LanguageModal";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-import { useAuth } from "../context/AuthContext";
-import { useLanguage } from "../context/LanguageContext";
-import { useMobile } from "../hooks/use-mobile";
 import { FolderOpenIcon, CalendarIcon, UsersIcon, CheckCircleIcon, ClockIcon, AlertCircleIcon } from "lucide-react";
-import backgroundImage from "../assets/background.jpg";
 
 export default function Projects() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user } = useAuth();
-  const { t } = useLanguage();
-  const isMobile = useMobile();
 
   const projects = [
     {
@@ -59,14 +51,10 @@ export default function Projects() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar isMobile={isMobile && mobileMenuOpen} />
+    <div className="min-h-screen bg-gray-50">
+      <UnifiedNavbar title="Projects" />
       
       <main className="flex-grow">
-        <TopNavbar 
-          openMobileMenu={() => setMobileMenuOpen(true)} 
-          title="Projects"
-        />
         
         <div className="min-h-screen flex flex-col">
 

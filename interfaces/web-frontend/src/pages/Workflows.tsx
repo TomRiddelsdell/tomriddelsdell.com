@@ -1,15 +1,8 @@
-import { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import TopNavbar from "../components/TopNavbar";
-import { useAuth } from "../context/AuthContext";
-import { useLanguage } from "../context/LanguageContext";
-import { useMobile } from "../hooks/use-mobile";
+import React from "react";
+import UnifiedNavbar from "../components/UnifiedNavbar";
+import LanguageModal from "../components/LanguageModal";
 
 export default function Workflows() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user } = useAuth();
-  const { t } = useLanguage();
-  const isMobile = useMobile();
 
   const workflows = [
     {
