@@ -1,8 +1,4 @@
 import { BaseConfig, baseConfigSchema } from './base-config';
-import { developmentConfig } from './development-config';
-import { productionConfig } from './production-config';
-import { stagingConfig } from './staging-config';
-import { testConfig } from './test-config';
 
 /**
  * Configuration loader with environment-specific overrides
@@ -17,21 +13,93 @@ export class ConfigurationError extends Error {
 }
 
 /**
- * Get environment-specific configuration
+ * Get environment-specific configuration defaults
  */
-function getEnvironmentConfig(): Partial<BaseConfig> {
+function getEnvironmentDefaults(): Partial<BaseConfig> {
   const env = process.env.NODE_ENV || 'development';
   
   switch (env) {
     case 'production':
-      return productionConfig;
+      return {
+        environment: 'production',
+        features: {
+          debugMode: false,
+          analyticsEnabled: true,
+          emailEnabled: true,
+          maintenanceMode: false,
+          newUserRegistration: true,
+        },
+        logging: {
+          level: 'info',
+          enableConsole: true,
+          enableFile: true,
+          enableDatabase: true,
+          format: 'json',
+          maxFileSize: '50mb',
+          maxFiles: 10,
+        },
+      };
     case 'staging':
-      return stagingConfig;
+      return {
+        environment: 'staging',
+        features: {
+          debugMode: true,
+          analyticsEnabled: true,
+          emailEnabled: false,
+          maintenanceMode: false,
+          newUserRegistration: true,
+        },
+        logging: {
+          level: 'debug',
+          enableConsole: true,
+          enableFile: true,
+          enableDatabase: true,
+          format: 'json',
+          maxFileSize: '25mb',
+          maxFiles: 7,
+        },
+      };
     case 'test':
-      return testConfig;
+      return {
+        environment: 'test',
+        features: {
+          debugMode: true,
+          analyticsEnabled: false,
+          emailEnabled: false,
+          maintenanceMode: false,
+          newUserRegistration: true,
+        },
+        logging: {
+          level: 'error',
+          enableConsole: false,
+          enableFile: false,
+          enableDatabase: false,
+          format: 'simple',
+          maxFileSize: '5mb',
+          maxFiles: 2,
+        },
+      };
     case 'development':
     default:
-      return developmentConfig;
+      return {
+        environment: 'development',
+        features: {
+          debugMode: true,
+          analyticsEnabled: true,
+          emailEnabled: false,
+          maintenanceMode: false,
+          newUserRegistration: true,
+        },
+        logging: {
+          level: 'debug',
+          enableConsole: true,
+          enableFile: false,
+          enableDatabase: true,
+          format: 'simple',
+          maxFileSize: '10mb',
+          maxFiles: 5,
+        },
+      };
   }
 }
 
@@ -210,17 +278,14 @@ function removeUndefined(obj: any): any {
  * Deep merge configuration objects
  */
 function mergeConfig(base: Partial<BaseConfig>, override: Partial<BaseConfig>): Partial<BaseConfig> {
-  const result = { ...base };
+  const result: any = { ...base };
   
   for (const [key, value] of Object.entries(override)) {
     if (value !== undefined) {
-      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-        result[key as keyof BaseConfig] = mergeConfig(
-          (result[key as keyof BaseConfig] as any) || {},
-          value
-        ) as any;
+      if (typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Date)) {
+        result[key] = mergeConfig(result[key] || {}, value as Partial<BaseConfig>);
       } else {
-        result[key as keyof BaseConfig] = value as any;
+        result[key] = value;
       }
     }
   }
@@ -234,11 +299,11 @@ function mergeConfig(base: Partial<BaseConfig>, override: Partial<BaseConfig>): 
 export function loadConfiguration(): BaseConfig {
   try {
     // Load configuration layers
-    const envSpecificConfig = getEnvironmentConfig();
+    const envDefaults = getEnvironmentDefaults();
     const envVarConfig = loadFromEnvironment();
     
-    // Merge configurations (environment variables override environment-specific config)
-    const mergedConfig = mergeConfig(envSpecificConfig, envVarConfig);
+    // Merge configurations (environment variables override defaults)
+    const mergedConfig = mergeConfig(envDefaults, envVarConfig);
     
     // Validate final configuration
     const validatedConfig = baseConfigSchema.parse(mergedConfig);
@@ -307,4 +372,11 @@ export function validateRequiredEnvironment(): void {
       `Missing required environment variables: ${missing.join(', ')}`
     );
   }
+}
+
+/**
+ * Get current environment type
+ */
+export function getEnvironment(): string {
+  return process.env.NODE_ENV || 'development';
 }
