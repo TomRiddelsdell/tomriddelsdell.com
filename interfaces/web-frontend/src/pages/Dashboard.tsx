@@ -1,57 +1,225 @@
 import { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import TopNavbar from "../components/TopNavbar";
-import QuickStats from "../components/QuickStats";
-import RecentWorkflows from "../components/RecentWorkflows";
-import ConnectedApps from "../components/ConnectedApps";
-import PopularTemplates from "../components/PopularTemplates";
-import CreateWorkflowButton from "../components/CreateWorkflowButton";
-import LanguageModal from "../components/LanguageModal";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
 import { useAuth } from "../context/AuthContext";
-import { useLanguage } from "../context/LanguageContext";
-import { useMobile } from "../hooks/use-mobile";
+import { Link } from "wouter";
+import { 
+  LayoutDashboard, 
+  ChartGantt, 
+  AppWindow, 
+  Clock,
+  ArrowRight,
+  Plus,
+  Activity,
+  TrendingUp,
+  Users,
+  Calendar
+} from "lucide-react";
 
 function Dashboard() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
-  const { t } = useLanguage();
-  const isMobile = useMobile();
   
-  const userName = user?.displayName || user?.email?.split('@')[0] || '';
+  const userName = user?.displayName || user?.email?.split('@')[0] || 'User';
+
+  const stats = [
+    {
+      title: "Active Projects",
+      value: "3",
+      icon: <ChartGantt className="h-6 w-6" />,
+      change: "+2 this month",
+      trend: "up"
+    },
+    {
+      title: "Completed Tasks",
+      value: "24",
+      icon: <Activity className="h-6 w-6" />,
+      change: "+12 this week",
+      trend: "up"
+    },
+    {
+      title: "Time Saved",
+      value: "15h",
+      icon: <Clock className="h-6 w-6" />,
+      change: "+5h this week",
+      trend: "up"
+    },
+    {
+      title: "Connected Apps",
+      value: "8",
+      icon: <AppWindow className="h-6 w-6" />,
+      change: "+1 this month",
+      trend: "up"
+    }
+  ];
+
+  const recentActivity = [
+    {
+      title: "Portfolio Website Updated",
+      type: "Project",
+      time: "2 hours ago",
+      status: "completed"
+    },
+    {
+      title: "Client Meeting Scheduled",
+      type: "Event",
+      time: "4 hours ago",
+      status: "upcoming"
+    },
+    {
+      title: "Code Review Completed",
+      type: "Development",
+      time: "6 hours ago",
+      status: "completed"
+    }
+  ];
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar isMobile={isMobile && mobileMenuOpen} />
-      
-      <main className="flex-grow">
-        <TopNavbar 
-          openMobileMenu={() => setMobileMenuOpen(true)} 
-          title={t('dashboard')}
-        />
-        
-        <div className="p-6 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{t('welcome')}, {userName}!</h1>
-              <p className="mt-1 text-sm text-gray-500">{t('dashboardSubtitle')}</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Top Navigation */}
+      <nav className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <LayoutDashboard className="h-8 w-8 text-blue-600 mr-3" />
+              <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
             </div>
-            <div className="mt-4 sm:mt-0">
-              <CreateWorkflowButton />
+            <div className="flex items-center space-x-4">
+              <Link href="/career">
+                <Button variant="ghost">Career</Button>
+              </Link>
+              <Link href="/projects">
+                <Button variant="ghost">Projects</Button>
+              </Link>
+              <Link href="/">
+                <Button variant="outline">Home</Button>
+              </Link>
             </div>
           </div>
-
-          <QuickStats />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <RecentWorkflows />
-            <ConnectedApps />
-          </div>
-
-          <PopularTemplates />
         </div>
-      </main>
+      </nav>
 
-      <LanguageModal />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {userName}!</h1>
+          <p className="mt-2 text-gray-600">Here's what's happening with your projects and activities.</p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, index) => (
+            <Card key={index}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                    <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                    <p className="text-sm text-green-600 flex items-center mt-1">
+                      <TrendingUp className="h-4 w-4 mr-1" />
+                      {stat.change}
+                    </p>
+                  </div>
+                  <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                    {stat.icon}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Recent Activity */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Recent Activity</span>
+                <Button variant="ghost" size="sm">
+                  View All <ArrowRight className="h-4 w-4 ml-1" />
+                </Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                  <div className="h-2 w-2 rounded-full bg-blue-500 mt-2"></div>
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900">{activity.title}</p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <Badge variant="secondary" className="text-xs">
+                        {activity.type}
+                      </Badge>
+                      <span className="text-sm text-gray-500">{activity.time}</span>
+                    </div>
+                  </div>
+                  <Badge 
+                    variant={activity.status === 'completed' ? 'default' : 'outline'}
+                    className="text-xs"
+                  >
+                    {activity.status}
+                  </Badge>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Link href="/projects">
+                <Button className="w-full justify-start" variant="outline">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create New Project
+                </Button>
+              </Link>
+              <Link href="/career">
+                <Button className="w-full justify-start" variant="outline">
+                  <Users className="h-4 w-4 mr-2" />
+                  View Career Timeline
+                </Button>
+              </Link>
+              <Button className="w-full justify-start" variant="outline">
+                <Calendar className="h-4 w-4 mr-2" />
+                Schedule Meeting
+              </Button>
+              <Button className="w-full justify-start" variant="outline">
+                <Activity className="h-4 w-4 mr-2" />
+                View Analytics
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Professional Summary */}
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Professional Summary</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <h3 className="text-lg font-semibold text-blue-600 mb-2">Current Role</h3>
+                <p className="text-gray-700">Executive Director at Goldman Sachs</p>
+                <p className="text-sm text-gray-500 mt-1">Systematic Trading Strategies</p>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <h3 className="text-lg font-semibold text-green-600 mb-2">Experience</h3>
+                <p className="text-gray-700">10+ Years</p>
+                <p className="text-sm text-gray-500 mt-1">Financial Technology & Quantitative Finance</p>
+              </div>
+              <div className="text-center p-4 bg-purple-50 rounded-lg">
+                <h3 className="text-lg font-semibold text-purple-600 mb-2">Expertise</h3>
+                <p className="text-gray-700">Risk Management & Trading Systems</p>
+                <p className="text-sm text-gray-500 mt-1">Python, Slang, C++, Financial Modeling</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
