@@ -58,13 +58,11 @@ export default function MainNavigation({
                 Projects
               </span>
             </Link>
-            {isAuthenticated && (
-              <Link href="/dashboard">
-                <span className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link cursor-pointer">
-                  Dashboard
-                </span>
-              </Link>
-            )}
+            <Link href="/dashboard">
+              <span className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link cursor-pointer">
+                Dashboard
+              </span>
+            </Link>
             <button
               onClick={handleContactClick}
               className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
