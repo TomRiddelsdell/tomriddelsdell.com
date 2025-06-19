@@ -59,13 +59,8 @@ export default function Projects() {
         <div className="min-h-screen flex flex-col">
 
       {/* Hero Section */}
-      <section 
-        className="relative py-20 bg-cover bg-center"
-        style={{
-          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(${backgroundImage})`,
-        }}
-      >
-        <div className="max-w-6xl mx-auto px-6 md:px-12 text-center text-white">
+      <section className="relative py-20 bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="max-w-6xl mx-auto px-6 md:px-12 text-center text-gray-900">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             Project Portfolio
           </h1>

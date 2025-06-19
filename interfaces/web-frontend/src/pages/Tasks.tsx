@@ -43,14 +43,10 @@ export default function Tasks() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar isMobile={isMobile && mobileMenuOpen} />
+    <div className="min-h-screen bg-gray-50">
+      <UnifiedNavbar title="Tasks" />
       
       <main className="flex-grow">
-        <TopNavbar 
-          openMobileMenu={() => setMobileMenuOpen(true)} 
-          title="Tasks"
-        />
         
         <div className="min-h-screen bg-gray-50 p-8">
           <div className="max-w-7xl mx-auto">
