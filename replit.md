@@ -116,6 +116,13 @@ AWS_COGNITO_CLIENT_SECRET=your_client_secret
 - **Initialization**: Automatic template seeding on first run
 
 ## Changelog
+- June 19, 2025. Enhanced career page with authentic professional content
+  - Replaced placeholder content with actual Goldman Sachs Executive Director experience
+  - Added comprehensive work history: Goldman Sachs (2015-Present), Barclays Capital (2012-2015), Sophis/Misys (2009-2012)
+  - Integrated King's College London MSci education with First Class Honours and Springer-Verlag Award
+  - Updated technical skills section with accurate programming language proficiencies (Slang 8/10, Python 6/10, etc.)
+  - Enhanced contact information with authentic details and professional positioning
+  - Improved language throughout for elegance and precision
 - June 19, 2025. Enforced strict DDD architectural boundaries
   - Removed root-level dist/ directory that violated domain separation
   - Build artifacts now properly contained within interface boundaries
