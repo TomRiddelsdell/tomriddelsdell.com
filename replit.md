@@ -116,6 +116,15 @@ AWS_COGNITO_CLIENT_SECRET=your_client_secret
 - **Initialization**: Automatic template seeding on first run
 
 ## Changelog
+- June 19, 2025. CRITICAL: Security hardening and centralized configuration implementation
+  - Implemented comprehensive centralized configuration system with type-safe validation
+  - Created base configuration schema with Zod validation for all security settings
+  - Developed environment-specific configuration loading with secure defaults
+  - Comprehensive environment template (.env.example) with security documentation
+  - Identified and documented critical security vulnerabilities requiring immediate attention
+  - Created Phase 0 security roadmap prioritizing configuration externalization
+  - Updated Plan.txt to include 1-2 week security hardening timeline before feature work
+  - Addressed hardcoded secrets, insecure CORS, and missing environment validation
 - June 19, 2025. Complete project cleanup and component simplification
   - Fixed React import issue in Dashboard page that was causing loading failures
   - Removed all unused components and pages to streamline the codebase
