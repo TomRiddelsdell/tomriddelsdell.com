@@ -3,7 +3,6 @@ import { Button } from "./ui/button";
 import { redirectToCognito } from "../lib/simple-auth";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "wouter";
-import NavigationLinks from "./NavigationLinks";
 
 interface MainNavigationProps {
   onMobileMenuToggle?: () => void;
@@ -49,7 +48,23 @@ export default function MainNavigation({
             Tom Riddelsdell
           </div>
           <nav className="hidden md:flex space-x-8 items-center">
-            <NavigationLinks isAuthenticated={isAuthenticated} />
+            <Link href="/career">
+              <span className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link cursor-pointer">
+                Career
+              </span>
+            </Link>
+            <Link href="/projects">
+              <span className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link cursor-pointer">
+                Projects
+              </span>
+            </Link>
+            {isAuthenticated && (
+              <Link href="/dashboard">
+                <span className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link cursor-pointer">
+                  Dashboard
+                </span>
+              </Link>
+            )}
             <button
               onClick={handleContactClick}
               className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 nav-link"
