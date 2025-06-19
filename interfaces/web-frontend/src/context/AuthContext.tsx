@@ -31,7 +31,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: userData.id,
           email: userData.email,
           displayName: userData.displayName || userData.email,
-          photoURL: null
+          photoURL: null,
+          role: userData.role
         });
         return userData;
       } else {
