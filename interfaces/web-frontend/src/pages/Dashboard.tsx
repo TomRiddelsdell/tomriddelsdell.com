@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { Link } from "wouter";
 import { SystemHealthCard } from "../components/monitoring/SystemHealthCard";
 import { PerformanceMetricsCard } from "../components/monitoring/PerformanceMetricsCard";
+import { UserManagementTable } from "../components/UserManagementTable";
 import { 
   LayoutDashboard, 
   ChartGantt, 
