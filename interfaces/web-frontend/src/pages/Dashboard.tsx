@@ -252,31 +252,7 @@ function Dashboard() {
           </Card>
         )}
 
-        {/* Professional Summary */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Professional Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <h3 className="text-lg font-semibold text-blue-600 mb-2">Current Role</h3>
-                <p className="text-gray-700">Executive Director at Goldman Sachs</p>
-                <p className="text-sm text-gray-500 mt-1">Systematic Trading Strategies</p>
-              </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <h3 className="text-lg font-semibold text-green-600 mb-2">Experience</h3>
-                <p className="text-gray-700">10+ Years</p>
-                <p className="text-sm text-gray-500 mt-1">Financial Technology & Quantitative Finance</p>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <h3 className="text-lg font-semibold text-purple-600 mb-2">Expertise</h3>
-                <p className="text-gray-700">Risk Management & Trading Systems</p>
-                <p className="text-sm text-gray-500 mt-1">Python, Slang, C++, Financial Modeling</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+
       </div>
     </div>
   );
