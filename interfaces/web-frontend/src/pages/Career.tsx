@@ -1,33 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { MailIcon, LinkedinIcon, GithubIcon, ExternalLinkIcon } from "lucide-react";
+import Sidebar from "../components/Sidebar";
+import TopNavbar from "../components/TopNavbar";
+import LanguageModal from "../components/LanguageModal";
+import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
+import { useMobile } from "../hooks/use-mobile";
 
 export default function Career() {
-  return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation Header */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900">Tom Riddelsdell</h1>
-            </div>
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-4">
-                <a href="/" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Home</a>
-                <a href="/career" className="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Career</a>
-                <a href="/projects" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Projects</a>
-                <a href="/contact" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Contact</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const isMobile = useMobile();
 
-      <main>
-        {/* Hero Section */}
+  return (
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar isMobile={isMobile && mobileMenuOpen} />
+      
+      <main className="flex-grow">
+        <TopNavbar 
+          openMobileMenu={() => setMobileMenuOpen(true)} 
+          title="Career"
+        />
+        
+        <div className="bg-white min-h-screen">
+          {/* Hero Section */}
         <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
@@ -414,16 +414,10 @@ export default function Career() {
             </div>
           </div>
         </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400">
-            © 2025 Tom Riddelsdell. Executive Director at Goldman Sachs • Systematic Trading Strategies
-          </p>
         </div>
-      </footer>
+      </main>
+      
+      <LanguageModal />
     </div>
   );
 }
