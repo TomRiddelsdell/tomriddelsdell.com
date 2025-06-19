@@ -4,14 +4,11 @@ import { Button } from "../components/ui/button";
 import { redirectToCognito } from "../lib/simple-auth";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
-import { useMobile } from "../hooks/use-mobile";
 import { Link } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import { apiRequest } from "../lib/queryClient";
-import Sidebar from "../components/Sidebar";
-import TopNavbar from "../components/TopNavbar";
-import LanguageModal from "../components/LanguageModal";
+import NavigationWrapper from "../components/NavigationWrapper";
 import ImpliedVolDisplay from "../components/ImpliedVolDisplay";
 
 // Use public assets path for immediate loading
@@ -23,9 +20,7 @@ export default function Home() {
   const { t } = useLanguage();
   const isAuthenticated = !!authUser;
   const { toast } = useToast();
-  const isMobile = useMobile();
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const callbackProcessedRef = React.useRef(false);
 
@@ -148,7 +143,7 @@ export default function Home() {
         } catch (error) {
           console.error("Auth callback error:", error);
           // Only show error if it's not a network/duplicate request issue
-          if (!error?.message?.includes("fetch")) {
+          if (!(error as any)?.message?.includes("fetch")) {
             toast({
               title: "Authentication error",
               description: "Network error during authentication. Please try again.",
@@ -187,17 +182,9 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar isMobile={isMobile && mobileMenuOpen} />
-      
-      <main className="flex-grow">
-        <TopNavbar 
-          openMobileMenu={() => setMobileMenuOpen(true)} 
-          title="Home"
-        />
-        
-        <div className="bg-white min-h-screen overflow-hidden">
-          {/* Hero Section */}
+    <NavigationWrapper title="Home">
+      <div className="bg-white min-h-screen overflow-hidden">
+        {/* Hero Section */}
           <section className="py-12 sm:py-16 md:py-20 text-center hero-section full-width-section section-fade-in">
             <div
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -398,9 +385,6 @@ export default function Home() {
             </div>
           </section>
         </div>
-      </main>
-      
-      <LanguageModal />
-    </div>
+    </NavigationWrapper>
   );
 }
