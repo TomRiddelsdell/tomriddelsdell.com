@@ -41,87 +41,125 @@ function getEnvironmentConfig(): Partial<BaseConfig> {
 function loadFromEnvironment(): Partial<BaseConfig> {
   const env = process.env;
   
-  // Extract configuration from environment variables
-  const envConfig: Partial<BaseConfig> = {
-    environment: (env.NODE_ENV as any) || 'development',
-    
-    security: {
-      cors: {
-        allowedOrigins: env.CORS_ALLOWED_ORIGINS?.split(',') || [],
-      },
-      session: {
-        secret: env.SESSION_SECRET!,
-        secure: env.NODE_ENV === 'production',
-        maxAge: env.SESSION_MAX_AGE ? parseInt(env.SESSION_MAX_AGE) : undefined,
-      },
-      rateLimit: {
-        windowMs: env.RATE_LIMIT_WINDOW_MS ? parseInt(env.RATE_LIMIT_WINDOW_MS) : undefined,
-        maxRequests: env.RATE_LIMIT_MAX_REQUESTS ? parseInt(env.RATE_LIMIT_MAX_REQUESTS) : undefined,
-      },
-    },
-    
-    cognito: {
-      clientId: env.VITE_AWS_COGNITO_CLIENT_ID!,
-      clientSecret: env.AWS_COGNITO_CLIENT_SECRET,
-      userPoolId: env.VITE_AWS_COGNITO_USER_POOL_ID!,
-      region: env.VITE_AWS_COGNITO_REGION!,
-      hostedUIDomain: env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN!,
-      accessKeyId: env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: env.AWS_SECRET_ACCESS_KEY!,
-    },
-    
-    database: {
-      url: env.DATABASE_URL!,
-      pool: {
-        min: env.DB_POOL_MIN ? parseInt(env.DB_POOL_MIN) : undefined,
-        max: env.DB_POOL_MAX ? parseInt(env.DB_POOL_MAX) : undefined,
-      },
-      ssl: {
-        enabled: env.DB_SSL_ENABLED === 'true',
-        rejectUnauthorized: env.DB_SSL_REJECT_UNAUTHORIZED !== 'false',
-      },
-    },
-    
-    email: {
-      provider: (env.EMAIL_PROVIDER as any) || 'none',
-      sendgrid: env.SENDGRID_API_KEY ? {
-        apiKey: env.SENDGRID_API_KEY,
-        fromEmail: env.SENDGRID_FROM_EMAIL,
-        fromName: env.SENDGRID_FROM_NAME,
-      } : undefined,
-    },
-    
-    services: {
-      apiGateway: {
-        port: env.PORT ? parseInt(env.PORT) : undefined,
-        host: env.HOST,
-        timeout: env.API_TIMEOUT ? parseInt(env.API_TIMEOUT) : undefined,
-      },
-      external: {
-        baseUrl: env.BASE_URL || getBaseUrl(),
-        callbackUrl: env.CALLBACK_URL || `${getBaseUrl()}/auth/callback`,
-        logoutUrl: env.LOGOUT_URL || getBaseUrl(),
-      },
-    },
-    
-    features: {
-      emailEnabled: env.FEATURE_EMAIL_ENABLED === 'true',
-      analyticsEnabled: env.FEATURE_ANALYTICS_ENABLED !== 'false',
-      debugMode: env.DEBUG_MODE === 'true',
-      maintenanceMode: env.MAINTENANCE_MODE === 'true',
-      newUserRegistration: env.FEATURE_NEW_USER_REGISTRATION !== 'false',
-    },
-    
-    logging: {
-      level: (env.LOG_LEVEL as any) || 'info',
-      enableConsole: env.LOG_ENABLE_CONSOLE !== 'false',
-      enableFile: env.LOG_ENABLE_FILE === 'true',
-      enableDatabase: env.LOG_ENABLE_DATABASE !== 'false',
-      format: (env.LOG_FORMAT as any) || 'json',
-    },
+  // Build base configuration object
+  const envConfig: any = {
+    environment: env.NODE_ENV || 'development',
   };
+
+  // Security configuration
+  if (env.CORS_ALLOWED_ORIGINS || env.SESSION_SECRET || env.RATE_LIMIT_WINDOW_MS || env.RATE_LIMIT_MAX_REQUESTS) {
+    envConfig.security = {};
+    
+    if (env.CORS_ALLOWED_ORIGINS) {
+      envConfig.security.cors = {
+        allowedOrigins: env.CORS_ALLOWED_ORIGINS.split(','),
+      };
+    }
+    
+    if (env.SESSION_SECRET) {
+      envConfig.security.session = {
+        secret: env.SESSION_SECRET,
+        secure: env.SESSION_SECURE === 'true',
+        maxAge: env.SESSION_MAX_AGE ? parseInt(env.SESSION_MAX_AGE) : undefined,
+      };
+    }
+    
+    if (env.RATE_LIMIT_WINDOW_MS || env.RATE_LIMIT_MAX_REQUESTS) {
+      envConfig.security.rateLimit = {};
+      if (env.RATE_LIMIT_WINDOW_MS) envConfig.security.rateLimit.windowMs = parseInt(env.RATE_LIMIT_WINDOW_MS);
+      if (env.RATE_LIMIT_MAX_REQUESTS) envConfig.security.rateLimit.maxRequests = parseInt(env.RATE_LIMIT_MAX_REQUESTS);
+    }
+  }
   
-  // Remove undefined values to allow defaults to apply
+  // Cognito configuration
+  if (env.VITE_AWS_COGNITO_CLIENT_ID || env.AWS_ACCESS_KEY_ID) {
+    envConfig.cognito = {};
+    if (env.VITE_AWS_COGNITO_CLIENT_ID) envConfig.cognito.clientId = env.VITE_AWS_COGNITO_CLIENT_ID;
+    if (env.AWS_COGNITO_CLIENT_SECRET) envConfig.cognito.clientSecret = env.AWS_COGNITO_CLIENT_SECRET;
+    if (env.VITE_AWS_COGNITO_USER_POOL_ID) envConfig.cognito.userPoolId = env.VITE_AWS_COGNITO_USER_POOL_ID;
+    if (env.VITE_AWS_COGNITO_REGION) envConfig.cognito.region = env.VITE_AWS_COGNITO_REGION;
+    if (env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN) envConfig.cognito.hostedUIDomain = env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN;
+    if (env.AWS_ACCESS_KEY_ID) envConfig.cognito.accessKeyId = env.AWS_ACCESS_KEY_ID;
+    if (env.AWS_SECRET_ACCESS_KEY) envConfig.cognito.secretAccessKey = env.AWS_SECRET_ACCESS_KEY;
+  }
+  
+  // Database configuration
+  if (env.DATABASE_URL) {
+    envConfig.database = {
+      url: env.DATABASE_URL,
+    };
+    
+    if (env.DB_POOL_MIN || env.DB_POOL_MAX) {
+      envConfig.database.pool = {};
+      if (env.DB_POOL_MIN) envConfig.database.pool.min = parseInt(env.DB_POOL_MIN);
+      if (env.DB_POOL_MAX) envConfig.database.pool.max = parseInt(env.DB_POOL_MAX);
+    }
+    
+    if (env.DB_SSL_ENABLED !== undefined || env.DB_SSL_REJECT_UNAUTHORIZED !== undefined) {
+      envConfig.database.ssl = {};
+      if (env.DB_SSL_ENABLED !== undefined) envConfig.database.ssl.enabled = env.DB_SSL_ENABLED === 'true';
+      if (env.DB_SSL_REJECT_UNAUTHORIZED !== undefined) envConfig.database.ssl.rejectUnauthorized = env.DB_SSL_REJECT_UNAUTHORIZED !== 'false';
+    }
+  }
+  
+  // Email configuration
+  if (env.EMAIL_PROVIDER || env.SENDGRID_API_KEY) {
+    envConfig.email = {};
+    if (env.EMAIL_PROVIDER) envConfig.email.provider = env.EMAIL_PROVIDER;
+    
+    if (env.SENDGRID_API_KEY) {
+      envConfig.email.sendgrid = {
+        apiKey: env.SENDGRID_API_KEY,
+        fromEmail: env.SENDGRID_FROM_EMAIL || 'noreply@flowcreate.app',
+        fromName: env.SENDGRID_FROM_NAME || 'FlowCreate',
+      };
+    }
+  }
+  
+  // Services configuration
+  if (env.PORT || env.HOST || env.BASE_URL || env.CALLBACK_URL || env.LOGOUT_URL) {
+    envConfig.services = {};
+    
+    if (env.PORT || env.HOST || env.API_TIMEOUT) {
+      envConfig.services.apiGateway = {};
+      if (env.PORT) envConfig.services.apiGateway.port = parseInt(env.PORT);
+      if (env.HOST) envConfig.services.apiGateway.host = env.HOST;
+      if (env.API_TIMEOUT) envConfig.services.apiGateway.timeout = parseInt(env.API_TIMEOUT);
+    }
+    
+    if (env.BASE_URL || env.CALLBACK_URL || env.LOGOUT_URL) {
+      const baseUrl = env.BASE_URL || getBaseUrl();
+      envConfig.services.external = {
+        baseUrl,
+        callbackUrl: env.CALLBACK_URL || `${baseUrl}/auth/callback`,
+        logoutUrl: env.LOGOUT_URL || baseUrl,
+      };
+    }
+  }
+  
+  // Feature flags
+  if (env.FEATURE_EMAIL_ENABLED !== undefined || env.FEATURE_ANALYTICS_ENABLED !== undefined || 
+      env.DEBUG_MODE !== undefined || env.MAINTENANCE_MODE !== undefined || 
+      env.FEATURE_NEW_USER_REGISTRATION !== undefined) {
+    envConfig.features = {};
+    if (env.FEATURE_EMAIL_ENABLED !== undefined) envConfig.features.emailEnabled = env.FEATURE_EMAIL_ENABLED === 'true';
+    if (env.FEATURE_ANALYTICS_ENABLED !== undefined) envConfig.features.analyticsEnabled = env.FEATURE_ANALYTICS_ENABLED !== 'false';
+    if (env.DEBUG_MODE !== undefined) envConfig.features.debugMode = env.DEBUG_MODE === 'true';
+    if (env.MAINTENANCE_MODE !== undefined) envConfig.features.maintenanceMode = env.MAINTENANCE_MODE === 'true';
+    if (env.FEATURE_NEW_USER_REGISTRATION !== undefined) envConfig.features.newUserRegistration = env.FEATURE_NEW_USER_REGISTRATION !== 'false';
+  }
+  
+  // Logging configuration
+  if (env.LOG_LEVEL || env.LOG_ENABLE_CONSOLE !== undefined || env.LOG_ENABLE_FILE !== undefined || 
+      env.LOG_ENABLE_DATABASE !== undefined || env.LOG_FORMAT) {
+    envConfig.logging = {};
+    if (env.LOG_LEVEL) envConfig.logging.level = env.LOG_LEVEL;
+    if (env.LOG_ENABLE_CONSOLE !== undefined) envConfig.logging.enableConsole = env.LOG_ENABLE_CONSOLE !== 'false';
+    if (env.LOG_ENABLE_FILE !== undefined) envConfig.logging.enableFile = env.LOG_ENABLE_FILE === 'true';
+    if (env.LOG_ENABLE_DATABASE !== undefined) envConfig.logging.enableDatabase = env.LOG_ENABLE_DATABASE !== 'false';
+    if (env.LOG_FORMAT) envConfig.logging.format = env.LOG_FORMAT;
+  }
+  
   return removeUndefined(envConfig);
 }
 
