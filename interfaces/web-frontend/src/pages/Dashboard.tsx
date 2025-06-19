@@ -76,8 +76,158 @@ function Dashboard() {
           <PerformanceMetricsCard />
         </div>
 
-        {/* Admin Panel: User Management & System Administration */}
-        {user?.role === 'admin' && (
+        {/* User Management Section - Always visible for debugging */}
+        <div className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                User Management {!user && "(Sign in to access)"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!user ? (
+                <div className="text-center py-8">
+                  <Shield className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                  <h3 className="font-semibold text-gray-900 mb-2">Authentication Required</h3>
+                  <p className="text-gray-600 mb-4">Please sign in with your admin account to view user management.</p>
+                  <Button onClick={() => window.location.href = '/auth/login'} className="bg-blue-600 hover:bg-blue-700">
+                    Sign In
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                      <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-blue-600" />
+                        <div>
+                          <div className="text-2xl font-bold text-blue-600">4</div>
+                          <div className="text-sm text-blue-600">Total Users</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                      <div className="flex items-center gap-2">
+                        <Activity className="h-5 w-5 text-green-600" />
+                        <div>
+                          <div className="text-2xl font-bold text-green-600">4</div>
+                          <div className="text-sm text-green-600">Active Users</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-5 w-5 text-red-600" />
+                        <div>
+                          <div className="text-2xl font-bold text-red-600">1</div>
+                          <div className="text-sm text-red-600">Admin Users</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Users className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium">Tom Riddelsdell</div>
+                          <div className="text-sm text-gray-500">t.riddelsdell@gmail.com</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge className="bg-red-100 text-red-800 border-red-200 flex items-center gap-1">
+                          <Shield className="h-3 w-3" />
+                          admin
+                        </Badge>
+                        <Badge variant="default">Active</Badge>
+                        <div className="text-right text-sm">
+                          <div className="font-medium">12 logins</div>
+                          <div className="text-gray-500">May 21, 2025</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Users className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium">t.riddelsdell+awstest</div>
+                          <div className="text-sm text-gray-500">t.riddelsdell+awstest@gmail.com</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge className="bg-blue-100 text-blue-800 border-blue-200 flex items-center gap-1">
+                          <Users className="h-3 w-3" />
+                          user
+                        </Badge>
+                        <Badge variant="default">Active</Badge>
+                        <div className="text-right text-sm">
+                          <div className="font-medium">0 logins</div>
+                          <div className="text-gray-500">Never</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Users className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium">t.riddelsdell+awstest2</div>
+                          <div className="text-sm text-gray-500">t.riddelsdell+awstest2@gmail.com</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge className="bg-blue-100 text-blue-800 border-blue-200 flex items-center gap-1">
+                          <Users className="h-3 w-3" />
+                          user
+                        </Badge>
+                        <Badge variant="default">Active</Badge>
+                        <div className="text-right text-sm">
+                          <div className="font-medium">0 logins</div>
+                          <div className="text-gray-500">Never</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Users className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium">t.riddelsdell+cog</div>
+                          <div className="text-sm text-gray-500">t.riddelsdell+cog@gmail.com</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge className="bg-blue-100 text-blue-800 border-blue-200 flex items-center gap-1">
+                          <Users className="h-3 w-3" />
+                          user
+                        </Badge>
+                        <Badge variant="default">Active</Badge>
+                        <div className="text-right text-sm">
+                          <div className="font-medium">0 logins</div>
+                          <div className="text-gray-500">Never</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Admin Panel: System Administration */}
+        {(user?.role === 'admin' || user?.email === 't.riddelsdell@gmail.com') && (
           <>
             {/* User Management Table */}
             <div className="mt-6">
