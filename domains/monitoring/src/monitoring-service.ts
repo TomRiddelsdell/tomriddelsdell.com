@@ -143,8 +143,8 @@ export class MonitoringService {
       // Validate session configuration
       statuses.push({
         component: 'Session',
-        isValid: !!appConfig.session.secret,
-        errors: appConfig.session.secret ? [] : ['Session secret not configured'],
+        isValid: !!appConfig.security.session.secret,
+        errors: appConfig.security.session.secret ? [] : ['Session secret not configured'],
         warnings: [],
         lastChecked: new Date()
       });
