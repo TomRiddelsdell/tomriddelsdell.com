@@ -9,14 +9,12 @@ import { Link } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import { apiRequest } from "../lib/queryClient";
-import Sidebar from "../components/Sidebar";
-import TopNavbar from "../components/TopNavbar";
+import UnifiedNavbar from "../components/UnifiedNavbar";
 import LanguageModal from "../components/LanguageModal";
 // Use public assets path for immediate loading
 const profilePicUrl = "/me.jpg";
 const backgroundImageUrl = "/background.jpg";
 import ImpliedVolDisplay from "../components/ImpliedVolDisplay";
-import NavigationLinks from "../components/NavigationLinks";
 
 export default function Home() {
   const { user: authUser, signOut } = useAuth();
