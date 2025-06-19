@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { Link } from "wouter";
 import { SystemHealthCard } from "../components/monitoring/SystemHealthCard";
 import { PerformanceMetricsCard } from "../components/monitoring/PerformanceMetricsCard";
-// import { UserManagementTable } from "../components/UserManagementTable";
+import { SimpleUserTable } from "../components/SimpleUserTable";
 import { 
   LayoutDashboard, 
   ChartGantt, 
@@ -79,19 +79,9 @@ function Dashboard() {
         {/* Admin Panel: User Management & System Administration */}
         {user?.role === 'admin' && (
           <>
-            {/* User Management Table - Temporarily disabled while fixing imports */}
+            {/* User Management Table */}
             <div className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    User Management
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">User management interface coming soon...</p>
-                </CardContent>
-              </Card>
+              <SimpleUserTable />
             </div>
 
             {/* System Administration Panel */}
