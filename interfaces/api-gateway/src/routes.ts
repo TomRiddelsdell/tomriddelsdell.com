@@ -330,17 +330,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
-      const allUsers = await db.select({
-        id: users.id,
-        email: users.email,
-        displayName: users.displayName,
-        role: users.role,
-        provider: users.provider,
-        isActive: users.isActive,
-        loginCount: users.loginCount,
-        lastLogin: users.lastLogin,
-        createdAt: users.createdAt
-      }).from(users).orderBy(users.createdAt);
+      const allUsers = await db.select().from(users).orderBy(users.createdAt);
 
       res.json(allUsers);
     } catch (error) {

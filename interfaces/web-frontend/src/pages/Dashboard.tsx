@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { Link } from "wouter";
 import { SystemHealthCard } from "../components/monitoring/SystemHealthCard";
 import { PerformanceMetricsCard } from "../components/monitoring/PerformanceMetricsCard";
-import { UserManagementTable } from "../components/UserManagementTable";
+// import { UserManagementTable } from "../components/UserManagementTable";
 import { 
   LayoutDashboard, 
   ChartGantt, 
@@ -76,47 +76,65 @@ function Dashboard() {
           <PerformanceMetricsCard />
         </div>
 
-        {/* Configuration & Security Status */}
+        {/* Admin Panel: User Management & System Administration */}
         {user?.role === 'admin' && (
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                System Administration
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button variant="outline" className="justify-start h-auto p-4">
-                  <div className="flex items-center gap-3 w-full">
-                    <Database className="h-5 w-5 text-blue-500" />
-                    <div className="text-left">
-                      <div className="font-medium">Database Health</div>
-                      <div className="text-sm text-gray-500">Monitor connections & performance</div>
+          <>
+            {/* User Management Table - Temporarily disabled while fixing imports */}
+            <div className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    User Management
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">User management interface coming soon...</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* System Administration Panel */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  System Administration
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Button variant="outline" className="justify-start h-auto p-4">
+                    <div className="flex items-center gap-3 w-full">
+                      <Database className="h-5 w-5 text-blue-500" />
+                      <div className="text-left">
+                        <div className="font-medium">Database Health</div>
+                        <div className="text-sm text-gray-500">Monitor connections & performance</div>
+                      </div>
                     </div>
-                  </div>
-                </Button>
-                <Button variant="outline" className="justify-start h-auto p-4">
-                  <div className="flex items-center gap-3 w-full">
-                    <Server className="h-5 w-5 text-green-500" />
-                    <div className="text-left">
-                      <div className="font-medium">Service Status</div>
-                      <div className="text-sm text-gray-500">Check all service health</div>
+                  </Button>
+                  <Button variant="outline" className="justify-start h-auto p-4">
+                    <div className="flex items-center gap-3 w-full">
+                      <Server className="h-5 w-5 text-green-500" />
+                      <div className="text-left">
+                        <div className="font-medium">Service Status</div>
+                        <div className="text-sm text-gray-500">Check all service health</div>
+                      </div>
                     </div>
-                  </div>
-                </Button>
-                <Button variant="outline" className="justify-start h-auto p-4">
-                  <div className="flex items-center gap-3 w-full">
-                    <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                    <div className="text-left">
-                      <div className="font-medium">Configuration</div>
-                      <div className="text-sm text-gray-500">Validate system settings</div>
+                  </Button>
+                  <Button variant="outline" className="justify-start h-auto p-4">
+                    <div className="flex items-center gap-3 w-full">
+                      <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                      <div className="text-left">
+                        <div className="font-medium">Configuration</div>
+                        <div className="text-sm text-gray-500">Validate system settings</div>
+                      </div>
                     </div>
-                  </div>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </>
         )}
 
 
