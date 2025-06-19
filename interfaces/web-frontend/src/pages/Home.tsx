@@ -1,11 +1,17 @@
 import * as React from "react";
+import { useState } from "react";
 import { Button } from "../components/ui/button";
 import { redirectToCognito } from "../lib/simple-auth";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
+import { useMobile } from "../hooks/use-mobile";
 import { Link } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import { apiRequest } from "../lib/queryClient";
+import Sidebar from "../components/Sidebar";
+import TopNavbar from "../components/TopNavbar";
+import LanguageModal from "../components/LanguageModal";
 // Use public assets path for immediate loading
 const profilePicUrl = "/me.jpg";
 const backgroundImageUrl = "/background.jpg";
@@ -14,9 +20,12 @@ import NavigationLinks from "../components/NavigationLinks";
 
 export default function Home() {
   const { user: authUser, signOut } = useAuth();
+  const { t } = useLanguage();
   const isAuthenticated = !!authUser;
   const { toast } = useToast();
+  const isMobile = useMobile();
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showMobileMenu, setShowMobileMenu] = React.useState(false);
   const callbackProcessedRef = React.useRef(false);
