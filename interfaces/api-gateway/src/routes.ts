@@ -303,8 +303,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/analytics', analyticsRouter);
   
   // Register monitoring routes for Phase 1 enhanced dashboard
-  const monitoringRouter = await import('./routes/monitoring');
-  app.use('/api/monitoring', monitoringRouter.default);
+  try {
+    const monitoringRouter = await import('./routes/monitoring');
+    app.use('/api/monitoring', monitoringRouter.default);
+    console.log('Monitoring routes registered successfully');
+  } catch (error) {
+    console.error('Failed to register monitoring routes:', error);
+  }
   
   // Register admin routes for user management
   await registerAdminRoutes(app);

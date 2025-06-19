@@ -10,6 +10,34 @@ const router = Router();
 const monitoringService = new MonitoringService();
 
 /**
+ * Get basic health check (public)
+ * GET /api/monitoring/health-check
+ */
+router.get('/health-check', async (req, res) => {
+  try {
+    const monitoringService = new MonitoringService();
+    const healthService = monitoringService.getHealthService();
+    const services = await healthService.checkAllServices();
+    const metrics = await healthService.getSystemMetrics();
+    
+    res.json({ 
+      status: 'ok',
+      services: services.map(s => ({ service: s.service, status: s.status, responseTime: s.responseTime })),
+      metrics: {
+        cpu: metrics.cpu,
+        memory: { percentage: metrics.memory.percentage }
+      }
+    });
+  } catch (error) {
+    console.error('Error in health check:', error);
+    res.status(500).json({ 
+      status: 'error',
+      error: 'Health check failed'
+    });
+  }
+});
+
+/**
  * Get system status overview
  * GET /api/monitoring/status
  */
