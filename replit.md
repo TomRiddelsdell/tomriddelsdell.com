@@ -116,6 +116,12 @@ AWS_COGNITO_CLIENT_SECRET=your_client_secret
 - **Initialization**: Automatic template seeding on first run
 
 ## Changelog
+- June 19, 2025. Enforced strict DDD architectural boundaries
+  - Removed root-level dist/ directory that violated domain separation
+  - Build artifacts now properly contained within interface boundaries
+  - Career page updated with authentic professional information
+  - Fixed React import issues preventing proper page rendering
+  - Maintained clean separation between domains, interfaces, and infrastructure
 - June 17, 2025. Completed comprehensive DDD architecture cleanup
   - Removed all legacy directories (services/, shared/, client/) 
   - Consolidated all imports to proper DDD structure using @shared/* paths
