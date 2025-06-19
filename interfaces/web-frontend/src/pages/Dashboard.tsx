@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { useAuth } from "../context/AuthContext";
+import { redirectToCognito } from "../lib/simple-auth";
 import { Link } from "wouter";
 import { SystemHealthCard } from "../components/monitoring/SystemHealthCard";
 import { PerformanceMetricsCard } from "../components/monitoring/PerformanceMetricsCard";
@@ -91,7 +92,13 @@ function Dashboard() {
                   <Shield className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                   <h3 className="font-semibold text-gray-900 mb-2">Authentication Required</h3>
                   <p className="text-gray-600 mb-4">Please sign in with your admin account to view user management.</p>
-                  <Button onClick={() => window.location.href = '/auth/login'} className="bg-blue-600 hover:bg-blue-700">
+                  <Button onClick={() => {
+                    const clientId = '483n96q9sudb248kp2sgto7i47';
+                    const domain = 'eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com';
+                    const redirectUri = encodeURIComponent(window.location.origin + '/auth/callback');
+                    const authUrl = `https://${domain}/login?client_id=${clientId}&response_type=code&scope=email+openid+phone&redirect_uri=${redirectUri}`;
+                    window.location.href = authUrl;
+                  }} className="bg-blue-600 hover:bg-blue-700">
                     Sign In
                   </Button>
                 </div>
