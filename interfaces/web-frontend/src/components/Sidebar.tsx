@@ -18,7 +18,6 @@ import {
   Menu,
   Briefcase,
   FolderOpen,
-  CheckSquare,
   Activity
 } from "lucide-react";
 
@@ -48,15 +47,14 @@ export default function Sidebar({ isMobile = false }: SidebarProps) {
       items: [
         { name: "Home", path: "/", icon: <LayoutDashboard className="mr-3 text-lg" /> },
         { name: "Career", path: "/career", icon: <Briefcase className="mr-3 text-lg" /> },
-        { name: "Projects", path: "/projects", icon: <FolderOpen className="mr-3 text-lg" /> },
-        { name: "Tasks", path: "/tasks", icon: <CheckSquare className="mr-3 text-lg" /> }
+        { name: "Projects", path: "/projects", icon: <FolderOpen className="mr-3 text-lg" /> }
       ]
     },
     { 
       title: "Main Menu", 
       items: [
         { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard className="mr-3 text-lg" /> },
-        { name: "My Workflows", path: "/workflows", icon: <ChartGantt className="mr-3 text-lg" /> },
+
         { name: "App Connections", path: "/app-connections", icon: <AppWindow className="mr-3 text-lg" /> },
         { name: "Templates", path: "/templates", icon: <FileSymlink className="mr-3 text-lg" /> },
         { name: "Activity Log", path: "/activity-log", icon: <History className="mr-3 text-lg" /> },

@@ -29,20 +29,6 @@ export default function NavigationLinks({ isAuthenticated, className = "", onCli
       >
         Projects
       </Link>
-      <Link
-        href="/tasks"
-        className={linkClasses}
-        onClick={onClick}
-      >
-        Tasks
-      </Link>
-      <Link
-        href="/workflows"
-        className={linkClasses}
-        onClick={onClick}
-      >
-        Workflows
-      </Link>
     </>
   );
 }
