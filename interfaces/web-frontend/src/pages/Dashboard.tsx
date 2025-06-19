@@ -4,6 +4,8 @@ import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { useAuth } from "../context/AuthContext";
 import { Link } from "wouter";
+import { SystemHealthCard } from "../components/monitoring/SystemHealthCard";
+import { PerformanceMetricsCard } from "../components/monitoring/PerformanceMetricsCard";
 import { 
   LayoutDashboard, 
   ChartGantt, 
@@ -14,7 +16,11 @@ import {
   Activity,
   TrendingUp,
   Users,
-  Calendar
+  Calendar,
+  Shield,
+  Database,
+  Server,
+  AlertTriangle
 } from "lucide-react";
 
 function Dashboard() {
@@ -193,6 +199,58 @@ function Dashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Phase 1: Enhanced Monitoring Dashboard */}
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* System Health Monitoring */}
+          <SystemHealthCard />
+          
+          {/* Performance Metrics */}
+          <PerformanceMetricsCard />
+        </div>
+
+        {/* Configuration & Security Status */}
+        {user?.role === 'admin' && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                System Administration
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Button variant="outline" className="justify-start h-auto p-4">
+                  <div className="flex items-center gap-3 w-full">
+                    <Database className="h-5 w-5 text-blue-500" />
+                    <div className="text-left">
+                      <div className="font-medium">Database Health</div>
+                      <div className="text-sm text-gray-500">Monitor connections & performance</div>
+                    </div>
+                  </div>
+                </Button>
+                <Button variant="outline" className="justify-start h-auto p-4">
+                  <div className="flex items-center gap-3 w-full">
+                    <Server className="h-5 w-5 text-green-500" />
+                    <div className="text-left">
+                      <div className="font-medium">Service Status</div>
+                      <div className="text-sm text-gray-500">Check all service health</div>
+                    </div>
+                  </div>
+                </Button>
+                <Button variant="outline" className="justify-start h-auto p-4">
+                  <div className="flex items-center gap-3 w-full">
+                    <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                    <div className="text-left">
+                      <div className="font-medium">Configuration</div>
+                      <div className="text-sm text-gray-500">Validate system settings</div>
+                    </div>
+                  </div>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Professional Summary */}
         <Card className="mt-8">
