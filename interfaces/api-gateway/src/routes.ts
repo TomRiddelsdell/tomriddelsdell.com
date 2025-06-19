@@ -315,43 +315,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register admin routes for user management
   await registerAdminRoutes(app);
   
-  // Enhanced admin endpoints with security improvements
-  const { requireAdmin, validateSessionIntegrity } = await import('../../../infrastructure/security/rbac/role-based-auth');
-  const { auditMiddleware } = await import('../../../infrastructure/security/audit/audit-logger');
-
-  // User management endpoint with enhanced security
-  app.get('/api/admin/users', 
-    validateSessionIntegrity,
-    ...requireAdmin,
-    auditMiddleware('view_users', 'users'),
-    async (req: any, res) => {
-      try {
-        console.log(`Admin ${req.user.email} requesting user list`);
-        
-        const allUsers = await db.select().from(users).orderBy(users.createdAt);
-        
-        // Filter sensitive data before sending
-        const sanitizedUsers = allUsers.map(user => ({
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          displayName: user.displayName,
-          role: user.role,
-          isActive: user.isActive,
-          loginCount: user.loginCount,
-          lastLogin: user.lastLogin,
-          createdAt: user.createdAt,
-          provider: user.provider
-          // Note: cognitoId and other sensitive fields excluded
-        }));
-
-        res.json(sanitizedUsers);
-      } catch (error) {
-        console.error('Error in admin users endpoint:', error);
-        res.status(500).json({ error: 'Failed to fetch users' });
+  // Enhanced user management endpoint with improved security
+  app.get('/api/admin/users', async (req, res) => {
+    try {
+      const sessionUserId = req.session?.userId;
+      
+      if (!sessionUserId) {
+        return res.status(401).json({ error: 'Authentication required' });
       }
+
+      // Always verify admin role from database (prevents session tampering)
+      const currentUser = await db.select().from(users).where(eq(users.id, sessionUserId)).limit(1);
+      
+      if (!currentUser[0]) {
+        // Clear potentially invalid session
+        req.session.destroy(() => {});
+        return res.status(401).json({ error: 'User not found' });
+      }
+      
+      if (!currentUser[0].isActive) {
+        return res.status(403).json({ error: 'Account deactivated' });
+      }
+      
+      if (currentUser[0].role !== 'admin') {
+        // Log unauthorized access attempt
+        console.warn(`Unauthorized admin access attempt: User ${currentUser[0].email} (role: ${currentUser[0].role}) from IP: ${req.ip}`);
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      // Log successful admin action
+      console.log(`Admin access granted: ${currentUser[0].email} viewing user list from IP: ${req.ip}`);
+      
+      const allUsers = await db.select().from(users).orderBy(users.createdAt);
+      
+      // Filter sensitive data before sending
+      const sanitizedUsers = allUsers.map(user => ({
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        displayName: user.displayName,
+        role: user.role,
+        isActive: user.isActive,
+        loginCount: user.loginCount,
+        lastLogin: user.lastLogin,
+        createdAt: user.createdAt,
+        provider: user.provider
+        // Note: cognitoId, password, and other sensitive fields excluded
+      }));
+
+      res.json(sanitizedUsers);
+    } catch (error) {
+      console.error('Error in admin users endpoint:', error);
+      res.status(500).json({ error: 'Failed to fetch users' });
     }
-  );
+  });
   
   const httpServer = createServer(app);
 
