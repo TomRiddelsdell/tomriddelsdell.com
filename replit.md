@@ -116,6 +116,12 @@ AWS_COGNITO_CLIENT_SECRET=your_client_secret
 - **Initialization**: Automatic template seeding on first run
 
 ## Changelog
+- June 19, 2025. Navigation refactoring and page structure cleanup
+  - Extracted navigation bar into reusable MainNavigation component for better code organization
+  - Removed Tasks and Workflows pages and all references from navigation and routing
+  - Streamlined application to focus on core portfolio sections: Home, Career, Projects, Dashboard
+  - Maintained all original Home page content while improving component reusability
+  - Updated sidebar and navigation components to reflect simplified page structure
 - June 19, 2025. Enhanced career page with authentic professional content
   - Replaced placeholder content with actual Goldman Sachs Executive Director experience
   - Added comprehensive work history: Goldman Sachs (2015-Present), Barclays Capital (2012-2015), Sophis/Misys (2009-2012)
@@ -146,7 +152,7 @@ AWS_COGNITO_CLIENT_SECRET=your_client_secret
   - Migrated client directory to interfaces/web-frontend following DDD patterns
   - Updated Tailwind and components.json configurations for new structure
 - June 14, 2025. Restored page structure from commit f32ae3d with DDD architecture integration
-  - Implemented separate page components (Dashboard, Career, Projects, Tasks, Workflows)
+  - Implemented separate page components (Dashboard, Career, Projects)
   - Restored sidebar-based navigation with TopNavbar and Sidebar components
   - Updated routing to support individual page navigation
   - Maintained DDD architecture while incorporating f32ae3d page structure
