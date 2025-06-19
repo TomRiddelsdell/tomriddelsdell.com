@@ -6,6 +6,7 @@ export interface AuthUser {
   email: string;
   displayName: string | null;
   photoURL: string | null;
+  role?: string;
 }
 
 // Check if user is logged in
