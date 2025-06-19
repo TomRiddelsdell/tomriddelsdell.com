@@ -1,4 +1,12 @@
 # FlowCreate Platform Development Plan
+
+## Rules For Replit
+1. Explain what you’ll do first and ask for my confirmation before coding.
+2. Only make requested changes.
+3. Do not write duplicate code without confirmation - please look for existing solutions in the codebase and if found ask whether we should reuse, centralize or duplicate.
+4. Always run relevant tests before commiting a change in Source Control.
+5. Always follow DDD and TDD best practices
+
 ## Project Management Roadmap & Constraints
 
 ### Overview
