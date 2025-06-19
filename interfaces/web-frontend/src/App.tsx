@@ -11,8 +11,7 @@ import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import Career from "./pages/Career";
 import Projects from "./pages/Projects";
-import Tasks from "./pages/Tasks";
-import Workflows from "./pages/Workflows";
+
 
 function App() {
   return (
@@ -27,8 +26,7 @@ function App() {
               <Route path="/dashboard" component={Dashboard} />
               <Route path="/career" component={Career} />
               <Route path="/projects" component={Projects} />
-              <Route path="/tasks" component={Tasks} />
-              <Route path="/workflows" component={Workflows} />
+
               <Route path="/monitoring" component={MonitoringDashboard} />
               <Route>
                 <div className="p-8">
