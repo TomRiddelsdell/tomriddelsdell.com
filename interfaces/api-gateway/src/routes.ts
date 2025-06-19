@@ -315,52 +315,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register admin routes for user management
   await registerAdminRoutes(app);
   
-  // User management endpoint for admin dashboard
-  app.get('/api/admin/users', async (req, res) => {
-    try {
-      // Enhanced session debugging
-      console.log('=== Admin Users Request Debug ===');
-      console.log('Session ID:', req.sessionID);
-      console.log('Session exists:', !!req.session);
-      console.log('Session userId:', req.session?.userId);
-      console.log('Session user object:', req.session?.user);
-      
-      const sessionUserId = req.session?.userId;
-      
-      if (!sessionUserId) {
-        console.log('No session user ID found');
-        return res.status(401).json({ error: 'Authentication required' });
-      }
+  // Enhanced admin endpoints with security improvements
+  const { requireAdmin, validateSessionIntegrity } = await import('../../../infrastructure/security/rbac/role-based-auth');
+  const { auditMiddleware } = await import('../../../infrastructure/security/audit/audit-logger');
 
-      // Get current user and check admin role
-      const currentUser = await db.select().from(users).where(eq(users.id, sessionUserId)).limit(1);
-      console.log('Current user from DB:', {
-        found: !!currentUser[0],
-        id: currentUser[0]?.id,
-        role: currentUser[0]?.role,
-        email: currentUser[0]?.email
-      });
-      
-      if (!currentUser[0]) {
-        console.log('User not found in database');
-        return res.status(403).json({ error: 'User not found' });
-      }
-      
-      if (currentUser[0].role !== 'admin') {
-        console.log('Access denied - User role:', currentUser[0].role);
-        return res.status(403).json({ error: 'Admin access required' });
-      }
+  // User management endpoint with enhanced security
+  app.get('/api/admin/users', 
+    validateSessionIntegrity,
+    ...requireAdmin,
+    auditMiddleware('view_users', 'users'),
+    async (req: any, res) => {
+      try {
+        console.log(`Admin ${req.user.email} requesting user list`);
+        
+        const allUsers = await db.select().from(users).orderBy(users.createdAt);
+        
+        // Filter sensitive data before sending
+        const sanitizedUsers = allUsers.map(user => ({
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          displayName: user.displayName,
+          role: user.role,
+          isActive: user.isActive,
+          loginCount: user.loginCount,
+          lastLogin: user.lastLogin,
+          createdAt: user.createdAt,
+          provider: user.provider
+          // Note: cognitoId and other sensitive fields excluded
+        }));
 
-      console.log('Admin access granted, fetching all users');
-      const allUsers = await db.select().from(users).orderBy(users.createdAt);
-      console.log('Found users:', allUsers.length);
-
-      res.json(allUsers);
-    } catch (error) {
-      console.error('Error in admin users endpoint:', error);
-      res.status(500).json({ error: 'Failed to fetch users' });
+        res.json(sanitizedUsers);
+      } catch (error) {
+        console.error('Error in admin users endpoint:', error);
+        res.status(500).json({ error: 'Failed to fetch users' });
+      }
     }
-  });
+  );
   
   const httpServer = createServer(app);
 
