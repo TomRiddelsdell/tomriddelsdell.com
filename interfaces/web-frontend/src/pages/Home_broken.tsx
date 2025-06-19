@@ -9,14 +9,12 @@ import { Link } from "wouter";
 import { GithubIcon, LinkedinIcon, MailIcon } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import { apiRequest } from "../lib/queryClient";
-import Sidebar from "../components/Sidebar";
-import TopNavbar from "../components/TopNavbar";
+import UnifiedNavbar from "../components/UnifiedNavbar";
 import LanguageModal from "../components/LanguageModal";
 // Use public assets path for immediate loading
 const profilePicUrl = "/me.jpg";
 const backgroundImageUrl = "/background.jpg";
 import ImpliedVolDisplay from "../components/ImpliedVolDisplay";
-import NavigationLinks from "../components/NavigationLinks";
 
 export default function Home() {
   const { user: authUser, signOut } = useAuth();
@@ -194,66 +192,62 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar isMobile={isMobile && mobileMenuOpen} />
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 overflow-hidden page-container">
+      <UnifiedNavbar />
       
-      <main className="flex-grow">
-        <TopNavbar 
-          openMobileMenu={() => setMobileMenuOpen(true)} 
-          title="Home"
-        />
-        
-        <div className="bg-white min-h-screen overflow-hidden">
-
-      {/* Mobile Menu */}
-      {showMobileMenu && (
-        <div className="md:hidden fixed inset-0 z-40 bg-white dark:bg-gray-900 flex flex-col overflow-y-auto mobile-menu">
-          <div className="flex justify-between items-center p-4 border-b">
-            <div className="text-xl font-bold gradient-text">
-              Tom Riddelsdell
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="relative bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900 py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+                Tom Riddelsdell
+              </h1>
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+                Executive Director at Goldman Sachs • Systematic Trading Strategies
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/career">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                    View Career
+                  </Button>
+                </Link>
+                <Link href="/dashboard">
+                  <Button size="lg" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white">
+                    Dashboard
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowMobileMenu(false)}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-6 w-6"
-              >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </Button>
           </div>
-          <nav className="flex flex-col p-4 space-y-4">
-            <NavigationLinks
-              isAuthenticated={isAuthenticated}
-              className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => setShowMobileMenu(false)}
-            />
-            <a
-              href="#contact"
-              className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={() => setShowMobileMenu(false)}
-            >
-              Contact
-            </a>
-            {isAuthenticated ? (
-              <>
-                <div className="flex items-center py-2 px-4">
-                  <div className="flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-sm mr-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                    <span>Logged In</span>
-                  </div>
+        </section>
+
+        {/* Contact Section */}
+        <section id="contact" className="py-20 bg-gray-50 dark:bg-gray-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">Get In Touch</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
+              Available for strategic consulting and quantitative finance projects.
+            </p>
+            <div className="flex justify-center space-x-6">
+              <a href="mailto:t.riddelsdell@gmail.com" className="text-blue-600 hover:text-blue-700">
+                <MailIcon className="h-8 w-8" />
+              </a>
+              <a href="https://www.linkedin.com/in/thomas-riddelsdell-1140bb16/" className="text-blue-600 hover:text-blue-700">
+                <LinkedinIcon className="h-8 w-8" />
+              </a>
+              <a href="https://github.com/tomriddelsdell" className="text-blue-600 hover:text-blue-700">
+                <GithubIcon className="h-8 w-8" />
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <LanguageModal />
+    </div>
+  );
+}
                 </div>
                 <Link
                   href="/dashboard"
