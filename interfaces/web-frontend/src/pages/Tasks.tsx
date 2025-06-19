@@ -1,19 +1,11 @@
-import { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import TopNavbar from "../components/TopNavbar";
+import React from "react";
+import UnifiedNavbar from "../components/UnifiedNavbar";
+import LanguageModal from "../components/LanguageModal";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
-import { useAuth } from "../context/AuthContext";
-import { useLanguage } from "../context/LanguageContext";
-import { useMobile } from "../hooks/use-mobile";
 import { CheckCircleIcon, ClockIcon, AlertTriangleIcon, PlusIcon, CalendarIcon } from "lucide-react";
-import backgroundImage from "../assets/background.jpg";
 
 export default function Tasks() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user } = useAuth();
-  const { t } = useLanguage();
-  const isMobile = useMobile();
 
   const tasks = [
     {
