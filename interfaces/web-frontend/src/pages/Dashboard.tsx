@@ -28,57 +28,7 @@ function Dashboard() {
   
   const userName = user?.displayName || user?.email?.split('@')[0] || 'User';
 
-  const stats = [
-    {
-      title: "Active Projects",
-      value: "3",
-      icon: <ChartGantt className="h-6 w-6" />,
-      change: "+2 this month",
-      trend: "up"
-    },
-    {
-      title: "Completed Tasks",
-      value: "24",
-      icon: <Activity className="h-6 w-6" />,
-      change: "+12 this week",
-      trend: "up"
-    },
-    {
-      title: "Time Saved",
-      value: "15h",
-      icon: <Clock className="h-6 w-6" />,
-      change: "+5h this week",
-      trend: "up"
-    },
-    {
-      title: "Connected Apps",
-      value: "8",
-      icon: <AppWindow className="h-6 w-6" />,
-      change: "+1 this month",
-      trend: "up"
-    }
-  ];
 
-  const recentActivity = [
-    {
-      title: "Portfolio Website Updated",
-      type: "Project",
-      time: "2 hours ago",
-      status: "completed"
-    },
-    {
-      title: "Client Meeting Scheduled",
-      type: "Event",
-      time: "4 hours ago",
-      status: "upcoming"
-    },
-    {
-      title: "Code Review Completed",
-      type: "Development",
-      time: "6 hours ago",
-      status: "completed"
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -112,93 +62,9 @@ function Dashboard() {
           <p className="mt-2 text-gray-600">Here's what's happening with your projects and activities.</p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                    <p className="text-sm text-green-600 flex items-center mt-1">
-                      <TrendingUp className="h-4 w-4 mr-1" />
-                      {stat.change}
-                    </p>
-                  </div>
-                  <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
-                    {stat.icon}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Recent Activity</span>
-                <Button variant="ghost" size="sm">
-                  View All <ArrowRight className="h-4 w-4 ml-1" />
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50">
-                  <div className="h-2 w-2 rounded-full bg-blue-500 mt-2"></div>
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{activity.title}</p>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <Badge variant="secondary" className="text-xs">
-                        {activity.type}
-                      </Badge>
-                      <span className="text-sm text-gray-500">{activity.time}</span>
-                    </div>
-                  </div>
-                  <Badge 
-                    variant={activity.status === 'completed' ? 'default' : 'outline'}
-                    className="text-xs"
-                  >
-                    {activity.status}
-                  </Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
 
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Link href="/projects">
-                <Button className="w-full justify-start" variant="outline">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create New Project
-                </Button>
-              </Link>
-              <Link href="/career">
-                <Button className="w-full justify-start" variant="outline">
-                  <Users className="h-4 w-4 mr-2" />
-                  View Career Timeline
-                </Button>
-              </Link>
-              <Button className="w-full justify-start" variant="outline">
-                <Calendar className="h-4 w-4 mr-2" />
-                Schedule Meeting
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <Activity className="h-4 w-4 mr-2" />
-                View Analytics
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+
 
         {/* Phase 1: Enhanced Monitoring Dashboard */}
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
