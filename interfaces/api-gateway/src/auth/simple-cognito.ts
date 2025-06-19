@@ -111,7 +111,8 @@ export class SimpleCognitoHandler {
           id: dbUser.id,
           email: dbUser.email,
           displayName: dbUser.displayName,
-          cognitoId: dbUser.cognitoId
+          cognitoId: dbUser.cognitoId,
+          role: dbUser.role
         };
         
         console.log('Session after storing user:');
