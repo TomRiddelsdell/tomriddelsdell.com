@@ -1,32 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { MailIcon, LinkedinIcon, GithubIcon, ExternalLinkIcon } from "lucide-react";
-import Sidebar from "../components/Sidebar";
-import TopNavbar from "../components/TopNavbar";
+import UnifiedNavbar from "../components/UnifiedNavbar";
 import LanguageModal from "../components/LanguageModal";
-import { useAuth } from "../context/AuthContext";
-import { useLanguage } from "../context/LanguageContext";
-import { useMobile } from "../hooks/use-mobile";
 
 export default function Career() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user } = useAuth();
-  const { t } = useLanguage();
-  const isMobile = useMobile();
-
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar isMobile={isMobile && mobileMenuOpen} />
+    <div className="min-h-screen bg-white">
+      <UnifiedNavbar title="Career" />
       
-      <main className="flex-grow">
-        <TopNavbar 
-          openMobileMenu={() => setMobileMenuOpen(true)} 
-          title="Career"
-        />
-        
-        <div className="bg-white min-h-screen">
+      <main className="bg-white min-h-screen">
           {/* Hero Section */}
         <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -414,8 +399,7 @@ export default function Career() {
             </div>
           </div>
         </section>
-        </div>
-      </main>
+        </main>
       
       <LanguageModal />
     </div>
