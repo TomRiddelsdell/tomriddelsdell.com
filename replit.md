@@ -116,6 +116,12 @@ AWS_COGNITO_CLIENT_SECRET=your_client_secret
 - **Initialization**: Automatic template seeding on first run
 
 ## Changelog
+- June 19, 2025. Implemented consistent navigation across all web-frontend pages
+  - Updated Career and Home pages to use standardized TopNavbar and Sidebar components
+  - Removed custom navigation implementations that created inconsistent user experience
+  - All pages (Dashboard, Career, Projects, Tasks, Workflows, Home) now share identical navigation structure
+  - Mobile navigation properly handled through unified Sidebar component with responsive design
+  - Maintained page-specific content while ensuring consistent header, sidebar, and mobile menu behavior
 - June 19, 2025. Enhanced career page with authentic professional content
   - Replaced placeholder content with actual Goldman Sachs Executive Director experience
   - Added comprehensive work history: Goldman Sachs (2015-Present), Barclays Capital (2012-2015), Sophis/Misys (2009-2012)
