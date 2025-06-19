@@ -30,6 +30,8 @@ export function SimpleUserTable() {
   const { data: users, isLoading, error, refetch } = useQuery<UserData[]>({
     queryKey: ['/api/admin/users'],
     refetchInterval: 30000,
+    retry: 1,
+    retryDelay: 1000,
   });
 
   const formatDate = (dateString: string | null) => {
@@ -80,6 +82,9 @@ export function SimpleUserTable() {
   }
 
   if (error) {
+    // Check if it's an authentication error
+    const isAuthError = error?.message?.includes('403') || error?.message?.includes('401');
+    
     return (
       <Card>
         <CardHeader>
@@ -89,13 +94,27 @@ export function SimpleUserTable() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center py-8 text-red-600">
-            <AlertCircle className="h-6 w-6 mr-2" />
-            <span>Failed to load users. Please try again.</span>
-            <Button variant="outline" size="sm" onClick={() => refetch()} className="ml-4">
-              <RefreshCw className="h-4 w-4 mr-1" />
-              Retry
-            </Button>
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <AlertCircle className="h-12 w-12 mb-4 text-yellow-500" />
+            {isAuthError ? (
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Admin Access Required</h3>
+                <p className="text-gray-600 mb-4">Please sign in with an admin account to view user management.</p>
+                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                  <RefreshCw className="h-4 w-4 mr-1" />
+                  Refresh Page
+                </Button>
+              </div>
+            ) : (
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Failed to Load Users</h3>
+                <p className="text-gray-600 mb-4">There was an error loading the user data.</p>
+                <Button variant="outline" size="sm" onClick={() => refetch()}>
+                  <RefreshCw className="h-4 w-4 mr-1" />
+                  Try Again
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
