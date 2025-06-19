@@ -52,7 +52,7 @@ export class SimpleCognitoHandler {
       // Mark code as being processed
       this.processingCodes.add(code);
 
-      console.log('Authorization code received:', code.substring(0, 20) + '...');
+      console.log('Authorization code received: [REDACTED]');
 
       // Exchange code for tokens
       console.log('Exchanging code for tokens...');
@@ -115,7 +115,7 @@ export class SimpleCognitoHandler {
         };
         
         console.log('Session after storing user:');
-        console.log('- Session ID:', req.sessionID);
+        console.log('- Session ID: [REDACTED]');
         console.log('- Database User ID:', (req.session as any).userId);
         console.log('- User data:', JSON.stringify((req.session as any).user, null, 2));
       }
@@ -160,7 +160,7 @@ export class SimpleCognitoHandler {
 
   // Get current user from session
   getCurrentUser(req: Request, res: Response) {
-    console.log('Checking authentication - Session ID:', req.sessionID);
+    console.log('Checking authentication - Session ID: [REDACTED]');
     console.log('Session data:', JSON.stringify(req.session, null, 2));
     
     const user = (req.session as any).user;
