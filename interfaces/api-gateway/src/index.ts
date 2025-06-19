@@ -5,6 +5,7 @@ import { initializeTemplates } from "../../../infrastructure/database/initTempla
 import { securityHeaders, generalRateLimit, sanitizeInput } from "./security";
 import { logger } from "./logger";
 import { env } from "./config";
+import { getConfig } from "../../../infrastructure/configuration/config-loader";
 
 const app = express();
 
@@ -18,12 +19,24 @@ if (process.env.NODE_ENV === 'production') {
 }
 app.use(sanitizeInput);
 
-// CORS configuration
+// Secure CORS configuration using centralized config
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
+  const config = getConfig();
+  const corsConfig = config.security.cors;
+  
+  // Determine allowed origin
+  const origin = req.headers.origin;
+  if (origin && corsConfig.allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else if (corsConfig.allowedOrigins.length === 0) {
+    // Development mode - allow current domain
+    const currentDomain = process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'http://localhost:5000';
+    res.header('Access-Control-Allow-Origin', currentDomain);
+  }
+  
+  res.header('Access-Control-Allow-Methods', corsConfig.allowedMethods.join(', '));
+  res.header('Access-Control-Allow-Headers', corsConfig.allowedHeaders.join(', '));
+  res.header('Access-Control-Allow-Credentials', corsConfig.allowCredentials.toString());
   
   if (req.method === 'OPTIONS') {
     res.sendStatus(200);

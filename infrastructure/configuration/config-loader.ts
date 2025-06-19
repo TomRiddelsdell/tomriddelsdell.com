@@ -83,6 +83,86 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
     default:
       return {
         environment: 'development',
+        security: {
+          cors: {
+            allowedOrigins: [
+              'http://localhost:3000',
+              'http://localhost:5000',
+              'http://127.0.0.1:3000',
+              'http://127.0.0.1:5000',
+            ],
+            allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+            allowCredentials: true,
+          },
+          session: {
+            secret: process.env.SESSION_SECRET || 'dev_session_secret_change_in_production',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            secure: false,
+            httpOnly: true,
+            sameSite: 'lax',
+          },
+          rateLimit: {
+            windowMs: 1 * 60 * 1000,
+            maxRequests: 1000,
+            skipSuccessfulRequests: false,
+            skipFailedRequests: false,
+          },
+          csp: {
+            directives: {
+              'default-src': ["'self'"],
+              'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://replit.com'],
+              'style-src': ["'self'", "'unsafe-inline'"],
+              'img-src': ["'self'", 'data:', 'https:'],
+              'connect-src': ["'self'"],
+              'font-src': ["'self'"],
+              'object-src': ["'none'"],
+              'media-src': ["'self'"],
+              'frame-src': ["'none'"],
+            },
+          },
+        },
+        database: {
+          url: process.env.DATABASE_URL || 'postgresql://localhost/flowcreate_dev',
+          pool: {
+            min: 2,
+            max: 10,
+            idleTimeoutMillis: 30000,
+            connectionTimeoutMillis: 2000,
+          },
+          ssl: {
+            enabled: false,
+            rejectUnauthorized: false,
+          },
+        },
+        services: {
+          apiGateway: {
+            port: 5000,
+            host: '0.0.0.0',
+            timeout: 30000,
+          },
+          external: {
+            baseUrl: process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'http://localhost:5000',
+            callbackUrl: (process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'http://localhost:5000') + '/auth/callback',
+            logoutUrl: process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'http://localhost:5000',
+          },
+        },
+        cognito: {
+          clientId: process.env.VITE_AWS_COGNITO_CLIENT_ID || '',
+          clientSecret: process.env.AWS_COGNITO_CLIENT_SECRET,
+          userPoolId: process.env.VITE_AWS_COGNITO_USER_POOL_ID || '',
+          region: process.env.VITE_AWS_COGNITO_REGION || '',
+          hostedUIDomain: process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || '',
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+        },
+        email: {
+          provider: 'none',
+          sendgrid: {
+            fromEmail: 'noreply@flowcreate.app',
+            fromName: 'FlowCreate',
+          },
+        },
         features: {
           debugMode: true,
           analyticsEnabled: true,
