@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, json, decimal, bigint, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -160,8 +160,144 @@ export type Template = typeof templates.$inferSelect;
 export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
 export type ActivityLogEntry = typeof activityLogs.$inferSelect;
 
-// Mock data types (for referencing in UI components)
+// Monitoring and system health tables
+export const systemMetrics = pgTable("system_metrics", {
+  id: serial("id").primaryKey(),
+  timestamp: timestamp("timestamp", { withTimezone: true }).notNull().defaultNow(),
+  cpuUsage: decimal("cpu_usage", { precision: 5, scale: 2 }).notNull(),
+  cpuCores: integer("cpu_cores").notNull(),
+  memoryUsed: bigint("memory_used", { mode: "number" }).notNull(),
+  memoryTotal: bigint("memory_total", { mode: "number" }).notNull(),
+  memoryPercentage: decimal("memory_percentage", { precision: 5, scale: 2 }).notNull(),
+  databaseConnections: integer("database_connections").notNull(),
+  databaseMaxConnections: integer("database_max_connections").notNull(),
+  databaseQueryTime: decimal("database_query_time", { precision: 8, scale: 3 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const serviceHealth = pgTable("service_health", {
+  id: serial("id").primaryKey(),
+  service: varchar("service", { length: 100 }).notNull(),
+  status: varchar("status", { length: 20 }).notNull(), // healthy, degraded, unhealthy
+  timestamp: timestamp("timestamp", { withTimezone: true }).notNull().defaultNow(),
+  responseTime: integer("response_time"), // in milliseconds
+  error: text("error"),
+  metadata: json("metadata"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const performanceMetrics = pgTable("performance_metrics", {
+  id: serial("id").primaryKey(),
+  timestamp: timestamp("timestamp", { withTimezone: true }).notNull().defaultNow(),
+  endpoint: varchar("endpoint", { length: 255 }).notNull(),
+  method: varchar("method", { length: 10 }).notNull(),
+  responseTime: integer("response_time").notNull(), // in milliseconds
+  statusCode: integer("status_code").notNull(),
+  userId: integer("user_id").references(() => users.id),
+  correlationId: varchar("correlation_id", { length: 100 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const auditLogs = pgTable("audit_logs", {
+  id: serial("id").primaryKey(),
+  timestamp: timestamp("timestamp", { withTimezone: true }).notNull().defaultNow(),
+  userId: integer("user_id").references(() => users.id),
+  action: varchar("action", { length: 100 }).notNull(),
+  resource: varchar("resource", { length: 100 }).notNull(),
+  resourceId: varchar("resource_id", { length: 100 }),
+  details: json("details"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  duration: integer("duration"), // in milliseconds
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const configurationStatus = pgTable("configuration_status", {
+  id: serial("id").primaryKey(),
+  component: varchar("component", { length: 100 }).notNull(),
+  isValid: boolean("is_valid").notNull(),
+  errors: json("errors").notNull(),
+  warnings: json("warnings").notNull(),
+  lastChecked: timestamp("last_checked", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Create insert schemas for monitoring tables
+export const insertSystemMetricsSchema = createInsertSchema(systemMetrics).pick({
+  timestamp: true,
+  cpuUsage: true,
+  cpuCores: true,
+  memoryUsed: true,
+  memoryTotal: true,
+  memoryPercentage: true,
+  databaseConnections: true,
+  databaseMaxConnections: true,
+  databaseQueryTime: true,
+});
+
+export const insertServiceHealthSchema = createInsertSchema(serviceHealth).pick({
+  service: true,
+  status: true,
+  timestamp: true,
+  responseTime: true,
+  error: true,
+  metadata: true,
+});
+
+export const insertPerformanceMetricsSchema = createInsertSchema(performanceMetrics).pick({
+  timestamp: true,
+  endpoint: true,
+  method: true,
+  responseTime: true,
+  statusCode: true,
+  userId: true,
+  correlationId: true,
+});
+
+export const insertAuditLogsSchema = createInsertSchema(auditLogs).pick({
+  timestamp: true,
+  userId: true,
+  action: true,
+  resource: true,
+  resourceId: true,
+  details: true,
+  ipAddress: true,
+  userAgent: true,
+  duration: true,
+});
+
+export const insertConfigurationStatusSchema = createInsertSchema(configurationStatus).pick({
+  component: true,
+  isValid: true,
+  errors: true,
+  warnings: true,
+  lastChecked: true,
+});
+
+// Type exports for monitoring
+export type InsertSystemMetrics = z.infer<typeof insertSystemMetricsSchema>;
+export type SystemMetrics = typeof systemMetrics.$inferSelect;
+
+export type InsertServiceHealth = z.infer<typeof insertServiceHealthSchema>;
+export type ServiceHealth = typeof serviceHealth.$inferSelect;
+
+export type InsertPerformanceMetrics = z.infer<typeof insertPerformanceMetricsSchema>;
+export type PerformanceMetrics = typeof performanceMetrics.$inferSelect;
+
+export type InsertAuditLogs = z.infer<typeof insertAuditLogsSchema>;
+export type AuditLogs = typeof auditLogs.$inferSelect;
+
+export type InsertConfigurationStatus = z.infer<typeof insertConfigurationStatusSchema>;
+export type ConfigurationStatus = typeof configurationStatus.$inferSelect;
+
+// Enhanced dashboard stats type
 export type DashboardStats = {
+  totalUsers: number;
+  activeUsers: number;
+  requestsPerMinute: number;
+  averageResponseTime: number;
+  errorRate: number;
+  uptime: number;
   activeWorkflows: number;
   tasksAutomated: number;
   connectedApps: number;
