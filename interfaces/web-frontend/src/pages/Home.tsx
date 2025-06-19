@@ -185,13 +185,13 @@ export default function Home() {
     <NavigationWrapper title="Home">
       <div className="bg-white min-h-screen overflow-hidden">
         {/* Hero Section */}
-          <section className="py-12 sm:py-16 md:py-20 text-center hero-section full-width-section section-fade-in">
-            <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: `url(${backgroundImageUrl})` }}
-            ></div>
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-slate-900/70 to-gray-900/80"></div>
-            <div className="content-width relative z-10">
+        <section className="py-12 sm:py-16 md:py-20 text-center hero-section full-width-section section-fade-in">
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${backgroundImageUrl})` }}
+          ></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-slate-900/70 to-gray-900/80"></div>
+          <div className="content-width relative z-10">
               <div className="flex flex-col md:flex-row items-center justify-between">
                 <div className="w-full md:w-1/2 text-left space-y-6 md:space-y-8">
                   <div className="space-y-4">
