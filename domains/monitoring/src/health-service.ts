@@ -70,11 +70,14 @@ export class HealthService {
     const memoryUsage = process.memoryUsage();
     const cpuUsage = process.cpuUsage();
     
+    // Use dynamic import for os module
+    const os = await import('os');
+    
     return {
       timestamp: new Date(),
       cpu: {
         usage: this.calculateCpuUsage(cpuUsage),
-        cores: require('os').cpus().length
+        cores: os.cpus().length
       },
       memory: {
         used: memoryUsage.heapUsed,
