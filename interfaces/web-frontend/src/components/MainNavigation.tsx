@@ -148,11 +148,32 @@ export default function MainNavigation({
             </Button>
           </div>
           <nav className="flex flex-col p-4 space-y-4">
-            <NavigationLinks
-              isAuthenticated={isAuthenticated}
-              className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-              onClick={onMobileMenuToggle}
-            />
+            <Link href="/career">
+              <span 
+                className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer block"
+                onClick={onMobileMenuToggle}
+              >
+                Career
+              </span>
+            </Link>
+            <Link href="/projects">
+              <span 
+                className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer block"
+                onClick={onMobileMenuToggle}
+              >
+                Projects
+              </span>
+            </Link>
+            {isAuthenticated && (
+              <Link href="/dashboard">
+                <span 
+                  className="text-lg py-2 px-4 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer block"
+                  onClick={onMobileMenuToggle}
+                >
+                  Dashboard
+                </span>
+              </Link>
+            )}
             <button
               onClick={() => {
                 handleContactClick();
