@@ -9,7 +9,8 @@ import session from "express-session";
 import MemoryStore from "memorystore";
 import { registerAdminRoutes } from "./admin";
 import { db } from "./db";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
+import { users } from "../../../domains/shared-kernel/src/schema";
 import { AuthController } from "./auth/auth-controller";
 // Import the migration function
 import { migrateToCognito } from "./migrations/add-cognito-support";
@@ -313,6 +314,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register admin routes for user management
   await registerAdminRoutes(app);
+  
+  // User management endpoint for admin dashboard
+  app.get('/api/admin/users', async (req, res) => {
+    try {
+      // Check authentication
+      const sessionUserId = req.session?.userId;
+      if (!sessionUserId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      // Get current user and check admin role
+      const currentUser = await db.select().from(users).where(eq(users.id, sessionUserId)).limit(1);
+      if (!currentUser[0] || currentUser[0].role !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const allUsers = await db.select({
+        id: users.id,
+        email: users.email,
+        displayName: users.displayName,
+        role: users.role,
+        provider: users.provider,
+        isActive: users.isActive,
+        loginCount: users.loginCount,
+        lastLogin: users.lastLogin,
+        createdAt: users.createdAt
+      }).from(users).orderBy(users.createdAt);
+
+      res.json(allUsers);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ error: 'Failed to fetch users' });
+    }
+  });
   
   const httpServer = createServer(app);
 
