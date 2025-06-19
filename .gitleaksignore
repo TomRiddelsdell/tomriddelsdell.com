@@ -1,0 +1,27 @@
+# GitLeaks ignore file - Prevent false positives for session IDs and debug logs
+
+# Session IDs in authentication logs (temporary runtime values, not secrets)
+Session ID:
+Session ID before auth:
+Session ID after auth:
+
+# Authorization codes in debug logs (one-time use, already truncated)
+Authorization code received:
+
+# Common Express session patterns
+express:sess:
+
+# Log file patterns that may contain session data
+attached_assets/
+*.log
+*.txt
+
+# Development debug output
+=== AUTH CALLBACK DEBUG ===
+=== CALLBACK ERROR ===
+
+# Cognito user IDs (not secrets, public identifiers)
+cognitoId:
+
+# Database user IDs (incremental integers, not secrets)
+Database User ID:
