@@ -108,6 +108,17 @@ export class TimeRange {
     return this.startDate < other.endDate && this.endDate > other.startDate;
   }
 
+  intersect(other: TimeRange): TimeRange | null {
+    if (!this.overlaps(other)) {
+      return null;
+    }
+    
+    const startDate = new Date(Math.max(this.startDate.getTime(), other.startDate.getTime()));
+    const endDate = new Date(Math.min(this.endDate.getTime(), other.endDate.getTime()));
+    
+    return TimeRange.create(startDate, endDate);
+  }
+
   equals(other: TimeRange): boolean {
     return this.startDate.getTime() === other.startDate.getTime() &&
            this.endDate.getTime() === other.endDate.getTime() &&
