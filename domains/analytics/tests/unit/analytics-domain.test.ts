@@ -668,4 +668,6 @@ describe('Analytics Domain - Complete Implementation', () => {
         timeRange,
         filters
       )).toThrow('Report name cannot be empty');
+    });
+  });
 });
