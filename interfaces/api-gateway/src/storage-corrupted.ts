@@ -48,17 +48,18 @@ export interface IStorage {
   getActivityLogsByUserId(userId: number, page?: number, perPage?: number): Promise<{
     entries: ActivityLogEntry[];
     totalCount: number;
-    totalPages: number;
-    currentPage: number;
   }>;
   createActivityLog(log: InsertActivityLog): Promise<ActivityLogEntry>;
+  getLoginActivity(page?: number, limit?: number): Promise<{
+    entries: ActivityLogEntry[];
+    totalCount: number;
+  }>;
   
   // Dashboard operations
   getDashboardStats(userId: number): Promise<DashboardStats>;
 }
 
-// Clean in-memory implementation without demo data
-export class MemoryStorage implements IStorage {
+export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private workflows: Map<number, Workflow>;
   private connectedApps: Map<number, ConnectedApp>;
@@ -93,47 +94,21 @@ export class MemoryStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.username === username);
+    return Array.from(this.users.values()).find(
+      (user) => user.username === username
+    );
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.email === email);
+    return Array.from(this.users.values()).find(
+      (user) => user.email === email
+    );
   }
 
   async getUserByCognitoId(cognitoId: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.cognitoId === cognitoId);
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.userId++;
-    const now = new Date();
-    const user: User = {
-      ...insertUser,
-      id,
-      lastLogin: now,
-      createdAt: now,
-      updatedAt: now,
-      role: insertUser.role || 'user',
-      isActive: true,
-      loginCount: 0,
-      lastIP: null
-    };
-    this.users.set(id, user);
-    return user;
-  }
-
-  async updateUser(id: number, userData: Partial<User>): Promise<User | undefined> {
-    const user = this.users.get(id);
-    if (!user) return undefined;
-    
-    const updatedUser = {
-      ...user,
-      ...userData,
-      updatedAt: new Date()
-    };
-    
-    this.users.set(id, updatedUser);
-    return updatedUser;
+    return Array.from(this.users.values()).find(
+      (user) => user.cognitoId === cognitoId
+    );
   }
 
   async getAllUsers(): Promise<User[]> {
@@ -149,9 +124,9 @@ export class MemoryStorage implements IStorage {
   }
 
   async getNewUserCount(days: number): Promise<number> {
-    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const cutoffDate = new Date(Date.now() - (days * 24 * 60 * 60 * 1000));
     return Array.from(this.users.values()).filter(user => 
-      user.createdAt && user.createdAt > cutoff
+      user.createdAt && user.createdAt > cutoffDate
     ).length;
   }
 
@@ -170,6 +145,57 @@ export class MemoryStorage implements IStorage {
     );
   }
 
+  async getLoginActivity(page: number = 1, limit: number = 20): Promise<{
+    entries: ActivityLogEntry[];
+    totalCount: number;
+  }> {
+    const loginLogs = Array.from(this.activityLogs.values())
+      .filter(log => log.action === 'login')
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    
+    const totalCount = loginLogs.length;
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginatedLogs = loginLogs.slice(start, end);
+    
+    return {
+      entries: paginatedLogs,
+      totalCount
+    };
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const id = this.userId++;
+    const now = new Date();
+    const user: User = { 
+      ...insertUser, 
+      id,
+      lastLogin: now,
+      createdAt: now,
+      updatedAt: now,
+      role: 'user',
+      isActive: true,
+      loginCount: 0,
+      lastIP: null
+    };
+    this.users.set(id, user);
+    return user;
+  }
+
+  async updateUser(id: number, userData: Partial<User>): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    
+    const updatedUser = { 
+      ...user, 
+      ...userData,
+      updatedAt: new Date()
+    };
+    
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+
   // Workflow operations
   async getWorkflow(id: number): Promise<Workflow | undefined> {
     return this.workflows.get(id);
@@ -185,6 +211,7 @@ export class MemoryStorage implements IStorage {
     return Array.from(this.workflows.values())
       .filter((workflow) => workflow.userId === userId)
       .sort((a, b) => {
+        // Sort by last run date or creation date if no runs
         const aDate = a.lastRun || a.createdAt;
         const bDate = b.lastRun || b.createdAt;
         return bDate.getTime() - aDate.getTime();
@@ -279,9 +306,9 @@ export class MemoryStorage implements IStorage {
     return Array.from(this.templates.values());
   }
 
-  async getPopularTemplates(limit: number = 10): Promise<Template[]> {
+  async getPopularTemplates(limit: number = 5): Promise<Template[]> {
     return Array.from(this.templates.values())
-      .sort((a, b) => (b.usersCount || 0) - (a.usersCount || 0))
+      .sort((a, b) => b.usersCount - a.usersCount)
       .slice(0, limit);
   }
 
@@ -293,32 +320,29 @@ export class MemoryStorage implements IStorage {
   async getActivityLogsByUserId(userId: number, page: number = 1, perPage: number = 20): Promise<{
     entries: ActivityLogEntry[];
     totalCount: number;
-    totalPages: number;
-    currentPage: number;
   }> {
-    const allLogs = Array.from(this.activityLogs.values())
-      .filter(log => log.userId === userId)
+    const logs = Array.from(this.activityLogs.values())
+      .filter((log) => log.userId === userId)
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
     
-    const totalCount = allLogs.length;
-    const totalPages = Math.ceil(totalCount / perPage);
-    const startIndex = (page - 1) * perPage;
-    const entries = allLogs.slice(startIndex, startIndex + perPage);
+    const totalCount = logs.length;
+    const start = (page - 1) * perPage;
+    const end = start + perPage;
+    const paginatedLogs = logs.slice(start, end);
     
     return {
-      entries,
-      totalCount,
-      totalPages,
-      currentPage: page
+      entries: paginatedLogs,
+      totalCount
     };
   }
 
   async createActivityLog(insertLog: InsertActivityLog): Promise<ActivityLogEntry> {
     const id = this.logId++;
+    const now = new Date();
     const log: ActivityLogEntry = {
       ...insertLog,
       id,
-      timestamp: new Date()
+      timestamp: now
     };
     this.activityLogs.set(id, log);
     return log;
@@ -328,6 +352,7 @@ export class MemoryStorage implements IStorage {
   async getDashboardStats(userId: number): Promise<DashboardStats> {
     const userWorkflows = await this.getWorkflowsByUserId(userId);
     const activeWorkflows = userWorkflows.filter(w => w.status === 'active').length;
+    
     const connectedApps = (await this.getConnectedAppsByUserId(userId)).length;
     
     // Calculate statistics based on actual user data
@@ -339,12 +364,10 @@ export class MemoryStorage implements IStorage {
     const timeSaved = `${userWorkflows.length * hoursPerWorkflow}h`;
     
     return {
-      totalUsers: await this.getUserCount(),
-      activeUsers: await this.getActiveUserCount(),
-      requestsPerMinute: 0,
-      averageResponseTime: 0,
-      errorRate: 0,
-      uptime: 100
+      activeWorkflows,
+      tasksAutomated,
+      connectedApps,
+      timeSaved
     };
   }
 }
