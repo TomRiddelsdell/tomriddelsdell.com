@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import { Express } from 'express';
-import { registerRoutes } from '../server/routes';
+import { registerRoutes } from '../../../interfaces/api-gateway/src/routes';
 import express from 'express';
 
 describe('Performance Regression Tests', () => {
