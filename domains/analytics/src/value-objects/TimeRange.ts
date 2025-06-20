@@ -67,6 +67,13 @@ export class TimeRange {
     return new TimeRange(start, end, TimeRangeType.LAST_MONTH);
   }
 
+  static lastYear(): TimeRange {
+    const now = new Date();
+    const start = new Date(now.getFullYear() - 1, 0, 1);
+    const end = new Date(now.getFullYear() - 1, 11, 31, 23, 59, 59, 999);
+    return new TimeRange(start, end, TimeRangeType.CUSTOM);
+  }
+
   static create(startDate: Date, endDate: Date): TimeRange {
     return new TimeRange(startDate, endDate, TimeRangeType.CUSTOM);
   }
