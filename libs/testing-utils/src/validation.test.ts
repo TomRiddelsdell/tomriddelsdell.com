@@ -6,7 +6,7 @@ import {
   signUpSchema,
   signInSchema,
   contactFormSchema
-} from '@shared/validation';
+} from '../../../domains/shared-kernel/src/validation';
 
 describe('Validation Schemas', () => {
   describe('emailSchema', () => {
