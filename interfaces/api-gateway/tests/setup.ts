@@ -30,5 +30,15 @@ vi.mock('@sendgrid/mail', () => ({
   send: vi.fn().mockResolvedValue([{ statusCode: 202 }])
 }));
 
+// Mock email functionality
+vi.mock('../src/email', () => ({
+  sendContactEmail: vi.fn().mockResolvedValue(true)
+}));
+
 // Mock external HTTP calls
 global.fetch = vi.fn();
+
+// Set test environment variables
+process.env.SENDGRID_API_KEY = 'test-key';
+process.env.CONTACT_EMAIL = 'test@example.com';
+process.env.FROM_EMAIL = 'noreply@test.com';

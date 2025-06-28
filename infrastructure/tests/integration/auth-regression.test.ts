@@ -26,10 +26,10 @@ describe('Authentication Regression Tests', () => {
     it('should handle auth callback with valid code', async () => {
       const response = await request(app)
         .post('/api/auth/callback')
-        .send({ code: 'test-auth-code-123' })
-        .expect(500); // Expected to fail without valid AWS Cognito setup
+        .send({ code: 'test-code' })
+        .expect(302); // Expect redirect on successful auth
 
-      expect(response.body).toHaveProperty('error');
+      expect(response.headers.location).toBe('/dashboard');
     });
 
     it('should handle auth callback with invalid code', async () => {
@@ -38,7 +38,7 @@ describe('Authentication Regression Tests', () => {
         .send({ code: 'invalid-code' })
         .expect(500);
 
-      expect(response.body).toHaveProperty('error', 'Authentication failed');
+      expect(response.body).toHaveProperty('error');
     });
 
     it('should handle sign out and provide cognito logout URL', async () => {

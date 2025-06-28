@@ -51,9 +51,9 @@ describe('Complete Regression Test Suite', () => {
         .post('/api/auth/callback')
         .send({ code: 'test-code' });
 
-      // Should respond with proper structure even if auth fails
-      expect([200, 500]).toContain(response.status);
-      expect(response.body).toBeDefined();
+      // Should redirect on successful auth
+      expect(response.status).toBe(302);
+      expect(response.headers.location).toBe('/dashboard');
     });
 
     it('should return proper authentication status', async () => {
