@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./tests/setup.ts'],
+    setupFiles: ['./tests/setup.ts', './interfaces/api-gateway/tests/setup.ts'],
     include: [
       'domains/**/tests/unit/*.{test,spec}.{js,ts,tsx}',
       'domains/**/tests/integration/*.{test,spec}.{js,ts,tsx}',
@@ -32,9 +32,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, './client/src'),
-      '@shared': resolve(__dirname, './shared'),
-      '@server': resolve(__dirname, './server')
+      '@': resolve(__dirname, './interfaces/web-frontend/src'),
+      '@shared': resolve(__dirname, './domains/shared-kernel/src'),
+      '@server': resolve(__dirname, './interfaces/api-gateway/src')
     }
   }
 });
