@@ -1,11 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { Integration, IntegrationConfig } from '../../src/domains/integration/domain/entities/Integration';
-import { DataMapping } from '../../src/domains/integration/domain/entities/DataMapping';
-import { SyncJob } from '../../src/domains/integration/domain/entities/SyncJob';
-import { IntegrationId } from '../../src/domains/integration/domain/value-objects/IntegrationId';
-import { ApiEndpoint } from '../../src/domains/integration/domain/value-objects/ApiEndpoint';
-import { AuthCredentials } from '../../src/domains/integration/domain/value-objects/AuthCredentials';
-import { DataSchema } from '../../src/domains/integration/domain/value-objects/DataSchema';
+// Integration domain entities not yet implemented - tests skipped
 
 describe.skip('Integration Domain - Phase 3', () => {
   describe('Value Objects', () => {
