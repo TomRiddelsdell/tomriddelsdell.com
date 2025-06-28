@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 
-// Mock AWS Cognito for testing
-vi.mock('../src/auth/simple-cognito', () => {
+// Mock AWS Cognito for infrastructure tests
+vi.mock('../../../interfaces/api-gateway/src/auth/simple-cognito', () => {
   const mockHandler = {
     handleCallback: vi.fn().mockImplementation(async (req: any, res: any) => {
       const { code } = req.body;
@@ -39,7 +39,7 @@ vi.mock('@sendgrid/mail', () => ({
 }));
 
 // Mock email functionality
-vi.mock('../src/email', () => ({
+vi.mock('../../../interfaces/api-gateway/src/email', () => ({
   sendContactEmail: vi.fn().mockResolvedValue(true)
 }));
 
@@ -50,3 +50,6 @@ global.fetch = vi.fn();
 process.env.SENDGRID_API_KEY = 'test-key';
 process.env.CONTACT_EMAIL = 'test@example.com';
 process.env.FROM_EMAIL = 'noreply@test.com';
+process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
+process.env.SESSION_SECRET = 'test-secret';
+process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'test-pool-id';
