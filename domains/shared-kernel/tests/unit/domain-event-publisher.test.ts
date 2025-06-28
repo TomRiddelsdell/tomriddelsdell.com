@@ -125,7 +125,7 @@ describe('Domain Event Publisher - Shared Kernel', () => {
 
   it('should handle multiple event publications concurrently', async () => {
     const delayedHandler = vi.fn().mockImplementation(async () => {
-      await new Promise(resolve => setTimeout(resolve, 5));
+      await new Promise(resolve => setTimeout(resolve, 10));
     });
 
     publisher.subscribe('UserRegistered', delayedHandler);
@@ -142,8 +142,9 @@ describe('Domain Event Publisher - Shared Kernel', () => {
     const endTime = Date.now();
 
     expect(delayedHandler).toHaveBeenCalledTimes(3);
-    // Should be concurrent, not sequential (less than 15ms total vs 15ms if sequential)
-    expect(endTime - startTime).toBeLessThan(15);
+    // Should be concurrent, not sequential (less than 25ms total vs 30ms if sequential)
+    // Allow for some timing variance in test environment
+    expect(endTime - startTime).toBeLessThan(25);
   });
 
   it('should maintain event data integrity', async () => {
