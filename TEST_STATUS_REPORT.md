@@ -87,7 +87,7 @@
 | Validation Schemas | 10 | ✅ Passing | Form validation, data integrity |
 | Analytics | 13 | ⏭️ Skipped | Future implementation |
 
-**Total: 74 Active Tests Passing, 13 Skipped (Non-blocking)**
+**Total: 74 Active Tests Passing, 81 Skipped (Non-blocking)**
 
 ## Deployment Impact
 
