@@ -33,9 +33,9 @@ describe('API Integration Tests', () => {
       const response = await request(app)
         .post('/api/auth/callback')
         .send({ code: 'test-code' })
-        .expect(500); // Expected to fail without valid AWS Cognito setup
+        .expect(302); // Expect redirect on successful auth
 
-      expect(response.body).toHaveProperty('error');
+      expect(response.headers.location).toBe('/dashboard');
     });
 
     it('should handle signout correctly', async () => {
