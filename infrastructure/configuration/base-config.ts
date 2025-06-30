@@ -8,7 +8,7 @@ import { z } from 'zod';
 // Security configuration schema
 export const securityConfigSchema = z.object({
   cors: z.object({
-    allowedOrigins: z.array(z.string().url()).min(1),
+    allowedOrigins: z.array(z.string()).min(1),
     allowedMethods: z.array(z.string()).default(['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']),
     allowedHeaders: z.array(z.string()).default(['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']),
     allowCredentials: z.boolean().default(true),
@@ -47,14 +47,14 @@ export const cognitoConfigSchema = z.object({
   clientSecret: z.string().optional(),
   userPoolId: z.string().min(1, 'Cognito user pool ID is required'),
   region: z.string().min(1, 'AWS region is required'),
-  hostedUIDomain: z.string().url('Cognito hosted UI domain must be a valid URL'),
+  hostedUIDomain: z.string().min(1, 'Cognito hosted UI domain is required'),
   accessKeyId: z.string().min(1, 'AWS access key ID is required'),
   secretAccessKey: z.string().min(1, 'AWS secret access key is required'),
 });
 
 // Database configuration schema
 export const databaseConfigSchema = z.object({
-  url: z.string().url('Database URL must be a valid PostgreSQL URL'),
+  url: z.string().min(1, 'Database URL is required'),
   pool: z.object({
     min: z.number().min(0).default(2),
     max: z.number().min(1).default(10),
@@ -85,9 +85,9 @@ export const servicesConfigSchema = z.object({
     timeout: z.number().positive().default(30000),
   }),
   external: z.object({
-    baseUrl: z.string().url('Base URL must be a valid URL'),
-    callbackUrl: z.string().url('Callback URL must be a valid URL'),
-    logoutUrl: z.string().url('Logout URL must be a valid URL'),
+    baseUrl: z.string().min(1, 'Base URL is required'),
+    callbackUrl: z.string().min(1, 'Callback URL is required'),
+    logoutUrl: z.string().min(1, 'Logout URL is required'),
   }),
 });
 
