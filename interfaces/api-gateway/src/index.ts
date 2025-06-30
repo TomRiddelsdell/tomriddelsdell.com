@@ -79,10 +79,18 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Initialize templates
-  await initializeTemplates();
-  
-  const server = await registerRoutes(app);
+  try {
+    // Validate configuration on startup
+    console.log('🔧 Validating configuration...');
+    const config = getConfig();
+    console.log(`✅ Configuration validated for ${config.environment} environment`);
+    
+    // Initialize templates
+    console.log('🗃️ Initializing database templates...');
+    await initializeTemplates();
+    console.log('✅ Database templates initialized');
+    
+    const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     logger.error('Unhandled error:', { error: err.message, stack: err.stack });
@@ -95,22 +103,40 @@ app.use((req, res, next) => {
     }
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    console.log('Starting Vite setup...');
-    await setupVite(app, server);
-    console.log('Vite setup completed');
-  } else {
-    serveStatic(app);
-  }
+    // importantly only setup vite in development and after
+    // setting up all the other routes so the catch-all route
+    // doesn't interfere with the other routes
+    if (app.get("env") === "development") {
+      console.log('Starting Vite setup...');
+      await setupVite(app, server);
+      console.log('Vite setup completed');
+    } else {
+      serveStatic(app);
+    }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
-  server.listen(port, "0.0.0.0", () => {
-    log(`serving on port ${port}`);
-  });
+    // ALWAYS serve the app on port 5000
+    // this serves both the API and the client.
+    // It is the only port that is not firewalled.
+    const port = 5000;
+    server.listen(port, "0.0.0.0", () => {
+      console.log(`🚀 Server started successfully on port ${port}`);
+      console.log(`🌐 Environment: ${config.environment}`);
+      console.log(`📍 Base URL: ${config.services.external.baseUrl}`);
+      log(`serving on port ${port}`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', error.message);
+      console.error('Stack trace:', error.stack);
+      
+      // Log specific configuration errors
+      if (error.message?.includes('Configuration')) {
+        console.error('💡 Hint: Check your environment variables and ensure all required configuration is set');
+        console.error('💡 Run: tsx scripts/validate-environment.ts to check configuration');
+      }
+    }
+    
+    process.exit(1);
+  }
 })();
