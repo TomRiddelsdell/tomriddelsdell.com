@@ -18,6 +18,12 @@ describe('Configuration System', () => {
 
   describe('Development Environment', () => {
     beforeEach(() => {
+      // Clear any email-related environment variables first
+      delete process.env.SENDGRID_API_KEY;
+      delete process.env.EMAIL_PROVIDER;
+      delete process.env.SENDGRID_FROM_EMAIL;
+      delete process.env.SENDGRID_FROM_NAME;
+      
       process.env.NODE_ENV = 'development';
       process.env.DATABASE_URL = 'postgresql://localhost/test_db';
       process.env.SESSION_SECRET = 'test_session_secret_32_chars_long';

@@ -1,4 +1,5 @@
-import { BaseConfig, baseConfigSchema } from './base-config';
+import { z } from "zod";
+import { baseConfigSchema, BaseConfig } from "./base-config";
 
 /**
  * Configuration loader with environment-specific overrides
@@ -6,9 +7,12 @@ import { BaseConfig, baseConfigSchema } from './base-config';
  */
 
 export class ConfigurationError extends Error {
-  constructor(message: string, public cause?: Error) {
+  constructor(
+    message: string,
+    public cause?: Error,
+  ) {
     super(message);
-    this.name = 'ConfigurationError';
+    this.name = "ConfigurationError";
   }
 }
 
@@ -16,84 +20,98 @@ export class ConfigurationError extends Error {
  * Get environment-specific configuration defaults
  */
 function getEnvironmentDefaults(): Partial<BaseConfig> {
-  const env = process.env.NODE_ENV || 'development';
-  
+  const env = process.env.NODE_ENV || "development";
+
   switch (env) {
-    case 'production':
+    case "production":
       return {
-        environment: 'production',
+        environment: "production",
         security: {
           cors: {
-            allowedOrigins: process.env.CORS_ALLOWED_ORIGINS ? 
-              process.env.CORS_ALLOWED_ORIGINS.split(',') : 
-              [process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'https://localhost:5000'],
-            allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-            allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+            allowedOrigins: [
+              process.env.REPLIT_DOMAINS
+                ? `https://${process.env.REPLIT_DOMAINS}`
+                : "https://my-app.replit.app",
+            ],
+            allowedMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            allowedHeaders: [
+              "Origin",
+              "X-Requested-With",
+              "Content-Type",
+              "Accept",
+              "Authorization",
+            ],
             allowCredentials: true,
-  
+          },
           session: {
-            secret: process.env.SESSION_SECRET || 'production_session_secret_change_immediately',
-            maxAge: 24 * 60 * 60 * 1000, // 24 hours for production
+            secret: process.env.SESSION_SECRET || "CHANGE_THIS_IN_PRODUCTION",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
             secure: true,
             httpOnly: true,
-            sameSite: 'lax',
-  
+            sameSite: "strict",
+          },
           rateLimit: {
-            windowMs: 15 * 60 * 1000, // 15 minutes
-            maxRequests: 50, // Stricter for production
+            windowMs: 15 * 60 * 1000,
+            maxRequests: 100,
             skipSuccessfulRequests: false,
             skipFailedRequests: false,
-  
+          },
           csp: {
             directives: {
-              'default-src': ["'self'"],
-              'script-src': ["'self'", 'https://replit.com'],
-              'style-src': ["'self'", "'unsafe-inline'"],
-              'img-src': ["'self'", 'data:', 'https:'],
-              'connect-src': ["'self'"],
-              'font-src': ["'self'"],
-              'object-src': ["'none'"],
-              'media-src': ["'self'"],
-              'frame-src': ["'none'"],
-    
-  
-
+              "default-src": ["'self'"],
+              "script-src": ["'self'", "https://replit.com"],
+              "style-src": ["'self'", "'unsafe-inline'"],
+              "img-src": ["'self'", "data:", "https:"],
+              "connect-src": ["'self'"],
+              "font-src": ["'self'"],
+              "object-src": ["'none'"],
+              "media-src": ["'self'"],
+              "frame-src": ["'none'"],
+            },
+          },
+        },
         database: {
-          url: process.env.DATABASE_URL || 'postgresql://localhost/flowcreate_prod',
+          url:
+            process.env.DATABASE_URL ||
+            "postgresql://localhost/flowcreate_prod",
           pool: {
             min: 2,
             max: 10,
             idleTimeoutMillis: 30000,
             connectionTimeoutMillis: 2000,
-  
+          },
           ssl: {
             enabled: true,
             rejectUnauthorized: true,
-  
-
+          },
+        },
         services: {
           apiGateway: {
             port: 5000,
-            host: '0.0.0.0',
+            host: "0.0.0.0",
             timeout: 30000,
-  
+          },
           external: {
-            baseUrl: process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'https://localhost:5000',
-            callbackUrl: (process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'https://localhost:5000') + '/auth/callback',
-            logoutUrl: process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'https://localhost:5000',
-  
-
+            baseUrl: process.env.REPLIT_DOMAINS
+              ? `https://${process.env.REPLIT_DOMAINS}`
+              : "https://my-app.replit.app",
+            callbackUrl: `${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : "https://my-app.replit.app"}/auth/callback`,
+            logoutUrl: process.env.REPLIT_DOMAINS
+              ? `https://${process.env.REPLIT_DOMAINS}`
+              : "https://my-app.replit.app",
+          },
+        },
         cognito: {
-          clientId: process.env.VITE_AWS_COGNITO_CLIENT_ID || '',
+          clientId: process.env.VITE_AWS_COGNITO_CLIENT_ID || "",
           clientSecret: process.env.AWS_COGNITO_CLIENT_SECRET,
-          userPoolId: process.env.VITE_AWS_COGNITO_USER_POOL_ID || '',
-          region: process.env.VITE_AWS_COGNITO_REGION || '',
-          hostedUIDomain: process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || '',
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+          userPoolId: process.env.VITE_AWS_COGNITO_USER_POOL_ID || "",
+          region: process.env.VITE_AWS_COGNITO_REGION || "",
+          hostedUIDomain: process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || "",
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
         },
         email: {
-          provider: 'none',
+          provider: "none",
         },
         features: {
           debugMode: false,
@@ -101,155 +119,177 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
           emailEnabled: true,
           maintenanceMode: false,
           newUserRegistration: true,
-
+        },
         logging: {
-          level: 'info',
+          level: "info",
           enableConsole: true,
           enableFile: true,
           enableDatabase: true,
-          format: 'json',
-          maxFileSize: '50mb',
+          format: "json",
+          maxFileSize: "50mb",
           maxFiles: 10,
-
+        },
       };
-    case 'staging':
+    case "staging":
       return {
-        environment: 'staging',
+        environment: "staging",
         features: {
           debugMode: true,
           analyticsEnabled: true,
           emailEnabled: false,
           maintenanceMode: false,
           newUserRegistration: true,
-
+        },
         logging: {
-          level: 'debug',
+          level: "debug",
           enableConsole: true,
           enableFile: true,
           enableDatabase: true,
-          format: 'json',
-          maxFileSize: '25mb',
+          format: "json",
+          maxFileSize: "25mb",
           maxFiles: 7,
-
+        },
       };
-    case 'test':
+    case "test":
       return {
-        environment: 'test',
+        environment: "test",
         features: {
           debugMode: true,
           analyticsEnabled: false,
           emailEnabled: false,
           maintenanceMode: false,
-          newUserRegistration: true,
-
+          newUserRegistration: false,
+        },
         logging: {
-          level: 'error',
+          level: "warn",
           enableConsole: false,
           enableFile: false,
           enableDatabase: false,
-          format: 'simple',
-          maxFileSize: '5mb',
-          maxFiles: 2,
-
+          format: "json",
+          maxFileSize: "10mb",
+          maxFiles: 3,
+        },
       };
-    case 'development':
+    case "development":
     default:
       return {
-        environment: 'development',
+        environment: "development",
         security: {
           cors: {
             allowedOrigins: [
-              'http://localhost:3000',
-              'http://localhost:5000',
-              'http://127.0.0.1:3000',
-              'http://127.0.0.1:5000',
-              process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'http://localhost:5000',
+              "http://localhost:3000",
+              "http://localhost:5000",
+              "http://127.0.0.1:3000",
+              "http://127.0.0.1:5000",
+              process.env.REPLIT_DOMAINS
+                ? `https://${process.env.REPLIT_DOMAINS}`
+                : "http://localhost:5000",
             ],
-            allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-            allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+            allowedMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            allowedHeaders: [
+              "Origin",
+              "X-Requested-With",
+              "Content-Type",
+              "Accept",
+              "Authorization",
+            ],
             allowCredentials: true,
-  
+          },
           session: {
-            secret: process.env.SESSION_SECRET || 'dev_session_secret_change_in_production',
+            secret:
+              process.env.SESSION_SECRET ||
+              "dev_session_secret_change_in_production",
             maxAge: 7 * 24 * 60 * 60 * 1000,
             secure: false,
             httpOnly: true,
-            sameSite: 'lax',
-  
+            sameSite: "lax",
+          },
           rateLimit: {
             windowMs: 1 * 60 * 1000,
             maxRequests: 1000,
             skipSuccessfulRequests: false,
             skipFailedRequests: false,
-  
+          },
           csp: {
             directives: {
-              'default-src': ["'self'"],
-              'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://replit.com'],
-              'style-src': ["'self'", "'unsafe-inline'"],
-              'img-src': ["'self'", 'data:', 'https:'],
-              'connect-src': ["'self'", 'ws://localhost:*', 'wss://localhost:*'],
-              'font-src': ["'self'"],
-              'object-src': ["'none'"],
-              'media-src': ["'self'"],
-              'frame-src': ["'none'"],
-    
-  
-
+              "default-src": ["'self'"],
+              "script-src": ["'self'", "'unsafe-eval'", "'unsafe-inline'"],
+              "style-src": ["'self'", "'unsafe-inline'"],
+              "img-src": ["'self'", "data:", "https:"],
+              "connect-src": [
+                "'self'",
+                "ws://localhost:*",
+                "wss://localhost:*",
+              ],
+              "font-src": ["'self'"],
+              "object-src": ["'none'"],
+              "media-src": ["'self'"],
+              "frame-src": ["'none'"],
+            },
+          },
+        },
         database: {
-          url: process.env.DATABASE_URL || 'postgresql://localhost/flowcreate_dev',
+          url:
+            process.env.DATABASE_URL || "postgresql://localhost/flowcreate_dev",
           pool: {
-            min: 2,
-            max: 10,
-            idleTimeoutMillis: 30000,
+            min: 1,
+            max: 5,
+            idleTimeoutMillis: 10000,
             connectionTimeoutMillis: 2000,
-  
+          },
           ssl: {
             enabled: false,
             rejectUnauthorized: false,
-  
-
+          },
+        },
         services: {
           apiGateway: {
             port: 5000,
-            host: '0.0.0.0',
+            host: "0.0.0.0",
             timeout: 30000,
-  
+          },
           external: {
-            baseUrl: process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'http://localhost:5000',
-            callbackUrl: (process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'http://localhost:5000') + '/auth/callback',
-            logoutUrl: process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'http://localhost:5000',
-  
-
+            baseUrl: process.env.REPLIT_DOMAINS
+              ? `https://${process.env.REPLIT_DOMAINS}`
+              : "http://localhost:5000",
+            callbackUrl: `${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : "http://localhost:5000"}/auth/callback`,
+            logoutUrl: process.env.REPLIT_DOMAINS
+              ? `https://${process.env.REPLIT_DOMAINS}`
+              : "http://localhost:5000",
+          },
+        },
         cognito: {
-          clientId: process.env.VITE_AWS_COGNITO_CLIENT_ID || 'dev_client_id',
+          clientId: process.env.VITE_AWS_COGNITO_CLIENT_ID || "dev_client_id",
           clientSecret: process.env.AWS_COGNITO_CLIENT_SECRET,
-          userPoolId: process.env.VITE_AWS_COGNITO_USER_POOL_ID || 'dev_user_pool_id',
-          region: process.env.VITE_AWS_COGNITO_REGION || 'us-east-1',
-          hostedUIDomain: process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || 'dev-hosted-ui-domain',
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'dev_access_key_id',
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'dev_secret_access_key',
-
+          userPoolId:
+            process.env.VITE_AWS_COGNITO_USER_POOL_ID || "dev_pool_id",
+          region: process.env.VITE_AWS_COGNITO_REGION || "us-east-1",
+          hostedUIDomain:
+            process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN ||
+            "dev-hosted-ui-domain",
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID || "dev_access_key_id",
+          secretAccessKey:
+            process.env.AWS_SECRET_ACCESS_KEY || "dev_secret_access_key",
+        },
         email: {
-          provider: 'none',
-
-
+          provider: "none",
+        },
         features: {
           debugMode: true,
           analyticsEnabled: true,
           emailEnabled: false,
           maintenanceMode: false,
           newUserRegistration: true,
-
+        },
         logging: {
-          level: 'debug',
+          level: "debug",
           enableConsole: true,
           enableFile: false,
-          enableDatabase: true,
-          format: 'simple',
-          maxFileSize: '10mb',
-          maxFiles: 5,
-
+          enableDatabase: false,
+          format: "simple",
+          maxFileSize: "10mb",
+          maxFiles: 3,
+        },
       };
   }
 }
@@ -259,192 +299,158 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
  */
 function loadFromEnvironment(): Partial<BaseConfig> {
   const env = process.env;
-  
-  // Build base configuration object
-  const envConfig: any = {
-    environment: env.NODE_ENV || 'development',
-  };
+  const envConfig: Partial<BaseConfig> = {};
 
-  // Security configuration
-  if (env.CORS_ALLOWED_ORIGINS || env.SESSION_SECRET || env.RATE_LIMIT_WINDOW_MS || env.RATE_LIMIT_MAX_REQUESTS) {
-    envConfig.security = {};
-    
-    if (env.CORS_ALLOWED_ORIGINS) {
-      envConfig.security.cors = {
-        allowedOrigins: env.CORS_ALLOWED_ORIGINS.split(','),
-      };
-    }
-    
-    if (env.SESSION_SECRET) {
-      envConfig.security.session = {
-        secret: env.SESSION_SECRET,
-        secure: env.SESSION_SECURE === 'true',
-        maxAge: env.SESSION_MAX_AGE ? parseInt(env.SESSION_MAX_AGE) : undefined,
-      };
-    }
-    
-    if (env.RATE_LIMIT_WINDOW_MS || env.RATE_LIMIT_MAX_REQUESTS) {
-      envConfig.security.rateLimit = {};
-      if (env.RATE_LIMIT_WINDOW_MS) envConfig.security.rateLimit.windowMs = parseInt(env.RATE_LIMIT_WINDOW_MS);
-      if (env.RATE_LIMIT_MAX_REQUESTS) envConfig.security.rateLimit.maxRequests = parseInt(env.RATE_LIMIT_MAX_REQUESTS);
-    }
-  }
-  
-  // Cognito configuration
-  if (env.VITE_AWS_COGNITO_CLIENT_ID || env.AWS_ACCESS_KEY_ID) {
-    envConfig.cognito = {};
-    if (env.VITE_AWS_COGNITO_CLIENT_ID) envConfig.cognito.clientId = env.VITE_AWS_COGNITO_CLIENT_ID;
-    if (env.AWS_COGNITO_CLIENT_SECRET) envConfig.cognito.clientSecret = env.AWS_COGNITO_CLIENT_SECRET;
-    if (env.VITE_AWS_COGNITO_USER_POOL_ID) envConfig.cognito.userPoolId = env.VITE_AWS_COGNITO_USER_POOL_ID;
-    if (env.VITE_AWS_COGNITO_REGION) envConfig.cognito.region = env.VITE_AWS_COGNITO_REGION;
-    if (env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN) envConfig.cognito.hostedUIDomain = env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN;
-    if (env.AWS_ACCESS_KEY_ID) envConfig.cognito.accessKeyId = env.AWS_ACCESS_KEY_ID;
-    if (env.AWS_SECRET_ACCESS_KEY) envConfig.cognito.secretAccessKey = env.AWS_SECRET_ACCESS_KEY;
-  }
-  
+  // Core configuration
+  if (env.NODE_ENV) envConfig.environment = env.NODE_ENV as any;
+
   // Database configuration
   if (env.DATABASE_URL) {
-    envConfig.database = {
-      url: env.DATABASE_URL,
-    };
-    
-    if (env.DB_POOL_MIN || env.DB_POOL_MAX) {
-      envConfig.database.pool = {};
-      if (env.DB_POOL_MIN) envConfig.database.pool.min = parseInt(env.DB_POOL_MIN);
-      if (env.DB_POOL_MAX) envConfig.database.pool.max = parseInt(env.DB_POOL_MAX);
+    envConfig.database = { url: env.DATABASE_URL };
+
+    if (env.DB_POOL_MIN)
+      envConfig.database.pool = { min: parseInt(env.DB_POOL_MIN) };
+    if (env.DB_POOL_MAX) {
+      if (!envConfig.database.pool) envConfig.database.pool = {};
+      envConfig.database.pool.max = parseInt(env.DB_POOL_MAX);
     }
-    
-    if (env.DB_SSL_ENABLED !== undefined || env.DB_SSL_REJECT_UNAUTHORIZED !== undefined) {
-      envConfig.database.ssl = {};
-      if (env.DB_SSL_ENABLED !== undefined) envConfig.database.ssl.enabled = env.DB_SSL_ENABLED === 'true';
-      if (env.DB_SSL_REJECT_UNAUTHORIZED !== undefined) envConfig.database.ssl.rejectUnauthorized = env.DB_SSL_REJECT_UNAUTHORIZED !== 'false';
+    if (env.DB_SSL_ENABLED) {
+      envConfig.database.ssl = { enabled: env.DB_SSL_ENABLED !== "false" };
+      if (env.DB_SSL_REJECT_UNAUTHORIZED !== undefined)
+        envConfig.database.ssl.rejectUnauthorized =
+          env.DB_SSL_REJECT_UNAUTHORIZED !== "false";
     }
   }
-  
+
   // Email configuration
   if (env.EMAIL_PROVIDER || env.SENDGRID_API_KEY) {
     envConfig.email = {};
     if (env.EMAIL_PROVIDER) {
-      envConfig.email.provider = env.EMAIL_PROVIDER;
+      envConfig.email.provider = env.EMAIL_PROVIDER as any;
     } else if (env.SENDGRID_API_KEY) {
-      envConfig.email.provider = 'sendgrid';
+      envConfig.email.provider = "sendgrid";
     }
-    
+
     if (env.SENDGRID_API_KEY) {
       envConfig.email.sendgrid = {
         apiKey: env.SENDGRID_API_KEY,
-        fromEmail: env.SENDGRID_FROM_EMAIL || 'noreply@flowcreate.app',
-        fromName: env.SENDGRID_FROM_NAME || 'FlowCreate',
+        fromEmail: env.SENDGRID_FROM_EMAIL || "noreply@flowcreate.app",
+        fromName: env.SENDGRID_FROM_NAME || "FlowCreate",
       };
     }
   }
-  
-  // Services configuration
-  if (env.PORT || env.HOST || env.BASE_URL || env.CALLBACK_URL || env.LOGOUT_URL) {
-    envConfig.services = {};
-    
-    if (env.PORT || env.HOST || env.API_TIMEOUT) {
-      envConfig.services.apiGateway = {};
-      if (env.PORT) envConfig.services.apiGateway.port = parseInt(env.PORT);
-      if (env.HOST) envConfig.services.apiGateway.host = env.HOST;
-      if (env.API_TIMEOUT) envConfig.services.apiGateway.timeout = parseInt(env.API_TIMEOUT);
+
+  // Security configuration
+  if (env.SESSION_SECRET || env.CORS_ALLOWED_ORIGINS) {
+    envConfig.security = {};
+
+    if (env.SESSION_SECRET) {
+      envConfig.security.session = { secret: env.SESSION_SECRET };
+      if (env.SESSION_SECURE)
+        envConfig.security.session.secure = env.SESSION_SECURE === "true";
     }
-    
-    if (env.BASE_URL || env.CALLBACK_URL || env.LOGOUT_URL) {
-      const baseUrl = env.BASE_URL || getBaseUrl();
-      envConfig.services.external = {
-        baseUrl,
-        callbackUrl: env.CALLBACK_URL || `${baseUrl}/auth/callback`,
-        logoutUrl: env.LOGOUT_URL || baseUrl,
+
+    if (env.CORS_ALLOWED_ORIGINS) {
+      envConfig.security.cors = {
+        allowedOrigins: env.CORS_ALLOWED_ORIGINS.split(",").map((origin) =>
+          origin.trim(),
+        ),
       };
     }
+
+    if (env.RATE_LIMIT_WINDOW_MS || env.RATE_LIMIT_MAX_REQUESTS) {
+      envConfig.security.rateLimit = {};
+      if (env.RATE_LIMIT_WINDOW_MS)
+        envConfig.security.rateLimit.windowMs = parseInt(
+          env.RATE_LIMIT_WINDOW_MS,
+        );
+      if (env.RATE_LIMIT_MAX_REQUESTS)
+        envConfig.security.rateLimit.maxRequests = parseInt(
+          env.RATE_LIMIT_MAX_REQUESTS,
+        );
+    }
   }
-  
+
   // Feature flags
-  if (env.FEATURE_EMAIL_ENABLED !== undefined || env.FEATURE_ANALYTICS_ENABLED !== undefined || 
-      env.DEBUG_MODE !== undefined || env.MAINTENANCE_MODE !== undefined || 
-      env.FEATURE_NEW_USER_REGISTRATION !== undefined) {
-    envConfig.features = {};
-    if (env.FEATURE_EMAIL_ENABLED !== undefined) envConfig.features.emailEnabled = env.FEATURE_EMAIL_ENABLED === 'true';
-    if (env.FEATURE_ANALYTICS_ENABLED !== undefined) envConfig.features.analyticsEnabled = env.FEATURE_ANALYTICS_ENABLED !== 'false';
-    if (env.DEBUG_MODE !== undefined) envConfig.features.debugMode = env.DEBUG_MODE === 'true';
-    if (env.MAINTENANCE_MODE !== undefined) envConfig.features.maintenanceMode = env.MAINTENANCE_MODE === 'true';
-    if (env.FEATURE_NEW_USER_REGISTRATION !== undefined) envConfig.features.newUserRegistration = env.FEATURE_NEW_USER_REGISTRATION !== 'false';
+  const featureFlags: Partial<BaseConfig["features"]> = {};
+  if (env.DEBUG_MODE !== undefined)
+    featureFlags.debugMode = env.DEBUG_MODE === "true";
+  if (env.FEATURE_ANALYTICS_ENABLED !== undefined)
+    featureFlags.analyticsEnabled = env.FEATURE_ANALYTICS_ENABLED === "true";
+  if (env.FEATURE_EMAIL_ENABLED !== undefined)
+    featureFlags.emailEnabled = env.FEATURE_EMAIL_ENABLED === "true";
+  if (env.MAINTENANCE_MODE !== undefined)
+    featureFlags.maintenanceMode = env.MAINTENANCE_MODE === "true";
+  if (env.FEATURE_NEW_USER_REGISTRATION !== undefined)
+    featureFlags.newUserRegistration =
+      env.FEATURE_NEW_USER_REGISTRATION === "true";
+
+  if (Object.keys(featureFlags).length > 0) {
+    envConfig.features = featureFlags;
   }
-  
-  // Logging configuration
-  if (env.LOG_LEVEL || env.LOG_ENABLE_CONSOLE !== undefined || env.LOG_ENABLE_FILE !== undefined || 
-      env.LOG_ENABLE_DATABASE !== undefined || env.LOG_FORMAT) {
-    envConfig.logging = {};
-    if (env.LOG_LEVEL) envConfig.logging.level = env.LOG_LEVEL;
-    if (env.LOG_ENABLE_CONSOLE !== undefined) envConfig.logging.enableConsole = env.LOG_ENABLE_CONSOLE !== 'false';
-    if (env.LOG_ENABLE_FILE !== undefined) envConfig.logging.enableFile = env.LOG_ENABLE_FILE === 'true';
-    if (env.LOG_ENABLE_DATABASE !== undefined) envConfig.logging.enableDatabase = env.LOG_ENABLE_DATABASE !== 'false';
-    if (env.LOG_FORMAT) envConfig.logging.format = env.LOG_FORMAT;
-  }
-  
-  return removeUndefined(envConfig);
+
+  return envConfig;
 }
 
 /**
  * Get base URL for the application
  */
 function getBaseUrl(): string {
-  const env = process.env;
-  
-  // Production domain
-  if (env.NODE_ENV === 'production' && env.PRODUCTION_DOMAIN) {
-    return env.PRODUCTION_DOMAIN;
+  if (process.env.REPLIT_DOMAINS) {
+    return `https://${process.env.REPLIT_DOMAINS}`;
   }
-  
-  // Replit domain
-  if (env.REPLIT_DOMAINS) {
-    return `https://${env.REPLIT_DOMAINS}`;
-  }
-  
-  // Development fallback
-  const port = env.PORT || 5000;
-  return `http://localhost:${port}`;
+
+  const env = process.env.NODE_ENV || "development";
+  return env === "production"
+    ? "https://my-app.replit.app"
+    : "http://localhost:5000";
 }
 
 /**
  * Remove undefined values from object recursively
  */
 function removeUndefined(obj: any): any {
-  if (obj === null || typeof obj !== 'object') {
-    return obj;
-  }
-  
+  if (obj === null || typeof obj !== "object") return obj;
+
   if (Array.isArray(obj)) {
     return obj.map(removeUndefined);
   }
-  
+
   const result: any = {};
   for (const [key, value] of Object.entries(obj)) {
     if (value !== undefined) {
       result[key] = removeUndefined(value);
     }
   }
-  
   return result;
 }
 
 /**
  * Deep merge configuration objects
  */
-function mergeConfig(base: Partial<BaseConfig>, override: Partial<BaseConfig>): Partial<BaseConfig> {
-  const result: any = { ...base };
-  
+function mergeConfig(
+  base: Partial<BaseConfig>,
+  override: Partial<BaseConfig>,
+): Partial<BaseConfig> {
+  const result = { ...base };
+
   for (const [key, value] of Object.entries(override)) {
     if (value !== undefined) {
-      if (typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Date)) {
-        result[key] = mergeConfig(result[key] || {}, value as Partial<BaseConfig>);
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        !Array.isArray(value)
+      ) {
+        result[key as keyof BaseConfig] = mergeConfig(
+          (result[key as keyof BaseConfig] as any) || {},
+          value,
+        ) as any;
       } else {
-        result[key] = value;
+        result[key as keyof BaseConfig] = value as any;
       }
     }
   }
-  
+
   return result;
 }
 
@@ -453,32 +459,36 @@ function mergeConfig(base: Partial<BaseConfig>, override: Partial<BaseConfig>): 
  */
 export function loadConfiguration(): BaseConfig {
   try {
-    // Load configuration layers
-    const envDefaults = getEnvironmentDefaults();
-    const envVarConfig = loadFromEnvironment();
-    
-    // Merge configurations (environment variables override defaults)
-    const mergedConfig = mergeConfig(envDefaults, envVarConfig);
-    
-    // Validate final configuration
-    const validatedConfig = baseConfigSchema.parse(mergedConfig);
-    
-    // Log configuration loading (without sensitive data)
-    console.log(`Configuration loaded for environment: ${validatedConfig.environment}`);
-    console.log(`Features enabled: ${Object.entries(validatedConfig.features)
+    // Get environment defaults
+    const defaults = getEnvironmentDefaults();
+
+    // Load environment variable overrides
+    const envOverrides = loadFromEnvironment();
+
+    // Merge configurations
+    const merged = mergeConfig(defaults, envOverrides);
+
+    // Remove undefined values
+    const clean = removeUndefined(merged);
+
+    // Validate against schema
+    const config = baseConfigSchema.parse(clean);
+
+    console.log(`Configuration loaded for environment: ${config.environment}`);
+    const enabledFeatures = Object.entries(config.features)
       .filter(([_, enabled]) => enabled)
-      .map(([feature]) => feature)
-      .join(', ')}`);
-    
-    return validatedConfig;
+      .map(([feature, _]) => feature);
+    console.log(`Features enabled: ${enabledFeatures.join(", ")}`);
+
+    return config;
   } catch (error) {
     if (error instanceof Error) {
       throw new ConfigurationError(
         `Failed to load configuration: ${error.message}`,
-        error
+        error,
       );
     }
-    throw new ConfigurationError('Failed to load configuration: Unknown error');
+    throw error;
   }
 }
 
@@ -501,8 +511,8 @@ export function getConfig(): BaseConfig {
  * Reload configuration (useful for testing)
  */
 export function reloadConfiguration(): BaseConfig {
-  configInstance = null;
-  return getConfig();
+  configInstance = loadConfiguration();
+  return configInstance;
 }
 
 /**
@@ -510,21 +520,20 @@ export function reloadConfiguration(): BaseConfig {
  */
 export function validateRequiredEnvironment(): void {
   const required = [
-    'DATABASE_URL',
-    'SESSION_SECRET',
-    'VITE_AWS_COGNITO_CLIENT_ID',
-    'VITE_AWS_COGNITO_REGION',
-    'VITE_AWS_COGNITO_USER_POOL_ID',
-    'VITE_AWS_COGNITO_HOSTED_UI_DOMAIN',
-    'AWS_ACCESS_KEY_ID',
-    'AWS_SECRET_ACCESS_KEY',
+    "DATABASE_URL",
+    "SESSION_SECRET",
+    "VITE_AWS_COGNITO_CLIENT_ID",
+    "VITE_AWS_COGNITO_USER_POOL_ID",
+    "VITE_AWS_COGNITO_REGION",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
   ];
-  
-  const missing = required.filter(key => !process.env[key]);
-  
+
+  const missing = required.filter((key) => !process.env[key]);
+
   if (missing.length > 0) {
     throw new ConfigurationError(
-      `Missing required environment variables: ${missing.join(', ')}`
+      `Missing required environment variables: ${missing.join(", ")}`,
     );
   }
 }
@@ -533,5 +542,5 @@ export function validateRequiredEnvironment(): void {
  * Get current environment type
  */
 export function getEnvironment(): string {
-  return process.env.NODE_ENV || 'development';
+  return process.env.NODE_ENV || "development";
 }
