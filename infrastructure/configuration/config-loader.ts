@@ -30,20 +30,20 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
             allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
             allowCredentials: true,
-          },
+  
           session: {
             secret: process.env.SESSION_SECRET || 'production_session_secret_change_immediately',
             maxAge: 24 * 60 * 60 * 1000, // 24 hours for production
             secure: true,
             httpOnly: true,
             sameSite: 'lax',
-          },
+  
           rateLimit: {
             windowMs: 15 * 60 * 1000, // 15 minutes
             maxRequests: 50, // Stricter for production
             skipSuccessfulRequests: false,
             skipFailedRequests: false,
-          },
+  
           csp: {
             directives: {
               'default-src': ["'self'"],
@@ -55,9 +55,9 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
               'object-src': ["'none'"],
               'media-src': ["'self'"],
               'frame-src': ["'none'"],
-            },
-          },
-        },
+    
+  
+
         database: {
           url: process.env.DATABASE_URL || 'postgresql://localhost/flowcreate_prod',
           pool: {
@@ -65,24 +65,24 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
             max: 10,
             idleTimeoutMillis: 30000,
             connectionTimeoutMillis: 2000,
-          },
+  
           ssl: {
             enabled: true,
             rejectUnauthorized: true,
-          },
-        },
+  
+
         services: {
           apiGateway: {
             port: 5000,
             host: '0.0.0.0',
             timeout: 30000,
-          },
+  
           external: {
             baseUrl: process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'https://localhost:5000',
             callbackUrl: (process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'https://localhost:5000') + '/auth/callback',
             logoutUrl: process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'https://localhost:5000',
-          },
-        },
+  
+
         cognito: {
           clientId: process.env.VITE_AWS_COGNITO_CLIENT_ID || '',
           clientSecret: process.env.AWS_COGNITO_CLIENT_SECRET,
@@ -94,10 +94,6 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
         },
         email: {
           provider: 'none',
-        sendgrid: {
-          fromEmail: 'noreply@flowcreate.app',
-          fromName: 'FlowCreate',
-        },
         },
         features: {
           debugMode: false,
@@ -105,7 +101,7 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
           emailEnabled: true,
           maintenanceMode: false,
           newUserRegistration: true,
-        },
+
         logging: {
           level: 'info',
           enableConsole: true,
@@ -114,7 +110,7 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
           format: 'json',
           maxFileSize: '50mb',
           maxFiles: 10,
-        },
+
       };
     case 'staging':
       return {
@@ -125,7 +121,7 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
           emailEnabled: false,
           maintenanceMode: false,
           newUserRegistration: true,
-        },
+
         logging: {
           level: 'debug',
           enableConsole: true,
@@ -134,7 +130,7 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
           format: 'json',
           maxFileSize: '25mb',
           maxFiles: 7,
-        },
+
       };
     case 'test':
       return {
@@ -145,7 +141,7 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
           emailEnabled: false,
           maintenanceMode: false,
           newUserRegistration: true,
-        },
+
         logging: {
           level: 'error',
           enableConsole: false,
@@ -154,7 +150,7 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
           format: 'simple',
           maxFileSize: '5mb',
           maxFiles: 2,
-        },
+
       };
     case 'development':
     default:
@@ -172,20 +168,20 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
             allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
             allowCredentials: true,
-          },
+  
           session: {
             secret: process.env.SESSION_SECRET || 'dev_session_secret_change_in_production',
             maxAge: 7 * 24 * 60 * 60 * 1000,
             secure: false,
             httpOnly: true,
             sameSite: 'lax',
-          },
+  
           rateLimit: {
             windowMs: 1 * 60 * 1000,
             maxRequests: 1000,
             skipSuccessfulRequests: false,
             skipFailedRequests: false,
-          },
+  
           csp: {
             directives: {
               'default-src': ["'self'"],
@@ -197,9 +193,9 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
               'object-src': ["'none'"],
               'media-src': ["'self'"],
               'frame-src': ["'none'"],
-            },
-          },
-        },
+    
+  
+
         database: {
           url: process.env.DATABASE_URL || 'postgresql://localhost/flowcreate_dev',
           pool: {
@@ -207,24 +203,24 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
             max: 10,
             idleTimeoutMillis: 30000,
             connectionTimeoutMillis: 2000,
-          },
+  
           ssl: {
             enabled: false,
             rejectUnauthorized: false,
-          },
-        },
+  
+
         services: {
           apiGateway: {
             port: 5000,
             host: '0.0.0.0',
             timeout: 30000,
-          },
+  
           external: {
             baseUrl: process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'http://localhost:5000',
             callbackUrl: (process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'http://localhost:5000') + '/auth/callback',
             logoutUrl: process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : 'http://localhost:5000',
-          },
-        },
+  
+
         cognito: {
           clientId: process.env.VITE_AWS_COGNITO_CLIENT_ID || 'dev_client_id',
           clientSecret: process.env.AWS_COGNITO_CLIENT_SECRET,
@@ -233,21 +229,18 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
           hostedUIDomain: process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || 'dev-hosted-ui-domain',
           accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'dev_access_key_id',
           secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'dev_secret_access_key',
-        },
+
         email: {
           provider: 'none',
-        sendgrid: {
-          fromEmail: 'noreply@flowcreate.app',
-          fromName: 'FlowCreate',
-        },
-        },
+
+
         features: {
           debugMode: true,
           analyticsEnabled: true,
           emailEnabled: false,
           maintenanceMode: false,
           newUserRegistration: true,
-        },
+
         logging: {
           level: 'debug',
           enableConsole: true,
@@ -256,7 +249,7 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
           format: 'simple',
           maxFileSize: '10mb',
           maxFiles: 5,
-        },
+
       };
   }
 }
