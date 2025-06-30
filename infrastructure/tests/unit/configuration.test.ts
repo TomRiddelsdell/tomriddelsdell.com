@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { loadConfiguration, getConfig, reloadConfiguration, ConfigurationError, validateRequiredEnvironment } from '../../infrastructure/configuration/config-loader';
-import { baseConfigSchema } from '../../infrastructure/configuration/base-config';
+import { loadConfiguration, getConfig, reloadConfiguration, ConfigurationError, validateRequiredEnvironment } from '../../configuration/config-loader';
+import { baseConfigSchema } from '../../configuration/base-config';
 
 describe('Configuration System', () => {
   const originalEnv = process.env;
