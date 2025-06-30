@@ -124,15 +124,14 @@ describe('Deployment Pipeline Integration Tests', () => {
         process.env.NODE_ENV = env;
         process.env.DATABASE_URL = 'postgresql://localhost/test';
         process.env.SESSION_SECRET = 'secure_session_secret_32_characters_long';
+        process.env.VITE_AWS_COGNITO_CLIENT_ID = 'test_client_id';
+        process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'test_pool_id';
+        process.env.VITE_AWS_COGNITO_REGION = 'us-east-1';
+        process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
+        process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
+        process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
         
         if (env === 'production') {
-          // Production requires all AWS variables
-          process.env.VITE_AWS_COGNITO_CLIENT_ID = 'prod_client_id';
-          process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'prod_pool_id';
-          process.env.VITE_AWS_COGNITO_REGION = 'us-east-1';
-          process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://prod.auth.us-east-1.amazoncognito.com';
-          process.env.AWS_ACCESS_KEY_ID = 'prod_access_key';
-          process.env.AWS_SECRET_ACCESS_KEY = 'prod_secret_key';
           process.env.CORS_ALLOWED_ORIGINS = 'https://my-app.replit.app';
         }
 
@@ -284,6 +283,12 @@ describe('Deployment Pipeline Integration Tests', () => {
 
       for (const dbConfig of dbConfigs) {
         process.env.NODE_ENV = dbConfig.env;
+        process.env.VITE_AWS_COGNITO_CLIENT_ID = "test_client_id";
+        process.env.VITE_AWS_COGNITO_USER_POOL_ID = "test_pool_id";
+        process.env.VITE_AWS_COGNITO_REGION = "us-east-1";
+        process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = "https://test.auth.us-east-1.amazoncognito.com";
+        process.env.AWS_ACCESS_KEY_ID = "test_access_key";
+        process.env.AWS_SECRET_ACCESS_KEY = "test_secret_key";
         process.env.DATABASE_URL = dbConfig.url;
         process.env.SESSION_SECRET = 'secure_session_secret_32_characters_long';
         

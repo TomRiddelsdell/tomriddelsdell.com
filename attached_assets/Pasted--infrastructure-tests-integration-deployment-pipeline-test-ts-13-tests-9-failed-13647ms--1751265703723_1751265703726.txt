@@ -1,0 +1,2080 @@
+
+ ❯ infrastructure/tests/integration/deployment-pipeline.test.ts (13 tests | 9 failed) 13647ms
+   ✓ Deployment Pipeline Integration Tests > Build Process Validation > should build successfully with valid configuration  8067ms
+   ✓ Deployment Pipeline Integration Tests > Build Process Validation > should fail build with invalid configuration  4938ms
+   ✓ Deployment Pipeline Integration Tests > Environment Validation Pipeline > should validate environment successfully with all required variables 293ms
+   × Deployment Pipeline Integration Tests > Environment Validation Pipeline > should fail validation with missing critical variables 294ms
+     → expected 'Command failed: tsx scripts/validate-…' to contain 'exit code 1'
+   × Deployment Pipeline Integration Tests > Configuration Loading Pipeline > should load configuration without errors in all environments 17ms
+     → Configuration loading failed for development: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+   × Deployment Pipeline Integration Tests > Configuration Loading Pipeline > should validate schema compliance for all environments 4ms
+     → Schema validation failed for development: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+   × Deployment Pipeline Integration Tests > Security Validation Pipeline > should enforce security requirements for production 5ms
+     → Production security validation failed: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+   ✓ Deployment Pipeline Integration Tests > Security Validation Pipeline > should reject insecure production configurations 8ms
+   × Deployment Pipeline Integration Tests > Database Configuration Pipeline > should configure database connections correctly for each environment 5ms
+     → Database configuration failed for development: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+   × Deployment Pipeline Integration Tests > Service URL Configuration Pipeline > should configure service URLs correctly for Replit deployment 4ms
+     → Service URL configuration failed: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+   × Deployment Pipeline Integration Tests > Service URL Configuration Pipeline > should handle missing REPLIT_DOMAINS gracefully 4ms
+     → Fallback URL configuration failed: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+   × Deployment Pipeline Integration Tests > Feature Flag Pipeline > should configure feature flags correctly for each environment 3ms
+     → Feature flag configuration failed for development: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+   × Deployment Pipeline Integration Tests > Feature Flag Pipeline > should allow environment variable overrides for feature flags 4ms
+     → Feature flag override failed: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  interfaces/api-gateway/tests/integration/server-startup.test.ts [ interfaces/api-gateway/tests/integration/server-startup.test.ts ]
+Error: Failed to resolve import "../../interfaces/api-gateway/src/routes" from "interfaces/api-gateway/tests/integration/server-startup.test.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/runner/workspace/interfaces/api-gateway/tests/integration/server-startup.test.ts:118:46
+  103|        };
+  104|        __vi_import_1__.getConfig.mockReturnValue(mockConfig);
+  105|        const { registerRoutes } = await import("../../interfaces/api-gateway/src/routes");
+     |                                                ^
+  106|        const { initializeTemplates } = await import("../../infrastructure/database/initTemplates");
+  107|        const config = __vi_import_1__.getConfig();
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42499:41
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42496:16
+ ❯ normalizeUrl node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40475:23
+ ❯ node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40594:37
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:40521:7
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:42294:18
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:35735:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/45]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests 44 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  infrastructure/tests/integration/deployment-pipeline.test.ts > Deployment Pipeline Integration Tests > Environment Validation Pipeline > should fail validation with missing critical variables
+AssertionError: expected 'Command failed: tsx scripts/validate-…' to contain 'exit code 1'
+
+- Expected
++ Received
+
+- exit code 1
++ Command failed: tsx scripts/validate-environment.ts
++
+
+ ❯ infrastructure/tests/integration/deployment-pipeline.test.ts:109:33
+    107|         // Validation should fail with exit code 1
+    108|         if (error instanceof Error && error.message.includes('Command failed')) {
+    109|           expect(error.message).toContain('exit code 1');
+       |                                 ^
+    110|         } else if (error instanceof Error && error.message.includes('tsx')) {
+    111|           console.warn('Environment validation test skipped - tsx not available');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/45]⎯
+
+ FAIL  infrastructure/tests/integration/deployment-pipeline.test.ts > Deployment Pipeline Integration Tests > Configuration Loading Pipeline > should load configuration without errors in all environments
+Error: Configuration loading failed for development: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ infrastructure/tests/integration/deployment-pipeline.test.ts:161:17
+    159|           }
+    160|         } catch (error) {
+    161|           throw new Error(`Configuration loading failed for ${env}: ${error}`);
+       |                 ^
+    162|         }
+    163|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/45]⎯
+
+ FAIL  infrastructure/tests/integration/deployment-pipeline.test.ts > Deployment Pipeline Integration Tests > Configuration Loading Pipeline > should validate schema compliance for all environments
+Error: Schema validation failed for development: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ infrastructure/tests/integration/deployment-pipeline.test.ts:193:17
+    191|           expect(() => baseConfigSchema.parse(config)).not.toThrow();
+    192|         } catch (error) {
+    193|           throw new Error(`Schema validation failed for ${env}: ${error}`);
+       |                 ^
+    194|         }
+    195|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/45]⎯
+
+ FAIL  infrastructure/tests/integration/deployment-pipeline.test.ts > Deployment Pipeline Integration Tests > Security Validation Pipeline > should enforce security requirements for production
+Error: Production security validation failed: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ infrastructure/tests/integration/deployment-pipeline.test.ts:229:15
+    227|         expect(config.security.cors.allowedOrigins.every(origin => origin.startsWith('https://'))).toBe(true);
+    228|       } catch (error) {
+    229|         throw new Error(`Production security validation failed: ${error}`);
+       |               ^
+    230|       }
+    231|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/45]⎯
+
+ FAIL  infrastructure/tests/integration/deployment-pipeline.test.ts > Deployment Pipeline Integration Tests > Database Configuration Pipeline > should configure database connections correctly for each environment
+Error: Database configuration failed for development: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ infrastructure/tests/integration/deployment-pipeline.test.ts:308:17
+    306|           expect(config.database.pool.max).toBeGreaterThanOrEqual(5);
+    307|         } catch (error) {
+    308|           throw new Error(`Database configuration failed for ${dbConfig.env}: ${error}`);
+       |                 ^
+    309|         }
+    310|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/45]⎯
+
+ FAIL  infrastructure/tests/integration/deployment-pipeline.test.ts > Deployment Pipeline Integration Tests > Service URL Configuration Pipeline > should configure service URLs correctly for Replit deployment
+Error: Service URL configuration failed: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ infrastructure/tests/integration/deployment-pipeline.test.ts:338:15
+    336|         expect(config.security.cors.allowedOrigins).toContain(expectedDomain);
+    337|       } catch (error) {
+    338|         throw new Error(`Service URL configuration failed: ${error}`);
+       |               ^
+    339|       }
+    340|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/45]⎯
+
+ FAIL  infrastructure/tests/integration/deployment-pipeline.test.ts > Deployment Pipeline Integration Tests > Service URL Configuration Pipeline > should handle missing REPLIT_DOMAINS gracefully
+Error: Fallback URL configuration failed: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ infrastructure/tests/integration/deployment-pipeline.test.ts:356:15
+    354|         expect(config.services.external.callbackUrl).toContain('localhost:5000/auth/callback');
+    355|       } catch (error) {
+    356|         throw new Error(`Fallback URL configuration failed: ${error}`);
+       |               ^
+    357|       }
+    358|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/45]⎯
+
+ FAIL  infrastructure/tests/integration/deployment-pipeline.test.ts > Deployment Pipeline Integration Tests > Feature Flag Pipeline > should configure feature flags correctly for each environment
+Error: Feature flag configuration failed for development: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ infrastructure/tests/integration/deployment-pipeline.test.ts:404:17
+    402|           expect(config.features.emailEnabled).toBe(featureConfig.expected.emailEnabled);
+    403|         } catch (error) {
+    404|           throw new Error(`Feature flag configuration failed for ${featureConfig.env}: ${error}`);
+       |                 ^
+    405|         }
+    406|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/45]⎯
+
+ FAIL  infrastructure/tests/integration/deployment-pipeline.test.ts > Deployment Pipeline Integration Tests > Feature Flag Pipeline > should allow environment variable overrides for feature flags
+Error: Feature flag override failed: ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ infrastructure/tests/integration/deployment-pipeline.test.ts:427:15
+    425|         expect(config.features.maintenanceMode).toBe(true); // Overridden
+    426|       } catch (error) {
+    427|         throw new Error(`Feature flag override failed: ${error}`);
+       |               ^
+    428|       }
+    429|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Development Environment > should load development configuration successfully
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ infrastructure/tests/unit/configuration.test.ts:33:22
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ infrastructure/tests/unit/configuration.test.ts:33:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { email: [ 'SendGrid API key must start with SG.' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Development Environment > should provide development-specific defaults
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ infrastructure/tests/unit/configuration.test.ts:42:22
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ infrastructure/tests/unit/configuration.test.ts:42:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { email: [ 'SendGrid API key must start with SG.' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Development Environment > should include Replit domain in CORS when available
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ getConfig infrastructure/configuration/config-loader.ts:500:22
+ ❯ reloadConfiguration infrastructure/configuration/config-loader.ts:510:10
+ ❯ infrastructure/tests/unit/configuration.test.ts:52:22
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ getConfig infrastructure/configuration/config-loader.ts:500:22
+ ❯ reloadConfiguration infrastructure/configuration/config-loader.ts:510:10
+ ❯ infrastructure/tests/unit/configuration.test.ts:52:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { email: [ 'SendGrid API key must start with SG.' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Production Environment > should load production configuration successfully
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ infrastructure/tests/unit/configuration.test.ts:73:22
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ infrastructure/tests/unit/configuration.test.ts:73:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { email: [ 'SendGrid API key must start with SG.' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Production Environment > should enforce production security settings
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ infrastructure/tests/unit/configuration.test.ts:82:22
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ infrastructure/tests/unit/configuration.test.ts:82:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { email: [ 'SendGrid API key must start with SG.' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Production Environment > should use Replit domain for base URLs
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ infrastructure/tests/unit/configuration.test.ts:91:22
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ infrastructure/tests/unit/configuration.test.ts:91:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { email: [ 'SendGrid API key must start with SG.' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Production Environment > should configure CORS for production domain
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ infrastructure/tests/unit/configuration.test.ts:98:22
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ infrastructure/tests/unit/configuration.test.ts:98:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { email: [ 'SendGrid API key must start with SG.' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Environment Variable Overrides > should override CORS configuration from environment
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ getConfig infrastructure/configuration/config-loader.ts:500:22
+ ❯ reloadConfiguration infrastructure/configuration/config-loader.ts:510:10
+ ❯ infrastructure/tests/unit/configuration.test.ts:114:22
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ getConfig infrastructure/configuration/config-loader.ts:500:22
+ ❯ reloadConfiguration infrastructure/configuration/config-loader.ts:510:10
+ ❯ infrastructure/tests/unit/configuration.test.ts:114:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { email: [ 'SendGrid API key must start with SG.' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Environment Variable Overrides > should override rate limiting from environment
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ getConfig infrastructure/configuration/config-loader.ts:500:22
+ ❯ reloadConfiguration infrastructure/configuration/config-loader.ts:510:10
+ ❯ infrastructure/tests/unit/configuration.test.ts:126:22
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ getConfig infrastructure/configuration/config-loader.ts:500:22
+ ❯ reloadConfiguration infrastructure/configuration/config-loader.ts:510:10
+ ❯ infrastructure/tests/unit/configuration.test.ts:126:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { email: [ 'SendGrid API key must start with SG.' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Environment Variable Overrides > should configure SendGrid when API key is provided
+AssertionError: expected 'none' to be 'sendgrid' // Object.is equality
+
+Expected: "sendgrid"
+Received: "none"
+
+ ❯ infrastructure/tests/unit/configuration.test.ts:149:37
+    147|       const config = reloadConfiguration();
+    148|       
+    149|       expect(config.email.provider).toBe('sendgrid');
+       |                                     ^
+    150|       expect(config.email.sendgrid?.apiKey).toBe('SG.test-api-key');
+    151|       expect(config.email.sendgrid?.fromEmail).toBe('noreply@myapp.com');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Environment Variable Overrides > should override feature flags from environment
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ getConfig infrastructure/configuration/config-loader.ts:500:22
+ ❯ reloadConfiguration infrastructure/configuration/config-loader.ts:510:10
+ ❯ infrastructure/tests/unit/configuration.test.ts:160:22
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ getConfig infrastructure/configuration/config-loader.ts:500:22
+ ❯ reloadConfiguration infrastructure/configuration/config-loader.ts:510:10
+ ❯ infrastructure/tests/unit/configuration.test.ts:160:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { email: [ 'SendGrid API key must start with SG.' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Configuration Validation > should accept valid configuration
+AssertionError: expected [Function] to not throw an error but 'ConfigurationError: Failed to load co…' was thrown
+
+- Expected: 
+undefined
+
++ Received: 
+"ConfigurationError: Failed to load configuration: [
+  {
+    \"code\": \"invalid_string\",
+    \"validation\": {
+      \"startsWith\": \"SG.\"
+    },
+    \"message\": \"SendGrid API key must start with SG.\",
+    \"path\": [
+      \"email\",
+      \"sendgrid\",
+      \"apiKey\"
+    ]
+  }
+]"
+
+ ❯ infrastructure/tests/unit/configuration.test.ts:206:45
+    204|       process.env.CORS_ALLOWED_ORIGINS = 'https://valid-domain.com';
+    205|       
+    206|       expect(() => loadConfiguration()).not.toThrow();
+       |                                             ^
+    207|     });
+    208|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Configuration Schema Compliance > should generate configuration that passes schema validation
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ infrastructure/tests/unit/configuration.test.ts:261:22
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ infrastructure/tests/unit/configuration.test.ts:261:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { email: [ 'SendGrid API key must start with SG.' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Configuration Schema Compliance > should ensure all required configuration sections are present
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "cors"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "too_small",
+    "minimum": 32,
+    "type": "string",
+    "inclusive": true,
+    "exact": false,
+    "message": "Session secret must be at least 32 characters",
+    "path": [
+      "security",
+      "session",
+      "secret"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "rateLimit"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "csp"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "pool"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "ssl"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "services",
+      "apiGateway"
+    ],
+    "message": "Required"
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ infrastructure/tests/unit/configuration.test.ts:268:22
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "cors"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "too_small",
+    "minimum": 32,
+    "type": "string",
+    "inclusive": true,
+    "exact": false,
+    "message": "Session secret must be at least 32 characters",
+    "path": [
+      "security",
+      "session",
+      "secret"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "rateLimit"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "csp"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "pool"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "ssl"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "services",
+      "apiGateway"
+    ],
+    "message": "Required"
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ infrastructure/tests/unit/configuration.test.ts:268:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'cors' ], message: 'Required' }, { code: 'too_small', minimum: 32, type: 'string', inclusive: true, exact: false, message: 'Session secret must be at least 32 characters', path: [ 'security', 'session', 'secret' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'rateLimit' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'csp' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'pool' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'ssl' ], message: 'Required' }, { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'services', 'apiGateway' ], message: 'Required' } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'cors' ], message: 'Required' }, { code: 'too_small', minimum: 32, type: 'string', inclusive: true, exact: false, message: 'Session secret must be at least 32 characters', path: [ 'security', 'session', 'secret' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'rateLimit' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'csp' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'pool' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'ssl' ], message: 'Required' }, { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'services', 'apiGateway' ], message: 'Required' } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { security: [ 'Required', 'Session secret must be at least 32 characters', 'Required', 'Required' ], database: [ 'Required', 'Required' ], email: [ 'SendGrid API key must start with SG.' ], services: [ 'Required' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Configuration Schema Compliance > should ensure security configuration has all required fields
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "cors"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "too_small",
+    "minimum": 32,
+    "type": "string",
+    "inclusive": true,
+    "exact": false,
+    "message": "Session secret must be at least 32 characters",
+    "path": [
+      "security",
+      "session",
+      "secret"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "rateLimit"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "csp"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "pool"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "ssl"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "services",
+      "apiGateway"
+    ],
+    "message": "Required"
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ infrastructure/tests/unit/configuration.test.ts:281:22
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "cors"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "too_small",
+    "minimum": 32,
+    "type": "string",
+    "inclusive": true,
+    "exact": false,
+    "message": "Session secret must be at least 32 characters",
+    "path": [
+      "security",
+      "session",
+      "secret"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "rateLimit"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "csp"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "pool"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "ssl"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "services",
+      "apiGateway"
+    ],
+    "message": "Required"
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ infrastructure/tests/unit/configuration.test.ts:281:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'cors' ], message: 'Required' }, { code: 'too_small', minimum: 32, type: 'string', inclusive: true, exact: false, message: 'Session secret must be at least 32 characters', path: [ 'security', 'session', 'secret' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'rateLimit' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'csp' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'pool' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'ssl' ], message: 'Required' }, { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'services', 'apiGateway' ], message: 'Required' } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'cors' ], message: 'Required' }, { code: 'too_small', minimum: 32, type: 'string', inclusive: true, exact: false, message: 'Session secret must be at least 32 characters', path: [ 'security', 'session', 'secret' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'rateLimit' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'csp' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'pool' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'ssl' ], message: 'Required' }, { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'services', 'apiGateway' ], message: 'Required' } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { security: [ 'Required', 'Session secret must be at least 32 characters', 'Required', 'Required' ], database: [ 'Required', 'Required' ], email: [ 'SendGrid API key must start with SG.' ], services: [ 'Required' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Configuration Singleton > should return the same instance on multiple calls
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "cors"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "too_small",
+    "minimum": 32,
+    "type": "string",
+    "inclusive": true,
+    "exact": false,
+    "message": "Session secret must be at least 32 characters",
+    "path": [
+      "security",
+      "session",
+      "secret"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "rateLimit"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "csp"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "pool"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "ssl"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "services",
+      "apiGateway"
+    ],
+    "message": "Required"
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ getConfig infrastructure/configuration/config-loader.ts:500:22
+ ❯ infrastructure/tests/unit/configuration.test.ts:297:23
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "cors"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "too_small",
+    "minimum": 32,
+    "type": "string",
+    "inclusive": true,
+    "exact": false,
+    "message": "Session secret must be at least 32 characters",
+    "path": [
+      "security",
+      "session",
+      "secret"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "rateLimit"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "csp"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "pool"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "ssl"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "services",
+      "apiGateway"
+    ],
+    "message": "Required"
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ getConfig infrastructure/configuration/config-loader.ts:500:22
+ ❯ infrastructure/tests/unit/configuration.test.ts:297:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'cors' ], message: 'Required' }, { code: 'too_small', minimum: 32, type: 'string', inclusive: true, exact: false, message: 'Session secret must be at least 32 characters', path: [ 'security', 'session', 'secret' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'rateLimit' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'csp' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'pool' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'ssl' ], message: 'Required' }, { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'services', 'apiGateway' ], message: 'Required' } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'cors' ], message: 'Required' }, { code: 'too_small', minimum: 32, type: 'string', inclusive: true, exact: false, message: 'Session secret must be at least 32 characters', path: [ 'security', 'session', 'secret' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'rateLimit' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'csp' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'pool' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'ssl' ], message: 'Required' }, { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'services', 'apiGateway' ], message: 'Required' } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { security: [ 'Required', 'Session secret must be at least 32 characters', 'Required', 'Required' ], database: [ 'Required', 'Required' ], email: [ 'SendGrid API key must start with SG.' ], services: [ 'Required' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/45]⎯
+
+ FAIL  infrastructure/tests/unit/configuration.test.ts > Configuration System > Configuration Singleton > should reload configuration when requested
+ConfigurationError: Failed to load configuration: [
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "cors"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "too_small",
+    "minimum": 32,
+    "type": "string",
+    "inclusive": true,
+    "exact": false,
+    "message": "Session secret must be at least 32 characters",
+    "path": [
+      "security",
+      "session",
+      "secret"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "rateLimit"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "csp"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "pool"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "ssl"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "services",
+      "apiGateway"
+    ],
+    "message": "Required"
+  }
+]
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:481:13
+    479|   } catch (error) {
+    480|     if (error instanceof Error) {
+    481|       throw new ConfigurationError(
+       |             ^
+    482|         `Failed to load configuration: ${error.message}`,
+    483|         error
+ ❯ getConfig infrastructure/configuration/config-loader.ts:500:22
+ ❯ infrastructure/tests/unit/configuration.test.ts:304:23
+
+Caused by: ZodError: [
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "cors"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "too_small",
+    "minimum": 32,
+    "type": "string",
+    "inclusive": true,
+    "exact": false,
+    "message": "Session secret must be at least 32 characters",
+    "path": [
+      "security",
+      "session",
+      "secret"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "rateLimit"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "security",
+      "csp"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "pool"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "database",
+      "ssl"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_string",
+    "validation": {
+      "startsWith": "SG."
+    },
+    "message": "SendGrid API key must start with SG.",
+    "path": [
+      "email",
+      "sendgrid",
+      "apiKey"
+    ]
+  },
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "services",
+      "apiGateway"
+    ],
+    "message": "Required"
+  }
+]
+ ❯ Object.get error [as error] node_modules/zod/lib/index.mjs:587:31
+ ❯ ZodObject.parse node_modules/zod/lib/index.mjs:663:22
+ ❯ loadConfiguration infrastructure/configuration/config-loader.ts:469:46
+ ❯ getConfig infrastructure/configuration/config-loader.ts:500:22
+ ❯ infrastructure/tests/unit/configuration.test.ts:304:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { issues: [ { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'cors' ], message: 'Required' }, { code: 'too_small', minimum: 32, type: 'string', inclusive: true, exact: false, message: 'Session secret must be at least 32 characters', path: [ 'security', 'session', 'secret' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'rateLimit' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'csp' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'pool' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'ssl' ], message: 'Required' }, { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'services', 'apiGateway' ], message: 'Required' } ], addIssue: 'Function<anonymous>', addIssues: 'Function<anonymous>', errors: [ { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'cors' ], message: 'Required' }, { code: 'too_small', minimum: 32, type: 'string', inclusive: true, exact: false, message: 'Session secret must be at least 32 characters', path: [ 'security', 'session', 'secret' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'rateLimit' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'security', 'csp' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'pool' ], message: 'Required' }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'database', 'ssl' ], message: 'Required' }, { code: 'invalid_string', validation: { startsWith: 'SG.' }, message: 'SendGrid API key must start with SG.', path: [ 'email', 'sendgrid', 'apiKey' ] }, { code: 'invalid_type', expected: 'object', received: 'undefined', path: [ 'services', 'apiGateway' ], message: 'Required' } ], format: 'Function<format>', isEmpty: false, flatten: 'Function<flatten>', formErrors: { formErrors: [], fieldErrors: { security: [ 'Required', 'Session secret must be at least 32 characters', 'Required', 'Required' ], database: [ 'Required', 'Required' ], email: [ 'SendGrid API key must start with SG.' ], services: [ 'Required' ] } } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Database Validation > should pass when DATABASE_URL is properly configured
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:29:47
+     27|         await validator.validate();
+     28|         
+     29|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+     30|       });
+     31| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Database Validation > should accept both postgresql:// and postgres:// schemes
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:52:47
+     50|         process.env.DATABASE_URL = 'postgresql://user:pass@host:5432/db';
+     51|         await validator.validate();
+     52|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+     53| 
+     54|         // Reset and test postgres://
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > AWS Cognito Validation > should pass when all Cognito variables are present
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:84:47
+     82|         await validator.validate();
+     83|         
+     84|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+     85|       });
+     86| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > AWS Cognito Validation > should warn about invalid region format
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:107:47
+    105|         
+    106|         // Should still be deployment ready but with warnings
+    107|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+    108|       });
+    109| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > AWS Cognito Validation > should accept valid region formats
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:119:49
+    117|           await validator.validate();
+    118|           
+    119|           expect(validator.isDeploymentReady()).toBe(true);
+       |                                                 ^
+    120|         }
+    121|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Security Configuration Validation > should pass with a strong session secret
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:173:47
+    171|         await validator.validate();
+    172|         
+    173|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+    174|       });
+    175| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Security Configuration Validation > should warn about missing CORS configuration in production
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:184:47
+    182|         
+    183|         // Should still be ready but with warnings
+    184|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+    185|       });
+    186| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Security Configuration Validation > should validate CORS configuration when present
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:194:47
+    192|         await validator.validate();
+    193|         
+    194|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+    195|       });
+    196|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Email Service Validation > should warn when SENDGRID_API_KEY is not configured
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:217:47
+    215|         
+    216|         // Should be ready but with warnings
+    217|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+    218|       });
+    219| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Email Service Validation > should fail when SENDGRID_API_KEY format is incorrect
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:225:47
+    223|         await validator.validate();
+    224|         
+    225|         expect(validator.isDeploymentReady()).toBe(true); // Email is optional
+       |                                               ^
+    226|       });
+    227| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Email Service Validation > should pass when SENDGRID_API_KEY is properly formatted
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:233:47
+    231|         await validator.validate();
+    232|         
+    233|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+    234|       });
+    235|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Platform Detection > should detect Replit platform when REPLIT_DOMAINS is present
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:255:47
+    253|         await validator.validate();
+    254|         
+    255|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+    256|       });
+    257| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Platform Detection > should warn about unknown platform when REPLIT_DOMAINS is absent
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:263:47
+    261|         await validator.validate();
+    262|         
+    263|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+    264|       });
+    265| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Platform Detection > should warn in production mode without REPLIT_DOMAINS
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:272:47
+    270|         await validator.validate();
+    271|         
+    272|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+    273|       });
+    274|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Configuration Loading Validation > should pass when configuration loads successfully
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:292:47
+    290|         await validator.validate();
+    291|         
+    292|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+    293|       });
+    294| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Configuration Loading Validation > should warn when API Gateway port is not 5000
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:310:47
+    308|         await validator.validate();
+    309|         
+    310|         expect(validator.isDeploymentReady()).toBe(true); // Warning, not failure
+       |                                               ^
+    311|       });
+    312|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Deployment Readiness Assessment > should be ready when all critical checks pass
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:330:47
+    328|         await validator.validate();
+    329|         
+    330|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+    331|       });
+    332| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/45]⎯
+
+ FAIL  infrastructure/tests/unit/environment-validation.test.ts > Environment Validation Scripts > EnvironmentValidator > Deployment Readiness Assessment > should be ready with warnings for optional services
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ infrastructure/tests/unit/environment-validation.test.ts:357:47
+    355|         await validator.validate();
+    356|         
+    357|         expect(validator.isDeploymentReady()).toBe(true);
+       |                                               ^
+    358|       });
+    359|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/45]⎯
+
+
+ Test Files  4 failed | 10 passed | 7 skipped (21)
+      Tests  44 failed | 148 passed | 79 skipped (271)
+   Start at  06:40:35
+   Duration  15.42s (transform 1.22s, setup 618ms, collect 4.46s, tests 19.40s, environment 17.85s, prepare 2.74s)
+
+~/workspace$ 
