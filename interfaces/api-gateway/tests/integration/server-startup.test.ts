@@ -115,8 +115,8 @@ describe('Server Startup Process', () => {
       (getConfig as any).mockReturnValue(mockConfig);
 
       // Import and test the startup logic
-      const { registerRoutes } = await import('../../interfaces/api-gateway/src/routes');
-      const { initializeTemplates } = await import('../../infrastructure/database/initTemplates');
+      const { registerRoutes } = await import('../../src/routes');
+      const { initializeTemplates } = await import('../../../../infrastructure/database/initTemplates');
 
       // Simulate startup process
       const config = getConfig();

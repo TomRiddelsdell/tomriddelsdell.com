@@ -74,7 +74,7 @@ export const emailConfigSchema = z.object({
     apiKey: z.string().startsWith('SG.', 'SendGrid API key must start with SG.').optional(),
     fromEmail: z.string().email().default('noreply@flowcreate.app'),
     fromName: z.string().default('FlowCreate'),
-  }).optional(),
+  }),
 });
 
 // Service endpoints configuration schema

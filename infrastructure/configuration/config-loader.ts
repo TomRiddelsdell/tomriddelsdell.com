@@ -98,7 +98,10 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
             apiKey: process.env.SENDGRID_API_KEY,
             fromEmail: process.env.SENDGRID_FROM_EMAIL || 'noreply@flowcreate.app',
             fromName: process.env.SENDGRID_FROM_NAME || 'FlowCreate',
-          } : undefined,
+          } : {
+            fromEmail: 'noreply@flowcreate.app',
+            fromName: 'FlowCreate',
+          },
         },
         features: {
           debugMode: false,
@@ -236,12 +239,15 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
           secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'dev_secret_access_key',
         },
         email: {
-          provider: 'none',
+          provider: process.env.SENDGRID_API_KEY ? 'sendgrid' : 'none',
           sendgrid: process.env.SENDGRID_API_KEY ? {
             apiKey: process.env.SENDGRID_API_KEY,
             fromEmail: process.env.SENDGRID_FROM_EMAIL || 'noreply@flowcreate.app',
             fromName: process.env.SENDGRID_FROM_NAME || 'FlowCreate',
-          } : undefined,
+          } : {
+            fromEmail: 'noreply@flowcreate.app',
+            fromName: 'FlowCreate',
+          },
         },
         features: {
           debugMode: true,
