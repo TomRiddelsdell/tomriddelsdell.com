@@ -67,14 +67,23 @@ export const databaseConfigSchema = z.object({
   }),
 });
 
-// Email service configuration schema
+// Email service configuration schema  
 export const emailConfigSchema = z.object({
   provider: z.enum(['sendgrid', 'none']).default('none'),
   sendgrid: z.object({
-    apiKey: z.string().startsWith('SG.', 'SendGrid API key must start with SG.').optional(),
+    apiKey: z.string().optional(),
     fromEmail: z.string().email().default('noreply@flowcreate.app'),
     fromName: z.string().default('FlowCreate'),
   }),
+}).refine((data) => {
+  // Only validate SendGrid API key format when provider is 'sendgrid' and key is provided
+  if (data.provider === 'sendgrid' && data.sendgrid?.apiKey) {
+    return data.sendgrid.apiKey.startsWith('SG.');
+  }
+  return true;
+}, {
+  message: 'SendGrid API key must start with SG. when using sendgrid provider',
+  path: ['sendgrid', 'apiKey'],
 });
 
 // Service endpoints configuration schema
