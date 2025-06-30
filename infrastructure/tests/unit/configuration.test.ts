@@ -192,6 +192,12 @@ describe('Configuration System', () => {
     });
 
     it('should accept valid configuration', () => {
+      // Clear all SendGrid environment variables first
+      delete process.env.SENDGRID_API_KEY;
+      delete process.env.EMAIL_PROVIDER;
+      delete process.env.SENDGRID_FROM_EMAIL;
+      delete process.env.SENDGRID_FROM_NAME;
+      
       process.env.NODE_ENV = 'production';
       process.env.DATABASE_URL = 'postgresql://user:pass@host/db';
       process.env.SESSION_SECRET = 'very_secure_session_secret_32_plus_chars';
