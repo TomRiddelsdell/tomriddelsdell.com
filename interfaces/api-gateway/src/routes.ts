@@ -48,6 +48,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('Error preparing database for Cognito:', error);
   }
 
+  // Production Health Check (load balancer endpoint)
+  app.get('/health', (req: Request, res: Response) => {
+    res.status(200).json({ 
+      status: 'healthy', 
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development'
+    });
+  });
+
   // API Routes
   // Simple Cognito authentication routes
   const { simpleCognitoHandler } = await import('./auth/simple-cognito');
@@ -296,7 +305,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.set('Content-Type', 'text/html');
       res.send(content);
     } catch (error) {
-      res.status(500).json({ error: 'Frontend file not accessible', details: error.message });
+      res.status(500).json({ error: 'Frontend file not accessible', details: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
