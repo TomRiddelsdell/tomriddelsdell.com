@@ -130,6 +130,16 @@ describe('Configuration System', () => {
     });
 
     it('should configure SendGrid when API key is provided', () => {
+      // Set all required configuration for valid test
+      process.env.DATABASE_URL = 'postgresql://localhost/test';
+      process.env.SESSION_SECRET = 'test_session_secret_32_chars_long';
+      process.env.VITE_AWS_COGNITO_CLIENT_ID = 'test_client_id';
+      process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'test_pool_id';
+      process.env.VITE_AWS_COGNITO_REGION = 'us-east-1';
+      process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
+      process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
+      process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+      
       process.env.SENDGRID_API_KEY = 'SG.test-api-key';
       process.env.SENDGRID_FROM_EMAIL = 'noreply@myapp.com';
       process.env.SENDGRID_FROM_NAME = 'My App';

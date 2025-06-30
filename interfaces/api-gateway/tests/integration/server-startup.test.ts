@@ -1,18 +1,18 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import express from 'express';
-import { getConfig } from '../../infrastructure/configuration/config-loader';
+import { getConfig } from '../../../../infrastructure/configuration/config-loader';
 
 // Mock the configuration loader
-vi.mock('../../infrastructure/configuration/config-loader', () => ({
+vi.mock('../../../../infrastructure/configuration/config-loader', () => ({
   getConfig: vi.fn(),
 }));
 
 // Mock other dependencies
-vi.mock('../../infrastructure/database/initTemplates', () => ({
+vi.mock('../../../../infrastructure/database/initTemplates', () => ({
   initializeTemplates: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock('../../interfaces/api-gateway/src/routes', () => ({
+vi.mock('../../src/routes', () => ({
   registerRoutes: vi.fn().mockResolvedValue({
     listen: vi.fn((port, host, callback) => {
       if (callback) callback();
@@ -21,7 +21,7 @@ vi.mock('../../interfaces/api-gateway/src/routes', () => ({
   }),
 }));
 
-vi.mock('../../interfaces/api-gateway/src/vite', () => ({
+vi.mock('../../src/vite', () => ({
   setupVite: vi.fn().mockResolvedValue(undefined),
   serveStatic: vi.fn(),
   log: vi.fn(),

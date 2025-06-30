@@ -137,7 +137,7 @@ describe('Deployment Pipeline Integration Tests', () => {
         }
 
         try {
-          const { loadConfiguration } = await import('../../infrastructure/configuration/config-loader');
+          const { loadConfiguration } = await import('../../configuration/config-loader');
           const config = loadConfiguration();
           
           expect(config.environment).toBe(env);
@@ -182,8 +182,8 @@ describe('Deployment Pipeline Integration Tests', () => {
         }
 
         try {
-          const { loadConfiguration } = await import('../../infrastructure/configuration/config-loader');
-          const { baseConfigSchema } = await import('../../infrastructure/configuration/base-config');
+          const { loadConfiguration } = await import('../../configuration/config-loader');
+          const { baseConfigSchema } = await import('../../configuration/base-config');
           
           const config = loadConfiguration();
           
@@ -211,7 +211,7 @@ describe('Deployment Pipeline Integration Tests', () => {
       process.env.SESSION_SECURE = 'true';
 
       try {
-        const { loadConfiguration } = await import('../../infrastructure/configuration/config-loader');
+        const { loadConfiguration } = await import('../../configuration/config-loader');
         const config = loadConfiguration();
 
         // Production security requirements
@@ -256,7 +256,7 @@ describe('Deployment Pipeline Integration Tests', () => {
         Object.assign(process.env, config.env);
 
         try {
-          const { loadConfiguration } = await import('../../infrastructure/configuration/config-loader');
+          const { loadConfiguration } = await import('../../configuration/config-loader');
           
           expect(() => loadConfiguration()).toThrow();
         } catch (error) {
@@ -297,7 +297,7 @@ describe('Deployment Pipeline Integration Tests', () => {
         }
 
         try {
-          const { loadConfiguration } = await import('../../infrastructure/configuration/config-loader');
+          const { loadConfiguration } = await import('../../configuration/config-loader');
           const config = loadConfiguration();
 
           expect(config.database.url).toBe(dbConfig.url);
@@ -325,7 +325,7 @@ describe('Deployment Pipeline Integration Tests', () => {
       process.env.AWS_SECRET_ACCESS_KEY = 'prod_secret_key';
 
       try {
-        const { loadConfiguration } = await import('../../infrastructure/configuration/config-loader');
+        const { loadConfiguration } = await import('../../configuration/config-loader');
         const config = loadConfiguration();
 
         const expectedDomain = 'https://my-test-app.replit.dev';
@@ -346,7 +346,7 @@ describe('Deployment Pipeline Integration Tests', () => {
       process.env.SESSION_SECRET = 'secure_session_secret_32_characters_long';
 
       try {
-        const { loadConfiguration } = await import('../../infrastructure/configuration/config-loader');
+        const { loadConfiguration } = await import('../../configuration/config-loader');
         const config = loadConfiguration();
 
         // Should fallback to localhost
@@ -394,7 +394,7 @@ describe('Deployment Pipeline Integration Tests', () => {
         }
 
         try {
-          const { loadConfiguration } = await import('../../infrastructure/configuration/config-loader');
+          const { loadConfiguration } = await import('../../configuration/config-loader');
           const config = loadConfiguration();
 
           expect(config.features.debugMode).toBe(featureConfig.expected.debugMode);
@@ -417,7 +417,7 @@ describe('Deployment Pipeline Integration Tests', () => {
       process.env.MAINTENANCE_MODE = 'true';
 
       try {
-        const { loadConfiguration } = await import('../../infrastructure/configuration/config-loader');
+        const { loadConfiguration } = await import('../../configuration/config-loader');
         const config = loadConfiguration();
 
         expect(config.features.debugMode).toBe(false); // Overridden
