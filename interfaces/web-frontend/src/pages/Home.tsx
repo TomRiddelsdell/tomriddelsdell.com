@@ -216,8 +216,7 @@ export default function Home() {
                   size="lg"
                   className="w-full sm:w-auto gradient-bg gradient-bg-hover btn-hover-lift"
                   onClick={() => {
-                    const cognitoUrl = `https://eu-west-2g2bs4xiwn.auth.eu-west-2.amazoncognito.com/signup?client_id=483n96q9sudb248kp2sgto7i47&response_type=code&scope=openid+email+phone&redirect_uri=${encodeURIComponent(window.location.origin + "/")}`;
-                    window.location.href = cognitoUrl;
+                    window.open("https://linkedin.com/in/thomas-riddelsdell-1140bb16", "_blank");
                   }}
                 >
                   Join My Network
@@ -297,12 +296,6 @@ export default function Home() {
                 </p>
 
                 <div className="space-y-3 sm:space-y-4">
-                  <div className="flex items-center">
-                    <MailIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400 mr-3 sm:mr-4 flex-shrink-0" />
-                    <span className="text-sm sm:text-base text-gray-600 dark:text-gray-300 break-all">
-                      t.riddelsdell@gmail.com
-                    </span>
-                  </div>
                   <div className="flex items-center">
                     <LinkedinIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400 mr-3 sm:mr-4 flex-shrink-0" />
                     <a
