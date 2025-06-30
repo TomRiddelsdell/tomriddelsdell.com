@@ -57,6 +57,7 @@ export function removeAllTestEnvironmentVars() {
     'SENDGRID_API_KEY',
     'SENDGRID_FROM_EMAIL',
     'SENDGRID_FROM_NAME',
+    'EMAIL_PROVIDER',
     'RATE_LIMIT_WINDOW_MS',
     'RATE_LIMIT_MAX_REQUESTS',
     'REPLIT_DOMAINS'
@@ -65,4 +66,11 @@ export function removeAllTestEnvironmentVars() {
   envVarsToRemove.forEach(varName => {
     delete process.env[varName];
   });
+}
+
+export function cleanSlate() {
+  removeAllTestEnvironmentVars();
+  // Reset configuration singleton
+  const configModule = '../../configuration/config-loader';
+  delete require.cache[require.resolve(configModule)];
 }

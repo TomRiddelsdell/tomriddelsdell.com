@@ -74,7 +74,7 @@ export const emailConfigSchema = z.object({
     apiKey: z.string().optional(),
     fromEmail: z.string().email().default('noreply@flowcreate.app'),
     fromName: z.string().default('FlowCreate'),
-  }),
+  }).optional(),
 }).refine((data) => {
   // Only validate SendGrid API key format when provider is 'sendgrid' and key is provided
   if (data.provider === 'sendgrid' && data.sendgrid?.apiKey) {
