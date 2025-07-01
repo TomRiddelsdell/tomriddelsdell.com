@@ -110,6 +110,9 @@ describe('Deployment Pipeline Integration Tests', () => {
         process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
         process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
         process.env.EMAIL_PROVIDER = 'none';
+        process.env.DB_POOL_MIN = '2';
+        process.env.DB_POOL_MAX = '10';
+        process.env.DB_SSL_ENABLED = env === 'production' ? 'true' : 'false';
         
         if (env === 'production') {
           process.env.CORS_ALLOWED_ORIGINS = 'https://my-app.replit.app';
@@ -274,6 +277,9 @@ describe('Deployment Pipeline Integration Tests', () => {
         process.env.DATABASE_URL = dbConfig.url;
         process.env.SESSION_SECRET = 'secure_session_secret_32_characters_long';
         process.env.EMAIL_PROVIDER = 'none';
+        process.env.DB_POOL_MIN = '2';
+        process.env.DB_POOL_MAX = '10';
+        process.env.DB_SSL_ENABLED = dbConfig.env === 'production' ? 'true' : 'false';
         
         if (dbConfig.env === 'production') {
           process.env.VITE_AWS_COGNITO_CLIENT_ID = 'prod_client_id';
@@ -374,6 +380,9 @@ describe('Deployment Pipeline Integration Tests', () => {
         process.env.DATABASE_URL = 'postgresql://localhost/test';
         process.env.SESSION_SECRET = 'secure_session_secret_32_characters_long';
         process.env.EMAIL_PROVIDER = 'none';
+        process.env.DB_POOL_MIN = '2';
+        process.env.DB_POOL_MAX = '10';
+        process.env.DB_SSL_ENABLED = 'false';
         
         if (featureConfig.env === 'production') {
           process.env.VITE_AWS_COGNITO_CLIENT_ID = 'prod_client_id';
