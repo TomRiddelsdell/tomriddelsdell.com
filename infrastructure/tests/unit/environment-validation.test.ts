@@ -22,7 +22,15 @@ describe('Environment Validation Scripts', () => {
 
     describe('Database Validation', () => {
       it('should pass when DATABASE_URL is properly configured', async () => {
+        // Set all required environment variables for deployment readiness
         process.env.DATABASE_URL = 'postgresql://user:pass@host:5432/database';
+        process.env.SESSION_SECRET = 'test_session_secret_32_characters_long';
+        process.env.VITE_AWS_COGNITO_CLIENT_ID = 'test_client_id';
+        process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'test_pool_id';
+        process.env.VITE_AWS_COGNITO_REGION = 'us-east-1';
+        process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'test.auth.us-east-1.amazoncognito.com';
+        process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
+        process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
         
         await validator.validate();
         
@@ -46,6 +54,15 @@ describe('Environment Validation Scripts', () => {
       });
 
       it('should accept both postgresql:// and postgres:// schemes', async () => {
+        // Set all required environment variables
+        process.env.SESSION_SECRET = 'test_session_secret_32_characters_long';
+        process.env.VITE_AWS_COGNITO_CLIENT_ID = 'test_client_id';
+        process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'test_pool_id';
+        process.env.VITE_AWS_COGNITO_REGION = 'us-east-1';
+        process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'test.auth.us-east-1.amazoncognito.com';
+        process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
+        process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+        
         // Test postgresql://
         process.env.DATABASE_URL = 'postgresql://user:pass@host:5432/db';
         await validator.validate();
