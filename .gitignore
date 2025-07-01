@@ -4,5 +4,26 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
 .devcontainer
 .amplify
+
+# Development assets and temporary files
+attached_assets/
+build_output.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment and secrets
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build artifacts
+*.tgz
+.cache/
