@@ -24,10 +24,24 @@ export function setupValidTestEnvironment() {
   process.env.DB_POOL_MAX = '10';
   process.env.DB_SSL_ENABLED = 'false';
   
-  // Additional required configuration sections
+  // Services configuration
   process.env.VITE_BASE_URL = 'http://localhost:5000';
   process.env.VITE_API_BASE_URL = 'http://localhost:5000';
   process.env.VITE_WS_URL = 'ws://localhost:5000';
+  process.env.API_GATEWAY_PORT = '5000';
+  process.env.API_GATEWAY_HOST = '0.0.0.0';
+  
+  // Security configuration 
+  process.env.CORS_ALLOWED_ORIGINS = 'http://localhost:3000,http://localhost:5000';
+  process.env.RATE_LIMIT_WINDOW_MS = '900000';
+  process.env.RATE_LIMIT_MAX_REQUESTS = '100';
+  process.env.CSP_DIRECTIVES = "default-src 'self'";
+  
+  // Logging configuration
+  process.env.LOG_LEVEL = 'info';
+  process.env.LOG_ENABLE_CONSOLE = 'true';
+  process.env.LOG_ENABLE_FILE = 'false';
+  process.env.LOG_ENABLE_DATABASE = 'true';
 }
 
 export function setupProductionTestEnvironment() {
