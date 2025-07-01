@@ -5,7 +5,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./tests/setup.ts', './interfaces/api-gateway/tests/setup.ts', './infrastructure/tests/setup.ts'],
+    setupFiles: [
+      './infrastructure/tests/setup.ts',
+      './interfaces/api-gateway/tests/setup.ts'
+    ],
     include: [
       'domains/**/tests/unit/*.{test,spec}.{js,ts,tsx}',
       'domains/**/tests/integration/*.{test,spec}.{js,ts,tsx}',
@@ -16,14 +19,16 @@ export default defineConfig({
       'interfaces/**/tests/integration/*.{test,spec}.{js,ts,tsx}',
       'libs/**/src/*.{test,spec}.{js,ts,tsx}'
     ],
-    exclude: ['tests/e2e/**/*', '**/node_modules/**', '**/dist/**'],
+    exclude: ['**/node_modules/**', '**/dist/**'],
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
-        'tests/',
         'dist/',
         '**/*.d.ts',
+        '**/*.test.ts',
+        '**/*.spec.ts',
+        '**/tests/**',
         'vite.config.ts',
         'vitest.config.ts',
         'playwright.config.ts'
