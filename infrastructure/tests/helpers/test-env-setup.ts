@@ -19,6 +19,11 @@ export function setupValidTestEnvironment() {
   // Email provider configuration
   process.env.EMAIL_PROVIDER = 'none';
   
+  // Database pool configuration
+  process.env.DB_POOL_MIN = '2';
+  process.env.DB_POOL_MAX = '10';
+  process.env.DB_SSL_ENABLED = 'false';
+  
   // Additional required configuration sections
   process.env.VITE_BASE_URL = 'http://localhost:5000';
   process.env.VITE_API_BASE_URL = 'http://localhost:5000';
@@ -32,6 +37,12 @@ export function setupProductionTestEnvironment() {
   process.env.NODE_ENV = 'production';
   process.env.CORS_ALLOWED_ORIGINS = 'https://my-app.replit.app';
   process.env.SESSION_SECURE = 'true';
+  
+  // Production database settings
+  process.env.DB_SSL_ENABLED = 'true';
+  process.env.DB_SSL_REJECT_UNAUTHORIZED = 'true';
+  process.env.DB_POOL_MIN = '5';
+  process.env.DB_POOL_MAX = '20';
 }
 
 export function setupDevelopmentTestEnvironment() {
