@@ -20,6 +20,7 @@ describe('Deployment Pipeline Integration Tests', () => {
   describe('Build Process Validation', () => {
     it('should build successfully with valid configuration', async () => {
       setupProductionTestEnvironment();
+      process.env.EMAIL_PROVIDER = 'none'; // Disable email for tests
 
       // Mock the build process instead of running actual npm build
       // This tests configuration validation without the overhead of actual building
@@ -68,21 +69,15 @@ describe('Deployment Pipeline Integration Tests', () => {
       process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
       process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
       process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
-      process.env.SENDGRID_API_KEY = 'SG.test-sendgrid-key';
+      process.env.EMAIL_PROVIDER = 'none';
       process.env.REPLIT_DOMAINS = 'test-app.replit.dev';
 
-      try {
-        const { stdout } = await execAsync('tsx scripts/validate-environment.ts', { timeout: 15000 });
-        
-        expect(stdout).toContain('✅ Environment is ready for deployment');
-        expect(stdout).not.toContain('❌');
-      } catch (error) {
-        if (error instanceof Error && error.message.includes('tsx')) {
-          console.warn('Environment validation test skipped - tsx not available');
-        } else {
-          throw error;
-        }
-      }
+      // Test environment validation directly instead of running external script
+      const { EnvironmentValidator } = await import('../../../scripts/validate-environment');
+      const validator = new EnvironmentValidator();
+      
+      await validator.validate();
+      expect(validator.isDeploymentReady()).toBe(true);
     }, 15000);
 
     it('should fail validation with missing critical variables', async () => {
@@ -91,21 +86,12 @@ describe('Deployment Pipeline Integration Tests', () => {
       delete process.env.SESSION_SECRET;
       delete process.env.VITE_AWS_COGNITO_CLIENT_ID;
 
-      try {
-        const { stdout } = await execAsync('tsx scripts/validate-environment.ts', { timeout: 15000 });
-        
-        expect(stdout).toContain('❌ Environment is NOT ready for deployment');
-        expect(stdout).toContain('Critical failures');
-      } catch (error) {
-        // Validation should fail with exit code 1
-        if (error instanceof Error && error.message.includes('Command failed')) {
-          expect(error.message).toContain('exit code 1');
-        } else if (error instanceof Error && error.message.includes('tsx')) {
-          console.warn('Environment validation test skipped - tsx not available');
-        } else {
-          throw error;
-        }
-      }
+      // Test environment validation directly instead of running external script
+      const { EnvironmentValidator } = await import('../../../scripts/validate-environment');
+      const validator = new EnvironmentValidator();
+      
+      await validator.validate();
+      expect(validator.isDeploymentReady()).toBe(false);
     }, 15000);
   });
 
@@ -123,6 +109,7 @@ describe('Deployment Pipeline Integration Tests', () => {
         process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
         process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
         process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+        process.env.EMAIL_PROVIDER = 'none';
         
         if (env === 'production') {
           process.env.CORS_ALLOWED_ORIGINS = 'https://my-app.replit.app';
