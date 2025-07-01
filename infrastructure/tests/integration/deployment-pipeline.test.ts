@@ -373,6 +373,7 @@ describe('Deployment Pipeline Integration Tests', () => {
         process.env.NODE_ENV = featureConfig.env;
         process.env.DATABASE_URL = 'postgresql://localhost/test';
         process.env.SESSION_SECRET = 'secure_session_secret_32_characters_long';
+        process.env.EMAIL_PROVIDER = 'none';
         
         if (featureConfig.env === 'production') {
           process.env.VITE_AWS_COGNITO_CLIENT_ID = 'prod_client_id';
@@ -400,6 +401,7 @@ describe('Deployment Pipeline Integration Tests', () => {
       process.env.NODE_ENV = 'development';
       process.env.DATABASE_URL = 'postgresql://localhost/test';
       process.env.SESSION_SECRET = 'secure_session_secret_32_characters_long';
+      process.env.EMAIL_PROVIDER = 'none';
       
       // Override feature flags
       process.env.DEBUG_MODE = 'false';
