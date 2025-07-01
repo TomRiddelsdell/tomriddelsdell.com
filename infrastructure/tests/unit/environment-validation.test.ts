@@ -344,6 +344,13 @@ describe('Environment Validation Scripts', () => {
         
         await validator.validate();
         
+        // Debug output to see what's failing
+        const results = (validator as any).results;
+        const failedResults = results.filter((r: any) => r.status === 'fail' && r.required);
+        if (failedResults.length > 0) {
+          console.log('Failed validation results:', failedResults);
+        }
+        
         expect(validator.isDeploymentReady()).toBe(true);
       });
 
@@ -370,6 +377,13 @@ describe('Environment Validation Scripts', () => {
         // Omit SENDGRID_API_KEY and REPLIT_DOMAINS
         
         await validator.validate();
+        
+        // Debug output to see what's failing
+        const results = (validator as any).results;
+        const failedResults = results.filter((r: any) => r.status === 'fail' && r.required);
+        if (failedResults.length > 0) {
+          console.log('Failed validation results for optional services test:', failedResults);
+        }
         
         expect(validator.isDeploymentReady()).toBe(true);
       });
