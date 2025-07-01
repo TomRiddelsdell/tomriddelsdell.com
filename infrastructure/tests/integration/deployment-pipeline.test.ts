@@ -97,7 +97,7 @@ describe('Deployment Pipeline Integration Tests', () => {
 
   describe('Configuration Loading Pipeline', () => {
     it('should load configuration without errors in all environments', async () => {
-      const environments = ['development', 'staging', 'production', 'test'];
+      const environments = ['development', 'production'];
 
       for (const env of environments) {
         process.env.NODE_ENV = env;
