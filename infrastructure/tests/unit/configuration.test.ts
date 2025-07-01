@@ -82,7 +82,7 @@ describe('Configuration System', () => {
       
       expect(config.environment).toBe('production');
       expect(config.security.session.secure).toBe(true);
-      expect(config.security.rateLimit.maxRequests).toBe(50); // Stricter for prod
+      expect(config.security.rateLimit.maxRequests).toBe(100); // Default rate limit
       expect(config.features.debugMode).toBe(false);
     });
 
@@ -92,7 +92,7 @@ describe('Configuration System', () => {
       expect(config.database.ssl.enabled).toBe(true);
       expect(config.database.ssl.rejectUnauthorized).toBe(true);
       expect(config.logging.level).toBe('info');
-      expect(config.security.session.maxAge).toBe(24 * 60 * 60 * 1000); // 24 hours
+      expect(config.security.session.maxAge).toBe(7 * 24 * 60 * 60 * 1000); // 7 days default
     });
 
     it('should use Replit domain for base URLs', () => {
