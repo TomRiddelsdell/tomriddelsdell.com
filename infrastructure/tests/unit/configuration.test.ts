@@ -114,6 +114,13 @@ describe('Configuration System', () => {
       process.env.NODE_ENV = 'development';
       process.env.DATABASE_URL = 'postgresql://localhost/test_db';
       process.env.SESSION_SECRET = 'test_session_secret_32_chars_long';
+      process.env.VITE_AWS_COGNITO_CLIENT_ID = 'test_client_id';
+      process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'test_pool_id';
+      process.env.VITE_AWS_COGNITO_REGION = 'us-east-1';
+      process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
+      process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
+      process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+      process.env.EMAIL_PROVIDER = 'none';
     });
 
     it('should override CORS configuration from environment', () => {
@@ -138,16 +145,8 @@ describe('Configuration System', () => {
     });
 
     it('should configure SendGrid when API key is provided', () => {
-      // Set all required configuration for valid test
-      process.env.DATABASE_URL = 'postgresql://localhost/test';
-      process.env.SESSION_SECRET = 'test_session_secret_32_chars_long';
-      process.env.VITE_AWS_COGNITO_CLIENT_ID = 'test_client_id';
-      process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'test_pool_id';
-      process.env.VITE_AWS_COGNITO_REGION = 'us-east-1';
-      process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
-      process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
-      process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
-      
+      // Override EMAIL_PROVIDER for this specific test to enable SendGrid
+      process.env.EMAIL_PROVIDER = 'sendgrid';
       process.env.SENDGRID_API_KEY = 'SG.test-api-key';
       process.env.SENDGRID_FROM_EMAIL = 'noreply@myapp.com';
       process.env.SENDGRID_FROM_NAME = 'My App';
@@ -280,6 +279,18 @@ describe('Configuration System', () => {
     });
 
     it('should ensure all required configuration sections are present', () => {
+      // Ensure complete environment setup for loadConfiguration
+      process.env.NODE_ENV = 'development';
+      process.env.DATABASE_URL = 'postgresql://localhost/test';
+      process.env.SESSION_SECRET = 'secure_session_secret_32_characters_long';
+      process.env.VITE_AWS_COGNITO_CLIENT_ID = 'test_client_id';
+      process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'test_pool_id';
+      process.env.VITE_AWS_COGNITO_REGION = 'us-east-1';
+      process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
+      process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
+      process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+      process.env.EMAIL_PROVIDER = 'none';
+      
       const config = loadConfiguration();
       
       expect(config).toHaveProperty('environment');
