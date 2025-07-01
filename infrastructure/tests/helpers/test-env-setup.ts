@@ -15,6 +15,14 @@ export function setupValidTestEnvironment() {
   process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
   process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
   process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+  
+  // Email provider configuration
+  process.env.EMAIL_PROVIDER = 'none';
+  
+  // Additional required configuration sections
+  process.env.VITE_BASE_URL = 'http://localhost:5000';
+  process.env.VITE_API_BASE_URL = 'http://localhost:5000';
+  process.env.VITE_WS_URL = 'ws://localhost:5000';
 }
 
 export function setupProductionTestEnvironment() {
