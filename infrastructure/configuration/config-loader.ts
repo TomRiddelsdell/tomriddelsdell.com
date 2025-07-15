@@ -114,7 +114,7 @@ function getEnvironmentDefaults(): Partial<BaseConfig> {
               'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://replit.com'],
               'style-src': ["'self'", "'unsafe-inline'"],
               'img-src': ["'self'", 'data:', 'https:'],
-              'connect-src': ["'self'"],
+              'connect-src': ["'self'", 'ws://localhost:*', 'wss://localhost:*'],
               'font-src': ["'self'"],
               'object-src': ["'none'"],
               'media-src': ["'self'"],
