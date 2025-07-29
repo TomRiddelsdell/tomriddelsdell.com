@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertWorkflowSchema, insertConnectedAppSchema, insertTemplateSchema, insertActivityLogSchema } from "../../../domains/shared-kernel/src/schema";
+import { insertConnectedAppSchema, insertTemplateSchema, insertActivityLogSchema } from "../../../domains/shared-kernel/src/schema";
 import { z, ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { sendContactEmail } from "./email";
@@ -14,7 +14,7 @@ import { users } from "../../../domains/shared-kernel/src/schema";
 import { AuthController } from "./auth/auth-controller";
 // Import the migration function
 import { migrateToCognito } from "./migrations/add-cognito-support";
-import { getAuthConfig, validateAuthConfig } from "./auth-config";
+import { getAuthConfig, validateAuthConfig } from "./auth/auth-config";
 import analyticsRouter from "./routes/analytics";
 
 const SessionStore = MemoryStore(session);
@@ -59,10 +59,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // API Routes
   // Simple Cognito authentication routes
-  const { simpleCognitoHandler } = await import('./auth/simple-cognito');
-  app.post('/api/auth/callback', simpleCognitoHandler.handleCallback.bind(simpleCognitoHandler));
-  app.get('/api/auth/me', simpleCognitoHandler.getCurrentUser.bind(simpleCognitoHandler));
-  app.post('/api/auth/signout', simpleCognitoHandler.signOut.bind(simpleCognitoHandler));
+  try {
+    console.log('Attempting to import simple-cognito handler...');
+    const { simpleCognitoHandler } = await import('./auth/simple-cognito');
+    console.log('Successfully imported simple-cognito handler');
+    
+    console.log('Setting up auth routes...');
+    app.post('/api/auth/callback', simpleCognitoHandler.handleCallback.bind(simpleCognitoHandler));
+    app.get('/api/auth/me', simpleCognitoHandler.getCurrentUser.bind(simpleCognitoHandler));
+    app.post('/api/auth/signout', simpleCognitoHandler.signOut.bind(simpleCognitoHandler));
+    console.log('Auth routes set up successfully');
+  } catch (error) {
+    console.error('Failed to set up auth routes:', error);
+    // Fallback handler for auth routes to prevent 404s
+    app.post('/api/auth/callback', (req, res) => {
+      console.log('FALLBACK: Auth callback called');
+      const { code } = req.body;
+      if (!code) {
+        return res.status(400).json({ error: 'Authorization code required' });
+      }
+      return res.status(400).json({ error: 'Invalid authorization code' });
+    });
+    app.get('/api/auth/me', (req, res) => {
+      res.status(401).json({ error: 'Not authenticated' });
+    });
+    app.post('/api/auth/signout', (req, res) => {
+      res.json({ message: 'Signed out' });
+    });
+  }
 
   // Dashboard stats
   app.get('/api/dashboard/stats', AuthController.isAuthenticated, async (req: Request, res: Response) => {
@@ -76,60 +100,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error getting dashboard stats:', error);
       return res.status(500).json({ message: 'Error retrieving dashboard statistics' });
-    }
-  });
-
-  // Workflow routes
-  app.get('/api/workflows', AuthController.isAuthenticated, async (req: Request, res: Response) => {
-    try {
-      if (!req.session.userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
-      }
-      
-      const workflows = await storage.getWorkflowsByUserId(req.session.userId);
-      return res.json(workflows);
-    } catch (error) {
-      console.error('Error getting workflows:', error);
-      return res.status(500).json({ message: 'Error retrieving workflows' });
-    }
-  });
-
-  app.get('/api/workflows/recent', AuthController.isAuthenticated, async (req: Request, res: Response) => {
-    try {
-      if (!req.session.userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
-      }
-      
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : 3;
-      const workflows = await storage.getRecentWorkflows(req.session.userId, limit);
-      return res.json(workflows);
-    } catch (error) {
-      console.error('Error getting recent workflows:', error);
-      return res.status(500).json({ message: 'Error retrieving recent workflows' });
-    }
-  });
-
-  app.post('/api/workflows', AuthController.isAuthenticated, async (req: Request, res: Response) => {
-    try {
-      if (!req.session.userId) {
-        return res.status(401).json({ message: 'Unauthorized' });
-      }
-      
-      const workflowData = { ...req.body, userId: req.session.userId };
-      
-      try {
-        const validatedData = insertWorkflowSchema.parse(workflowData);
-        const workflow = await storage.createWorkflow(validatedData);
-        return res.status(201).json(workflow);
-      } catch (error) {
-        if (error instanceof ZodError) {
-          return res.status(400).json({ message: 'Invalid workflow data', errors: fromZodError(error).message });
-        }
-        throw error;
-      }
-    } catch (error) {
-      console.error('Error creating workflow:', error);
-      return res.status(500).json({ message: 'Error creating workflow' });
     }
   });
 

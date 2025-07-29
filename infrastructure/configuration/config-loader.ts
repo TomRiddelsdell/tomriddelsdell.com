@@ -334,8 +334,8 @@ function loadFromEnvironment(): Partial<BaseConfig> {
     if (env.SENDGRID_API_KEY) {
       envConfig.email.sendgrid = {
         apiKey: env.SENDGRID_API_KEY,
-        fromEmail: env.SENDGRID_FROM_EMAIL || "noreply@flowcreate.app",
-        fromName: env.SENDGRID_FROM_NAME || "FlowCreate",
+        fromEmail: env.SENDGRID_FROM_EMAIL || "noreply@tomriddelsdell.com.app",
+        fromName: env.SENDGRID_FROM_NAME || "tomriddelsdell.com",
       };
     }
   }

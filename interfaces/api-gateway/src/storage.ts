@@ -1,6 +1,5 @@
 import { 
   User, InsertUser, 
-  Workflow, InsertWorkflow, 
   ConnectedApp, InsertConnectedApp, 
   Template, InsertTemplate, 
   ActivityLogEntry, InsertActivityLog,
@@ -21,14 +20,6 @@ export interface IStorage {
   getNewUserCount(days: number): Promise<number>;
   trackUserLogin(userId: number): Promise<void>;
   getTotalLoginCount(): Promise<number>;
-  
-  // Workflow operations 
-  getWorkflow(id: number): Promise<Workflow | undefined>;
-  getWorkflowsByUserId(userId: number): Promise<Workflow[]>;
-  getRecentWorkflows(userId: number, limit?: number): Promise<Workflow[]>;
-  createWorkflow(workflow: InsertWorkflow): Promise<Workflow>;
-  updateWorkflow(id: number, workflowData: Partial<Workflow>): Promise<Workflow | undefined>;
-  deleteWorkflow(id: number): Promise<boolean>;
   
   // Connected app operations
   getConnectedApp(id: number): Promise<ConnectedApp | undefined>;
@@ -60,28 +51,24 @@ export interface IStorage {
 // Clean in-memory implementation without demo data
 export class MemoryStorage implements IStorage {
   private users: Map<number, User>;
-  private workflows: Map<number, Workflow>;
   private connectedApps: Map<number, ConnectedApp>;
   private templates: Map<number, Template>;
   private activityLogs: Map<number, ActivityLogEntry>;
   private availableApps: ConnectedApp[];
   
   private userId: number;
-  private workflowId: number;
   private appId: number;
   private templateId: number;
   private logId: number;
 
   constructor() {
     this.users = new Map();
-    this.workflows = new Map();
     this.connectedApps = new Map();
     this.templates = new Map();
     this.activityLogs = new Map();
     this.availableApps = [];
     
     this.userId = 1;
-    this.workflowId = 1;
     this.appId = 1;
     this.templateId = 1;
     this.logId = 1;
@@ -113,10 +100,15 @@ export class MemoryStorage implements IStorage {
       lastLogin: now,
       createdAt: now,
       updatedAt: now,
-      role: insertUser.role || 'user',
+      role: 'user',
       isActive: true,
       loginCount: 0,
-      lastIP: null
+      lastIP: null,
+      cognitoId: insertUser.cognitoId || null,
+      displayName: insertUser.displayName || null,
+      photoURL: insertUser.photoURL || null,
+      provider: insertUser.provider || 'cognito',
+      preferredLanguage: insertUser.preferredLanguage || 'en'
     };
     this.users.set(id, user);
     return user;
@@ -170,60 +162,6 @@ export class MemoryStorage implements IStorage {
     );
   }
 
-  // Workflow operations
-  async getWorkflow(id: number): Promise<Workflow | undefined> {
-    return this.workflows.get(id);
-  }
-
-  async getWorkflowsByUserId(userId: number): Promise<Workflow[]> {
-    return Array.from(this.workflows.values()).filter(
-      (workflow) => workflow.userId === userId
-    );
-  }
-
-  async getRecentWorkflows(userId: number, limit: number = 3): Promise<Workflow[]> {
-    return Array.from(this.workflows.values())
-      .filter((workflow) => workflow.userId === userId)
-      .sort((a, b) => {
-        const aDate = a.lastRun || a.createdAt;
-        const bDate = b.lastRun || b.createdAt;
-        return bDate.getTime() - aDate.getTime();
-      })
-      .slice(0, limit);
-  }
-
-  async createWorkflow(insertWorkflow: InsertWorkflow): Promise<Workflow> {
-    const id = this.workflowId++;
-    const now = new Date();
-    const workflow: Workflow = {
-      ...insertWorkflow,
-      id,
-      createdAt: now,
-      updatedAt: now,
-      lastRun: null
-    };
-    this.workflows.set(id, workflow);
-    return workflow;
-  }
-
-  async updateWorkflow(id: number, workflowData: Partial<Workflow>): Promise<Workflow | undefined> {
-    const workflow = this.workflows.get(id);
-    if (!workflow) return undefined;
-    
-    const updatedWorkflow = {
-      ...workflow,
-      ...workflowData,
-      updatedAt: new Date()
-    };
-    
-    this.workflows.set(id, updatedWorkflow);
-    return updatedWorkflow;
-  }
-
-  async deleteWorkflow(id: number): Promise<boolean> {
-    return this.workflows.delete(id);
-  }
-
   // Connected app operations
   async getConnectedApp(id: number): Promise<ConnectedApp | undefined> {
     return this.connectedApps.get(id);
@@ -246,7 +184,14 @@ export class MemoryStorage implements IStorage {
       ...insertApp,
       id,
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
+      status: insertApp.status || 'disconnected',
+      description: insertApp.description || null,
+      icon: insertApp.icon || null,
+      config: insertApp.config || null,
+      accessToken: insertApp.accessToken || null,
+      refreshToken: insertApp.refreshToken || null,
+      tokenExpiry: insertApp.tokenExpiry || null
     };
     this.connectedApps.set(id, app);
     return app;
@@ -318,7 +263,9 @@ export class MemoryStorage implements IStorage {
     const log: ActivityLogEntry = {
       ...insertLog,
       id,
-      timestamp: new Date()
+      timestamp: new Date(),
+      details: insertLog.details || {},
+      ipAddress: insertLog.ipAddress || null
     };
     this.activityLogs.set(id, log);
     return log;
@@ -326,17 +273,10 @@ export class MemoryStorage implements IStorage {
 
   // Dashboard operations
   async getDashboardStats(userId: number): Promise<DashboardStats> {
-    const userWorkflows = await this.getWorkflowsByUserId(userId);
-    const activeWorkflows = userWorkflows.filter(w => w.status === 'active').length;
     const connectedApps = (await this.getConnectedAppsByUserId(userId)).length;
     
-    // Calculate statistics based on actual user data
-    const tasksAutomated = userWorkflows.reduce((sum, workflow) => {
-      return sum + (workflow.status === 'active' ? 10 : 0);
-    }, 0);
-    
-    const hoursPerWorkflow = 2;
-    const timeSaved = `${userWorkflows.length * hoursPerWorkflow}h`;
+    // Calculate statistics based on actual user data  
+    const timeSaved = `${connectedApps * 2}h`;
     
     return {
       totalUsers: await this.getUserCount(),
@@ -344,7 +284,9 @@ export class MemoryStorage implements IStorage {
       requestsPerMinute: 0,
       averageResponseTime: 0,
       errorRate: 0,
-      uptime: 100
+      uptime: 100,
+      connectedApps,
+      timeSaved
     };
   }
 }

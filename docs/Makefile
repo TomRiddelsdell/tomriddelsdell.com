@@ -1,10 +1,10 @@
-# FlowCreate Platform - Development Commands
+# tomriddelsdell.com Platform - Development Commands
 
 .PHONY: help install build test lint clean dev prod stop logs
 
 # Default target
 help:
-        @echo "FlowCreate Platform - Available Commands:"
+        @echo "tomriddelsdell.com - Available Commands:"
         @echo ""
         @echo "  make install     - Install all dependencies"
         @echo "  make build       - Build all services and packages"

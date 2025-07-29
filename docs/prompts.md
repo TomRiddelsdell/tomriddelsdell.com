@@ -1,0 +1,3 @@
+- Please review all documentation and flag files and test that could be consolidated more concisely
+- Please review all documentation and remove any files or text which are simply logs of work done or status reports
+- You are an expert test engineer. Please review all the recently deleted test scripts and determine if they were genuinely redundant or if more tests are needed

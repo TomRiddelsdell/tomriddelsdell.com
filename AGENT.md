@@ -54,14 +54,6 @@ tomriddelsdel.com is a peronl website that provides a secure platfor for access 
 4. User session established with local database sync
 5. Frontend receives authenticated user state
 
-### Workflow Execution Flow
-1. User creates workflow through React frontend
-2. API Gateway validates and persists workflow configuration
-3. Workflow service processes execution logic
-4. Integration service handles external API calls
-5. Notification service sends status updates
-6. Analytics service logs metrics and events
-
 ### Data Persistence
 - All domain entities persisted via Drizzle ORM
 - Database schema managed through migrations
@@ -253,6 +245,29 @@ AWS_COGNITO_CLIENT_SECRET=your_client_secret
   - Updated routing to support individual page navigation
   - Maintained DDD architecture while incorporating f32ae3d page structure
 - June 13, 2025. Initial setup
+
+## Development Workflow
+
+### Code Change Protocol
+- **Always ask before making changes**: Before implementing any code modifications, Amp should describe the proposed changes and ask for explicit confirmation
+- **Show changes first**: Present a clear explanation of what will be modified, which files will be affected, and the expected outcome
+- **Wait for approval**: Never proceed with code changes without explicit user approval
+- **Break down complex changes**: For multi-file or complex modifications, break them into smaller, reviewable chunks
+- **Explain reasoning**: Always explain why the proposed changes are necessary and how they solve the problem
+
+### Implementation Guidelines
+- Present changes in this format:
+  1. **Problem**: Brief description of the issue
+  2. **Proposed Solution**: What needs to be changed
+  3. **Files Affected**: List of files to be modified
+  4. **Implementation Steps**: Step-by-step approach
+  5. **Ask for confirmation**: "Should I proceed with these changes?"
+
+### Emergency Exceptions
+- Only proceed without asking if:
+  - User explicitly says "go ahead and implement"
+  - User gives blanket approval for a specific task
+  - Critical security issue requires immediate action
 
 ## User Preferences
 

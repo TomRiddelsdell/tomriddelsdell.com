@@ -1,7 +1,7 @@
 # Notification Domain
 
 ## Overview
-The Notification Domain handles all platform communications, alerts, and messaging across multiple channels. It provides a unified notification system that supports various delivery methods while respecting user preferences, managing delivery status, and ensuring reliable message delivery across the FlowCreate platform.
+The Notification Domain handles all platform communications, alerts, and messaging across multiple channels. It provides a unified notification system that supports various delivery methods while respecting user preferences, managing delivery status, and ensuring reliable message delivery across the tomriddelsdell.com platform.
 
 ## Domain Responsibilities
 

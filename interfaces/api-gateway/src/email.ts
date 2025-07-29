@@ -17,8 +17,8 @@ export async function sendContactEmail(emailData: EmailData): Promise<boolean> {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
     const msg = {
-      to: process.env.CONTACT_EMAIL || 'contact@flowcreate.com',
-      from: process.env.FROM_EMAIL || 'noreply@flowcreate.com',
+      to: process.env.CONTACT_EMAIL || 'contact@tomriddelsdell.com.com',
+      from: process.env.FROM_EMAIL || 'noreply@tomriddelsdell.com.com',
       subject: emailData.subject || `Contact Form: ${emailData.name}`,
       text: `Name: ${emailData.name}\nEmail: ${emailData.email}\n\nMessage:\n${emailData.message}`,
       html: `

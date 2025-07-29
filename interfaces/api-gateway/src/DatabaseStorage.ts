@@ -1,10 +1,9 @@
 import { db } from './db';
 import { IStorage } from './storage';
 import { 
-  users, workflows, connectedApps, templates, activityLogs, workflowConnections,
-  User, InsertUser, Workflow, InsertWorkflow, ConnectedApp, InsertConnectedApp,
-  Template, ActivityLogEntry, InsertActivityLog, DashboardStats, InsertTemplate,
-  InsertWorkflowConnection, WorkflowConnection
+  users, connectedApps, templates, activityLogs,
+  User, InsertUser, ConnectedApp, InsertConnectedApp,
+  Template, ActivityLogEntry, InsertActivityLog, DashboardStats, InsertTemplate
 } from '../../../domains/shared-kernel/src/schema';
 import { eq, desc, and, sql, gt, gte, count, lt } from 'drizzle-orm';
 
@@ -98,48 +97,35 @@ export class DatabaseStorage implements IStorage {
     return Number(result.total) || 0;
   }
   
-  // Workflow operations
-  async getWorkflow(id: number): Promise<Workflow | undefined> {
-    const [workflow] = await db.select().from(workflows).where(eq(workflows.id, id));
-    return workflow;
+  // Workflow operations - temporarily disabled (workflow table not yet implemented)
+  async getWorkflow(id: number): Promise<any | undefined> {
+    // TODO: Implement when workflow schema is added
+    return undefined;
   }
 
-  async getWorkflowsByUserId(userId: number): Promise<Workflow[]> {
-    return await db
-      .select()
-      .from(workflows)
-      .where(eq(workflows.userId, userId))
-      .orderBy(desc(workflows.updatedAt));
+  async getWorkflowsByUserId(userId: number): Promise<any[]> {
+    // TODO: Implement when workflow schema is added
+    return [];
   }
 
-  async getRecentWorkflows(userId: number, limit: number = 3): Promise<Workflow[]> {
-    return await db
-      .select()
-      .from(workflows)
-      .where(eq(workflows.userId, userId))
-      .orderBy(desc(workflows.updatedAt))
-      .limit(limit);
+  async getRecentWorkflows(userId: number, limit: number = 3): Promise<any[]> {
+    // TODO: Implement when workflow schema is added
+    return [];
   }
 
-  async createWorkflow(workflow: InsertWorkflow): Promise<Workflow> {
-    const [newWorkflow] = await db.insert(workflows).values(workflow).returning();
-    return newWorkflow;
+  async createWorkflow(workflow: any): Promise<any> {
+    // TODO: Implement when workflow schema is added
+    throw new Error('Workflow creation not yet implemented');
   }
 
-  async updateWorkflow(id: number, workflowData: Partial<Workflow>): Promise<Workflow | undefined> {
-    const [updatedWorkflow] = await db
-      .update(workflows)
-      .set({ ...workflowData, updatedAt: new Date() })
-      .where(eq(workflows.id, id))
-      .returning();
-    return updatedWorkflow;
+  async updateWorkflow(id: number, workflowData: any): Promise<any | undefined> {
+    // TODO: Implement when workflow schema is added
+    return undefined;
   }
 
   async deleteWorkflow(id: number): Promise<boolean> {
-    const result = await db
-      .delete(workflows)
-      .where(eq(workflows.id, id));
-    return result.rowCount > 0;
+    // TODO: Implement when workflow schema is added
+    return false;
   }
 
   // Connected app operations
@@ -292,15 +278,6 @@ export class DatabaseStorage implements IStorage {
 
   // Dashboard operations
   async getDashboardStats(userId: number): Promise<DashboardStats> {
-    // Get the count of active workflows
-    const [{ count: activeWorkflows }] = await db
-      .select({ count: count() })
-      .from(workflows)
-      .where(and(
-        eq(workflows.userId, userId),
-        eq(workflows.status, 'active')
-      ));
-    
     // Calculate tasks automated based on activity logs
     const [{ count: tasksAutomated }] = await db
       .select({ count: count() })
@@ -325,8 +302,12 @@ export class DatabaseStorage implements IStorage {
     const timeSaved = `${hours}h ${minutes}m`;
     
     return {
-      activeWorkflows,
-      tasksAutomated,
+      totalUsers: await this.getUserCount(),
+      activeUsers: await this.getActiveUserCount(),
+      requestsPerMinute: 0, // TODO: Implement from monitoring
+      averageResponseTime: 0, // TODO: Implement from monitoring
+      errorRate: 0, // TODO: Implement from monitoring
+      uptime: 100, // TODO: Implement from monitoring
       connectedApps: connectedAppsCount,
       timeSaved
     };
