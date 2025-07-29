@@ -3,7 +3,7 @@ import { templates } from "../../domains/shared-kernel/src/schema";
 import { eq } from "drizzle-orm";
 
 /**
- * Initialize default workflow templates
+ * Initialize default automation templates
  */
 export async function initializeTemplates() {
   try {

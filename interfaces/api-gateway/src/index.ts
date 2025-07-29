@@ -4,7 +4,6 @@ import { setupVite, serveStatic, log } from "./vite";
 import { initializeTemplates } from "../../../infrastructure/database/initTemplates";
 import { securityHeaders, generalRateLimit, sanitizeInput } from "./security";
 import { logger } from "./logger";
-import { env } from "./config";
 import { getConfig } from "../../../infrastructure/configuration/config-loader";
 
 const app = express();
@@ -96,7 +95,7 @@ app.use((req, res, next) => {
     logger.error('Unhandled error:', { error: err.message, stack: err.stack });
     
     const status = err.status || err.statusCode || 500;
-    const message = env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message || "Internal Server Error";
+    const message = config.environment === 'production' ? 'Internal Server Error' : err.message || "Internal Server Error";
 
     if (!res.headersSent) {
       res.status(status).json({ message, status: 'error' });

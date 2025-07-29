@@ -1,7 +1,7 @@
 # Shared Kernel
 
 ## Overview
-The Shared Kernel contains common domain concepts, value objects, patterns, and infrastructure that are shared across all bounded contexts in the FlowCreate platform. It establishes the foundation for domain-driven design patterns and ensures consistency across domain boundaries while preventing code duplication.
+The Shared Kernel contains common domain concepts, value objects, patterns, and infrastructure that are shared across all bounded contexts in the tomriddelsdell.com platform. It establishes the foundation for domain-driven design patterns and ensures consistency across domain boundaries while preventing code duplication.
 
 ## Purpose and Principles
 
@@ -120,29 +120,10 @@ export abstract class DomainEvent {
 ### Cross-Domain Events
 Events that span multiple domains:
 
-#### UserRegisteredEvent
-```typescript
-export class UserRegisteredEvent extends DomainEvent {
-    public readonly userId: string;
-    public readonly email: string;
-    public readonly cognitoId: string;
+### Cross-Domain Events
+Events that span multiple domains:
 
-    constructor(userId: string, email: string, cognitoId: string) {
-        super(userId, 'UserRegistered');
-        this.userId = userId;
-        this.email = email;
-        this.cognitoId = cognitoId;
-    }
-    
-    getPayload() {
-        return {
-            userId: this.userId,
-            email: this.email,
-            cognitoId: this.cognitoId
-        };
-    }
-}
-```
+#### UserRegisteredEvent
 
 #### UserAuthenticatedEvent
 ```typescript
@@ -362,16 +343,6 @@ export enum AuthProvider {
 }
 ```
 
-### Workflow Status
-```typescript
-export enum WorkflowStatus {
-    DRAFT = 'draft',
-    ACTIVE = 'active',
-    PAUSED = 'paused',
-    ERROR = 'error'
-}
-```
-
 ## Implementation Guidelines
 
 ### When to Add to Shared Kernel
@@ -441,18 +412,4 @@ export class User {
 }
 ```
 
-### Workflow Domain
-```typescript
-import { UserId, DomainEventPublisher, WorkflowCreatedEvent } from '../shared-kernel';
-
-export class Workflow {
-    constructor(private readonly userId: UserId) {}
-    
-    create(): void {
-        const event = new WorkflowCreatedEvent(this.id, this.userId.toString(), this.name);
-        DomainEventPublisher.getInstance().publish(event);
-    }
-}
-```
-
-This Shared Kernel provides the foundational elements needed for a consistent, well-structured domain-driven design implementation across the entire FlowCreate platform.
+This Shared Kernel provides the foundational elements needed for a consistent, well-structured domain-driven design implementation across the entire tomriddelsdell.com platform.

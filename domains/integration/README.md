@@ -1,7 +1,7 @@
 # Integration Domain
 
 ## Overview
-The Integration Domain manages all external service integrations and connected applications within the FlowCreate platform. It provides secure, reliable, and scalable connections to third-party services while maintaining proper abstraction layers and handling authentication, rate limiting, and error recovery.
+The Integration Domain manages all external service integrations and connected applications within the tomriddelsdell.com platform. It provides secure, reliable, and scalable connections to third-party services while maintaining proper abstraction layers and handling authentication, rate limiting, and error recovery.
 
 ## Domain Responsibilities
 
@@ -10,7 +10,7 @@ The Integration Domain manages all external service integrations and connected a
 - **Authentication Management**: Secure storage and management of API credentials
 - **Rate Limiting & Throttling**: Preventing API abuse and maintaining service reliability
 - **Connection Health Monitoring**: Tracking integration status and performance
-- **Data Synchronization**: Bidirectional data flow between FlowCreate and external services
+- **Data Synchronization**: Bidirectional data flow between tomriddelsdell.com and external services
 - **Error Handling & Retry Logic**: Robust error recovery and retry mechanisms
 
 ### Business Invariants
@@ -363,4 +363,4 @@ const response = await service.sendRequest({
 });
 ```
 
-This domain provides robust, secure, and scalable integration capabilities, enabling FlowCreate to connect with a wide variety of external services while maintaining security, performance, and reliability standards.
+This domain provides robust, secure, and scalable integration capabilities, enabling tomriddelsdell.com to connect with a wide variety of external services while maintaining security, performance, and reliability standards.

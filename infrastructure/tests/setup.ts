@@ -5,13 +5,25 @@ vi.mock('../../../interfaces/api-gateway/src/auth/simple-cognito', () => {
   const mockHandler = {
     handleCallback: vi.fn().mockImplementation(async (req: any, res: any) => {
       const { code } = req.body;
+      
+      // Handle missing code - should return 400
+      if (!code) {
+        return res.status(400).json({ error: 'Authorization code required' });
+      }
+      
+      // Handle invalid code - should return 400, not 500
+      if (code === 'invalid_code') {
+        return res.status(400).json({ error: 'Invalid authorization code' });
+      }
+      
       if (code === 'test-code') {
         // Simulate successful authentication with redirect
         res.redirect('/dashboard');
         return;
       }
-      // Simulate auth failure
-      res.status(500).json({ error: 'Authentication failed' });
+      
+      // Any other invalid code should return 400
+      res.status(400).json({ error: 'Invalid authorization code' });
     }),
     getCurrentUser: vi.fn().mockImplementation(async (req: any, res: any) => {
       res.status(401).json({ error: 'Not authenticated' });

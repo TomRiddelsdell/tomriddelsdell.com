@@ -31,30 +31,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   preferredLanguage: true,
 });
 
-// Workflows table
-export const workflows = pgTable("workflows", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  name: text("name").notNull(),
-  description: text("description"),
-  status: text("status", { enum: ['active', 'paused', 'error', 'draft'] }).notNull().default('draft'),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  lastRun: timestamp("last_run"),
-  icon: text("icon"),
-  iconColor: text("icon_color"),
-  config: json("config").notNull(),
-});
 
-export const insertWorkflowSchema = createInsertSchema(workflows).pick({
-  userId: true,
-  name: true,
-  description: true,
-  status: true,
-  icon: true,
-  iconColor: true,
-  config: true,
-});
 
 // Connected Apps table
 export const connectedApps = pgTable("connected_apps", {
@@ -84,18 +61,7 @@ export const insertConnectedAppSchema = createInsertSchema(connectedApps).pick({
   tokenExpiry: true,
 });
 
-// Workflow Connections table
-export const workflowConnections = pgTable("workflow_connections", {
-  id: serial("id").primaryKey(),
-  workflowId: integer("workflow_id").notNull().references(() => workflows.id),
-  appId: integer("app_id").notNull().references(() => connectedApps.id),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
 
-export const insertWorkflowConnectionSchema = createInsertSchema(workflowConnections).pick({
-  workflowId: true,
-  appId: true,
-});
 
 // Templates table
 export const templates = pgTable("templates", {
@@ -122,8 +88,6 @@ export const insertTemplateSchema = createInsertSchema(templates).pick({
 export const activityLogs = pgTable("activity_logs", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
-  workflowId: integer("workflow_id").references(() => workflows.id),
-  workflowName: text("workflow_name"),
   eventType: text("event_type").notNull(), // 'run', 'error', 'update', etc.
   status: text("status").notNull(), // 'success', 'failure', 'warning', 'pending'
   details: json("details"),
@@ -133,8 +97,6 @@ export const activityLogs = pgTable("activity_logs", {
 
 export const insertActivityLogSchema = createInsertSchema(activityLogs).pick({
   userId: true,
-  workflowId: true,
-  workflowName: true,
   eventType: true,
   status: true,
   details: true,
@@ -145,14 +107,8 @@ export const insertActivityLogSchema = createInsertSchema(activityLogs).pick({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
-export type InsertWorkflow = z.infer<typeof insertWorkflowSchema>;
-export type Workflow = typeof workflows.$inferSelect;
-
 export type InsertConnectedApp = z.infer<typeof insertConnectedAppSchema>;
 export type ConnectedApp = typeof connectedApps.$inferSelect;
-
-export type InsertWorkflowConnection = z.infer<typeof insertWorkflowConnectionSchema>;
-export type WorkflowConnection = typeof workflowConnections.$inferSelect;
 
 export type InsertTemplate = z.infer<typeof insertTemplateSchema>;
 export type Template = typeof templates.$inferSelect;
@@ -298,8 +254,6 @@ export type DashboardStats = {
   averageResponseTime: number;
   errorRate: number;
   uptime: number;
-  activeWorkflows: number;
-  tasksAutomated: number;
   connectedApps: number;
   timeSaved: string;
 };

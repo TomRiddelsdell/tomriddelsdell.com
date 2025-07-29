@@ -1,4 +1,4 @@
-# FlowCreate - Complete Domain Driven Design Architecture
+# tomriddelsdell.com - Complete Domain Driven Design Architecture
 
 ## Table of Contents
 1. [Architecture Overview](#architecture-overview)
@@ -15,12 +15,12 @@
 
 ## Architecture Overview
 
-FlowCreate has been completely transformed into a pure Domain Driven Design (DDD) monorepo architecture that separates business logic from technical concerns while maintaining clear bounded contexts for complex workflow automation.
+tomriddelsdell.com has been completely transformed into a pure Domain Driven Design (DDD) monorepo architecture that separates business logic from technical concerns while maintaining clear bounded contexts for complex workflow automation.
 
 ### Directory Structure
 
 ```
-FlowCreate/
+tomriddelsdell.com/
 ├── domains/                          # Pure Domain Layer
 │   ├── identity/                     # Identity Bounded Context
 │   │   ├── src/
@@ -468,7 +468,7 @@ describe('User Aggregate Root', () => {
 
 ## Conclusion
 
-FlowCreate now implements a production-ready Domain Driven Design architecture that successfully balances business complexity with technical excellence. The platform provides:
+tomriddelsdell.com now implements a production-ready Domain Driven Design architecture that successfully balances business complexity with technical excellence. The platform provides:
 
 **Business Value**:
 - Clear alignment between code structure and business capabilities

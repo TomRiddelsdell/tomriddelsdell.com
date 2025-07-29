@@ -1,6 +1,6 @@
-# FlowCreate - Workflow Automation Platform
+# tomriddelsdell.com - Personal Website
 
-A professional TypeScript-based workflow automation platform built with pure Domain Driven Design (DDD) architecture, focusing on intelligent workflow creation and enterprise-grade reliability.
+A personal website and application platform
 
 📖 **[Complete Architecture Documentation](./ARCHITECTURE.md)**
 
@@ -64,17 +64,15 @@ The application will be available at `http://localhost:5000`
 ## Pure DDD Architecture
 
 ```
-FlowCreate/
+tomriddelsdell.com/
 ├── domains/                    # Pure Domain Layer
 │   ├── identity/              # User authentication & authorization
-│   ├── workflow/              # Workflow creation & execution
 │   ├── analytics/             # Data analysis & reporting
 │   ├── integration/           # Third-party connections
 │   ├── notification/          # Communication services
 │   └── shared-kernel/         # Shared domain concepts
 ├── services/                  # Application Services
-│   ├── identity-service/      # Identity workflows
-│   ├── workflow-service/      # Workflow orchestration
+│   ├── identity-service/      # Identity management
 │   └── notification-service/  # Event handling
 ├── infrastructure/            # Infrastructure Layer
 │   ├── database/             # Data persistence
@@ -108,9 +106,6 @@ FlowCreate/
 
 ### Quick Deployment
 ```bash
-# Option 1: Replit (Recommended)
-# Click "Deploy" button in Replit interface
-
 # Option 2: Manual
 npm run build
 NODE_ENV=production npm start
@@ -144,7 +139,7 @@ The application uses Drizzle ORM for database operations:
 
 - **Unit Tests**: Component and function testing
 - **Integration Tests**: API endpoint testing
-- **End-to-End Tests**: Full user workflow testing
+- **End-to-End Tests**: Full user journey testing
 
 ### Running Tests
 
@@ -152,9 +147,8 @@ The application uses Drizzle ORM for database operations:
 # Run all DDD tests
 npm run test
 
-# Current test status: 52/60 passing
+# Current test status: 31/39 passing
 # ✅ Identity Domain: 19/19 tests passing
-# ✅ Workflow Domain: 21/21 tests passing  
 # ✅ Shared Kernel: 9/10 tests passing
 # ⚠️  Infrastructure Layer: 3/10 tests passing
 ```
@@ -163,9 +157,9 @@ npm run test
 
 - **Domain Layer**: Pure business logic testing with comprehensive coverage
 - **Value Objects**: Email, UserId, CognitoId validation and behavior
-- **Aggregates**: UserAggregate and WorkflowAggregate business rules
+- **Aggregates**: UserAggregate business rules and domain logic
 - **Domain Events**: Event publishing and cross-domain communication
-- **Business Rules**: Workflow activation, action validation, status transitions
+- **Business Rules**: User authentication, authorization, profile management
 - **Anti-Corruption Layer**: External service integration testing
 
 ## Security Features
@@ -190,9 +184,8 @@ npm run test
 ### Dashboard Endpoints
 
 - `GET /api/dashboard/stats` - User dashboard statistics
-- `GET /api/workflows` - User workflows
 - `GET /api/connected-apps` - Connected applications
-- `GET /api/templates` - Workflow templates
+- `GET /api/templates` - Automation templates
 
 ### Contact
 
@@ -271,6 +264,11 @@ Set `NODE_ENV=development` for detailed error messages and debug logging.
 2. **Testing**: All new features require tests
 3. **Security**: Follow security best practices
 4. **Documentation**: Update documentation for changes
+5. **Bug Tracking**: Report issues in [`docs/Bugs.md`](./docs/Bugs.md)
+
+## Known Issues
+
+See [`docs/Bugs.md`](./docs/Bugs.md) for current known issues, workarounds, and ongoing investigations.
 
 ## Performance Optimization
 

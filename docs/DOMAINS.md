@@ -1,13 +1,13 @@
-# Domain Documentation - FlowCreate Platform
+# Domain Documentation - tomriddelsdell.com Platform
 
-This document provides a comprehensive overview of all domains in the FlowCreate workflow automation platform, implementing Domain-Driven Design (DDD) principles.
+This document provides a comprehensive overview of all domains in the tomriddelsdell.com workflow automation platform, implementing Domain-Driven Design (DDD) principles.
 
 ## Domain Architecture Overview
 
-The FlowCreate platform is organized into multiple bounded contexts, each representing a distinct business domain with its own ubiquitous language, models, and responsibilities.
+The tomriddelsdell.com platform is organized into multiple bounded contexts, each representing a distinct business domain with its own ubiquitous language, models, and responsibilities.
 
 ```
-FlowCreate Platform
+tomriddelsdell.com Platform
 ├── Core Domains (Business Logic)
 │   ├── Identity Domain
 │   ├── Workflow Domain
