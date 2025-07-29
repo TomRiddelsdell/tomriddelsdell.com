@@ -34,27 +34,6 @@ export class UserAuthenticatedEvent extends DomainEvent {
   }
 }
 
-export class WorkflowCreatedEvent extends DomainEvent {
-  constructor(
-    workflowId: string,
-    readonly userId: string,
-    readonly workflowName: string
-  ) {
-    super(workflowId, 'WorkflowCreated');
-  }
-}
-
-export class WorkflowExecutedEvent extends DomainEvent {
-  constructor(
-    workflowId: string,
-    readonly userId: string,
-    readonly status: 'success' | 'failed',
-    readonly executionTime: number
-  ) {
-    super(workflowId, 'WorkflowExecuted');
-  }
-}
-
 export class NotificationSentEvent extends DomainEvent {
   constructor(
     notificationId: string,

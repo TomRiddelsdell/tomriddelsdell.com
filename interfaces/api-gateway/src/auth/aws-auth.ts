@@ -10,12 +10,10 @@ export function setupAwsAuth() {
     return;
   }
 
-  // Use dynamic domain from environment or headers
-  const appDomain = process.env.REPLIT_DOMAINS 
-    ? `https://${process.env.REPLIT_DOMAINS}`
-    : (process.env.NODE_ENV === 'production' 
-        ? process.env.APP_DOMAIN || 'https://tomriddelsdell.replit.app'
-        : 'http://localhost:5000');
+  // Use centralized configuration for domains
+  const { getConfig } = require('../../../../infrastructure/configuration/config-loader');
+  const config = getConfig();
+  const appDomain = config.services.external.baseUrl;
 
   // Use environment variables if available, otherwise use defaults
   const region = process.env.VITE_AWS_COGNITO_REGION || 'us-east-1';

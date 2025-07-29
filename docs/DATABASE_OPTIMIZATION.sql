@@ -1,4 +1,4 @@
--- FlowCreate Database Production Optimization Script
+-- tomriddelsdell.com Database Production Optimization Script
 -- Run these queries to optimize database performance for production
 
 -- =====================================================

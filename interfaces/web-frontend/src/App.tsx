@@ -22,6 +22,21 @@ function App() {
           <div className="min-h-screen bg-gray-50">
             <Switch>
               <Route path="/" component={Home} />
+              <Route path="/contact" component={() => {
+                // Show Home page and scroll to contact section
+                React.useEffect(() => {
+                  setTimeout(() => {
+                    const contactSection = document.getElementById('contact');
+                    if (contactSection) {
+                      contactSection.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                      });
+                    }
+                  }, 100);
+                }, []);
+                return <Home />;
+              }} />
               <Route path="/auth/callback" component={AuthCallback} />
               <Route path="/dashboard" component={Dashboard} />
               <Route path="/career" component={Career} />
@@ -30,7 +45,7 @@ function App() {
               <Route path="/monitoring" component={MonitoringDashboard} />
               <Route>
                 <div className="p-8">
-                  <h1 className="text-2xl font-bold mb-4">FlowCreate Platform</h1>
+                  <h1 className="text-2xl font-bold mb-4">tomriddelsdell.com Platform</h1>
                   <p className="text-gray-600 mb-6">
                     Professional workflow management platform with comprehensive analytics.
                   </p>

@@ -1,14 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DomainEventPublisher } from '../../src/domain-services/DomainEventPublisher';
-import { DomainEvent, UserRegisteredEvent, WorkflowCreatedEvent } from '../../src/events/DomainEvent';
+import { DomainEvent, UserRegisteredEvent, NotificationSentEvent } from '../../src/events/DomainEvent';
 
 describe('Domain Event Publisher - Shared Kernel', () => {
   let publisher: DomainEventPublisher;
   let mockHandler: any;
+  let notificationHandler: any;
 
   beforeEach(() => {
     publisher = DomainEventPublisher.getInstance();
     mockHandler = vi.fn().mockResolvedValue(undefined);
+    notificationHandler = vi.fn().mockResolvedValue(undefined);
     
     // Clear any existing handlers
     publisher.clear();
@@ -45,31 +47,31 @@ describe('Domain Event Publisher - Shared Kernel', () => {
   });
 
   it('should handle different event types separately', async () => {
-    const workflowHandler = vi.fn().mockResolvedValue(undefined);
+    const notificationHandler = vi.fn().mockResolvedValue(undefined);
     
     publisher.subscribe('UserRegistered', mockHandler);
-    publisher.subscribe('WorkflowCreated', workflowHandler);
+    publisher.subscribe('NotificationSent', notificationHandler);
 
-    const userEvent = new UserRegisteredEvent('123', 'test@example.com', 'cognito-123');
-    const workflowEvent = new WorkflowCreatedEvent('456', '123', 'Test Workflow');
+    const eventA = new UserRegisteredEvent('123', 'test@example.com', 'cognito-123');
+    const eventB = new NotificationSentEvent('456', '123', 'email', 'sent');
 
-    await publisher.publish(userEvent);
-    await publisher.publish(workflowEvent);
+    await publisher.publish(eventA);
+    await publisher.publish(eventB);
 
     expect(mockHandler).toHaveBeenCalledTimes(1);
-    expect(mockHandler).toHaveBeenCalledWith(userEvent);
+    expect(mockHandler).toHaveBeenCalledWith(eventA);
     
-    expect(workflowHandler).toHaveBeenCalledTimes(1);
-    expect(workflowHandler).toHaveBeenCalledWith(workflowEvent);
+    expect(notificationHandler).toHaveBeenCalledTimes(1);
+    expect(notificationHandler).toHaveBeenCalledWith(eventB);
   });
 
   it('should publish multiple events at once', async () => {
     publisher.subscribe('UserRegistered', mockHandler);
-    publisher.subscribe('WorkflowCreated', mockHandler);
+    publisher.subscribe('NotificationSent', mockHandler);
 
     const events = [
       new UserRegisteredEvent('123', 'test@example.com', 'cognito-123'),
-      new WorkflowCreatedEvent('456', '123', 'Test Workflow')
+      new NotificationSentEvent('456', '123', 'email', 'sent')
     ];
 
     await publisher.publishMany(events);
@@ -102,8 +104,8 @@ describe('Domain Event Publisher - Shared Kernel', () => {
   it('should not publish events for unsubscribed types', async () => {
     publisher.subscribe('UserRegistered', mockHandler);
 
-    const workflowEvent = new WorkflowCreatedEvent('456', '123', 'Test Workflow');
-    await publisher.publish(workflowEvent);
+    const notificationEvent = new NotificationSentEvent('456', '123', 'email', 'sent');
+    await publisher.publish(notificationEvent);
 
     expect(mockHandler).not.toHaveBeenCalled();
   });
@@ -129,11 +131,11 @@ describe('Domain Event Publisher - Shared Kernel', () => {
     });
 
     publisher.subscribe('UserRegistered', delayedHandler);
-    publisher.subscribe('WorkflowCreated', delayedHandler);
+    publisher.subscribe('NotificationSent', delayedHandler);
 
     const events = [
       new UserRegisteredEvent('123', 'test@example.com', 'cognito-123'),
-      new WorkflowCreatedEvent('456', '123', 'Test Workflow'),
+      new NotificationSentEvent('456', '123', 'email', 'sent'),
       new UserRegisteredEvent('124', 'test2@example.com', 'cognito-124')
     ];
 
