@@ -3,6 +3,7 @@ import { MetricValue } from '../value-objects/MetricValue';
 import { DimensionCollection, Dimension } from '../value-objects/Dimension';
 import { IMetricRepository } from '../repositories/IMetricRepository';
 import { DomainEventPublisher } from '../../../shared-kernel/src/domain-services/DomainEventPublisher';
+import { MetricCollectedEvent } from '../events/AnalyticsEvents';
 
 export class MetricCollectionService {
   constructor(
@@ -33,19 +34,16 @@ export class MetricCollectionService {
     await this.metricRepository.save(metric);
     
     // Publish metric collected event for real-time processing
-    await this.eventPublisher.publish({
-      aggregateId: metric.getId().toString(),
-      eventType: 'MetricCollected',
-      occurredAt: new Date(),
-      eventId: `metric-${Date.now()}`,
-      getPayload: () => ({
-        metricName: name,
-        value: value.value,
-        category,
-        source,
-        dimensions: dimensions.toFilterObject()
-      })
-    });
+    const event = new MetricCollectedEvent(
+      metric.getId().toString(),
+      name,
+      value.value,
+      category,
+      source,
+      dimensions.toFilterObject()
+    );
+    
+    await this.eventPublisher.publish(event);
   }
 
   async recordBatch(metrics: Array<{

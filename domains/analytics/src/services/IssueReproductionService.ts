@@ -2,6 +2,8 @@ import { LogEntry, LogLevel, LogCategory } from '../entities/LogEntry';
 import { MetricCollectionService } from './MetricCollectionService';
 import { Metric, MetricCategory } from '../entities/Metric';
 import { MetricType } from '../value-objects/MetricValue';
+import { IMetricRepository } from '../repositories/IMetricRepository';
+import { TimeRange } from '../value-objects/TimeRange';
 
 /**
  * Service for reproducing and analyzing issues using centralized logs
@@ -10,6 +12,7 @@ import { MetricType } from '../value-objects/MetricValue';
 export class IssueReproductionService {
   constructor(
     private metricService: MetricCollectionService,
+    private metricRepository: IMetricRepository,
     private logs: LogEntry[] = []
   ) {}
 
@@ -30,18 +33,19 @@ export class IssueReproductionService {
     const endTime = new Date(incidentTime.getTime() + (windowMinutes * 60 * 1000));
 
     return this.logs.filter(log => {
-      const inTimeWindow = log.timestamp >= startTime && log.timestamp <= endTime;
+      const inTimeWindow = log.getTimestamp() >= startTime && log.getTimestamp() <= endTime;
       
       if (!inTimeWindow) return false;
       
       // Apply optional filters
-      if (filters?.userId && log.context.userId !== filters.userId) return false;
-      if (filters?.workflowId && log.context.workflowId !== filters.workflowId) return false;
-      if (filters?.requestId && log.context.requestId !== filters.requestId) return false;
-      if (filters?.component && log.component !== filters.component) return false;
+      const context = log.getContext();
+      if (filters?.userId && context.userId !== filters.userId) return false;
+      if (filters?.workflowId && context.workflowId !== filters.workflowId) return false;
+      if (filters?.requestId && context.requestId !== filters.requestId) return false;
+      if (filters?.component && log.getSource() !== filters.component) return false;
       
       return true;
-    }).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    }).sort((a, b) => a.getTimestamp().getTime() - b.getTimestamp().getTime());
   }
 
   /**
@@ -57,9 +61,9 @@ export class IssueReproductionService {
     const startTime = new Date(incidentTime.getTime() - (lookbackMinutes * 60 * 1000));
     
     const errorLogs = this.logs.filter(log => 
-      log.timestamp >= startTime && 
-      log.timestamp <= incidentTime &&
-      (log.level === LogLevel.ERROR || log.level === LogLevel.FATAL)
+      log.getTimestamp() >= startTime && 
+      log.getTimestamp() <= incidentTime &&
+      (log.getLevel() === LogLevel.ERROR || log.getLevel() === LogLevel.FATAL)
     );
 
     const errorTypes = new Map<string, number>();
@@ -68,24 +72,23 @@ export class IssueReproductionService {
     
     errorLogs.forEach(log => {
       // Count error types
-      const errorType = log.message.split(':')[0] || 'Unknown';
+      const errorType = log.getMessage().split(':')[0] || 'Unknown';
       errorTypes.set(errorType, (errorTypes.get(errorType) || 0) + 1);
       
       // Track affected users
-      if (log.context.userId) {
-        affectedUsers.add(log.context.userId);
+      const context = log.getContext();
+      if (context.userId) {
+        affectedUsers.add(context.userId);
       }
       
       // Identify critical errors
-      if (log.level === LogLevel.FATAL || 
-          log.message.includes('database') || 
-          log.message.includes('timeout') ||
-          log.message.includes('crash')) {
+      if (log.getLevel() === LogLevel.FATAL || 
+          log.getMessage().includes('database') ||
+          log.getMessage().includes('timeout') ||
+          log.getMessage().includes('crash')) {
         criticalErrors.push(log);
       }
-    });
-
-    // Create error progression timeline (5-minute buckets)
+    });    // Create error progression timeline (5-minute buckets)
     const errorProgression: Array<{ time: Date; errorCount: number }> = [];
     const bucketSize = 5 * 60 * 1000; // 5 minutes in milliseconds
     
@@ -94,7 +97,7 @@ export class IssueReproductionService {
       const bucketEnd = new Date(time + bucketSize);
       
       const errorsInBucket = errorLogs.filter(log => 
-        log.timestamp >= bucketStart && log.timestamp < bucketEnd
+        log.getTimestamp() >= bucketStart && log.getTimestamp() < bucketEnd
       ).length;
       
       errorProgression.push({
@@ -128,11 +131,12 @@ export class IssueReproductionService {
   }> {
     const startTime = new Date(incidentTime.getTime() - (lookbackMinutes * 60 * 1000));
     
-    const userLogs = this.logs.filter(log =>
-      log.context.userId === userId &&
-      log.timestamp >= startTime &&
-      log.timestamp <= incidentTime
-    ).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    const userLogs = this.logs.filter(log => {
+      const context = log.getContext();
+      return context.userId === userId &&
+        log.getTimestamp() >= startTime &&
+        log.getTimestamp() <= incidentTime;
+    }).sort((a, b) => a.getTimestamp().getTime() - b.getTimestamp().getTime());
 
     const actionsPerformed: string[] = [];
     const workflowsAttempted = new Set<string>();
@@ -141,18 +145,19 @@ export class IssueReproductionService {
 
     userLogs.forEach(log => {
       // Track actions
-      if (log.category === LogCategory.APPLICATION && log.level === LogLevel.INFO) {
-        actionsPerformed.push(log.message);
+      if (log.getCategory() === LogCategory.APPLICATION && log.getLevel() === LogLevel.INFO) {
+        actionsPerformed.push(log.getMessage());
         lastSuccessfulAction = log;
       }
       
       // Track workflows
-      if (log.context.workflowId) {
-        workflowsAttempted.add(log.context.workflowId);
+      const context = log.getContext();
+      if (context.workflowId) {
+        workflowsAttempted.add(context.workflowId);
       }
       
       // Find first error
-      if (!firstError && (log.level === LogLevel.ERROR || log.level === LogLevel.FATAL)) {
+      if (!firstError && (log.getLevel() === LogLevel.ERROR || log.getLevel() === LogLevel.FATAL)) {
         firstError = log;
       }
     });
@@ -185,11 +190,12 @@ export class IssueReproductionService {
     const endTime = new Date(incidentTime.getTime() + (windowMinutes * 60 * 1000));
 
     const incidentLogs = this.logs.filter(log =>
-      log.timestamp >= startTime && log.timestamp <= endTime
+      log.getTimestamp() >= startTime && log.getTimestamp() <= endTime
     );
 
     // Get metrics for the same time window
-    const metrics = await this.metricService.getMetricsInTimeRange(startTime, endTime);
+    const timeRange = TimeRange.create(startTime, endTime);
+    const metrics = await this.metricRepository.findByQuery({ timeRange });
     
     const correlations: Array<{
       metric: Metric;
@@ -200,18 +206,19 @@ export class IssueReproductionService {
     metrics.forEach(metric => {
       // Find logs that occurred around the same time as metric spikes
       const relatedLogs = incidentLogs.filter(log => {
-        const timeDiff = Math.abs(log.timestamp.getTime() - metric.timestamp.getTime());
+        const timeDiff = Math.abs(log.getTimestamp().getTime() - metric.getTimestamp().getTime());
         return timeDiff <= 5 * 60 * 1000; // Within 5 minutes
       });
 
       // Determine correlation strength
       let correlation: 'high' | 'medium' | 'low' = 'low';
       
-      if (metric.type === MetricType.COUNTER && metric.value > 100) {
+      const metricValue = metric.getValue();
+      if (metricValue.type === MetricType.COUNTER && metricValue.value > 100) {
         correlation = 'high'; // High activity correlates with many logs
-      } else if (metric.type === MetricType.GAUGE && metric.value > 80) {
+      } else if (metricValue.type === MetricType.GAUGE && metricValue.value > 80) {
         correlation = 'medium'; // High resource usage might correlate
-      } else if (relatedLogs.some(log => log.level === LogLevel.ERROR)) {
+      } else if (relatedLogs.some(log => log.getLevel() === LogLevel.ERROR)) {
         correlation = 'high'; // Errors strongly correlate with performance issues
       }
 
@@ -310,9 +317,11 @@ Critical Errors: ${errorAnalysis.criticalErrors.length}
     const hypotheses: string[] = [];
     
     // Database-related issues
-    if (Array.from(errorAnalysis.errorTypes.keys()).some(type => 
-      type.toLowerCase().includes('database') || 
-      type.toLowerCase().includes('connection')
+    if (Array.from(errorAnalysis.errorTypes.keys()).some((type) => 
+      typeof type === 'string' && (
+        type.toLowerCase().includes('database') || 
+        type.toLowerCase().includes('connection')
+      )
     )) {
       hypotheses.push('Database connectivity or performance issue');
     }
@@ -334,8 +343,8 @@ Critical Errors: ${errorAnalysis.criticalErrors.length}
     
     // Authentication issues
     if (timeline.some(log => 
-      log.category === LogCategory.SECURITY && 
-      log.message.includes('auth')
+      log.getCategory() === LogCategory.SECURITY && 
+      log.getMessage().includes('auth')
     )) {
       hypotheses.push('Authentication service degradation');
     }
