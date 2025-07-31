@@ -10,8 +10,8 @@ import { z } from 'zod';
 // GitHub API client
 class GitHubMCPServer {
   private octokit: Octokit;
-  private owner: string;
-  private repo: string;
+  public owner: string;
+  public repo: string;
 
   constructor() {
     const token = process.env.GITHUB_TOKEN;
@@ -19,9 +19,20 @@ class GitHubMCPServer {
       throw new Error('GITHUB_TOKEN environment variable is required');
     }
 
+    const owner = process.env.GITHUB_OWNER;
+    const repo = process.env.GITHUB_REPO;
+    
+    if (!owner) {
+      throw new Error('GITHUB_OWNER environment variable is required');
+    }
+    
+    if (!repo) {
+      throw new Error('GITHUB_REPO environment variable is required');
+    }
+
     this.octokit = new Octokit({ auth: token });
-    this.owner = process.env.GITHUB_OWNER || 'TomRiddelsdell';
-    this.repo = process.env.GITHUB_REPO || 'tomriddelsdell.com';
+    this.owner = owner;
+    this.repo = repo;
   }
 
   // Repository Secrets Management
@@ -307,6 +318,8 @@ const tools = [
         productionCertArn: { type: 'string', description: 'Production certificate ARN' },
         cognitoUserPoolId: { type: 'string', description: 'Cognito User Pool ID' },
         databaseUrl: { type: 'string', description: 'Database connection URL' },
+        stagingDomainName: { type: 'string', description: 'Staging domain name' },
+        productionDomainName: { type: 'string', description: 'Production domain name' },
       },
       required: ['awsAccountId', 'stagingCertArn', 'productionCertArn'],
     },
@@ -423,16 +436,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request: { params: { name
           ['AWS_MONITORING_ROLE_ARN', `arn:aws:iam::${args.awsAccountId}:role/GitHubActions-Monitoring-Role`],
           
           // Staging Environment
-          ['STAGING_DOMAIN_NAME', 'dev.tomriddelsdell.com'],
+          ['STAGING_DOMAIN_NAME', args.stagingDomainName || process.env.STAGING_DOMAIN_NAME || ''],
           ['STAGING_CERTIFICATE_ARN', args.stagingCertArn || ''],
-          ['STAGING_COGNITO_USER_POOL_ID', args.cognitoUserPoolId || 'eu-west-2_g2Bs4XiwN'],
-          ['STAGING_DATABASE_URL', args.databaseUrl || 'postgresql://neondb_owner:npg_dQxO8H5RrBny@ep-withered-water-a5gynbw9.us-east-2.aws.neon.tech/neondb?sslmode=require'],
+          ['STAGING_COGNITO_USER_POOL_ID', args.cognitoUserPoolId || process.env.COGNITO_USER_POOL_ID || ''],
+          ['STAGING_DATABASE_URL', args.databaseUrl || process.env.DATABASE_URL || ''],
           
           // Production Environment
-          ['PRODUCTION_DOMAIN_NAME', 'tomriddelsdell.com'],
+          ['PRODUCTION_DOMAIN_NAME', args.productionDomainName || process.env.PRODUCTION_DOMAIN_NAME || ''],
           ['PRODUCTION_CERTIFICATE_ARN', args.productionCertArn || ''],
-          ['PRODUCTION_COGNITO_USER_POOL_ID', args.cognitoUserPoolId || 'eu-west-2_g2Bs4XiwN'],
-          ['PRODUCTION_DATABASE_URL', args.databaseUrl || 'postgresql://neondb_owner:npg_dQxO8H5RrBny@ep-withered-water-a5gynbw9.us-east-2.aws.neon.tech/neondb?sslmode=require'],
+          ['PRODUCTION_COGNITO_USER_POOL_ID', args.cognitoUserPoolId || process.env.COGNITO_USER_POOL_ID || ''],
+          ['PRODUCTION_DATABASE_URL', args.databaseUrl || process.env.DATABASE_URL || ''],
         ];
 
         // Create all secrets
@@ -447,7 +460,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request: { params: { name
 
         await githubClient.createEnvironment('production', {
           deploymentBranches: ['main'],
-          requiredReviewers: ['TomRiddelsdell'],
+          requiredReviewers: [process.env.GITHUB_REQUIRED_REVIEWER || githubClient.owner],
           waitTimer: 0,
         });
 

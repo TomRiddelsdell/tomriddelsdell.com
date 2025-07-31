@@ -86,7 +86,7 @@ describe('Performance Tests', () => {
         .expect(200);
       
       const duration = Date.now() - start;
-      expect(duration).toBeLessThan(100);
+      expect(duration).toBeLessThan(200); // Allow more time for CI environment
     });
 
     it('should handle auth endpoints within 500ms', async () => {

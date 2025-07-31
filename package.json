@@ -13,10 +13,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:mcp": "tsx scripts/test-mcp-servers.ts",
-    "aws:deploy": "./infrastructure/deployment/aws/scripts/aws-deploy.sh",
-    "aws:deploy:dev": "./infrastructure/deployment/aws/scripts/aws-deploy.sh development",
-    "aws:deploy:staging": "./infrastructure/deployment/aws/scripts/aws-deploy.sh staging",
-    "aws:deploy:prod": "./infrastructure/deployment/aws/scripts/aws-deploy.sh production",
+    "aws:deploy": "./infrastructure/deployment/aws/scripts/deploy.sh",
+    "aws:deploy:dev": "./infrastructure/deployment/aws/scripts/deploy.sh development",
+    "aws:deploy:staging": "./infrastructure/deployment/aws/scripts/deploy.sh staging",
+    "aws:deploy:prod": "./infrastructure/deployment/aws/scripts/deploy.sh production",
     "aws:setup-cicd": "./infrastructure/deployment/aws/scripts/setup-github-actions.sh"
   },
   "dependencies": {
