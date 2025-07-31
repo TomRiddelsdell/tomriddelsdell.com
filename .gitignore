@@ -4,9 +4,9 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
-.github
 .devcontainer
 .amplify
+.github/copilot-instructions.md
 
 # Development assets and temporary files
 attached_assets/
