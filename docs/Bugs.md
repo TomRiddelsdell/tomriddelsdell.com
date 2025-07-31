@@ -2,6 +2,62 @@
 
 This file tracks known bugs, workarounds, and issues that require future investigation and resolution.
 
+## DevContainer Issues
+
+### DEV-001: MCP Server Docker Build Failures
+**Status**: RESOLVED  
+**Priority**: High  
+**Date Identified**: July 29, 2025  
+**Date Resolved**: July 30, 2025  
+**Location**: `.devcontainer/Dockerfile.aws-mcp`, `.devcontainer/Dockerfile.neptune-mcp`
+
+**Issue Description:**
+Dev container build was failing due to multiple sequential issues with MCP server installation.
+
+**Error Symptoms Evolution:**
+1. **Phase 1**: `npm error path /app/mcp/src/aws-api-mcp-server/package.json` (Wrong runtime)
+2. **Phase 2**: `ERROR: Could not find a version that satisfies the requirement torch>=2.7.1` (PyTorch version conflict)  
+3. **Phase 3**: PyTorch wheel compatibility issue with Alpine Linux (musl libc)
+
+**Root Cause Analysis:**
+1. **Phase 1**: AWS MCP servers are Python-based, not Node.js-based
+2. **Phase 2**: AWS API MCP server had PyTorch dependency specification issues
+3. **Phase 3**: Alpine Linux doesn't have PyTorch wheel support; needed glibc-based image
+
+**Resolution Applied:**
+**Phase 1**: Converted from Node.js to Python runtime
+**Phase 2**: Followed official installation prerequisites using `uv` and PyPI packages
+**Phase 3**: **FINAL FIX** - Switched from `python:3.10-alpine` to `python:3.10-slim` (Debian-based)
+
+**Key Technical Changes:**
+- ✅ **Base Image**: Changed from Alpine Linux to Debian-slim for PyTorch wheel compatibility
+- ✅ **Package Manager**: Using `uv` for faster, reliable dependency management  
+- ✅ **Installation Method**: Official PyPI packages instead of development repositories
+- ✅ **Dependencies**: Full PyTorch and sentence-transformers support
+- ✅ **System Libraries**: Switched from `apk` (Alpine) to `apt-get` (Debian)
+
+**Files Modified:**
+- `.devcontainer/Dockerfile.aws-mcp` (Complete rewrite: Alpine→Debian + uv + PyPI)
+- `.devcontainer/Dockerfile.neptune-mcp` (Complete rewrite: Alpine→Debian + uv + PyPI)
+
+**Build Results:**
+- ✅ AWS MCP Server: Successful build (108.6s with all dependencies)
+- ✅ Neptune MCP Server: Successful build (3.7s cached layers)
+- ✅ Both containers ready for HTTP wrapper deployment on ports 8001/8002
+
+**Verification Test:**
+```bash
+# Both commands now complete successfully
+docker build -f .devcontainer/Dockerfile.aws-mcp -t test-aws-mcp .
+docker build -f .devcontainer/Dockerfile.neptune-mcp -t test-neptune-mcp .
+```
+
+**Lessons Learned:**
+- Alpine Linux lacks PyTorch wheel support (musl vs glibc compatibility)
+- Always check base image compatibility with ML/AI dependencies
+- Official installation methods are more reliable than development repository clones
+- `uv` provides significant speed improvements for Python dependency management
+
 ## Test Issues Requiring Investigation
 
 ### AUTH-001: Authentication Callback Error Handling
