@@ -145,7 +145,7 @@ export class Alert {
       threshold,
       dimensions,
       configuration,
-      AlertStatus.ACTIVE,
+      undefined, // Let constructor use default
       options.description
     );
   }
@@ -217,7 +217,7 @@ export class Alert {
   }
 
   evaluate(metricValue: MetricValue): boolean {
-    if (this.status !== AlertStatus.ACTIVE) {
+    if (this.status !== AlertStatus.ACTIVE && this.status !== AlertStatus.TRIGGERED) {
       return false;
     }
 
@@ -234,10 +234,10 @@ export class Alert {
     // Evaluate threshold
     const isTriggered = this.threshold.evaluate(metricValue.value);
     
-    if (isTriggered) {
+    if (isTriggered && this.status === AlertStatus.ACTIVE) {
       this.trigger(metricValue);
       return true;
-    } else if (this.status === AlertStatus.TRIGGERED && this.configuration.autoResolve) {
+    } else if (!isTriggered && this.status === AlertStatus.TRIGGERED && this.configuration.autoResolve) {
       this.resolve(true);
     }
 
