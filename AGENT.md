@@ -44,6 +44,39 @@ tomriddelsdel.com is a peronl website that provides a secure platfor for access 
 - **ORM**: Drizzle with type-safe migrations and schema management
 - **Logging**: Centralized logging system for issue reproduction and debugging
 - **Security**: Rate limiting, CORS, security headers, and input sanitization
+- **MCP Servers**: Model Context Protocol integration for AI tool capabilities
+
+### MCP (Model Context Protocol) Architecture
+The system integrates multiple MCP servers for enhanced AI capabilities in development:
+
+#### Active MCP Servers
+1. **AWS API MCP Server**
+   - **Location**: `.devcontainer/Dockerfile.aws-mcp`
+   - **Package**: `awslabs.aws-api-mcp-server` (official AWS Labs)
+   - **Port**: 8001
+   - **Purpose**: AWS service management (EC2, S3, Lambda, CloudFormation)
+   - **Technology**: Python 3.10-slim with uv package manager
+
+2. **Amazon Neptune MCP Server**
+   - **Location**: `.devcontainer/Dockerfile.neptune-mcp`
+   - **Package**: `awslabs.amazon-neptune-mcp-server` (official AWS Labs)
+   - **Port**: 8002
+   - **Purpose**: Graph database operations and relationship analysis
+   - **Technology**: Python 3.10-slim with uv package manager
+
+3. **GitHub MCP Server (Remote)**
+   - **URL**: `https://api.githubcopilot.com/mcp/`
+   - **Type**: Official GitHub-hosted remote server
+   - **Purpose**: Repository management, Issues, PRs, CI/CD, code analysis
+   - **Authentication**: GitHub Copilot OAuth or Personal Access Token
+
+#### MCP Integration Details
+- **Docker Compose**: Configured in `.devcontainer/docker-compose.yml`
+- **HTTP Wrappers**: Custom FastAPI wrappers for AWS/Neptune servers
+- **Base Image**: Debian-slim for PyTorch compatibility (AWS ML features)
+- **Package Manager**: Using `uv` for faster dependency management
+- **Build Status**: Successfully resolved (documented in `docs/Bugs.md` DEV-001, DEV-002)
+- **Networking**: Internal Docker network with health check endpoints
 
 ## Data Flow
 

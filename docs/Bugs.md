@@ -4,7 +4,60 @@ This file tracks known bugs, workarounds, and issues that require future investi
 
 ## DevContainer Issues
 
-### DEV-001: MCP Server Docker Build Failures
+### DEV-002: GitHub MCP Server Build Failures
+**Status**: RESOLVED  
+**Priority**: High  
+**Date Identified**: July 31, 2025  
+**Date Resolved**: July 31, 2025  
+**Location**: `.devcontainer/docker-compose.yml`, `infrastructure/mcp/github-mcp-server.ts`
+
+**Issue Description:**
+Dev container build failing due to TypeScript compilation errors in custom GitHub MCP server implementation.
+
+**Error Symptoms:**
+```
+github-mcp-server.ts(38,38): error TS7016: Could not find a declaration file for module 'tweetnacl-sealedbox-js'
+github-mcp-server.ts(42,30): error TS2339: Property 'sealedBox' does not exist on type
+Multiple 'args' is possibly 'undefined' errors throughout the file
+```
+
+**Root Cause Analysis:**
+- Attempting to build a **custom TypeScript GitHub MCP server** when GitHub provides an **official, production-ready server**
+- Our implementation had crypto library compatibility issues (`tweetnacl-sealedbox-js`)
+- Missing type definitions and strict TypeScript compilation errors
+- **Unnecessary duplication** of functionality that GitHub already provides
+
+**Resolution Applied:**
+**Switched to GitHub's Official MCP Server:**
+- **Remote Option**: Use `https://api.githubcopilot.com/mcp/` (hosted by GitHub)
+- **Local Option**: Use `ghcr.io/github/github-mcp-server:latest` Docker image
+- **Removed custom TypeScript implementation** to eliminate build complexity
+
+**Files Modified:**
+- `.devcontainer/docker-compose.yml` (Commented out github-mcp service)
+- Removed dependency on custom GitHub MCP server build
+
+**Technical Benefits:**
+- ✅ **No build errors** - eliminated TypeScript compilation issues
+- ✅ **Official support** - using GitHub's maintained server
+- ✅ **Better reliability** - production-tested implementation
+- ✅ **Simplified architecture** - removed custom crypto dependencies
+- ✅ **Easy authentication** - integrates with GitHub Copilot/PAT
+
+**Recommended Configuration:**
+Use GitHub's remote MCP server in VS Code MCP settings:
+```json
+{
+  "servers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    }
+  }
+}
+```
+
+### DEV-001: AWS/Neptune MCP Server Docker Build Failures
 **Status**: RESOLVED  
 **Priority**: High  
 **Date Identified**: July 29, 2025  
