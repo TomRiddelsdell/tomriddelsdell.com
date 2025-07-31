@@ -223,8 +223,8 @@ jobs:
           export DATABASE_URL=${{ secrets.STAGING_DATABASE_URL }}
           
           # Deploy using our deployment script
-          chmod +x infrastructure/deployment/aws/scripts/aws-deploy.sh
-          ./infrastructure/deployment/aws/scripts/aws-deploy.sh staging
+          chmod +x infrastructure/deployment/aws/scripts/deploy.sh
+          ./infrastructure/deployment/aws/scripts/deploy.sh staging
           
           echo "✅ Staging deployment completed"
 
@@ -310,8 +310,8 @@ jobs:
           export DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
           
           # Deploy using our deployment script
-          chmod +x infrastructure/deployment/aws/scripts/aws-deploy.sh
-          ./infrastructure/deployment/aws/scripts/aws-deploy.sh production
+          chmod +x infrastructure/deployment/aws/scripts/deploy.sh
+          ./infrastructure/deployment/aws/scripts/deploy.sh production
           
           echo "✅ Production deployment completed"
 
