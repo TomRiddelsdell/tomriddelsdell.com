@@ -17,6 +17,17 @@ For immediate deployment, read these documents in order:
 - **SECURITY_CONFIG.md** - Security hardening and configuration requirements
 - **DATABASE_OPTIMIZATION.sql** - Database performance optimization script
 
+### AWS Neptune Testing
+- **NEPTUNE_DEPLOYMENT_GUIDE.md** - Cost-controlled Neptune cluster deployment for testing
+- **NEPTUNE_COST_WARNING.md** - Critical cost controls and emergency shutdown procedures
+- **NEPTUNE_COST_ANALYSIS.md** - Detailed cost analysis and optimization strategies
+
+### AWS Deployment Migration
+- **AWS_DEPLOYMENT_GUIDE.md** - Complete migration guide from Replit to AWS serverless
+- **GITHUB_ACTIONS_CICD.md** - Comprehensive CI/CD pipeline with GitHub Actions
+- **Infrastructure**: `infrastructure/deployment/aws/` - CloudFormation templates and deployment scripts
+- **Cost Calculator**: Run `./infrastructure/deployment/aws/scripts/aws-cost-calculator.sh` for cost estimates
+
 ### Performance & Analysis
 - **BUILD_ANALYSIS.md** - Bundle optimization and performance metrics
 - **PRODUCTION_STATUS.md** - Final optimization status and benchmarks
@@ -61,6 +72,22 @@ curl https://your-domain.com/health
 - **Database**: PostgreSQL with performance indexing
 - **Authentication**: AWS Cognito with secure session management
 - **Monitoring**: Real-time health and performance tracking
+
+### Database Options
+
+#### Neon Serverless PostgreSQL (Current)
+- **Cost**: $0-20/month for typical usage
+- **Features**: Database branching, time travel, generous free tier
+- **Use Case**: Development and small production workloads
+- **Portal**: [console.neon.tech](https://console.neon.tech) for status monitoring
+- **Focus**: Developer experience and modern workflows
+
+#### AWS RDS Serverless v2 PostgreSQL (Not currently used due to cost)
+- **Cost**: $50-200+/month typical enterprise usage
+- **Features**: Enterprise-grade reliability, AWS ecosystem integration
+- **Use Case**: Large-scale production with high availability requirements
+- **Portal**: AWS Console for comprehensive management
+- **Focus**: Enterprise reliability and AWS service integration
 
 ### Performance Targets Achieved
 - Page load time: <2 seconds
