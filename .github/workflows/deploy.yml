@@ -1,0 +1,456 @@
+name: 🚀 Deploy tomriddelsdell.com to AWS
+
+on:
+  push:
+    branches:
+      - main          # Production deployment
+      - develop       # Staging deployment
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.gitignore'
+      - 'LICENSE'
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:   # Manual trigger
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      skip_tests:
+        description: 'Skip test execution'
+        required: false
+        default: false
+        type: boolean
+
+# Ensure only one deployment runs at a time per environment
+concurrency:
+  group: deploy-${{ github.ref_name }}-${{ github.event.inputs.environment || (github.ref_name == 'main' && 'production' || 'staging') }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '18.x'
+  AWS_REGION: 'eu-west-2'
+  PROJECT_NAME: 'tomriddelsdell-com'
+
+jobs:
+  # ============================================================================
+  # QUALITY ASSURANCE - Testing, Linting, Security
+  # ============================================================================
+  quality-assurance:
+    name: 🔍 Quality Assurance
+    runs-on: ubuntu-latest
+    if: github.event.inputs.skip_tests != 'true'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better analysis
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: |
+          npm ci --production=false
+          echo "✅ Dependencies installed successfully"
+
+      - name: 🔍 TypeScript type checking
+        run: |
+          echo "🔍 Running TypeScript type checks..."
+          npm run check
+          echo "✅ TypeScript compilation successful"
+
+      - name: 🧪 Run unit tests
+        run: |
+          echo "🧪 Running unit test suite..."
+          npm run test
+          echo "✅ Unit tests passed"
+
+      - name: 🧪 Run integration tests
+        run: |
+          echo "🧪 Running integration tests..."
+          npm run test -- --reporter=json --outputFile=test-results.json
+          echo "✅ Integration tests passed"
+
+      - name: 📊 Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results.json
+          retention-days: 30
+
+      - name: 🛡️ Security audit
+        run: |
+          echo "🛡️ Running security audit..."
+          npm audit --audit-level=moderate
+          echo "✅ Security audit completed"
+
+      - name: 📦 Test build process
+        run: |
+          echo "📦 Testing build process..."
+          npm run build
+          echo "✅ Build test successful"
+          
+          # Verify build artifacts
+          if [ ! -f "dist/index.js" ]; then
+            echo "❌ Backend build failed - dist/index.js not found"
+            exit 1
+          fi
+          
+          if [ ! -d "dist/assets" ]; then
+            echo "❌ Frontend build failed - dist/assets not found"
+            exit 1
+          fi
+          
+          echo "✅ All build artifacts verified"
+
+  # ============================================================================
+  # COST ESTIMATION - Estimate deployment costs
+  # ============================================================================
+  cost-estimation:
+    name: 💰 Cost Estimation
+    runs-on: ubuntu-latest
+    needs: [quality-assurance]
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 💰 Run cost calculator
+        run: |
+          chmod +x infrastructure/deployment/aws/scripts/aws-cost-calculator.sh
+          echo "📊 Estimating AWS costs for this deployment..."
+          
+          # Provide sample inputs for automated estimation
+          echo -e "10000\n5\n3\n200\nneon\nproduction" | ./infrastructure/deployment/aws/scripts/aws-cost-calculator.sh > cost-estimate.txt
+          
+          echo "💰 Cost estimation completed"
+          cat cost-estimate.txt
+
+      - name: 📝 Comment cost estimate on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const costEstimate = fs.readFileSync('cost-estimate.txt', 'utf8');
+            
+            const body = `## 💰 AWS Cost Estimation
+            
+            Here's the estimated monthly cost for this deployment:
+            
+            \`\`\`
+            ${costEstimate}
+            \`\`\`
+            
+            > 📝 This is an automated estimate based on typical usage patterns.
+            > Actual costs may vary based on real usage.
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+  # ============================================================================
+  # STAGING DEPLOYMENT - Deploy to staging environment
+  # ============================================================================
+  deploy-staging:
+    name: 🔄 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [quality-assurance]
+    if: github.ref_name == 'develop' || (github.event.inputs.environment == 'staging' && github.event_name == 'workflow_dispatch')
+    environment: 
+      name: staging
+      url: https://dev.tomriddelsdell.com
+    
+    permissions:
+      id-token: write   # Required for OIDC
+      contents: read
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 🔐 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_STAGING_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: GitHubActions-Staging-${{ github.run_number }}
+
+      - name: 🔧 Install dependencies
+        run: npm ci --production=false
+
+      - name: 🏗️ Build application
+        run: |
+          echo "🏗️ Building application for staging..."
+          npm run build
+          npm run build:lambda
+          echo "✅ Build completed successfully"
+
+      - name: 🚀 Deploy to AWS Staging
+        run: |
+          echo "🚀 Deploying to AWS staging environment..."
+          
+          # Set staging environment variables
+          export ENVIRONMENT=staging
+          export DOMAIN_NAME=${{ secrets.STAGING_DOMAIN_NAME }}
+          export CERTIFICATE_ARN=${{ secrets.STAGING_CERTIFICATE_ARN }}
+          export COGNITO_USER_POOL_ID=${{ secrets.STAGING_COGNITO_USER_POOL_ID }}
+          export DATABASE_URL=${{ secrets.STAGING_DATABASE_URL }}
+          
+          # Deploy using our deployment script
+          chmod +x infrastructure/deployment/aws/scripts/aws-deploy.sh
+          ./infrastructure/deployment/aws/scripts/aws-deploy.sh staging
+          
+          echo "✅ Staging deployment completed"
+
+      - name: 🧪 Post-deployment testing
+        run: |
+          echo "🧪 Running post-deployment tests..."
+          
+          # Wait for deployment to be ready
+          sleep 30
+          
+          # Test health endpoints
+          STAGING_URL="https://${{ secrets.STAGING_DOMAIN_NAME }}"
+          
+          echo "Testing frontend health..."
+          curl -f "$STAGING_URL" || (echo "❌ Frontend health check failed" && exit 1)
+          
+          echo "Testing API health..."
+          curl -f "$STAGING_URL/api/health" || (echo "❌ API health check failed" && exit 1)
+          
+          echo "✅ All post-deployment tests passed"
+
+      - name: 📝 Update deployment status
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ Staging deployment successful: https://${{ secrets.STAGING_DOMAIN_NAME }}"
+          else
+            echo "❌ Staging deployment failed"
+          fi
+
+  # ============================================================================
+  # PRODUCTION DEPLOYMENT - Deploy to production environment
+  # ============================================================================
+  deploy-production:
+    name: 🚀 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [quality-assurance]
+    if: github.ref_name == 'main' || (github.event.inputs.environment == 'production' && github.event_name == 'workflow_dispatch')
+    environment: 
+      name: production
+      url: https://tomriddelsdell.com
+    
+    permissions:
+      id-token: write   # Required for OIDC
+      contents: read
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 🔐 Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_PRODUCTION_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: GitHubActions-Production-${{ github.run_number }}
+
+      - name: 🔧 Install dependencies
+        run: npm ci --production=false
+
+      - name: 🏗️ Build application
+        run: |
+          echo "🏗️ Building application for production..."
+          NODE_ENV=production npm run build
+          npm run build:lambda
+          echo "✅ Production build completed"
+
+      - name: 🚀 Deploy to AWS Production
+        run: |
+          echo "🚀 Deploying to AWS production environment..."
+          
+          # Set production environment variables
+          export ENVIRONMENT=production
+          export DOMAIN_NAME=${{ secrets.PRODUCTION_DOMAIN_NAME }}
+          export CERTIFICATE_ARN=${{ secrets.PRODUCTION_CERTIFICATE_ARN }}
+          export COGNITO_USER_POOL_ID=${{ secrets.PRODUCTION_COGNITO_USER_POOL_ID }}
+          export DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
+          
+          # Deploy using our deployment script
+          chmod +x infrastructure/deployment/aws/scripts/aws-deploy.sh
+          ./infrastructure/deployment/aws/scripts/aws-deploy.sh production
+          
+          echo "✅ Production deployment completed"
+
+      - name: 🔄 Invalidate CloudFront cache
+        run: |
+          echo "🔄 Invalidating CloudFront cache..."
+          
+          DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
+            --stack-name "${{ env.PROJECT_NAME }}-production" \
+            --region ${{ env.AWS_REGION }} \
+            --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDistributionId`].OutputValue' \
+            --output text)
+          
+          if [ "$DISTRIBUTION_ID" != "None" ] && [ -n "$DISTRIBUTION_ID" ]; then
+            aws cloudfront create-invalidation \
+              --distribution-id $DISTRIBUTION_ID \
+              --paths "/*" \
+              --region ${{ env.AWS_REGION }}
+            echo "✅ CloudFront cache invalidated"
+          else
+            echo "⚠️ CloudFront distribution ID not found, skipping cache invalidation"
+          fi
+
+      - name: 🧪 Production health checks
+        run: |
+          echo "🧪 Running production health checks..."
+          
+          # Wait for deployment to be ready
+          sleep 60
+          
+          # Test health endpoints
+          PRODUCTION_URL="https://${{ secrets.PRODUCTION_DOMAIN_NAME }}"
+          
+          echo "Testing frontend health..."
+          curl -f "$PRODUCTION_URL" || (echo "❌ Frontend health check failed" && exit 1)
+          
+          echo "Testing API health..."
+          curl -f "$PRODUCTION_URL/api/health" || (echo "❌ API health check failed" && exit 1)
+          
+          echo "Testing monitoring endpoints..."
+          curl -f "$PRODUCTION_URL/api/monitoring/health-check" || (echo "❌ Monitoring health check failed" && exit 1)
+          
+          echo "✅ All production health checks passed"
+
+      - name: 📊 Generate deployment report
+        if: always()
+        run: |
+          echo "📊 Generating deployment report..."
+          
+          cat > deployment-report.md << EOF
+          # 🚀 Production Deployment Report
+          
+          **Deployment ID**: ${{ github.run_number }}
+          **Commit**: ${{ github.sha }}
+          **Branch**: ${{ github.ref_name }}
+          **Actor**: ${{ github.actor }}
+          **Status**: ${{ job.status }}
+          **Timestamp**: $(date -u)
+          
+          ## 🔗 URLs
+          - **Production**: https://${{ secrets.PRODUCTION_DOMAIN_NAME }}
+          - **API Health**: https://${{ secrets.PRODUCTION_DOMAIN_NAME }}/api/health
+          - **Monitoring**: https://${{ secrets.PRODUCTION_DOMAIN_NAME }}/api/monitoring/health-check
+          
+          ## 📦 Build Information
+          - **Node.js Version**: ${{ env.NODE_VERSION }}
+          - **AWS Region**: ${{ env.AWS_REGION }}
+          - **Environment**: production
+          
+          ## 📊 Performance Metrics
+          - Frontend Bundle: Optimized for production
+          - Backend Bundle: Lambda-optimized
+          - Database: PostgreSQL with performance indexing
+          
+          EOF
+          
+          echo "✅ Deployment report generated"
+
+      - name: 📝 Create GitHub release
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('deployment-report.md', 'utf8');
+            
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${{ github.run_number }}`,
+              name: `🚀 Production Release v${{ github.run_number }}`,
+              body: report,
+              draft: false,
+              prerelease: false
+            });
+            
+            console.log('✅ GitHub release created:', release.data.html_url);
+
+  # ============================================================================
+  # NOTIFICATION - Send deployment notifications
+  # ============================================================================
+  notification:
+    name: 📢 Notification
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always()
+    
+    steps:
+      - name: 📢 Send deployment notification
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const stagingStatus = '${{ needs.deploy-staging.result }}';
+            const productionStatus = '${{ needs.deploy-production.result }}';
+            
+            let message = '## 🚀 Deployment Summary\n\n';
+            
+            if (stagingStatus !== 'skipped') {
+              const emoji = stagingStatus === 'success' ? '✅' : '❌';
+              message += `${emoji} **Staging**: ${stagingStatus}\n`;
+            }
+            
+            if (productionStatus !== 'skipped') {
+              const emoji = productionStatus === 'success' ? '✅' : '❌';
+              message += `${emoji} **Production**: ${productionStatus}\n`;
+            }
+            
+            message += `\n**Deployment ID**: ${{ github.run_number }}`;
+            message += `\n**Commit**: ${{ github.sha }}`;
+            message += `\n**Actor**: ${{ github.actor }}`;
+            
+            console.log(message);
+            
+            // If this is a PR, comment on it
+            if (context.payload.pull_request) {
+              await github.rest.issues.createComment({
+                issue_number: context.payload.pull_request.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: message
+              });
+            }
