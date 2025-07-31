@@ -6,7 +6,6 @@ vite.config.ts.*
 *.tar.gz
 .devcontainer
 .amplify
-.github/copilot-instructions.md
 
 # Development assets and temporary files
 attached_assets/
@@ -19,10 +18,30 @@ build_output.log
 *.swo
 
 # Environment and secrets
+.env
+.env.*
+!.env.template
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# AWS credentials
+.aws/credentials
+credentials.json
+**/aws-credentials*
+
+# SSH keys and certificates
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# Temporary sensitive files
+**/secrets/
+**/*secret*
+**/*password*
+**/*token*
 
 # Build artifacts
 *.tgz

@@ -1,108 +1,127 @@
 # tomriddelsdell.com - Personal Website
 
-A personal website and application platform
+**Enterprise-grade personal website with pure Domain Driven Design (DDD) architecture**
 
-📖 **[Complete Architecture Documentation](./ARCHITECTURE.md)**
+� **[Development Setup Guide](./DEVELOPMENT_SETUP.md)** | 📖 **[Architecture Documentation](./docs/ARCHITECTURE.md)** | 🔒 **[Security Guide](./docs/SECURITY.md)**
 
-## Technologies
+## 🎯 Project Status
 
-- **Frontend**: TypeScript React with Vite
-- **Backend**: Express.js with TypeScript
-- **Database**: PostgreSQL with Drizzle ORM
-- **Authentication**: AWS Cognito
-- **UI Components**: Shadcn/ui with Tailwind CSS
-- **Testing**: Vitest, Playwright, Testing Library
-- **Email**: SendGrid integration
+✅ **Production Ready** - Full CI/CD pipeline with automated deployments  
+✅ **Enterprise Security** - AWS Cognito, OIDC, secret management  
+✅ **Cost Optimized** - ~$15-34/month total infrastructure costs  
+✅ **Fully Monitored** - Health checks, cost alerts, performance tracking  
 
-## Prerequisites
+## 🏗️ Architecture Overview
 
-- Node.js 18+ 
-- PostgreSQL database
-- AWS Cognito User Pool
-- SendGrid account (optional, for email functionality)
+### **Domain Driven Design (DDD)**
+- **Pure Domain Layer**: Business logic with strict bounded contexts
+- **Monorepo Structure**: Organized into domains, interfaces, and infrastructure
+- **Clean Architecture**: Clear separation of concerns across all layers
 
-## Environment Variables
+### **Technology Stack**
+- **Frontend**: React + TypeScript + Vite + Shadcn/ui
+- **Backend**: Express.js + TypeScript with DDD patterns
+- **Database**: PostgreSQL + Drizzle ORM (type-safe)
+- **Authentication**: AWS Cognito (enterprise-grade)
+- **Infrastructure**: AWS Serverless (Lambda + API Gateway + CloudFront)
+- **CI/CD**: GitHub Actions with automated deployments
 
-Create the following environment variables in your Replit Secrets:
+### **Development Environment**
+- **MCP Servers**: AWS, Neptune, GitHub automation
+- **CLI Tools**: GitHub CLI, AWS CLI, TypeScript, jq
+- **Testing**: Vitest, Playwright, comprehensive test coverage
+- **Security**: Environment variables, no hardcoded secrets
 
-### Required Variables
+## 🚀 Quick Start
+
+### **For Development**
+```bash
+# Clone and setup
+git clone https://github.com/TomRiddelsdell/tomriddelsdell.com
+cd tomriddelsdell.com
+
+# Install dependencies
+npm install
+
+# Setup environment (see DEVELOPMENT_SETUP.md)
+cp .env.template .env
+# Edit .env with your values
+
+# Start development
+npm run dev
 ```
-DATABASE_URL=postgresql://username:password@host:port/database
-VITE_AWS_COGNITO_CLIENT_ID=your_cognito_client_id
-VITE_AWS_COGNITO_REGION=your_aws_region
-VITE_AWS_COGNITO_USER_POOL_ID=your_user_pool_id
-AWS_COGNITO_CLIENT_SECRET=your_cognito_client_secret
-AWS_ACCESS_KEY_ID=your_aws_access_key
-AWS_SECRET_ACCESS_KEY=your_aws_secret_key
-```
 
-### Optional Variables
-```
-SENDGRID_API_KEY=SG.your_sendgrid_api_key
-SESSION_SECRET=your_session_secret_minimum_32_chars
-```
+### **For Production Deployment**
+The project includes automated CI/CD:
+- **Staging**: Push to `develop` branch → auto-deploys to dev.tomriddelsdell.com
+- **Production**: Merge to `main` → manual approval → deploys to tomriddelsdell.com
 
-## Installation
+## 🏢 Domain Architecture
 
-1. **Install Dependencies**
-   ```bash
-   npm install
-   ```
-
-2. **Database Setup**
-   ```bash
-   npm run db:push
-   ```
-
-3. **Start Development Server**
-   ```bash
-   npm run dev
-   ```
-
-The application will be available at `http://localhost:5000`
-
-## Pure DDD Architecture
+The system follows pure Domain Driven Design with strict bounded contexts:
 
 ```
 tomriddelsdell.com/
-├── domains/                    # Pure Domain Layer
+├── domains/                    # Pure Domain Layer (Business Logic)
 │   ├── identity/              # User authentication & authorization
 │   ├── analytics/             # Data analysis & reporting
-│   ├── integration/           # Third-party connections
-│   ├── notification/          # Communication services
-│   └── shared-kernel/         # Shared domain concepts
-├── services/                  # Application Services
-│   ├── identity-service/      # Identity management
-│   └── notification-service/  # Event handling
-├── infrastructure/            # Infrastructure Layer
-│   ├── database/             # Data persistence
-│   ├── security/             # Auth & authorization
-│   └── anti-corruption-layer/ # External service adapters
-├── interfaces/               # Interface Layer
-│   ├── api-gateway/          # REST API
-│   ├── web-frontend/         # React UI
-│   └── admin-dashboard/      # Admin interface
-└── libs/                     # Shared utilities
+│   ├── integration/           # Third-party service integrations
+│   ├── notification/          # Multi-channel communication
+│   ├── workflow/              # Core business workflows
+│   └── shared-kernel/         # Shared domain concepts & events
+├── interfaces/               # Interface Layer (External Boundaries)
+│   ├── api-gateway/          # Express.js REST API
+│   └── web-frontend/         # React SPA with Shadcn/ui
+├── infrastructure/           # Infrastructure Layer (Technical Concerns)
+│   ├── database/             # PostgreSQL with Drizzle ORM
+│   ├── security/             # AWS Cognito integration & RBAC
+│   ├── mcp/                  # Model Context Protocol servers
+│   └── configuration/        # Environment & system config
+└── libs/                     # Shared utilities & testing tools
 ```
 
-## Development
+## 💰 Infrastructure Costs
 
-### Available Scripts
+**Total Monthly Cost: ~$15-34**
+- **Staging Environment**: $5-9/month
+- **Production Environment**: $10-25/month  
+- **Includes**: SSL certificates, CloudFront CDN, Lambda execution, S3 storage
+- **Monitoring**: Automated cost alerts if >$50/month
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run check` - TypeScript type checking
-- `npm run db:push` - Push database schema changes
+## 🛠️ Development Tools
 
-## 🚀 Production Deployment
+### **CLI Tools (All Configured)**
+- GitHub CLI (repository management)
+- AWS CLI + CDK (infrastructure deployment)
+- TypeScript compiler + tsx execution
+- jq (JSON processing)
+- dotenv-cli (environment management)
 
-### Deployment Status: READY
-- **Security**: Enterprise-grade hardening complete
-- **Performance**: 818KB optimized build (191KB backend, 296KB frontend)
-- **Tests**: 75/75 passing (100% success rate)
-- **Database**: Performance indexed and optimized
-- **Monitoring**: Health checks at `/health` and `/api/monitoring/*`
+### **MCP Servers (AI-Powered Automation)**
+- **AWS MCP** (port 8001): EC2, S3, Lambda management
+- **Neptune MCP** (port 8002): Graph database operations  
+- **GitHub MCP** (port 8003): Repository automation
+
+### **Essential Scripts**
+```bash
+# Development & Testing
+npm run dev                              # Start development server
+npm run build                            # Production build
+npm run test                             # Run test suite
+./scripts/run-tests.sh [all|watch|ui]    # Advanced test options
+
+# Environment & Deployment
+./scripts/verify-dev-environment.sh      # Environment verification
+./scripts/pre-deploy.sh                  # Pre-deployment validation
+npm run db:push                          # Apply database changes
+
+# AWS Operations
+./infrastructure/deployment/aws/scripts/deploy.sh --env staging
+./infrastructure/deployment/aws/scripts/aws-cost-calculator.sh
+```
+
+### **Script Documentation**
+All scripts are fully documented in [DEVELOPMENT_SETUP.md](DEVELOPMENT_SETUP.md#essential-scripts) with usage examples and integration details.
 
 ### Quick Deployment
 ```bash
