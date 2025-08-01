@@ -6,6 +6,7 @@ vite.config.ts.*
 *.tar.gz
 .devcontainer
 .amplify
+**/archive*
 
 # Development assets and temporary files
 attached_assets/

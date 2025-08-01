@@ -1,0 +1,41 @@
+# NPM Audit - Accepted Security Risks
+
+## Documented Exceptions (August 1, 2025)
+
+### esbuild ≤0.24.2 (GHSA-67mh-4wv8-2f99)
+- **Severity**: Moderate (CVSS: 5.3)
+- **Packages**: @esbuild-kit/core-utils, @esbuild-kit/esm-loader, drizzle-kit
+- **Risk Level**: Low (development environment only)
+- **Justification**: 
+  - Development-only vulnerability
+  - Requires specific attack vectors (malicious website + running dev server)
+  - No access to production data or secrets
+  - Limited blast radius (local development only)
+- **Mitigation**: 
+  - Dev server runs on localhost only
+  - Firewall blocks external access to dev ports
+  - Regular monitoring for upstream fixes
+- **Review Date**: 2025-09-01
+- **Owner**: Development Team
+
+## Security Practices
+
+### Development Server Security
+```bash
+# Always bind to localhost only
+npm run dev -- --host localhost --port 3000
+
+# Never expose dev server to public networks
+# Use environment variables for production deployments
+```
+
+### Monitoring
+- Weekly check for drizzle-kit updates
+- Monthly security assessment review
+- Quarterly dependency audit
+
+## Risk Acceptance Approval
+- **Approved By**: Development Team
+- **Date**: August 1, 2025
+- **Risk Level**: Acceptable for development environment
+- **Next Review**: September 1, 2025
