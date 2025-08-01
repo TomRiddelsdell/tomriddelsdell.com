@@ -29,9 +29,10 @@ Your environment is **production-ready** with:
 🏗️ Dev Container Services
 ├── 📱 Main App (port 3000)
 ├── 🔧 AWS MCP Server (port 8001)
-├── 🌊 Neptune MCP Server (port 8002)
-└── 🐙 GitHub MCP Server (port 8003)
+└── 🌊 Neptune MCP Server (port 8002)
 ```
+
+**Note**: GitHub MCP functionality is provided by GitHub's official remote server at `https://api.githubcopilot.com/mcp/` rather than a local container.
 
 ## 🔐 Security Configuration
 
@@ -92,15 +93,14 @@ docker-compose -f .devcontainer/docker-compose.yml up -d
 
 ### **Service Health Check**
 ```bash
-# Check GitHub MCP server
-curl http://localhost:8003/health
-
 # Check AWS MCP server
 curl http://localhost:8001/health
 
 # Check Neptune MCP server
 curl http://localhost:8002/health
 ```
+
+**GitHub MCP**: Uses official remote server (no local health check needed)
 
 ## 📋 Development Workflow
 

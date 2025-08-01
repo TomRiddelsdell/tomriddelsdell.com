@@ -8,7 +8,7 @@ This file tracks known bugs, workarounds, and issues that require future investi
 **Status**: RESOLVED  
 **Priority**: High  
 **Date Identified**: July 31, 2025  
-**Date Resolved**: July 31, 2025  
+**Date Resolved**: August 1, 2025  
 **Location**: `.devcontainer/docker-compose.yml`, `infrastructure/mcp/github-mcp-server.ts`
 
 **Issue Description:**
@@ -16,35 +16,36 @@ Dev container build failing due to TypeScript compilation errors in custom GitHu
 
 **Error Symptoms:**
 ```
-github-mcp-server.ts(38,38): error TS7016: Could not find a declaration file for module 'tweetnacl-sealedbox-js'
-github-mcp-server.ts(42,30): error TS2339: Property 'sealedBox' does not exist on type
-Multiple 'args' is possibly 'undefined' errors throughout the file
+github-mcp-server.ts(49,38): error TS7016: Could not find a declaration file for module 'tweetnacl-sealedbox-js'. '/app/node_modules/tweetnacl-sealedbox-js/sealedbox.node.js' implicitly has an 'any' type.
 ```
 
 **Root Cause Analysis:**
 - Attempting to build a **custom TypeScript GitHub MCP server** when GitHub provides an **official, production-ready server**
-- Our implementation had crypto library compatibility issues (`tweetnacl-sealedbox-js`)
+- Our implementation had crypto library compatibility issues (`tweetnacl-sealedbox-js` missing TypeScript declarations)
 - Missing type definitions and strict TypeScript compilation errors
 - **Unnecessary duplication** of functionality that GitHub already provides
 
 **Resolution Applied:**
-**Switched to GitHub's Official MCP Server:**
-- **Remote Option**: Use `https://api.githubcopilot.com/mcp/` (hosted by GitHub)
-- **Local Option**: Use `ghcr.io/github/github-mcp-server:latest` Docker image
-- **Removed custom TypeScript implementation** to eliminate build complexity
+**Completely Removed Custom GitHub MCP Server:**
+- **Removed github-mcp service** from `.devcontainer/docker-compose.yml`
+- **Updated dependencies** to only include AWS and Neptune MCP services
+- **Switched to GitHub's official remote server**: `https://api.githubcopilot.com/mcp/`
+- **Eliminated custom TypeScript implementation** and all related dependencies
 
 **Files Modified:**
-- `.devcontainer/docker-compose.yml` (Commented out github-mcp service)
-- Removed dependency on custom GitHub MCP server build
+- `.devcontainer/docker-compose.yml` (Removed github-mcp service entirely)
+- Removed GITHUB_MCP_ENDPOINT environment variable
+- Updated app service dependencies
 
 **Technical Benefits:**
 - ✅ **No build errors** - eliminated TypeScript compilation issues
 - ✅ **Official support** - using GitHub's maintained server
-- ✅ **Better reliability** - production-tested implementation
+- ✅ **Better reliability** - production-tested implementation  
 - ✅ **Simplified architecture** - removed custom crypto dependencies
 - ✅ **Easy authentication** - integrates with GitHub Copilot/PAT
+- ✅ **Faster builds** - no longer building unnecessary custom server
 
-**Recommended Configuration:**
+**GitHub MCP Server Configuration:**
 Use GitHub's remote MCP server in VS Code MCP settings:
 ```json
 {
