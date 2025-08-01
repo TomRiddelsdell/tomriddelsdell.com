@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: flowcreate_dev
       POSTGRES_USER: flowcreate
-      POSTGRES_PASSWORD: flowcreate_dev_password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -31,7 +31,7 @@ services:
     image: rabbitmq:3-management-alpine
     environment:
       RABBITMQ_DEFAULT_USER: flowcreate
-      RABBITMQ_DEFAULT_PASS: flowcreate_dev_password
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -47,9 +47,9 @@ services:
       dockerfile: services/identity-service/Dockerfile
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://flowcreate:flowcreate_dev_password@postgres:5432/flowcreate_dev
+      - DATABASE_URL=postgresql://flowcreate:${POSTGRES_PASSWORD}@postgres:5432/flowcreate_dev
       - REDIS_URL=redis://redis:6379
-      - RABBITMQ_URL=amqp://flowcreate:flowcreate_dev_password@rabbitmq:5672
+      - RABBITMQ_URL=amqp://flowcreate:${RABBITMQ_PASSWORD}@rabbitmq:5672
     ports:
       - "3001:3000"
     depends_on:
@@ -70,9 +70,9 @@ services:
       dockerfile: services/workflow-service/Dockerfile
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://flowcreate:flowcreate_dev_password@postgres:5432/flowcreate_dev
+      - DATABASE_URL=postgresql://flowcreate:${POSTGRES_PASSWORD}@postgres:5432/flowcreate_dev
       - REDIS_URL=redis://redis:6379
-      - RABBITMQ_URL=amqp://flowcreate:flowcreate_dev_password@rabbitmq:5672
+      - RABBITMQ_URL=amqp://flowcreate:${RABBITMQ_PASSWORD}@rabbitmq:5672
     ports:
       - "3002:3000"
     depends_on:
@@ -133,7 +133,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=flowcreate_admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
     ports:
       - "3001:3000"
     volumes:
