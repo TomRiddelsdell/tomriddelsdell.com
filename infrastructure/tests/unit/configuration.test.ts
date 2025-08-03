@@ -33,6 +33,9 @@ describe('Configuration System', () => {
       process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
       process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
       process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+      process.env.GITHUB_TOKEN = 'test_github_token';
+      process.env.GITHUB_OWNER = 'test_owner';
+      process.env.GITHUB_REPO = 'test_repo';
     });
 
     it('should load development configuration successfully', () => {
@@ -76,6 +79,9 @@ describe('Configuration System', () => {
       process.env.AWS_ACCESS_KEY_ID = 'prod_access_key';
       process.env.AWS_SECRET_ACCESS_KEY = 'prod_secret_key';
       process.env.REPLIT_DOMAINS = 'my-app.replit.app';
+      process.env.GITHUB_TOKEN = 'prod_github_token';
+      process.env.GITHUB_OWNER = 'prod_owner';
+      process.env.GITHUB_REPO = 'prod_repo';
       // Set email provider to none to avoid SendGrid validation
       process.env.EMAIL_PROVIDER = 'none';
       // Clear CORS and BASE_URL to test defaults with REPLIT_DOMAINS
@@ -133,6 +139,9 @@ describe('Configuration System', () => {
       process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
       process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
       process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+      process.env.GITHUB_TOKEN = 'test_github_token';
+      process.env.GITHUB_OWNER = 'test_owner';
+      process.env.GITHUB_REPO = 'test_repo';
       process.env.EMAIL_PROVIDER = 'none';
     });
 
@@ -227,6 +236,9 @@ describe('Configuration System', () => {
       process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://valid.auth.us-east-1.amazoncognito.com';
       process.env.AWS_ACCESS_KEY_ID = 'valid_access_key';
       process.env.AWS_SECRET_ACCESS_KEY = 'valid_secret_key';
+      process.env.GITHUB_TOKEN = 'valid_github_token';
+      process.env.GITHUB_OWNER = 'valid_owner';
+      process.env.GITHUB_REPO = 'valid_repo';
       process.env.CORS_ALLOWED_ORIGINS = 'https://valid-domain.com';
       
       expect(() => loadConfiguration()).not.toThrow();
@@ -243,6 +255,9 @@ describe('Configuration System', () => {
       process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
       process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
       process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+      process.env.GITHUB_TOKEN = 'test_github_token';
+      process.env.GITHUB_OWNER = 'test_owner';
+      process.env.GITHUB_REPO = 'test_repo';
       
       expect(() => validateRequiredEnvironment()).not.toThrow();
     });
@@ -310,6 +325,9 @@ describe('Configuration System', () => {
       process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
       process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
       process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+      process.env.GITHUB_TOKEN = 'test_github_token';
+      process.env.GITHUB_OWNER = 'test_owner';
+      process.env.GITHUB_REPO = 'test_repo';
       process.env.EMAIL_PROVIDER = 'none';
       
       const config = loadConfiguration();
@@ -329,6 +347,9 @@ describe('Configuration System', () => {
       process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
       process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
       process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+      process.env.GITHUB_TOKEN = 'test_github_token';
+      process.env.GITHUB_OWNER = 'test_owner';
+      process.env.GITHUB_REPO = 'test_repo';
       process.env.EMAIL_PROVIDER = 'none';
       
       const config = loadConfiguration();
@@ -354,6 +375,9 @@ describe('Configuration System', () => {
       process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
       process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
       process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+      process.env.GITHUB_TOKEN = 'test_github_token';
+      process.env.GITHUB_OWNER = 'test_owner';
+      process.env.GITHUB_REPO = 'test_repo';
       process.env.EMAIL_PROVIDER = 'none';
       
       const config = loadConfiguration();
@@ -381,6 +405,9 @@ describe('Configuration System', () => {
       process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
       process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
       process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+      process.env.GITHUB_TOKEN = 'test_github_token';
+      process.env.GITHUB_OWNER = 'test_owner';
+      process.env.GITHUB_REPO = 'test_repo';
       process.env.EMAIL_PROVIDER = 'none';
       
       const config1 = getConfig();
@@ -400,6 +427,9 @@ describe('Configuration System', () => {
       process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
       process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
       process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+      process.env.GITHUB_TOKEN = 'test_github_token';
+      process.env.GITHUB_OWNER = 'test_owner';
+      process.env.GITHUB_REPO = 'test_repo';
       process.env.EMAIL_PROVIDER = 'none';
       
       const config1 = getConfig();

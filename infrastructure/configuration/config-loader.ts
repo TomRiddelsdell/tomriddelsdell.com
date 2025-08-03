@@ -46,7 +46,9 @@ function loadEnvironmentFiles(): void {
     const templateResult = loadDotenvSafe('.env.template');
     if (templateResult.parsed) {
       Object.keys(templateResult.parsed).forEach(key => {
-        if (!process.env[key] || process.env[key]!.trim() === '') {
+        // Only use template defaults if the variable was not set at all
+        // Don't override empty strings set by tests (they're intentional)
+        if (!initialEnv.hasOwnProperty(key)) {
           process.env[key] = templateResult.parsed![key];
         }
       });
@@ -58,8 +60,7 @@ function loadEnvironmentFiles(): void {
       if (envResult.parsed) {
         Object.keys(envResult.parsed).forEach(key => {
           // Only override if the variable wasn't explicitly set before loading files
-          // AND it's currently empty or has the template default value
-          if (!initialEnv[key] || initialEnv[key]!.trim() === '') {
+          if (!initialEnv.hasOwnProperty(key)) {
             process.env[key] = envResult.parsed![key];
           }
         });
