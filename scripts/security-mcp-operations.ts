@@ -9,11 +9,22 @@
  */
 
 import { spawn } from 'child_process';
+import { getConfig } from '../infrastructure/configuration/config-loader';
 
-// MCP Server Configuration
+// Load configuration with validation
+let config: ReturnType<typeof getConfig>;
+try {
+  config = getConfig();
+} catch (error) {
+  console.error('❌ Configuration validation failed:', error);
+  console.error('💡 Please ensure all required environment variables are set, especially GITHUB_TOKEN');
+  process.exit(1);
+}
+
+// MCP Server Configuration from centralized config
 const MCP_CONFIG = {
   github: {
-    endpoint: 'http://localhost:8003', // GitHub MCP server
+    endpoint: 'https://api.githubcopilot.com/mcp/', // GitHub official remote MCP server
     tools: [
       'github_set_secret',
       'github_list_secrets', 
@@ -23,7 +34,7 @@ const MCP_CONFIG = {
     ]
   },
   aws: {
-    endpoint: 'http://localhost:8001', // AWS MCP server
+    endpoint: config.integration.mcp.awsEndpoint,
     tools: [
       'aws_iam_rotate_keys',
       'aws_cognito_update_client',
@@ -32,7 +43,7 @@ const MCP_CONFIG = {
     ]
   },
   neptune: {
-    endpoint: 'http://localhost:8002', // Neptune MCP server
+    endpoint: config.integration.mcp.neptuneEndpoint,
     tools: [
       'neptune_query_security_events',
       'neptune_analyze_access_patterns',
@@ -76,9 +87,9 @@ class SecurityMCPClient {
       ], {
         env: {
           ...process.env,
-          GITHUB_OWNER: process.env.GITHUB_OWNER,
-          GITHUB_REPO: process.env.GITHUB_REPO,
-          GITHUB_TOKEN: process.env.GITHUB_TOKEN,
+          GITHUB_OWNER: config.integration.github.owner,
+          GITHUB_REPO: config.integration.github.repo,
+          GITHUB_TOKEN: config.integration.github.token,
           AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
           AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
           NEPTUNE_ENDPOINT: process.env.NEPTUNE_ENDPOINT
@@ -119,7 +130,7 @@ class SecurityMCPClient {
     const basePath = '/workspaces/infrastructure/mcp';
     switch (server) {
       case 'github':
-        return `${basePath}/github-mcp-server.ts`;
+        return `<replace with GitHub MCP server URL>`;
       case 'aws':
         return `${basePath}/aws-mcp-client.ts`;
       case 'neptune':
@@ -239,7 +250,7 @@ ${details.affectedSystems.map(system => `- ${system}`).join('\n')}
         title: `🚨 ${details.title}`,
         body: issueBody,
         labels: ['security', 'incident', details.severity],
-        assignees: [process.env.GITHUB_OWNER]
+        assignees: [config.integration.github.owner]
       });
       
       console.log(`✅ Security incident created: ${issue.html_url}`);

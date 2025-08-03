@@ -100,6 +100,20 @@ export const servicesConfigSchema = z.object({
   }),
 });
 
+// Integration services configuration schema
+export const integrationConfigSchema = z.object({
+  github: z.object({
+    token: z.string().min(1, 'GitHub token is required'),
+    owner: z.string().min(1, 'GitHub owner is required'),
+    repo: z.string().min(1, 'GitHub repository is required'),
+  }),
+  mcp: z.object({
+    awsEndpoint: z.string().default('http://aws-mcp:8001'),
+    neptuneEndpoint: z.string().default('http://neptune-mcp:8002'),
+    neonEndpoint: z.string().default('http://neon-mcp:8003'),
+  }),
+});
+
 // Feature flags configuration schema
 export const featureFlagsSchema = z.object({
   emailEnabled: z.boolean().default(false),
@@ -128,6 +142,7 @@ export const baseConfigSchema = z.object({
   database: databaseConfigSchema,
   email: emailConfigSchema,
   services: servicesConfigSchema,
+  integration: integrationConfigSchema,
   features: featureFlagsSchema,
   logging: loggingConfigSchema,
 });
@@ -138,5 +153,6 @@ export type CognitoConfig = z.infer<typeof cognitoConfigSchema>;
 export type DatabaseConfig = z.infer<typeof databaseConfigSchema>;
 export type EmailConfig = z.infer<typeof emailConfigSchema>;
 export type ServicesConfig = z.infer<typeof servicesConfigSchema>;
+export type IntegrationConfig = z.infer<typeof integrationConfigSchema>;
 export type FeatureFlags = z.infer<typeof featureFlagsSchema>;
 export type LoggingConfig = z.infer<typeof loggingConfigSchema>;
