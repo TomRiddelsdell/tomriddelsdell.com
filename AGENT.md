@@ -70,6 +70,15 @@ The system integrates multiple MCP servers for enhanced AI capabilities in devel
    - **Purpose**: Repository management, Issues, PRs, CI/CD, code analysis
    - **Authentication**: GitHub Copilot OAuth or Personal Access Token
 
+4. **Neon MCP Server (Remote)**
+- **Type**: Official remote server (recommended approach)
+- **URL**: `https://mcp.neon.tech/mcp`
+- **Purpose**: PostgreSQL database cost tracking, analytics, and management
+- **Technology**: Neon's hosted MCP server
+- **Configuration**: `.vscode/mcp.json` file for VS Code integration
+- **Authentication**: OAuth flow or Neon API key
+- **Features**: Cost monitoring, database metrics, query performance insights, resource management
+
 #### MCP Integration Details
 - **Docker Compose**: Configured in `.devcontainer/docker-compose.yml`
 - **HTTP Wrappers**: Custom FastAPI wrappers for AWS/Neptune servers
@@ -99,22 +108,11 @@ The system integrates multiple MCP servers for enhanced AI capabilities in devel
 - **PostgreSQL Database**: Connection string via `DATABASE_URL`
 - **SendGrid** (Optional): Email delivery service
 
-### Required Environment Variables
-```
-DATABASE_URL=postgresql://...
-VITE_AWS_COGNITO_CLIENT_ID=your_client_id
-VITE_AWS_COGNITO_REGION=your_region
-VITE_AWS_COGNITO_USER_POOL_ID=your_pool_id
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
-SESSION_SECRET=your_session_secret
-```
-
-### Optional Environment Variables
-```
-SENDGRID_API_KEY=SG.your_api_key
-AWS_COGNITO_CLIENT_SECRET=your_client_secret
-```
+### Configuration
+- Environment variables should not be used directly
+- Config should be loaded via centralized configuration system
+- Use `.env` as template for required variables
+- Never hardcode sensitive information in codebase. They should be defined only in the centralized config which is in .gitignore
 
 ## Deployment Strategy
 

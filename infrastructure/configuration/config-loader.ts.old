@@ -1,0 +1,285 @@
+import { z } from "zod";
+import { config as loadDotenv } from "dotenv";
+import { baseConfigSchema, BaseConfig } from "./base-config";
+
+/**
+ * Enhanced configuration loader with hierarchical environment files
+ * Loads configuration in the following order (later overrides earlier):
+ * 1. .env.template (defaults)
+ * 2. .env (base overrides)  
+ * 3. .env.{NODE_ENV} (environment-specific overrides)
+ * 4. process.env (runtime overrides)
+ */
+
+export class ConfigurationError extends Error {
+  constructor(
+    message: string,
+    public cause?: Error,
+  ) {
+    super(message);
+    this.name = "ConfigurationError";
+  }
+}
+
+/**
+ * Load environment files in hierarchical order
+ */
+function loadEnvironmentFiles(): void {
+  const environment = process.env.NODE_ENV || "development";
+  
+  // Load in order: template → base → environment-specific
+  // Later files override earlier ones
+  loadDotenv({ path: '.env.template' });
+  loadDotenv({ path: '.env' });
+  loadDotenv({ path: `.env.${environment}` });
+}
+
+/**
+ * Transform environment variables to match config schema structure
+ */
+function transformEnvironmentToConfig(): Partial<BaseConfig> {
+  const env = process.env;
+  const config: Partial<BaseConfig> = {};
+
+  // Core configuration
+  if (env.NODE_ENV) {
+    config.environment = env.NODE_ENV as BaseConfig['environment'];
+  }
+
+  // Security configuration
+  if (env.SESSION_SECRET || env.CORS_ALLOWED_ORIGINS || env.RATE_LIMIT_WINDOW_MS) {
+    config.security = {};
+    
+    if (env.SESSION_SECRET) {
+      config.security.session = {
+        secret: env.SESSION_SECRET,
+        maxAge: env.SESSION_MAX_AGE ? parseInt(env.SESSION_MAX_AGE) : 604800000,
+        secure: env.SESSION_SECURE === 'true',
+        httpOnly: env.SESSION_HTTP_ONLY !== 'false',
+        sameSite: (env.SESSION_SAME_SITE as any) || 'lax',
+      };
+    }
+
+    if (env.CORS_ALLOWED_ORIGINS) {
+      config.security.cors = {
+        allowedOrigins: env.CORS_ALLOWED_ORIGINS.split(',').map(origin => origin.trim()),
+        allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+        allowCredentials: true,
+      };
+    }
+
+    if (env.RATE_LIMIT_WINDOW_MS || env.RATE_LIMIT_MAX_REQUESTS) {
+      config.security.rateLimit = {
+        windowMs: env.RATE_LIMIT_WINDOW_MS ? parseInt(env.RATE_LIMIT_WINDOW_MS) : 900000,
+        maxRequests: env.RATE_LIMIT_MAX_REQUESTS ? parseInt(env.RATE_LIMIT_MAX_REQUESTS) : 100,
+        skipSuccessfulRequests: false,
+        skipFailedRequests: false,
+      };
+    }
+
+    // Content Security Policy defaults
+    config.security.csp = {
+      directives: {
+        'default-src': ["'self'"],
+        'script-src': env.NODE_ENV === 'development' 
+          ? ["'self'", "'unsafe-eval'", "'unsafe-inline'"]
+          : ["'self'", "https://replit.com"],
+        'style-src': ["'self'", "'unsafe-inline'"],
+        'img-src': ["'self'", "data:", "https:"],
+        'connect-src': env.NODE_ENV === 'development'
+          ? ["'self'", "ws://localhost:*", "wss://localhost:*"]
+          : ["'self'"],
+        'font-src': ["'self'"],
+        'object-src': ["'none'"],
+        'media-src': ["'self'"],
+        'frame-src': ["'none'"],
+      },
+    };
+  }
+
+  // Database configuration
+  if (env.DATABASE_URL) {
+    config.database = {
+      url: env.DATABASE_URL,
+      pool: {
+        min: env.DB_POOL_MIN ? parseInt(env.DB_POOL_MIN) : 2,
+        max: env.DB_POOL_MAX ? parseInt(env.DB_POOL_MAX) : 10,
+        idleTimeoutMillis: env.DB_IDLE_TIMEOUT ? parseInt(env.DB_IDLE_TIMEOUT) : 30000,
+        connectionTimeoutMillis: env.DB_CONNECTION_TIMEOUT ? parseInt(env.DB_CONNECTION_TIMEOUT) : 2000,
+      },
+      ssl: {
+        enabled: env.DB_SSL_ENABLED === 'true',
+        rejectUnauthorized: env.DB_SSL_REJECT_UNAUTHORIZED !== 'false',
+      },
+    };
+  }
+
+  // AWS Cognito configuration
+  if (env.VITE_AWS_COGNITO_CLIENT_ID || env.AWS_ACCESS_KEY_ID) {
+    config.cognito = {
+      clientId: env.VITE_AWS_COGNITO_CLIENT_ID || '',
+      clientSecret: env.AWS_COGNITO_CLIENT_SECRET,
+      userPoolId: env.VITE_AWS_COGNITO_USER_POOL_ID || '',
+      region: env.VITE_AWS_COGNITO_REGION || 'us-east-1',
+      hostedUIDomain: env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || '',
+      accessKeyId: env.AWS_ACCESS_KEY_ID || '',
+      secretAccessKey: env.AWS_SECRET_ACCESS_KEY || '',
+    };
+  }
+
+  // Email configuration
+  if (env.EMAIL_PROVIDER || env.SENDGRID_API_KEY) {
+    config.email = {
+      provider: (env.EMAIL_PROVIDER as 'sendgrid' | 'none') || 'none',
+      sendgrid: env.SENDGRID_API_KEY ? {
+        apiKey: env.SENDGRID_API_KEY,
+        fromEmail: env.SENDGRID_FROM_EMAIL || 'noreply@tomriddelsdell.com.app',
+        fromName: env.SENDGRID_FROM_NAME || 'tomriddelsdell.com',
+      } : undefined,
+    };
+  }
+
+  // Services configuration
+  const baseUrl = env.BASE_URL || (env.NODE_ENV === 'production' ? 'https://tomriddelsdell.com' : 'http://localhost:5000');
+  config.services = {
+    apiGateway: {
+      port: env.API_GATEWAY_PORT ? parseInt(env.API_GATEWAY_PORT) : 5000,
+      host: env.API_GATEWAY_HOST || '0.0.0.0',
+      timeout: env.API_GATEWAY_TIMEOUT ? parseInt(env.API_GATEWAY_TIMEOUT) : 30000,
+    },
+    external: {
+      baseUrl,
+      callbackUrl: env.CALLBACK_URL || `${baseUrl}/auth/callback`,
+      logoutUrl: env.LOGOUT_URL || baseUrl,
+    },
+  };
+
+  // Integration configuration
+  if (env.GITHUB_TOKEN || env.AWS_MCP_ENDPOINT) {
+    config.integration = {
+      github: {
+        token: env.GITHUB_TOKEN || '',
+        owner: env.GITHUB_OWNER || 'TomRiddelsdell',
+        repo: env.GITHUB_REPO || 'tomriddelsdell.com',
+      },
+      mcp: {
+        awsEndpoint: env.AWS_MCP_ENDPOINT || 'http://aws-mcp:8001',
+        neptuneEndpoint: env.NEPTUNE_MCP_ENDPOINT || 'http://neptune-mcp:8002',
+      },
+    };
+  }
+
+  // Feature flags
+  config.features = {
+    emailEnabled: env.FEATURE_EMAIL_ENABLED === 'true',
+    analyticsEnabled: env.FEATURE_ANALYTICS_ENABLED !== 'false',
+    debugMode: env.DEBUG_MODE === 'true',
+    maintenanceMode: env.MAINTENANCE_MODE === 'true',
+    newUserRegistration: env.FEATURE_NEW_USER_REGISTRATION !== 'false',
+  };
+
+  // Logging configuration
+  config.logging = {
+    level: (env.LOG_LEVEL as 'debug' | 'info' | 'warn' | 'error') || 'info',
+    enableConsole: env.LOG_ENABLE_CONSOLE !== 'false',
+    enableFile: env.LOG_ENABLE_FILE === 'true',
+    enableDatabase: env.LOG_ENABLE_DATABASE === 'true',
+    format: (env.LOG_FORMAT as 'json' | 'simple') || 'json',
+    maxFileSize: env.LOG_MAX_FILE_SIZE || '10mb',
+    maxFiles: env.LOG_MAX_FILES ? parseInt(env.LOG_MAX_FILES) : 5,
+  };
+
+  return config;
+}
+
+/**
+ * Load and validate complete configuration
+ */
+export function loadConfiguration(): BaseConfig {
+  try {
+    // Get environment defaults
+    const defaults = getEnvironmentDefaults();
+
+    // Load environment variable overrides
+    const envOverrides = loadFromEnvironment();
+
+    // Merge configurations
+    const merged = mergeConfig(defaults, envOverrides);
+
+    // Remove undefined values
+    const clean = removeUndefined(merged);
+
+    // Validate against schema
+    const config = baseConfigSchema.parse(clean);
+
+    console.log(`Configuration loaded for environment: ${config.environment}`);
+    const enabledFeatures = Object.entries(config.features)
+      .filter(([_, enabled]) => enabled)
+      .map(([feature, _]) => feature);
+    console.log(`Features enabled: ${enabledFeatures.join(", ")}`);
+
+    return config;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new ConfigurationError(
+        `Failed to load configuration: ${error.message}`,
+        error,
+      );
+    }
+    throw error;
+  }
+}
+
+/**
+ * Singleton configuration instance
+ */
+let configInstance: BaseConfig | null = null;
+
+/**
+ * Get the current configuration instance
+ */
+export function getConfig(): BaseConfig {
+  if (!configInstance) {
+    configInstance = loadConfiguration();
+  }
+  return configInstance;
+}
+
+/**
+ * Reload configuration (useful for testing)
+ */
+export function reloadConfiguration(): BaseConfig {
+  configInstance = loadConfiguration();
+  return configInstance;
+}
+
+/**
+ * Validate required environment variables are present
+ */
+export function validateRequiredEnvironment(): void {
+  const required = [
+    "DATABASE_URL",
+    "SESSION_SECRET",
+    "VITE_AWS_COGNITO_CLIENT_ID",
+    "VITE_AWS_COGNITO_USER_POOL_ID",
+    "VITE_AWS_COGNITO_REGION",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+  ];
+
+  const missing = required.filter((key) => !process.env[key]);
+
+  if (missing.length > 0) {
+    throw new ConfigurationError(
+      `Missing required environment variables: ${missing.join(", ")}`,
+    );
+  }
+}
+
+/**
+ * Get current environment type
+ */
+export function getEnvironment(): string {
+  return process.env.NODE_ENV || "development";
+}

@@ -52,8 +52,11 @@ describe('Configuration System', () => {
       expect(config.database.ssl.enabled).toBe(false);
     });
 
-    it('should include Replit domain in CORS when available', () => {
+    it('should include Replit domain in CORS when available and CORS_ALLOWED_ORIGINS is not set', () => {
+      process.env.NODE_ENV = 'development';
       process.env.REPLIT_DOMAINS = 'test-app.replit.dev';
+      // Set empty CORS_ALLOWED_ORIGINS to trigger transform function
+      process.env.CORS_ALLOWED_ORIGINS = '';
       
       const config = reloadConfiguration();
       
@@ -75,6 +78,9 @@ describe('Configuration System', () => {
       process.env.REPLIT_DOMAINS = 'my-app.replit.app';
       // Set email provider to none to avoid SendGrid validation
       process.env.EMAIL_PROVIDER = 'none';
+      // Clear CORS and BASE_URL to test defaults with REPLIT_DOMAINS
+      delete process.env.CORS_ALLOWED_ORIGINS;
+      delete process.env.BASE_URL;
     });
 
     it('should load production configuration successfully', () => {
@@ -95,14 +101,21 @@ describe('Configuration System', () => {
       expect(config.security.session.maxAge).toBe(7 * 24 * 60 * 60 * 1000); // 7 days default
     });
 
-    it('should use Replit domain for base URLs', () => {
+    it('should use Replit domain for base URLs when BASE_URL is not set', () => {
+      // Set empty BASE_URL to trigger REPLIT_DOMAINS logic
+      process.env.BASE_URL = '';
+      process.env.CALLBACK_URL = '';
+      
       const config = loadConfiguration();
       
       expect(config.services.external.baseUrl).toBe('https://my-app.replit.app');
       expect(config.services.external.callbackUrl).toBe('https://my-app.replit.app/auth/callback');
     });
 
-    it('should configure CORS for production domain', () => {
+    it('should configure CORS for production domain when CORS_ALLOWED_ORIGINS is not set', () => {
+      // Set empty CORS_ALLOWED_ORIGINS to trigger REPLIT_DOMAINS logic
+      process.env.CORS_ALLOWED_ORIGINS = '';
+      
       const config = loadConfiguration();
       
       expect(config.security.cors.allowedOrigins).toContain('https://my-app.replit.app');
@@ -235,16 +248,43 @@ describe('Configuration System', () => {
     });
 
     it('should fail validation when required variables are missing', () => {
+      // Create a scenario where required fields would actually be missing
+      // by temporarily changing the environment to something that won't load defaults
+      const originalNodeEnv = process.env.NODE_ENV;
+      
+      // Delete all the required variables AND prevent template loading
       delete process.env.DATABASE_URL;
       delete process.env.SESSION_SECRET;
+      delete process.env.VITE_AWS_COGNITO_CLIENT_ID;
+      delete process.env.VITE_AWS_COGNITO_USER_POOL_ID;
+      delete process.env.VITE_AWS_COGNITO_REGION;
+      delete process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN;
+      delete process.env.AWS_ACCESS_KEY_ID;
+      delete process.env.AWS_SECRET_ACCESS_KEY;
+      delete process.env.GITHUB_TOKEN;
+      delete process.env.GITHUB_OWNER;
+      delete process.env.GITHUB_REPO;
       
-      expect(() => validateRequiredEnvironment()).toThrow(ConfigurationError);
-      expect(() => validateRequiredEnvironment()).toThrow(/Missing required environment variables/);
+      // Set environment variables to empty strings to override template defaults
+      process.env.DATABASE_URL = '';
+      process.env.SESSION_SECRET = '';
+      
+      try {
+        expect(() => validateRequiredEnvironment()).toThrow(ConfigurationError);
+        expect(() => validateRequiredEnvironment()).toThrow(/Missing required environment variables/);
+      } finally {
+        // Restore the original environment
+        process.env.NODE_ENV = originalNodeEnv;
+      }
     });
 
     it('should identify specific missing variables', () => {
-      delete process.env.VITE_AWS_COGNITO_CLIENT_ID;
-      delete process.env.AWS_SECRET_ACCESS_KEY;
+      // Set specific required variables to empty strings to test error messaging
+      process.env.VITE_AWS_COGNITO_CLIENT_ID = '';
+      process.env.AWS_SECRET_ACCESS_KEY = '';
+      process.env.DATABASE_URL = '';
+      process.env.SESSION_SECRET = '';
+      process.env.GITHUB_TOKEN = '';
       
       try {
         validateRequiredEnvironment();
@@ -332,6 +372,17 @@ describe('Configuration System', () => {
 
   describe('Configuration Singleton', () => {
     it('should return the same instance on multiple calls', () => {
+      // Set up valid environment for configuration
+      process.env.SESSION_SECRET = 'test_session_secret_32_characters_long_enough';
+      process.env.DATABASE_URL = 'postgresql://localhost/test';
+      process.env.VITE_AWS_COGNITO_CLIENT_ID = 'test_client_id';
+      process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'test_pool_id';
+      process.env.VITE_AWS_COGNITO_REGION = 'us-east-1';
+      process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN = 'https://test.auth.us-east-1.amazoncognito.com';
+      process.env.AWS_ACCESS_KEY_ID = 'test_access_key';
+      process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
+      process.env.EMAIL_PROVIDER = 'none';
+      
       const config1 = getConfig();
       const config2 = getConfig();
       

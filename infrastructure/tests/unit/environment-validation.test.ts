@@ -6,7 +6,11 @@ describe('Environment Validation Scripts', () => {
 
   beforeEach(() => {
     vi.resetModules();
-    process.env = { ...originalEnv };
+    // Create a clean test environment that prevents .env file loading
+    process.env = { 
+      NODE_ENV: 'test',
+      VITEST: 'true'
+    };
   });
 
   afterEach(() => {

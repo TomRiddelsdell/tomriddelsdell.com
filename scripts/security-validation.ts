@@ -9,8 +9,19 @@
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { getConfig } from '../infrastructure/configuration/config-loader';
 
 const execAsync = promisify(exec);
+
+// Load configuration with validation
+let config: ReturnType<typeof getConfig>;
+try {
+  config = getConfig();
+} catch (error) {
+  console.error('❌ Configuration validation failed:', error);
+  console.error('💡 Please ensure all required environment variables are set, especially GITHUB_TOKEN');
+  process.exit(1);
+}
 
 interface ValidationResult {
   test: string;
@@ -84,7 +95,7 @@ class SecurityValidator {
       this.log('GitHub CLI Auth', 'pass', 'GitHub CLI authenticated');
       
       // Test repository access
-      const { stdout } = await execAsync(`gh repo view ${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO} --json name,owner,private`);
+      const { stdout } = await execAsync(`gh repo view ${config.integration.github.owner}/${config.integration.github.repo} --json name,owner,private`);
       const repo = JSON.parse(stdout);
       
       this.log(
@@ -96,7 +107,7 @@ class SecurityValidator {
       
       // Test secrets access (list without values)
       try {
-        await execAsync(`gh secret list --repo ${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}`);
+        await execAsync(`gh secret list --repo ${config.integration.github.owner}/${config.integration.github.repo}`);
         this.log('GitHub Secrets Access', 'pass', 'Can access repository secrets');
       } catch {
         this.log('GitHub Secrets Access', 'warning', 'Limited access to repository secrets');
@@ -111,77 +122,96 @@ class SecurityValidator {
    * Validate environment variables and configuration
    */
   async validateEnvironmentConfig(): Promise<void> {
-    const criticalEnvVars = [
-      'DATABASE_URL',
-      'SESSION_SECRET',
-      'AWS_ACCESS_KEY_ID',
-      'AWS_SECRET_ACCESS_KEY',
-      'GITHUB_TOKEN',
-      'GITHUB_OWNER',
-      'GITHUB_REPO'
-    ];
-    
-    const optionalEnvVars = [
-      'SENDGRID_API_KEY',
-      'AWS_COGNITO_CLIENT_SECRET',
-      'GOOGLE_CLIENT_SECRET',
-      'NEPTUNE_ENDPOINT'
-    ];
-    
-    // Check critical variables
-    for (const envVar of criticalEnvVars) {
-      if (process.env[envVar]) {
-        // Check for common insecure patterns
-        const value = process.env[envVar];
-        if (value.includes('test') || value.includes('example') || value.includes('changeme')) {
-          this.log(
-            `Environment Variable: ${envVar}`,
-            'warning',
-            'Contains test/example value - may not be production-ready'
-          );
+    // Validate centralized configuration instead of direct env access
+    try {
+      // Database configuration
+      if (config.database.url) {
+        if (config.database.url.includes('test') || config.database.url.includes('example')) {
+          this.log('Database URL', 'warning', 'Contains test/example value - may not be production-ready');
         } else {
-          this.log(
-            `Environment Variable: ${envVar}`,
-            'pass',
-            'Set and appears valid'
-          );
+          this.log('Database URL', 'pass', 'Set and appears valid');
         }
       } else {
-        this.log(
-          `Environment Variable: ${envVar}`,
-          'fail',
-          'Missing required environment variable'
-        );
+        this.log('Database URL', 'fail', 'Missing required database configuration');
       }
-    }
-    
-    // Check optional variables
-    for (const envVar of optionalEnvVars) {
-      if (process.env[envVar]) {
-        this.log(
-          `Optional Variable: ${envVar}`,
-          'pass',
-          'Set (optional service configured)'
-        );
+
+      // Session secret validation
+      if (config.security.session.secret) {
+        const secret = config.security.session.secret;
+        if (secret.includes('test') || secret.includes('example') || secret.includes('changeme')) {
+          this.log('Session Secret', 'warning', 'Contains test/example value - may not be production-ready');
+        } else if (secret.length < 32) {
+          this.log('Session Secret', 'fail', 'Session secret too short (< 32 characters)');
+        } else if (secret.length < 64) {
+          this.log('Session Secret', 'warning', 'Session secret could be longer (< 64 characters)');
+        } else {
+          this.log('Session Secret', 'pass', `Strong session secret (${secret.length} characters)`);
+        }
       } else {
-        this.log(
-          `Optional Variable: ${envVar}`,
-          'warning',
-          'Not set (optional service not configured)'
-        );
+        this.log('Session Secret', 'fail', 'Missing required session secret');
       }
-    }
-    
-    // Validate SESSION_SECRET strength
-    const sessionSecret = process.env.SESSION_SECRET;
-    if (sessionSecret) {
-      if (sessionSecret.length < 32) {
-        this.log('Session Secret Strength', 'fail', 'Session secret too short (< 32 characters)');
-      } else if (sessionSecret.length < 64) {
-        this.log('Session Secret Strength', 'warning', 'Session secret could be longer (< 64 characters)');
+
+      // AWS credentials (still check env for these as they're infrastructure-level)
+      if (process.env.AWS_ACCESS_KEY_ID) {
+        this.log('AWS Access Key ID', 'pass', 'Set and appears valid');
       } else {
-        this.log('Session Secret Strength', 'pass', `Strong session secret (${sessionSecret.length} characters)`);
+        this.log('AWS Access Key ID', 'fail', 'Missing required AWS credentials');
       }
+
+      if (process.env.AWS_SECRET_ACCESS_KEY) {
+        this.log('AWS Secret Access Key', 'pass', 'Set and appears valid');
+      } else {
+        this.log('AWS Secret Access Key', 'fail', 'Missing required AWS credentials');
+      }
+
+      // GitHub integration configuration
+      if (config.integration.github.token) {
+        const token = config.integration.github.token;
+        if (token.includes('test') || token.includes('example') || token.includes('dev_github_token')) {
+          this.log('GitHub Token', 'warning', 'Contains test/example value - may not be production-ready');
+        } else if (token.startsWith('ghp_') || token.startsWith('github_pat_')) {
+          this.log('GitHub Token', 'pass', 'Valid GitHub token format');
+        } else {
+          this.log('GitHub Token', 'warning', 'GitHub token format appears non-standard');
+        }
+      } else {
+        this.log('GitHub Token', 'fail', 'Missing required GitHub token');
+      }
+
+      if (config.integration.github.owner) {
+        this.log('GitHub Owner', 'pass', `Set to: ${config.integration.github.owner}`);
+      } else {
+        this.log('GitHub Owner', 'fail', 'Missing required GitHub owner');
+      }
+
+      if (config.integration.github.repo) {
+        this.log('GitHub Repository', 'pass', `Set to: ${config.integration.github.repo}`);
+      } else {
+        this.log('GitHub Repository', 'fail', 'Missing required GitHub repository');
+      }
+
+      // Optional services validation
+      const optionalEnvVars = [
+        'SENDGRID_API_KEY',
+        'AWS_COGNITO_CLIENT_SECRET', 
+        'GOOGLE_CLIENT_SECRET',
+        'NEPTUNE_ENDPOINT'
+      ];
+
+      for (const envVar of optionalEnvVars) {
+        if (process.env[envVar]) {
+          this.log(`Optional Variable: ${envVar}`, 'pass', 'Set (optional service configured)');
+        } else {
+          this.log(`Optional Variable: ${envVar}`, 'warning', 'Not set (optional service not configured)');
+        }
+      }
+
+      // MCP endpoints validation
+      this.log('AWS MCP Endpoint', 'pass', `Configured: ${config.integration.mcp.awsEndpoint}`);
+      this.log('Neptune MCP Endpoint', 'pass', `Configured: ${config.integration.mcp.neptuneEndpoint}`);
+
+    } catch (error: any) {
+      this.log('Configuration Validation', 'fail', 'Centralized configuration validation failed', { error: error.message });
     }
   }
   
@@ -189,7 +219,7 @@ class SecurityValidator {
    * Test database connectivity
    */
   async validateDatabaseConnection(): Promise<void> {
-    const databaseUrl = process.env.DATABASE_URL;
+    const databaseUrl = config.database.url;
     
     if (!databaseUrl) {
       this.log('Database Connection', 'fail', 'DATABASE_URL not set');
@@ -236,7 +266,6 @@ class SecurityValidator {
    */
   async validateMCPServers(): Promise<void> {
     const mcpServers = [
-      { name: 'GitHub MCP', port: 8003, path: '/workspaces/infrastructure/mcp/github-mcp-server.ts' },
       { name: 'AWS MCP', port: 8001, path: '/workspaces/infrastructure/mcp/aws-mcp-client.ts' },
       { name: 'Neptune MCP', port: 8002, path: '/workspaces/infrastructure/mcp/neptune-mcp-client.ts' }
     ];

@@ -15,14 +15,26 @@ import { spawn, exec } from 'child_process';
 import { promisify } from 'util';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { createHash, randomBytes } from 'crypto';
+import { getConfig } from '../infrastructure/configuration/config-loader';
 
 const execAsync = promisify(exec);
 
-// Environment variables
-const GITHUB_OWNER = process.env.GITHUB_OWNER || 'TomRiddelsdell';
-const GITHUB_REPO = process.env.GITHUB_REPO || 'tomriddelsdell.com';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const AWS_ACCOUNT_ID = process.env.AWS_ACCOUNT_ID;
+// Load configuration with validation
+let config: ReturnType<typeof getConfig>;
+try {
+  config = getConfig();
+} catch (error) {
+  console.error('❌ Configuration validation failed:', error);
+  console.error('💡 Please ensure all required config elements are available (e.g. config.integration.github.token)');
+  process.exit(1);
+}
+
+// Extract configuration values
+const GITHUB_OWNER = config.integration.github.owner;
+const GITHUB_REPO = config.integration.github.repo;
+const GITHUB_TOKEN = config.integration.github.token;
+const AWS_ACCESS_KEY_ID = config.cognito.accessKeyId;
+const AWS_SECRET_ACCESS_KEY = config.cognito.secretAccessKey;
 
 // Console styling
 const colors = {
@@ -92,47 +104,7 @@ async function executeCommand(command: string, timeout: number = 30000): Promise
  * Call MCP server for GitHub operations
  */
 async function callGitHubMCP(tool: string, args: any): Promise<any> {
-  return new Promise((resolve, reject) => {
-    const mcpProcess = spawn('tsx', [
-      '/workspaces/infrastructure/mcp/github-mcp-server.ts',
-      '--tool', tool,
-      '--args', JSON.stringify(args)
-    ], {
-      env: {
-        ...process.env,
-        GITHUB_OWNER,
-        GITHUB_REPO,
-        GITHUB_TOKEN
-      }
-    });
-    
-    let output = '';
-    let errorOutput = '';
-    
-    mcpProcess.stdout.on('data', (data) => {
-      output += data.toString();
-    });
-    
-    mcpProcess.stderr.on('data', (data) => {
-      errorOutput += data.toString();
-    });
-    
-    mcpProcess.on('close', (code) => {
-      if (code === 0) {
-        try {
-          resolve(JSON.parse(output.trim()));
-        } catch {
-          resolve(output.trim());
-        }
-      } else {
-        reject(new Error(`MCP call failed [${code}]: ${errorOutput}`));
-      }
-    });
-    
-    mcpProcess.on('error', (err) => {
-      reject(err);
-    });
-  });
+  // needs to be replaced with call to the official GitHub hosted MCP server
 }
 
 /**
@@ -305,11 +277,16 @@ async function verifyPrerequisites(): Promise<boolean> {
     }
   }
   
-  // Check required environment variables
-  const requiredEnvVars = ['GITHUB_TOKEN', 'GITHUB_OWNER', 'GITHUB_REPO'];
-  for (const envVar of requiredEnvVars) {
-    if (!process.env[envVar]) {
-      error(`Required environment variable missing: ${envVar}`);
+  // Check required configuration values instead of direct env vars
+  const configChecks = [
+    { value: config.integration.github.token, name: 'GITHUB_TOKEN', configPath: 'config.integration.github.token' },
+    { value: config.integration.github.owner, name: 'GITHUB_OWNER', configPath: 'config.integration.github.owner' },
+    { value: config.integration.github.repo, name: 'GITHUB_REPO', configPath: 'config.integration.github.repo' }
+  ];
+  
+  for (const check of configChecks) {
+    if (!check.value || check.value.includes('dev_') || check.value.includes('test')) {
+      error(`Required configuration missing or using dev/test value: ${check.name} (${check.configPath})`);
       return false;
     }
   }
@@ -389,8 +366,8 @@ async function rotateAWSCredentials(): Promise<{ accessKeyId: string; secretAcce
     success(`New AWS access key created: ${newKey.AccessKeyId}`);
     
     // Test new credentials by setting them temporarily and calling STS
-    const oldAccessKey = process.env.AWS_ACCESS_KEY_ID;
-    const oldSecretKey = process.env.AWS_SECRET_ACCESS_KEY;
+    const oldAccessKey = AWS_ACCESS_KEY_ID;
+    const oldSecretKey = AWS_SECRET_ACCESS_KEY;
     
     process.env.AWS_ACCESS_KEY_ID = newKey.AccessKeyId;
     process.env.AWS_SECRET_ACCESS_KEY = newKey.SecretAccessKey;

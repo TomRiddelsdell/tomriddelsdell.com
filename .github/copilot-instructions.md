@@ -128,7 +128,37 @@ The system integrates with multiple MCP servers for enhanced AI capabilities:
 - **Features**: Graph queries, relationship analysis, data exploration
 - **Configuration**: NEPTUNE_ENDPOINT environment variable
 
-#### 3. GitHub MCP Server (Remote)
+### Active MCP Servers
+The system integrates with multiple MCP servers for enhanced AI capabilities:
+
+#### 1. AWS API MCP Server
+- **Location**: `.devcontainer/Dockerfile.aws-mcp`
+- **Purpose**: AWS service management through AI tools
+- **Technology**: Python 3.10-slim + uv package manager
+- **Package**: `awslabs.aws-api-mcp-server` (official AWS Labs)
+- **Port**: 8001
+- **Features**: EC2, S3, Lambda, CloudFormation management
+- **Authentication**: AWS credentials via environment variables
+
+#### 2. Amazon Neptune MCP Server  
+- **Location**: `.devcontainer/Dockerfile.neptune-mcp`
+- **Purpose**: Graph database operations through AI tools
+- **Technology**: Python 3.10-slim + uv package manager
+- **Package**: `awslabs.amazon-neptune-mcp-server` (official AWS Labs)
+- **Port**: 8002
+- **Features**: Graph queries, relationship analysis, data exploration
+- **Configuration**: NEPTUNE_ENDPOINT environment variable
+
+#### 3. Neon MCP Server (Remote)
+- **Type**: Official remote server (recommended approach)
+- **URL**: `https://mcp.neon.tech/mcp`
+- **Purpose**: PostgreSQL database cost tracking, analytics, and management
+- **Technology**: Neon's hosted MCP server
+- **Configuration**: `.vscode/mcp.json` file for VS Code integration
+- **Authentication**: OAuth flow or Neon API key
+- **Features**: Cost monitoring, database metrics, query performance insights, resource management
+
+#### 4. GitHub MCP Server (Remote)
 - **Type**: Official GitHub-hosted remote server
 - **URL**: `https://api.githubcopilot.com/mcp/`
 - **Purpose**: GitHub repository and workflow management
@@ -151,8 +181,6 @@ The system integrates with multiple MCP servers for enhanced AI capabilities:
 - **Development**: Accessible via forwarded ports for debugging
 
 ## Communication Style
-- Use simple, everyday language
-- Avoid technical jargon when explaining to user
 - Be concise but thorough in explanations
 - Always confirm understanding before proceeding
 

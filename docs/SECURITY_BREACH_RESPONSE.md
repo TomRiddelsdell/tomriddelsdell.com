@@ -145,17 +145,45 @@ npx tsx scripts/security-breach-response.ts --automated
 
 ## 🔧 Configuration Requirements
 
-### Environment Variables
+### Centralized Configuration System
 
-#### Critical Variables (Required)
+The security system now uses the enterprise-grade centralized configuration system instead of direct environment variable access. This provides:
+
+- ✅ **Validation**: All configuration values are validated at startup
+- ✅ **Type Safety**: TypeScript interfaces ensure correct usage
+- ✅ **Error Handling**: Clear error messages for missing or invalid configuration
+- ✅ **Environment-Specific**: Different settings for development/staging/production
+- ✅ **Security**: Prevents hardcoded secrets and validates token formats
+
+### Configuration Sources
+
+#### Primary Configuration
+Configuration is loaded from:
+1. **Environment Variables** (`.env` file and system environment)
+2. **Environment Defaults** (development/staging/production specific)
+3. **Schema Validation** (Zod validation with clear error messages)
+
+#### Critical Configuration Values
+```typescript
+// Accessed via centralized config system
+config.integration.github.token     // GitHub Personal Access Token
+config.integration.github.owner     // GitHub repository owner
+config.integration.github.repo      // GitHub repository name
+config.database.url                 // Database connection string
+config.security.session.secret      // Session encryption secret
+config.integration.mcp.awsEndpoint  // AWS MCP server endpoint
+config.integration.mcp.neptuneEndpoint // Neptune MCP server endpoint
+```
+
+#### Environment Variables (Infrastructure Level)
 ```bash
 # Database
 DATABASE_URL="postgresql://user:pass@host:5432/db?sslmode=require"
 
-# Session Security
+# Session Security  
 SESSION_SECRET="generated-64-character-random-string"
 
-# AWS Credentials
+# AWS Credentials (infrastructure level)
 AWS_ACCESS_KEY_ID="AKIAEXAMPLE"
 AWS_SECRET_ACCESS_KEY="secret-key"
 AWS_REGION="us-east-1"
@@ -164,19 +192,23 @@ AWS_REGION="us-east-1"
 GITHUB_TOKEN="ghp_token"
 GITHUB_OWNER="username"
 GITHUB_REPO="repository"
+
+# MCP Server Endpoints (optional - defaults provided)
+AWS_MCP_ENDPOINT="http://aws-mcp:8001"
+NEPTUNE_MCP_ENDPOINT="http://neptune-mcp:8002"
 ```
 
-#### Optional Variables (Service-Dependent)
+#### Configuration Validation
+The system validates configuration at startup and provides clear error messages:
+
 ```bash
-# Email Service
-SENDGRID_API_KEY="SG.key"
-
-# Authentication
-AWS_COGNITO_CLIENT_SECRET="cognito-secret"
-GOOGLE_CLIENT_SECRET="google-oauth-secret"
-
-# Graph Database
-NEPTUNE_ENDPOINT="wss://neptune-endpoint"
+# Example validation output
+✅ Configuration loaded successfully
+✅ GitHub Owner: Set to: TomRiddelsdell  
+✅ GitHub Repository: Set to: tomriddelsdell.com
+⚠️ GitHub Token: Contains test/example value - may not be production-ready
+✅ AWS MCP Endpoint: Configured: http://aws-mcp:8001
+✅ Neptune MCP Endpoint: Configured: http://neptune-mcp:8002
 ```
 
 ### Tool Requirements
@@ -341,6 +373,17 @@ docker-compose -f .devcontainer/docker-compose.yml restart
 ### Debugging Commands
 
 ```bash
+# Test centralized configuration loading
+npx tsx -e "
+import { getConfig } from './infrastructure/configuration/config-loader.js';
+const config = getConfig();
+console.log('GitHub Config:', {
+  owner: config.integration.github.owner,
+  repo: config.integration.github.repo,
+  tokenLength: config.integration.github.token.length
+});
+"
+
 # Verbose logging
 DEBUG=true npx tsx scripts/security-breach-response.ts
 
@@ -349,6 +392,9 @@ npx tsx -e "import { generateSecureSecret } from './scripts/security-breach-resp
 
 # Validate TypeScript compilation
 npx tsc --noEmit scripts/*.ts
+
+# Test configuration validation specifically
+npx tsx scripts/security-validation.ts
 ```
 
 ## 🎯 Best Practices
