@@ -3,7 +3,7 @@
  * NO HARDCODED SECRETS OR DOMAINS - All values from environment with validation
  */
 
-import { getConfig } from '../../../../infrastructure/configuration/config-loader';
+import { getConfig } from '../../../../infrastructure/configuration/node-config-service';
 
 export interface AuthConfig {
   cognito: {

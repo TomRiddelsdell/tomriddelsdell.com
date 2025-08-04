@@ -3,7 +3,7 @@
  * Mitigates esbuild development server vulnerabilities
  */
 
-import { getConfig } from '../configuration/config-loader';
+import { getConfig } from '../configuration/node-config-service';
 
 export class DevSecurityManager {
   /**

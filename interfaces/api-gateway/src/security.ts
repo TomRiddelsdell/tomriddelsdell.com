@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { rateLimit } from 'express-rate-limit';
-import { getConfig } from '../../../infrastructure/configuration/config-loader';
+import { getConfig } from '../../../infrastructure/configuration/node-config-service';
 
 /**
  * Secure rate limiting using centralized configuration
@@ -35,7 +35,8 @@ export function getGeneralRateLimit() {
       skipFailedRequests: rateLimitConfig.skipFailedRequests,
       skip: (req) => {
         // Skip rate limiting for development on localhost
-        return process.env.NODE_ENV === 'development' && 
+        const config = getConfig();
+        return config.environment === 'development' && 
                (req.hostname === 'localhost' || req.hostname === '127.0.0.1');
       }
     });

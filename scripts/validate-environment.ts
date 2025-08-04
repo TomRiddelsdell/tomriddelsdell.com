@@ -5,7 +5,7 @@
  * Validates required environment variables and configuration for deployment
  */
 
-import { getConfig, ConfigurationError } from '../infrastructure/configuration/config-loader';
+import { getConfig, ConfigurationError } from '../infrastructure/configuration/node-config-service';
 
 interface ValidationResult {
   component: string;

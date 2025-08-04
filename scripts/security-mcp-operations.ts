@@ -9,7 +9,7 @@
  */
 
 import { spawn } from 'child_process';
-import { getConfig } from '../infrastructure/configuration/config-loader';
+import { getConfig } from '../infrastructure/configuration/node-config-service';
 
 // Load configuration with validation
 let config: ReturnType<typeof getConfig>;
@@ -90,9 +90,9 @@ class SecurityMCPClient {
           GITHUB_OWNER: config.integration.github.owner,
           GITHUB_REPO: config.integration.github.repo,
           GITHUB_TOKEN: config.integration.github.token,
-          AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-          AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-          NEPTUNE_ENDPOINT: process.env.NEPTUNE_ENDPOINT
+          AWS_ACCESS_KEY_ID: config.aws.accessKeyId,
+          AWS_SECRET_ACCESS_KEY: config.aws.secretAccessKey,
+          NEPTUNE_ENDPOINT: config.neptune.endpoint
         }
       });
       
@@ -272,7 +272,7 @@ ${details.affectedSystems.map(system => `- ${system}`).join('\n')}
     details: any;
   }): Promise<void> {
     try {
-      if (!process.env.NEPTUNE_ENDPOINT) {
+      if (!config.neptune.endpoint) {
         console.warn('⚠️ Neptune endpoint not configured - skipping graph logging');
         return;
       }
@@ -283,7 +283,7 @@ ${details.affectedSystems.map(system => `- ${system}`).join('\n')}
         source: event.source,
         timestamp: new Date().toISOString(),
         details: event.details,
-        environment: process.env.NODE_ENV || 'development'
+        environment: config.environment
       });
       
       console.log(`📊 Security event logged to Neptune: ${event.type}`);
@@ -303,7 +303,7 @@ ${details.affectedSystems.map(system => `- ${system}`).join('\n')}
     risk_score: number;
   }> {
     try {
-      if (!process.env.NEPTUNE_ENDPOINT) {
+      if (!config.neptune.endpoint) {
         console.warn('⚠️ Neptune endpoint not configured - skipping pattern analysis');
         return {
           anomalous_access: [],

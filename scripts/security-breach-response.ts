@@ -15,7 +15,7 @@ import { spawn, exec } from 'child_process';
 import { promisify } from 'util';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { createHash, randomBytes } from 'crypto';
-import { getConfig } from '../infrastructure/configuration/config-loader';
+import { getConfig } from '../infrastructure/configuration/node-config-service';
 
 const execAsync = promisify(exec);
 
@@ -483,7 +483,7 @@ function createAuditLog(action: string, details: any) {
     timestamp: new Date().toISOString(),
     action,
     details,
-    user: process.env.USER || 'unknown',
+    user: config.system.user,
     system: process.platform,
     script_version: '2.0.0'
   };
@@ -730,7 +730,7 @@ async function interactiveBreachResponse(): Promise<void> {
       breach_type: breachType,
       urgency_level: urgency,
       scope: scope,
-      initiated_by: process.env.USER || 'unknown'
+      initiated_by: config.system.user
     });
     
     await executeBreachResponse();

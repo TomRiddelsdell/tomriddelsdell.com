@@ -100,6 +100,30 @@ export const servicesConfigSchema = z.object({
   }),
 });
 
+// AWS configuration schema
+export const awsConfigSchema = z.object({
+  region: z.string().default('eu-west-2'),
+  lambdaFunctionName: z.string().optional(),
+  accountId: z.string().optional(),
+  accessKeyId: z.string().optional(),
+  secretAccessKey: z.string().optional(),
+});
+
+// Neptune configuration schema
+export const neptuneConfigSchema = z.object({
+  endpoint: z.string().optional(),
+});
+
+// Domain configuration schema  
+export const domainConfigSchema = z.object({
+  name: z.string().default('tomriddelsdell.com'),
+});
+
+// System configuration schema
+export const systemConfigSchema = z.object({
+  user: z.string().default('unknown'),
+});
+
 // Integration services configuration schema
 export const integrationConfigSchema = z.object({
   github: z.object({
@@ -142,6 +166,10 @@ export const baseConfigSchema = z.object({
   database: databaseConfigSchema,
   email: emailConfigSchema,
   services: servicesConfigSchema,
+  aws: awsConfigSchema,
+  neptune: neptuneConfigSchema,
+  domain: domainConfigSchema,
+  system: systemConfigSchema,
   integration: integrationConfigSchema,
   features: featureFlagsSchema,
   logging: loggingConfigSchema,
@@ -153,6 +181,10 @@ export type CognitoConfig = z.infer<typeof cognitoConfigSchema>;
 export type DatabaseConfig = z.infer<typeof databaseConfigSchema>;
 export type EmailConfig = z.infer<typeof emailConfigSchema>;
 export type ServicesConfig = z.infer<typeof servicesConfigSchema>;
+export type AwsConfig = z.infer<typeof awsConfigSchema>;
+export type NeptuneConfig = z.infer<typeof neptuneConfigSchema>;
+export type DomainConfig = z.infer<typeof domainConfigSchema>;
+export type SystemConfig = z.infer<typeof systemConfigSchema>;
 export type IntegrationConfig = z.infer<typeof integrationConfigSchema>;
 export type FeatureFlags = z.infer<typeof featureFlagsSchema>;
 export type LoggingConfig = z.infer<typeof loggingConfigSchema>;
