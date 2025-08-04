@@ -4,7 +4,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { initializeTemplates } from "../../../infrastructure/database/initTemplates";
 import { securityHeaders, generalRateLimit, sanitizeInput } from "./security";
 import { logger } from "./logger";
-import { getConfig } from "../../../infrastructure/configuration/config-loader";
+import { getConfig } from "../../../infrastructure/configuration/node-config-service";
 
 const app = express();
 

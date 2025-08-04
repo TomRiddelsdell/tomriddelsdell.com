@@ -52,7 +52,7 @@ export class MonitoringService {
     this.healthService.registerHealthCheck('auth', async () => {
       try {
         // Check if Cognito configuration is valid
-        const config = await import('../../../infrastructure/configuration/config-loader');
+        const config = await import('../../../infrastructure/configuration/node-config-service');
         const authConfig = config.getConfig();
         
         const isValid = authConfig.cognito.clientId && 
@@ -117,7 +117,7 @@ export class MonitoringService {
     const statuses: ConfigurationStatus[] = [];
     
     try {
-      const config = await import('../../../infrastructure/configuration/config-loader');
+      const config = await import('../../../infrastructure/configuration/node-config-service');
       const appConfig = config.getConfig();
       
       // Validate database configuration

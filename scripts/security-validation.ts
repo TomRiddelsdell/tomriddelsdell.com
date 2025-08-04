@@ -9,7 +9,7 @@
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { getConfig } from '../infrastructure/configuration/config-loader';
+import { getConfig } from '../infrastructure/configuration/node-config-service';
 
 const execAsync = promisify(exec);
 
@@ -152,13 +152,13 @@ class SecurityValidator {
       }
 
       // AWS credentials (still check env for these as they're infrastructure-level)
-      if (process.env.AWS_ACCESS_KEY_ID) {
+      if (config.aws.accessKeyId) {
         this.log('AWS Access Key ID', 'pass', 'Set and appears valid');
       } else {
         this.log('AWS Access Key ID', 'fail', 'Missing required AWS credentials');
       }
 
-      if (process.env.AWS_SECRET_ACCESS_KEY) {
+      if (config.aws.secretAccessKey) {
         this.log('AWS Secret Access Key', 'pass', 'Set and appears valid');
       } else {
         this.log('AWS Secret Access Key', 'fail', 'Missing required AWS credentials');

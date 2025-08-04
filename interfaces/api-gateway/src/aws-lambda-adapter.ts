@@ -4,17 +4,18 @@ import express from 'express';
 import { registerRoutes } from './routes';
 import { securityHeaders, generalRateLimit, sanitizeInput } from './security';
 import { logger } from './logger';
-import { getConfig } from '../../../infrastructure/configuration/config-loader';
+import { getConfig } from '../../../infrastructure/configuration/node-config-service';
 
 // Create Express app
 const createApp = () => {
   const app = express();
+  const config = getConfig();
 
   // Security middleware - adapted for Lambda
   app.use(securityHeaders);
   
   // Rate limiting only in production and not for Lambda cold starts
-  if (process.env.NODE_ENV === 'production' && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  if (config.environment === 'production' && !config.aws.lambdaFunctionName) {
     app.use(generalRateLimit);
   }
   
@@ -22,7 +23,6 @@ const createApp = () => {
 
   // AWS Lambda-specific CORS configuration
   app.use((req, res, next) => {
-    const config = getConfig();
     const corsConfig = config.security.cors;
     
     // For AWS Lambda, determine allowed origin from CloudFront or direct API Gateway
@@ -37,7 +37,7 @@ const createApp = () => {
       res.header('Access-Control-Allow-Origin', '*');
     } else {
       // Default to configured domain
-      res.header('Access-Control-Allow-Origin', `https://${process.env.DOMAIN_NAME || 'tomriddelsdell.com'}`);
+      res.header('Access-Control-Allow-Origin', `https://${config.domain.name}`);
     }
     
     res.header('Access-Control-Allow-Methods', corsConfig.allowedMethods.join(', '));
@@ -62,7 +62,7 @@ const createApp = () => {
       userAgent: req.get('User-Agent'),
       forwarded: req.get('X-Forwarded-For'),
       requestId: req.get('X-Amzn-RequestId'),
-      environment: process.env.NODE_ENV
+      environment: config.environment
     });
     next();
   });
@@ -71,11 +71,11 @@ const createApp = () => {
   app.get('/health', (req, res) => {
     res.json({
       status: 'healthy',
-      environment: process.env.NODE_ENV,
+      environment: config.environment,
       platform: 'AWS Lambda',
       timestamp: new Date().toISOString(),
-      region: process.env.AWS_REGION,
-      function: process.env.AWS_LAMBDA_FUNCTION_NAME
+      region: config.aws.region,
+      function: config.aws.lambdaFunctionName
     });
   });
 
@@ -103,7 +103,7 @@ const createApp = () => {
     });
 
     res.status(500).json({
-      error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
+      error: config.environment === 'production' ? 'Internal server error' : err.message,
       requestId: req.get('X-Amzn-RequestId')
     });
   });
@@ -137,8 +137,16 @@ export const handler = async (
       stage: event.requestContext.stage
     });
 
-    // Call the serverless Express handler
-    const result = await serverlessExpressInstance(event, context);
+    // Call the serverless Express handler with Promise wrapper
+    const result = await new Promise<APIGatewayProxyResult>((resolve, reject) => {
+      serverlessExpressInstance(event, context, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
 
     logger.info('Lambda invocation completed', {
       requestId: context.awsRequestId,

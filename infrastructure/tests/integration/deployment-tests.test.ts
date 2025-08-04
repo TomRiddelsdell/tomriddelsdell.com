@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getConfig } from '../../configuration/config-loader';
+import { getConfig } from '../../configuration/node-config-service';
 
 // Mock the configuration loader
 vi.mock('../../configuration/config-loader', () => ({

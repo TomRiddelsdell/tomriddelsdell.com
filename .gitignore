@@ -48,3 +48,6 @@ id_ed25519*
 # Build artifacts
 *.tgz
 .cache/
+
+# Sensitive docs
+docs/CONFIG_MIGRATION_PLAN.md
