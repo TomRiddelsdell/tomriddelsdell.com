@@ -1,3 +1,11 @@
+import dotenv from 'dotenv';
+
+// Load environment variables immediately
+dotenv.config({ override: true });
+
+// Force environment-based configuration to avoid ES module compatibility issues
+process.env.FORCE_ENV_CONFIG = 'true';
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";

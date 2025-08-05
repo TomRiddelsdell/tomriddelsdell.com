@@ -15,6 +15,7 @@ import { spawn, exec } from 'child_process';
 import { promisify } from 'util';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { createHash, randomBytes } from 'crypto';
+import * as readline from 'readline';
 import dotenv from 'dotenv';
 import { getConfig } from '../infrastructure/configuration/node-config-service';
 
@@ -422,8 +423,8 @@ async function rotateAWSCredentials(): Promise<{ accessKeyId: string; secretAcce
       return null;
     }
     
-  } catch (error: any) {
-    error(`AWS credential rotation failed: ${error.message}`);
+  } catch (err: any) {
+    error(`AWS credential rotation failed: ${err.message}`);
     return null;
   }
 }
@@ -439,8 +440,8 @@ async function updateGitHubSecret(name: string, value: string): Promise<boolean>
     
     success(`GitHub secret ${name} updated successfully`);
     return true;
-  } catch (error: any) {
-    error(`Failed to update GitHub secret ${name}: ${error.message}`);
+  } catch (err: any) {
+    error(`Failed to update GitHub secret ${name}: ${err.message}`);
     return false;
   }
 }
@@ -499,10 +500,9 @@ function createAuditLog(action: string, details: any) {
   const logLine = JSON.stringify(logEntry) + '\n';
   
   try {
-    const fs = require('fs');
-    fs.appendFileSync(logPath, logLine);
+    writeFileSync(logPath, logLine, { flag: 'a' });
   } catch {
-    warning('Could not write to audit log');
+    warning('⚠️ Could not write to audit log');
   }
 }
 
@@ -529,8 +529,8 @@ async function executeBreachResponse(): Promise<void> {
     newCredentials['SESSION_SECRET'] = newSessionSecret;
     rotationResults['SESSION_SECRET'] = true;
     warning('⚠️ All user sessions will be invalidated with new session secret');
-  } catch (error: any) {
-    error(`Session secret rotation failed: ${error.message}`);
+  } catch (err: any) {
+    error(`Session secret rotation failed: ${err.message}`);
     rotationResults['SESSION_SECRET'] = false;
   }
   
@@ -706,7 +706,6 @@ async function executeBreachResponse(): Promise<void> {
  * Interactive breach response workflow
  */
 async function interactiveBreachResponse(): Promise<void> {
-  const readline = require('readline');
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -795,9 +794,9 @@ Prerequisites:
       await interactiveBreachResponse();
     }
     
-  } catch (error: any) {
-    error(`Breach response failed: ${error.message}`);
-    createAuditLog('breach_response_failed', { error: error.message });
+  } catch (err: any) {
+    error(`Breach response failed: ${err.message}`);
+    createAuditLog('breach_response_failed', { error: err.message });
     process.exit(1);
   }
 }
