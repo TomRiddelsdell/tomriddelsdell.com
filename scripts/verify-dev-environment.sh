@@ -152,7 +152,6 @@ check_mcp_server() {
 
 check_mcp_server "AWS" 8001
 check_mcp_server "Neptune" 8002
-check_mcp_server "GitHub" 8003
 echo ""
 
 # Summary

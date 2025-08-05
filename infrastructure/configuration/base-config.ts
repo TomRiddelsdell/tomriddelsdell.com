@@ -140,7 +140,7 @@ export const integrationConfigSchema = z.object({
   mcp: z.object({
     awsEndpoint: z.string().default('http://aws-mcp:8001'),
     neptuneEndpoint: z.string().default('http://neptune-mcp:8002'),
-    neonEndpoint: z.string().default('http://neon-mcp:8003'),
+    neonEndpoint: z.string().default('http://neon-mcp:https://mcp.neon.tech/mcp'),
   }),
 });
 

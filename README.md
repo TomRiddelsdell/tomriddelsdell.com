@@ -362,7 +362,6 @@ tomriddelsdell.com/
 ### **MCP Servers (AI-Powered Automation)**
 - **AWS MCP** (port 8001): EC2, S3, Lambda management
 - **Neptune MCP** (port 8002): Graph database operations  
-- **GitHub MCP** (port 8003): Repository automation
 
 ### **Essential Scripts**
 ```bash
