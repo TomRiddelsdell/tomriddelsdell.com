@@ -35,7 +35,7 @@ interface NeonBranch {
 export class NeonMCPClient {
   private baseUrl: string;
 
-  constructor(baseUrl: string = 'http://neon-mcp:8003') {
+  constructor(baseUrl: string = 'http://neon-mcp:https://mcp.neon.tech/mcp') {
     this.baseUrl = baseUrl;
   }
 
@@ -232,5 +232,5 @@ export class NeonMCPClient {
 
 // Export singleton instance
 export const neonMCP = new NeonMCPClient(
-  process.env.NEON_MCP_ENDPOINT || 'http://localhost:8003'
+  process.env.NEON_MCP_ENDPOINT || 'http://neon-mcp:https://mcp.neon.tech/mcp'
 );

@@ -49,7 +49,7 @@ module.exports = {
     mcp: {
       awsEndpoint: process.env.AWS_MCP_ENDPOINT || 'http://aws-mcp:8001',
       neptuneEndpoint: process.env.NEPTUNE_MCP_ENDPOINT || 'http://neptune-mcp:8002',
-      neonEndpoint: process.env.MCP_NEON_ENDPOINT || 'http://neon-mcp:8003'
+      neonEndpoint: process.env.MCP_NEON_ENDPOINT || 'http://neon-mcp:https://mcp.neon.tech/mcp'
     }
   },
 

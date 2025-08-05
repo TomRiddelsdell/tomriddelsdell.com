@@ -1,0 +1,29 @@
+{
+  "name": "@tomriddelsdell/mcp-clients",
+  "version": "1.0.0",
+  "description": "MCP (Model Context Protocol) client implementations for AWS, Neptune, Neon, and GitHub",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "aws",
+    "neptune",
+    "neon",
+    "github"
+  ],
+  "author": "Tom Riddelsdell",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.0",
+    "@types/node": "^20.8.0"
+  }
+}

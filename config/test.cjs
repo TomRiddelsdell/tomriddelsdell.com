@@ -107,7 +107,7 @@ module.exports = {
     mcp: {
       awsEndpoint: 'http://test-aws-mcp:8001',
       neptuneEndpoint: 'http://test-neptune-mcp:8002',
-      neonEndpoint: 'http://test-neon-mcp:8003'
+      neonEndpoint: 'http://neon-mcp:https://mcp.neon.tech/mcp'
     }
   },
 
