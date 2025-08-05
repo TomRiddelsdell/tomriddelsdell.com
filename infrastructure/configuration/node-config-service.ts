@@ -134,12 +134,31 @@ class ConfigurationService {
       // This allows tests to modify NODE_ENV and environment variables and see immediate changes
       let rawConfig: any;
       
-      if ((global as any).vitest) {
-        // In Vitest test mode, build config from environment to allow dynamic NODE_ENV changes
+      if ((global as any).vitest || process.env.NODE_ENV === 'test' || process.env.FORCE_ENV_CONFIG === 'true') {
+        // In test mode or when forced, build config from environment to allow dynamic NODE_ENV changes
         rawConfig = this.buildConfigFromEnvironment();
       } else {
         // Production/Development: Use Node Config normally
-        const config = require('config');
+        // Handle both CommonJS and ES module contexts
+        let config: any;
+        try {
+          // First try standard require (CommonJS context)
+          config = require('config');
+        } catch (requireError) {
+          try {
+            // If that fails, try createRequire for ES modules
+            const Module = require('module');
+            const requireFunc = Module.createRequire(import.meta.url || __filename);
+            config = requireFunc('config');
+          } catch (moduleError) {
+            // Final fallback - use global require if available
+            if (typeof globalThis !== 'undefined' && (globalThis as any).require) {
+              config = (globalThis as any).require('config');
+            } else {
+              throw new Error('Unable to load config module in current environment');
+            }
+          }
+        }
         rawConfig = config.util.toObject();
       }
       
@@ -269,22 +288,11 @@ class ConfigurationService {
   private buildConfigFromEnvironment(): any {
     const env = process.env.NODE_ENV || 'test';
     
-    // Try to load base configuration from Node Config files first, then override with env vars
-    let baseConfig: any = {};
-    try {
-      // Import fresh config instance to pick up NODE_ENV changes
-      delete require.cache[require.resolve('config')];
-      const nodeConfig = require('config');
-      baseConfig = nodeConfig.util.toObject();
-    } catch (error) {
-      // If Node Config fails, use fallback configuration
-      console.warn('Could not load Node Config, using fallback configuration:', error);
-    }
-    
-    // Merge with environment-specific overrides
+    // Pure environment-based configuration (no Node Config dependency)
     const config = {
       environment: env,
-      ...baseConfig,  // Use Node Config as base
+      
+      // AWS Configuration
       
       // AWS Configuration
       aws: {
@@ -313,10 +321,10 @@ class ConfigurationService {
       security: {
         session: {
           secret: process.env.SESSION_SECRET || 'test-session-secret-32-characters-long!!',
-          maxAge: parseInt(process.env.SESSION_MAX_AGE || (baseConfig.security?.session?.maxAge?.toString() || '3600000')),
-          secure: baseConfig.security?.session?.secure ?? (env === 'production' || process.env.SESSION_SECURE === 'true'),
+          maxAge: parseInt(process.env.SESSION_MAX_AGE || '3600000'),
+          secure: env === 'production' || process.env.SESSION_SECURE === 'true',
           httpOnly: process.env.SESSION_HTTP_ONLY !== 'false',
-          sameSite: process.env.SESSION_SAME_SITE || (baseConfig.security?.session?.sameSite || (env === 'production' ? 'strict' : 'lax'))
+          sameSite: process.env.SESSION_SAME_SITE || (env === 'production' ? 'strict' : 'lax')
         },
         cors: {
           allowedOrigins: this.parseArrayEnv('CORS_ALLOWED_ORIGINS', ['http://localhost:3000', 'http://localhost:5000']),
@@ -325,8 +333,8 @@ class ConfigurationService {
           allowCredentials: process.env.CORS_ALLOW_CREDENTIALS !== 'false'
         },
         rateLimit: {
-          windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || (baseConfig.security?.rateLimit?.windowMs?.toString() || (env === 'development' ? '60000' : '900000'))),
-          maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || (baseConfig.security?.rateLimit?.maxRequests?.toString() || (env === 'development' ? '1000' : '100'))),
+          windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || (env === 'development' ? '60000' : '900000')),
+          maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || (env === 'development' ? '1000' : '100')),
           skipSuccessfulRequests: process.env.RATE_LIMIT_SKIP_SUCCESSFUL === 'true',
           skipFailedRequests: process.env.RATE_LIMIT_SKIP_FAILED === 'true'
         },
@@ -354,19 +362,19 @@ class ConfigurationService {
           connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT || '1000')
         },
         ssl: {
-          enabled: baseConfig.database?.ssl?.enabled ?? (env === 'production' || process.env.DB_SSL_ENABLED === 'true'),
-          rejectUnauthorized: baseConfig.database?.ssl?.rejectUnauthorized ?? (env === 'production' || process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true')
+          enabled: env === 'production' || process.env.DB_SSL_ENABLED === 'true',
+          rejectUnauthorized: env === 'production' || process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true'
         }
       },
       
       cognito: {
-        clientId: process.env.VITE_AWS_COGNITO_CLIENT_ID || 'REQUIRED',
+        clientId: process.env.VITE_AWS_COGNITO_CLIENT_ID || process.env.AWS_COGNITO_CLIENT_ID || '',
         clientSecret: process.env.AWS_COGNITO_CLIENT_SECRET,
-        userPoolId: process.env.VITE_AWS_COGNITO_USER_POOL_ID || 'REQUIRED',
-        region: process.env.VITE_AWS_COGNITO_REGION || 'REQUIRED',
-        hostedUIDomain: process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || 'REQUIRED',
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'REQUIRED',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'REQUIRED'
+        userPoolId: process.env.VITE_AWS_COGNITO_USER_POOL_ID || process.env.COGNITO_USER_POOL_ID || '',
+        region: process.env.VITE_AWS_COGNITO_REGION || process.env.AWS_DEFAULT_REGION || process.env.AWS_REGION || '',
+        hostedUIDomain: process.env.VITE_AWS_COGNITO_HOSTED_UI_DOMAIN || '',
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ''
       },
       
       email: this.buildEmailConfig(),
@@ -406,13 +414,13 @@ class ConfigurationService {
       },
       
       logging: {
-        level: process.env.LOG_LEVEL || (baseConfig.logging?.level || (env === 'development' ? 'debug' : env === 'production' ? 'info' : 'error')),
+        level: process.env.LOG_LEVEL || (env === 'development' ? 'debug' : env === 'production' ? 'info' : 'error'),
         enableConsole: process.env.LOG_ENABLE_CONSOLE !== 'false',
         enableFile: env === 'production' || process.env.LOG_ENABLE_FILE === 'true',
         enableDatabase: env === 'production' || process.env.LOG_ENABLE_DATABASE === 'true',
-        format: process.env.LOG_FORMAT || (baseConfig.logging?.format || (env === 'development' ? 'simple' : 'json')),
-        maxFileSize: process.env.LOG_MAX_FILE_SIZE || (baseConfig.logging?.maxFileSize || (env === 'development' ? '10mb' : '50mb')),
-        maxFiles: parseInt(process.env.LOG_MAX_FILES || (baseConfig.logging?.maxFiles?.toString() || (env === 'development' ? '3' : '10')))
+        format: process.env.LOG_FORMAT || (env === 'development' ? 'simple' : 'json'),
+        maxFileSize: process.env.LOG_MAX_FILE_SIZE || (env === 'development' ? '10mb' : '50mb'),
+        maxFiles: parseInt(process.env.LOG_MAX_FILES || (env === 'development' ? '3' : '10'))
       }
     };
     
@@ -454,13 +462,8 @@ class ConfigurationService {
   private validateRequired(conf: BaseConfig): void {
     const required = [
       { path: 'security.session.secret', field: 'SESSION_SECRET' },
-      { path: 'database.url', field: 'DATABASE_URL' },
-      { path: 'cognito.clientId', field: 'VITE_AWS_COGNITO_CLIENT_ID' },
-      { path: 'cognito.userPoolId', field: 'VITE_AWS_COGNITO_USER_POOL_ID' },
-      { path: 'cognito.region', field: 'VITE_AWS_COGNITO_REGION' },
-      { path: 'cognito.hostedUIDomain', field: 'VITE_AWS_COGNITO_HOSTED_UI_DOMAIN' },
-      { path: 'cognito.accessKeyId', field: 'AWS_ACCESS_KEY_ID' },
-      { path: 'cognito.secretAccessKey', field: 'AWS_SECRET_ACCESS_KEY' }
+      { path: 'database.url', field: 'DATABASE_URL' }
+      // Note: Cognito fields are optional for backend services
       // Note: GitHub integration fields are optional and validated at runtime by scripts that need them
     ];
 

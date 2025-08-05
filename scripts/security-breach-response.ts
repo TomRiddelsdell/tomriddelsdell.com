@@ -15,7 +15,14 @@ import { spawn, exec } from 'child_process';
 import { promisify } from 'util';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { createHash, randomBytes } from 'crypto';
+import dotenv from 'dotenv';
 import { getConfig } from '../infrastructure/configuration/node-config-service';
+
+// Load environment variables with override to ensure .env values take precedence
+dotenv.config({ override: true });
+
+// Force environment-based configuration to avoid ES module compatibility issues
+process.env.FORCE_ENV_CONFIG = 'true';
 
 const execAsync = promisify(exec);
 
