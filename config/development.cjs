@@ -6,6 +6,9 @@
  */
 
 module.exports = {
+  // Environment setting
+  environment: 'development',
+
   // Environment-specific security settings
   security: {
     session: {

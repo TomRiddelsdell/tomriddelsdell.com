@@ -292,17 +292,40 @@ export const configFields: Record<string, ConfigFieldDefinition> = {
   'integration.github.token': {
     envVar: 'GITHUB_TOKEN',
     type: 'string',
-    required: true
+    required: false,
+    defaultValue: ''
   },
   'integration.github.owner': {
     envVar: 'GITHUB_OWNER',
     type: 'string',
-    required: true
+    required: false,
+    defaultValue: 'TomRiddelsdell'
   },
   'integration.github.repo': {
     envVar: 'GITHUB_REPO',
     type: 'string',
-    required: true
+    required: false,
+    defaultValue: 'tomriddelsdell.com'
+  },
+  'integration.github.deployment.awsAccountId': {
+    envVar: 'AWS_ACCOUNT_ID',
+    type: 'string',
+    required: false
+  },
+  'integration.github.deployment.stagingCertArn': {
+    envVar: 'STAGING_CERTIFICATE_ARN',
+    type: 'string',
+    required: false
+  },
+  'integration.github.deployment.productionCertArn': {
+    envVar: 'PRODUCTION_CERTIFICATE_ARN',
+    type: 'string',
+    required: false
+  },
+  'integration.github.deployment.cognitoUserPoolId': {
+    envVar: 'COGNITO_USER_POOL_ID',
+    type: 'string',
+    required: false
   },
   'integration.mcp.awsEndpoint': {
     envVar: 'AWS_MCP_ENDPOINT',

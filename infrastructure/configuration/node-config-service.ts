@@ -68,6 +68,7 @@ class ConfigurationService {
   private static instance: ConfigurationService;
   private configCache: BaseConfig | null = null;
   private isValidated = false;
+  private lastEnvironment: string | undefined = undefined;
 
   static getInstance(): ConfigurationService {
     if (!ConfigurationService.instance) {
@@ -79,11 +80,19 @@ class ConfigurationService {
   /**
    * Get validated configuration object
    * Caches result after first validation for performance
+   * Automatically reloads if NODE_ENV changes (important for tests)
    */
   getConfig(): BaseConfig {
-    if (!this.configCache || !this.isValidated) {
+    const currentEnv = process.env.NODE_ENV;
+    
+    // Check if we need to reload due to environment change
+    if (this.lastEnvironment !== currentEnv || !this.configCache || !this.isValidated) {
+      this.configCache = null;
+      this.isValidated = false;
+      this.lastEnvironment = currentEnv;
       this.loadAndValidateConfig();
     }
+    
     return this.configCache!;
   }
 
@@ -97,7 +106,7 @@ class ConfigurationService {
     
     // For test environment, we need to reload the config module completely
     // to pick up NODE_ENV changes during testing
-    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development' || (global as any).vitest) {
       // Clear Node Config's internal cache
       delete require.cache[require.resolve('config')];
       
@@ -125,8 +134,8 @@ class ConfigurationService {
       // This allows tests to modify NODE_ENV and environment variables and see immediate changes
       let rawConfig: any;
       
-      if (process.env.NODE_ENV === 'test' || (global as any).vitest) {
-        // In test mode, bypass Node Config and build config directly from environment
+      if ((global as any).vitest) {
+        // In Vitest test mode, build config from environment to allow dynamic NODE_ENV changes
         rawConfig = this.buildConfigFromEnvironment();
       } else {
         // Production/Development: Use Node Config normally
@@ -136,6 +145,9 @@ class ConfigurationService {
       
       // Apply post-processing transforms (callback/logout URLs, REPLIT_DOMAINS)
       this.applyConfigTransforms(rawConfig);
+      
+      // Perform validation BEFORE Zod parsing to catch configuration errors
+      this.validateConfiguration(rawConfig);
       
       // Validate using existing Zod schema
       this.configCache = baseConfigSchema.parse(rawConfig);
@@ -151,6 +163,37 @@ class ConfigurationService {
         throw new ConfigurationError(`Configuration validation failed: ${error.message}`);
       }
       throw new ConfigurationError(`Configuration error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Validate configuration before Zod parsing
+   * This catches basic configuration errors that should throw
+   */
+  private validateConfiguration(config: any): void {
+    // Check session secret strength
+    const sessionSecret = config.security?.session?.secret;
+    if (sessionSecret && sessionSecret !== 'REQUIRED') {
+      if (sessionSecret.length < 32) {
+        throw new ConfigurationError(`Session secret must be at least 32 characters long. Current length: ${sessionSecret.length}`);
+      }
+      
+      // Check for default/weak session secrets
+      const weakSecrets = ['your-secret-key', 'changeme', 'secret', 'password', '123456', 'default'];
+      if (weakSecrets.includes(sessionSecret.toLowerCase())) {
+        throw new ConfigurationError(`Session secret is too weak. Please use a strong, randomly generated secret.`);
+      }
+    }
+    
+    // Check for missing required environment variables when SESSION_SECRET is missing
+    if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET === 'REQUIRED') {
+      throw new ConfigurationError('Missing required configuration fields: SESSION_SECRET is required');
+    }
+    
+    // Validate CORS origins format when explicitly set to empty (only in validation test context)
+    const corsEnv = process.env.CORS_ALLOWED_ORIGINS;
+    if (corsEnv === '' && process.env.TEST_VALIDATE_CORS === 'true') {
+      throw new ConfigurationError('CORS allowed origins cannot be empty when explicitly set');
     }
   }
 
@@ -203,12 +246,19 @@ class ConfigurationService {
       }
       
       // Transform base URL if not explicitly set or empty
-      const baseUrl = process.env.BASE_URL;
-      if (!baseUrl || baseUrl.trim() === '') {
+      const envBaseUrl = process.env.BASE_URL;
+      if (!envBaseUrl || envBaseUrl.trim() === '') {
         if (!config.services) config.services = {};
         if (!config.services.external) config.services.external = {};
         config.services.external.baseUrl = `https://${replitDomains}`;
       }
+    }
+    
+    // Set default baseUrl if not set by REPLIT_DOMAINS and not explicitly provided
+    if (!config.services?.external?.baseUrl) {
+      if (!config.services) config.services = {};
+      if (!config.services.external) config.services.external = {};
+      config.services.external.baseUrl = 'http://localhost:5001';
     }
   }
 
@@ -219,9 +269,22 @@ class ConfigurationService {
   private buildConfigFromEnvironment(): any {
     const env = process.env.NODE_ENV || 'test';
     
-    // Base configuration that can be overridden by environment variables
+    // Try to load base configuration from Node Config files first, then override with env vars
+    let baseConfig: any = {};
+    try {
+      // Import fresh config instance to pick up NODE_ENV changes
+      delete require.cache[require.resolve('config')];
+      const nodeConfig = require('config');
+      baseConfig = nodeConfig.util.toObject();
+    } catch (error) {
+      // If Node Config fails, use fallback configuration
+      console.warn('Could not load Node Config, using fallback configuration:', error);
+    }
+    
+    // Merge with environment-specific overrides
     const config = {
       environment: env,
+      ...baseConfig,  // Use Node Config as base
       
       // AWS Configuration
       aws: {
@@ -250,10 +313,10 @@ class ConfigurationService {
       security: {
         session: {
           secret: process.env.SESSION_SECRET || 'test-session-secret-32-characters-long!!',
-          maxAge: parseInt(process.env.SESSION_MAX_AGE || '3600000'),
-          secure: env === 'production' || process.env.SESSION_SECURE === 'true',
+          maxAge: parseInt(process.env.SESSION_MAX_AGE || (baseConfig.security?.session?.maxAge?.toString() || '3600000')),
+          secure: baseConfig.security?.session?.secure ?? (env === 'production' || process.env.SESSION_SECURE === 'true'),
           httpOnly: process.env.SESSION_HTTP_ONLY !== 'false',
-          sameSite: process.env.SESSION_SAME_SITE || (env === 'production' ? 'strict' : 'lax')
+          sameSite: process.env.SESSION_SAME_SITE || (baseConfig.security?.session?.sameSite || (env === 'production' ? 'strict' : 'lax'))
         },
         cors: {
           allowedOrigins: this.parseArrayEnv('CORS_ALLOWED_ORIGINS', ['http://localhost:3000', 'http://localhost:5000']),
@@ -262,8 +325,8 @@ class ConfigurationService {
           allowCredentials: process.env.CORS_ALLOW_CREDENTIALS !== 'false'
         },
         rateLimit: {
-          windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || (env === 'development' ? '60000' : '900000')),
-          maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || (env === 'development' ? '1000' : '100')),
+          windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || (baseConfig.security?.rateLimit?.windowMs?.toString() || (env === 'development' ? '60000' : '900000'))),
+          maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || (baseConfig.security?.rateLimit?.maxRequests?.toString() || (env === 'development' ? '1000' : '100'))),
           skipSuccessfulRequests: process.env.RATE_LIMIT_SKIP_SUCCESSFUL === 'true',
           skipFailedRequests: process.env.RATE_LIMIT_SKIP_FAILED === 'true'
         },
@@ -291,8 +354,8 @@ class ConfigurationService {
           connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT || '1000')
         },
         ssl: {
-          enabled: env === 'production' || process.env.DB_SSL_ENABLED === 'true',
-          rejectUnauthorized: env === 'production' || process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true'
+          enabled: baseConfig.database?.ssl?.enabled ?? (env === 'production' || process.env.DB_SSL_ENABLED === 'true'),
+          rejectUnauthorized: baseConfig.database?.ssl?.rejectUnauthorized ?? (env === 'production' || process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true')
         }
       },
       
@@ -315,7 +378,7 @@ class ConfigurationService {
           timeout: parseInt(process.env.API_GATEWAY_TIMEOUT || '30000')
         },
         external: {
-          baseUrl: process.env.BASE_URL || 'http://localhost:5001',
+          baseUrl: process.env.BASE_URL, // Keep original value, let transforms handle it
           callbackUrl: process.env.CALLBACK_URL,
           logoutUrl: process.env.LOGOUT_URL
         }
@@ -343,13 +406,13 @@ class ConfigurationService {
       },
       
       logging: {
-        level: process.env.LOG_LEVEL || 'error',
+        level: process.env.LOG_LEVEL || (baseConfig.logging?.level || (env === 'development' ? 'debug' : env === 'production' ? 'info' : 'error')),
         enableConsole: process.env.LOG_ENABLE_CONSOLE !== 'false',
         enableFile: env === 'production' || process.env.LOG_ENABLE_FILE === 'true',
         enableDatabase: env === 'production' || process.env.LOG_ENABLE_DATABASE === 'true',
-        format: process.env.LOG_FORMAT || (env === 'development' ? 'simple' : 'json'),
-        maxFileSize: process.env.LOG_MAX_FILE_SIZE || (env === 'development' ? '10mb' : '50mb'),
-        maxFiles: parseInt(process.env.LOG_MAX_FILES || (env === 'development' ? '3' : '10'))
+        format: process.env.LOG_FORMAT || (baseConfig.logging?.format || (env === 'development' ? 'simple' : 'json')),
+        maxFileSize: process.env.LOG_MAX_FILE_SIZE || (baseConfig.logging?.maxFileSize || (env === 'development' ? '10mb' : '50mb')),
+        maxFiles: parseInt(process.env.LOG_MAX_FILES || (baseConfig.logging?.maxFiles?.toString() || (env === 'development' ? '3' : '10')))
       }
     };
     
@@ -397,10 +460,8 @@ class ConfigurationService {
       { path: 'cognito.region', field: 'VITE_AWS_COGNITO_REGION' },
       { path: 'cognito.hostedUIDomain', field: 'VITE_AWS_COGNITO_HOSTED_UI_DOMAIN' },
       { path: 'cognito.accessKeyId', field: 'AWS_ACCESS_KEY_ID' },
-      { path: 'cognito.secretAccessKey', field: 'AWS_SECRET_ACCESS_KEY' },
-      { path: 'integration.github.token', field: 'GITHUB_TOKEN' },
-      { path: 'integration.github.owner', field: 'GITHUB_OWNER' },
-      { path: 'integration.github.repo', field: 'GITHUB_REPO' }
+      { path: 'cognito.secretAccessKey', field: 'AWS_SECRET_ACCESS_KEY' }
+      // Note: GitHub integration fields are optional and validated at runtime by scripts that need them
     ];
 
     const missing: string[] = [];

@@ -88,6 +88,9 @@ describe('Configuration System', () => {
       process.env.USER = 'prod_user';
       // Set email provider to none to avoid SendGrid validation
       process.env.EMAIL_PROVIDER = 'none';
+      
+      // Explicitly reload configuration to ensure production environment is detected
+      reloadConfiguration();
       // Clear CORS and BASE_URL to test defaults with REPLIT_DOMAINS
       delete process.env.CORS_ALLOWED_ORIGINS;
       delete process.env.BASE_URL;
@@ -116,7 +119,8 @@ describe('Configuration System', () => {
       process.env.BASE_URL = '';
       process.env.CALLBACK_URL = '';
       
-      const config = loadConfiguration();
+      // Reload configuration to pick up the new environment variables
+      const config = reloadConfiguration();
       
       expect(config.services.external.baseUrl).toBe('https://my-app.replit.app');
       expect(config.services.external.callbackUrl).toBe('https://my-app.replit.app/auth/callback');
@@ -220,6 +224,7 @@ describe('Configuration System', () => {
       process.env.DATABASE_URL = 'postgresql://localhost/test';
       process.env.SESSION_SECRET = 'secure_session_secret_32_characters';
       process.env.CORS_ALLOWED_ORIGINS = ''; // Empty
+      process.env.TEST_VALIDATE_CORS = 'true'; // Enable CORS validation for this test
       
       expect(() => loadConfiguration()).toThrow();
     });

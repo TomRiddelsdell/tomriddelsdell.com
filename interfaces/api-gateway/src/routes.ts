@@ -30,8 +30,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     resave: false,
     saveUninitialized: false,
     cookie: { 
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
+      secure: authConfig.session.secure || process.env.NODE_ENV === 'production',
+      httpOnly: authConfig.session.httpOnly !== false,
+      sameSite: authConfig.session.sameSite || 'lax',
+      maxAge: authConfig.session.maxAge || 1000 * 60 * 60 * 24 * 7 // 1 week
     },
     store: new SessionStore({
       checkPeriod: 86400000 // prune expired entries every 24h

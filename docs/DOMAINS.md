@@ -10,7 +10,6 @@ The tomriddelsdell.com platform is organized into multiple bounded contexts, eac
 tomriddelsdell.com Platform
 ├── Core Domains (Business Logic)
 │   ├── Identity Domain
-│   ├── Workflow Domain
 │   ├── Integration Domain
 │   ├── Analytics Domain
 │   └── Notification Domain
@@ -59,41 +58,7 @@ tomriddelsdell.com Platform
 
 ---
 
-### 2. Workflow Domain (`domains/workflow/`)
-
-**Purpose**: Core business logic for workflow creation, execution, and management.
-
-**Key Responsibilities**:
-- Workflow definition and configuration
-- Workflow execution orchestration
-- Action and trigger management
-- Business rule enforcement
-- Workflow lifecycle management
-
-**Key Entities & Value Objects**:
-- `WorkflowAggregate` (Aggregate Root) - Complete workflow entity
-- `Workflow` - Main workflow entity
-- `WorkflowId` - Strongly-typed workflow identifier
-- `WorkflowAction` - Individual workflow steps
-- `TriggerType` - Workflow initiation conditions
-- `WorkflowStatus` - Execution state management
-
-**Domain Events**:
-- `WorkflowCreatedEvent`
-- `WorkflowExecutedEvent`
-- `WorkflowStatusChangedEvent`
-- `WorkflowDeletedEvent`
-
-**Business Rules**:
-- Maximum actions per workflow (10)
-- Unique action ordering within workflows
-- Status transition validation
-- User ownership enforcement
-- Action configuration validation
-
----
-
-### 3. Integration Domain (`domains/integration/`)
+## 2. Integration Domain (`domains/integration/`)
 
 **Purpose**: Manages external service integrations and connected applications.
 
@@ -126,7 +91,7 @@ tomriddelsdell.com Platform
 
 ---
 
-### 4. Analytics Domain (`domains/analytics/`)
+### 3. Analytics Domain (`domains/analytics/`)
 
 **Purpose**: Provides insights, metrics, and reporting capabilities for workflows and system performance.
 
@@ -160,7 +125,7 @@ tomriddelsdell.com Platform
 
 ---
 
-### 5. Notification Domain (`domains/notification/`)
+### 4. Notification Domain (`domains/notification/`)
 
 **Purpose**: Handles all platform notifications, alerts, and communication channels.
 

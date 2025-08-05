@@ -5,6 +5,9 @@
  */
 
 module.exports = {
+  // Environment setting
+  environment: 'production',
+
   // Production security hardening
   security: {
     session: {

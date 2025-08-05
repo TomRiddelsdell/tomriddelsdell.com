@@ -36,9 +36,15 @@ module.exports = {
   // Integration Configuration (matching schema)
   integration: {
     github: {
-      token: process.env.GITHUB_TOKEN || 'REQUIRED',
-      owner: process.env.GITHUB_OWNER || 'REQUIRED',
-      repo: process.env.GITHUB_REPO || 'REQUIRED'
+      token: process.env.GITHUB_TOKEN || '',
+      owner: process.env.GITHUB_OWNER || 'TomRiddelsdell',
+      repo: process.env.GITHUB_REPO || 'tomriddelsdell.com',
+      deployment: {
+        awsAccountId: process.env.AWS_ACCOUNT_ID || '',
+        stagingCertArn: process.env.STAGING_CERTIFICATE_ARN || '',
+        productionCertArn: process.env.PRODUCTION_CERTIFICATE_ARN || '',
+        cognitoUserPoolId: process.env.COGNITO_USER_POOL_ID || ''
+      }
     },
     mcp: {
       awsEndpoint: process.env.AWS_MCP_ENDPOINT || 'http://aws-mcp:8001',

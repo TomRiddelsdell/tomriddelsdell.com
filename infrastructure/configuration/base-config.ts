@@ -130,6 +130,12 @@ export const integrationConfigSchema = z.object({
     token: z.string().min(1, 'GitHub token is required'),
     owner: z.string().min(1, 'GitHub owner is required'),
     repo: z.string().min(1, 'GitHub repository is required'),
+    deployment: z.object({
+      awsAccountId: z.string().optional(),
+      stagingCertArn: z.string().optional(),
+      productionCertArn: z.string().optional(),
+      cognitoUserPoolId: z.string().optional(),
+    }).optional(),
   }),
   mcp: z.object({
     awsEndpoint: z.string().default('http://aws-mcp:8001'),
