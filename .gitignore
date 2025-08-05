@@ -44,6 +44,7 @@ id_ed25519*
 **/*password*
 **/*token*
 **/*credential*
+**/*.log
 
 # Build artifacts
 *.tgz
