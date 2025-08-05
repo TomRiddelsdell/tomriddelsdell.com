@@ -43,13 +43,13 @@ export const securityConfigSchema = z.object({
 
 // AWS Cognito configuration schema
 export const cognitoConfigSchema = z.object({
-  clientId: z.string().min(1, 'Cognito client ID is required'),
+  clientId: z.string().optional(),
   clientSecret: z.string().optional(),
-  userPoolId: z.string().min(1, 'Cognito user pool ID is required'),
-  region: z.string().min(1, 'AWS region is required'),
-  hostedUIDomain: z.string().min(1, 'Cognito hosted UI domain is required'),
-  accessKeyId: z.string().min(1, 'AWS access key ID is required'),
-  secretAccessKey: z.string().min(1, 'AWS secret access key is required'),
+  userPoolId: z.string().optional(),
+  region: z.string().optional(),
+  hostedUIDomain: z.string().optional(),
+  accessKeyId: z.string().optional(),
+  secretAccessKey: z.string().optional(),
 });
 
 // Database configuration schema

@@ -152,6 +152,21 @@ check_mcp_server() {
 
 check_mcp_server "AWS" 8001
 check_mcp_server "Neptune" 8002
+
+# Remote MCP Servers
+echo -n "Checking remote Neon MCP server... "
+if curl -s "https://mcp.neon.tech/health" >/dev/null 2>&1; then
+    echo "$(green '✓ Available')"
+else
+    echo "$(yellow '⚠ Remote service unavailable')"
+fi
+
+echo -n "Checking remote GitHub MCP server... "
+if curl -s "https://api.githubcopilot.com/mcp/health" >/dev/null 2>&1; then
+    echo "$(green '✓ Available')"
+else
+    echo "$(yellow '⚠ Remote service unavailable')"
+fi
 echo ""
 
 # Summary
@@ -163,4 +178,5 @@ echo "  • Setup GitHub: node scripts/secure-github-setup.js"
 echo "  • Test workflow: gh workflow run '🧪 Test Workflow'"
 echo "  • List secrets: gh secret list --repo TomRiddelsdell/tomriddelsdell.com"
 echo "  • Check costs: gh workflow run '💰 AWS Cost & Infrastructure Monitoring'"
+echo "  • Security breach response: ./scripts/launch-security-breach-response.sh"
 echo ""
