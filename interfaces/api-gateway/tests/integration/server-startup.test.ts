@@ -1,11 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import express from 'express';
-import { getConfig } from '../../../../infrastructure/configuration/node-config-service';
 
-// Mock the configuration loader
-vi.mock('../../../../infrastructure/configuration/config-loader', () => ({
+// Mock the node-config-service directly
+vi.mock('../../../../infrastructure/configuration/node-config-service', () => ({
   getConfig: vi.fn(),
 }));
+
+// Import after mocking
+const { getConfig } = await import('../../../../infrastructure/configuration/node-config-service');
 
 // Mock other dependencies
 vi.mock('../../../../infrastructure/database/initTemplates', () => ({

@@ -20,6 +20,10 @@ export interface AuthConfig {
   };
   session: {
     secret: string;
+    secure: boolean;
+    httpOnly: boolean;
+    sameSite: 'strict' | 'lax' | 'none';
+    maxAge: number;
   };
 }
 

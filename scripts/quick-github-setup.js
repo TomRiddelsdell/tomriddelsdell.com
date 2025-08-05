@@ -1,25 +1,20 @@
 #!/usr/bin/env node
 /**
  * Quick GitHub CI/CD Setup Script
- * Sets up GitHub secrets and environments using the Octokit API directly
+ * Uses centralized configuration service instead of direct environment variables
  */
 
 import { Octokit } from '@octokit/rest';
-
-// Configuration from environment variables - NEVER hardcode secrets!
-const CONFIG = {
-  awsAccountId: process.env.AWS_ACCOUNT_ID || '',
-  stagingCertArn: process.env.STAGING_CERTIFICATE_ARN || '',
-  productionCertArn: process.env.PRODUCTION_CERTIFICATE_ARN || '',
-  cognitoUserPoolId: process.env.COGNITO_USER_POOL_ID || '',
-  databaseUrl: process.env.DATABASE_URL || '',
-  owner: process.env.GITHUB_OWNER || 'TomRiddelsdell',
-  repo: process.env.GITHUB_REPO || 'tomriddelsdell.com'
-};
+import { getConfig } from '../infrastructure/configuration/node-config-service.js';
 
 class GitHubSetup {
-  constructor(token) {
+  constructor(token, config) {
     this.octokit = new Octokit({ auth: token });
+    this.owner = config.integration.github.owner;
+    this.repo = config.integration.github.repo;
+    this.deploymentConfig = config.integration.github.deployment;
+    this.cognitoConfig = config.cognito;
+    this.databaseUrl = config.database.url;
   }
 
   async setSecret(name, value) {
@@ -28,8 +23,8 @@ class GitHubSetup {
     try {
       // Get repository public key
       const { data: publicKey } = await this.octokit.rest.actions.getRepoPublicKey({
-        owner: CONFIG.owner,
-        repo: CONFIG.repo,
+        owner: this.owner,
+        repo: this.repo,
       });
 
       // For simplicity, we'll use the GitHub CLI approach or manual setup
@@ -49,8 +44,8 @@ class GitHubSetup {
     try {
       // Create environment
       await this.octokit.rest.repos.createOrUpdateEnvironment({
-        owner: CONFIG.owner,
-        repo: CONFIG.repo,
+        owner: this.owner,
+        repo: this.repo,
         environment_name: name,
       });
 
@@ -66,8 +61,8 @@ class GitHubSetup {
     
     try {
       const { data: repo } = await this.octokit.rest.repos.get({
-        owner: CONFIG.owner,
-        repo: CONFIG.repo,
+        owner: this.owner,
+        repo: this.repo,
       });
       
       console.log(`✅ Repository access confirmed: ${repo.full_name}`);
@@ -82,23 +77,23 @@ class GitHubSetup {
     console.log('\n📋 MANUAL SETUP INSTRUCTIONS');
     console.log('=' .repeat(50));
     console.log('');
-    console.log('🔗 Go to: https://github.com/TomRiddelsdell/tomriddelsdell.com/settings/secrets/actions');
+    console.log(`🔗 Go to: https://github.com/${this.owner}/${this.repo}/settings/secrets/actions`);
     console.log('');
     console.log('Click "New repository secret" for each:');
     console.log('');
 
     const secrets = [
-      ['AWS_STAGING_ROLE_ARN', `arn:aws:iam::${CONFIG.awsAccountId}:role/GitHubActions-Staging-Role`],
-      ['AWS_PRODUCTION_ROLE_ARN', `arn:aws:iam::${CONFIG.awsAccountId}:role/GitHubActions-Production-Role`],
-      ['AWS_MONITORING_ROLE_ARN', `arn:aws:iam::${CONFIG.awsAccountId}:role/GitHubActions-Monitoring-Role`],
+      ['AWS_STAGING_ROLE_ARN', `arn:aws:iam::${this.deploymentConfig.awsAccountId}:role/GitHubActions-Staging-Role`],
+      ['AWS_PRODUCTION_ROLE_ARN', `arn:aws:iam::${this.deploymentConfig.awsAccountId}:role/GitHubActions-Production-Role`],
+      ['AWS_MONITORING_ROLE_ARN', `arn:aws:iam::${this.deploymentConfig.awsAccountId}:role/GitHubActions-Monitoring-Role`],
       ['STAGING_DOMAIN_NAME', 'dev.tomriddelsdell.com'],
-      ['STAGING_CERTIFICATE_ARN', CONFIG.stagingCertArn],
-      ['STAGING_COGNITO_USER_POOL_ID', CONFIG.cognitoUserPoolId],
-      ['STAGING_DATABASE_URL', CONFIG.databaseUrl],
+      ['STAGING_CERTIFICATE_ARN', this.deploymentConfig.stagingCertArn],
+      ['STAGING_COGNITO_USER_POOL_ID', this.cognitoConfig.userPoolId],
+      ['STAGING_DATABASE_URL', this.databaseUrl],
       ['PRODUCTION_DOMAIN_NAME', 'tomriddelsdell.com'],
-      ['PRODUCTION_CERTIFICATE_ARN', CONFIG.productionCertArn],
-      ['PRODUCTION_COGNITO_USER_POOL_ID', CONFIG.cognitoUserPoolId],
-      ['PRODUCTION_DATABASE_URL', CONFIG.databaseUrl],
+      ['PRODUCTION_CERTIFICATE_ARN', this.deploymentConfig.productionCertArn],
+      ['PRODUCTION_COGNITO_USER_POOL_ID', this.cognitoConfig.userPoolId],
+      ['PRODUCTION_DATABASE_URL', this.databaseUrl],
     ];
 
     secrets.forEach(([name, value], index) => {
@@ -108,7 +103,7 @@ class GitHubSetup {
     });
 
     console.log('🌍 Then create environments:');
-    console.log('🔗 Go to: https://github.com/TomRiddelsdell/tomriddelsdell.com/settings/environments');
+    console.log(`🔗 Go to: https://github.com/${this.owner}/${this.repo}/settings/environments`);
     console.log('');
     console.log('1. Create "staging" environment - deployment branches: develop');
     console.log('2. Create "production" environment - deployment branches: main, required reviewers: TomRiddelsdell');
@@ -148,19 +143,33 @@ class GitHubSetup {
 
 // Main execution
 async function main() {
-  const token = process.env.GITHUB_TOKEN;
+  // Load centralized configuration
+  let config;
+  try {
+    config = getConfig();
+  } catch (error) {
+    console.log('❌ Failed to load configuration:', error.message);
+    console.log('💡 Ensure all required environment variables are set');
+    process.exit(1);
+  }
+
+  const token = config.integration.github.token;
   
-  if (!token) {
-    console.log('❌ GITHUB_TOKEN environment variable required');
+  if (!token || token === 'REQUIRED' || token === '') {
+    console.log('❌ GITHUB_TOKEN not configured');
     console.log('');
     console.log('Create a token at: https://github.com/settings/tokens');
     console.log('Required scopes: repo, workflow, admin:repo_hook');
     console.log('');
-    console.log('Then run: export GITHUB_TOKEN="your_token"');
+    console.log('Then set: export GITHUB_TOKEN="your_token"');
     process.exit(1);
   }
 
-  const setup = new GitHubSetup(token);
+  console.log('✅ Configuration loaded successfully from Node Config service');
+  console.log(`   GitHub: ${config.integration.github.owner}/${config.integration.github.repo}`);
+  console.log('');
+
+  const setup = new GitHubSetup(token, config);
   await setup.quickSetup();
 }
 

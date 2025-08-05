@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
  * GitHub CI/CD Setup Script
- * Automates the complete GitHub repository configuration for CI/CD pipeline
+ * Uses centralized configuration service instead of direct environment variables
  */
 
 import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
 import fetch from 'node-fetch';
+import { getConfig } from '../infrastructure/configuration/node-config-service';
 
 interface SetupConfig {
   githubToken: string;
@@ -234,44 +235,63 @@ class GitHubCICDSetup {
 
 // Main execution
 async function main() {
-  // Check for GitHub token
-  const githubToken = process.env.GITHUB_TOKEN;
-  if (!githubToken) {
-    console.error('❌ GITHUB_TOKEN environment variable is required');
-    console.error('');
-    console.error('Create a Personal Access Token at: https://github.com/settings/tokens');
-    console.error('Required scopes: repo, workflow, admin:repo_hook');
+  console.log('🚀 GitHub CI/CD Setup using centralized configuration...\n');
+
+  // Load configuration from Node Config service
+  let config: any;
+  try {
+    config = getConfig();
+  } catch (error) {
+    console.error('❌ Failed to load configuration:', error);
+    console.error('💡 Please ensure all required environment variables are set');
     process.exit(1);
   }
 
-  // Configuration from environment or command line arguments
-  const config: SetupConfig = {
+  // Extract GitHub token from configuration
+  const githubToken = config.integration.github.token;
+  if (!githubToken || githubToken === 'REQUIRED' || githubToken === '') {
+    console.error('❌ GITHUB_TOKEN not configured');
+    console.error('');
+    console.error('Create a Personal Access Token at: https://github.com/settings/tokens');
+    console.error('Required scopes: repo, workflow, admin:repo_hook');
+    console.error('');
+    console.error('Then set GITHUB_TOKEN environment variable');
+    process.exit(1);
+  }
+
+  // Build setup configuration from centralized config
+  const setupConfig: SetupConfig = {
     githubToken,
-    awsAccountId: process.env.AWS_ACCOUNT_ID || '',
-    stagingCertArn: process.env.STAGING_CERTIFICATE_ARN || '',
-    productionCertArn: process.env.PRODUCTION_CERTIFICATE_ARN || '',
-    cognitoUserPoolId: process.env.COGNITO_USER_POOL_ID || '',
-    databaseUrl: process.env.DATABASE_URL || '',
-    owner: process.env.GITHUB_OWNER || 'TomRiddelsdell',
-    repo: process.env.GITHUB_REPO || 'tomriddelsdell.com'
+    owner: config.integration.github.owner,
+    repo: config.integration.github.repo,
+    awsAccountId: config.integration.github.deployment?.awsAccountId || '',
+    stagingCertArn: config.integration.github.deployment?.stagingCertArn || '',
+    productionCertArn: config.integration.github.deployment?.productionCertArn || '',
+    cognitoUserPoolId: config.integration.github.deployment?.cognitoUserPoolId || config.cognito.userPoolId,
+    databaseUrl: config.database.url
   };
 
-  // Validate required configuration
+  // Validate required deployment configuration
   const requiredFields = ['awsAccountId', 'stagingCertArn', 'productionCertArn'];
-  const missingFields = requiredFields.filter(field => !config[field as keyof SetupConfig]);
+  const missingFields = requiredFields.filter(field => !setupConfig[field as keyof SetupConfig]);
   
   if (missingFields.length > 0) {
-    console.error('❌ Missing required configuration:');
+    console.error('❌ Missing required deployment configuration:');
     missingFields.forEach(field => console.error(`   - ${field}`));
     console.error('\n💡 Set these environment variables:');
     console.error('   export AWS_ACCOUNT_ID="your_aws_account_id"');
     console.error('   export STAGING_CERTIFICATE_ARN="your_staging_cert_arn"');
     console.error('   export PRODUCTION_CERTIFICATE_ARN="your_production_cert_arn"');
-    console.error('\n🔒 Values can be found in GITHUB_SETUP_COMPLETE.md');
+    console.error('\n🔒 Values can be found in deployment documentation');
     process.exit(1);
   }
 
-  const setup = new GitHubCICDSetup(config);
+  console.log('✅ Configuration loaded successfully from Node Config service');
+  console.log(`   GitHub: ${setupConfig.owner}/${setupConfig.repo}`);
+  console.log(`   AWS Account: ${setupConfig.awsAccountId}`);
+  console.log('');
+
+  const setup = new GitHubCICDSetup(setupConfig);
   await setup.setupComplete();
 }
 

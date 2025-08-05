@@ -26,10 +26,10 @@ export class ConfigurationError extends Error {
 function loadEnvironmentFiles(): void {
   const environment = process.env.NODE_ENV || "development";
   
-  // Custom dotenv loading helper
-  const loadDotenvSafe = (path: string) => {
+  // Custom dotenv loading helper - use override: true to ensure test env vars work
+  const loadDotenvSafe = (path: string, shouldOverride: boolean = true) => {
     try {
-      const result = loadDotenv({ path, override: false });
+      const result = loadDotenv({ path, override: shouldOverride });
       return result;
     } catch (error) {
       // Silently continue if files don't exist
@@ -37,42 +37,25 @@ function loadEnvironmentFiles(): void {
     }
   };
   
-  // For tests, load files in proper precedence order
+  // For tests, respect explicitly set environment variables
   if (process.env.VITEST) {
-    // Store the current state of process.env before loading any files
-    const initialEnv = { ...process.env };
+    // Load base template first (only if not already set)
+    loadDotenvSafe('.env.template', false);
     
-    // 1. Load template file first for base defaults
-    const templateResult = loadDotenvSafe('.env.template');
-    if (templateResult.parsed) {
-      Object.keys(templateResult.parsed).forEach(key => {
-        // Only use template defaults if the variable was not set at all
-        // Don't override empty strings set by tests (they're intentional)
-        if (!initialEnv.hasOwnProperty(key)) {
-          process.env[key] = templateResult.parsed![key];
-        }
-      });
-    }
+    // Load main .env file with override capability
+    loadDotenvSafe('.env', true);
     
-    // 2. If NODE_ENV is set to a specific environment, load that environment file
+    // If NODE_ENV is set to a specific environment, load that environment file
     if (environment !== 'test') {
-      const envResult = loadDotenvSafe(`.env.${environment}`);
-      if (envResult.parsed) {
-        Object.keys(envResult.parsed).forEach(key => {
-          // Only override if the variable wasn't explicitly set before loading files
-          if (!initialEnv.hasOwnProperty(key)) {
-            process.env[key] = envResult.parsed![key];
-          }
-        });
-      }
+      loadDotenvSafe(`.env.${environment}`, true);
     }
     return;
   }
   
-  // For non-test environments, load in normal hierarchical order
-  loadDotenvSafe('.env.template');
-  loadDotenvSafe('.env');
-  loadDotenvSafe(`.env.${environment}`);
+  // For non-test environments, load in normal hierarchical order with override
+  loadDotenvSafe('.env.template', false);
+  loadDotenvSafe('.env', true);
+  loadDotenvSafe(`.env.${environment}`, true);
 }
 
 /**

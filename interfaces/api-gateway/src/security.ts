@@ -65,6 +65,11 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
   // Referrer policy
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   
+  // Strict Transport Security for HTTPS enforcement (production only)
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  }
+  
   // Content Security Policy from configuration
   const cspDirectives = config.security.csp.directives;
   const cspString = Object.entries(cspDirectives)
@@ -80,10 +85,21 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
  * Input sanitization middleware
  */
 export function sanitizeInput(req: Request, res: Response, next: NextFunction) {
-  // Remove potential XSS characters from strings
+  // Comprehensive XSS prevention patterns
   const sanitizeObject = (obj: any): any => {
     if (typeof obj === 'string') {
-      return obj.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+      // Remove script tags, event handlers, and dangerous HTML elements
+      return obj
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+        .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+        .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
+        .replace(/<link\b[^<]*>/gi, '')
+        .replace(/<meta\b[^<]*>/gi, '')
+        .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '') // Remove event handlers like onclick, onload
+        .replace(/javascript:\s*[^"']*/gi, '') // Remove javascript: URLs
+        .replace(/data:\s*[^"']*/gi, '') // Remove data: URLs
+        .replace(/vbscript:\s*[^"']*/gi, ''); // Remove vbscript: URLs
     }
     if (typeof obj === 'object' && obj !== null) {
       const sanitized: any = {};
