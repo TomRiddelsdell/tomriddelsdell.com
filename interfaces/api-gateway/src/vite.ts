@@ -38,7 +38,10 @@ export async function setupVite(app: Express, server: Server) {
       server: { 
         middlewareMode: true,
         host: "0.0.0.0",
-        allowedHosts
+        allowedHosts,
+        hmr: {
+          port: 24679, // Use a different port for HMR WebSocket to avoid conflicts
+        }
       },
       appType: "spa",
       root: path.resolve(import.meta.dirname, "..", "..", "..", "interfaces", "web-frontend"),

@@ -277,7 +277,8 @@ class ConfigurationService {
     if (!config.services?.external?.baseUrl) {
       if (!config.services) config.services = {};
       if (!config.services.external) config.services.external = {};
-      config.services.external.baseUrl = 'http://localhost:5001';
+      const port = config.services?.apiGateway?.port || 5000;
+      config.services.external.baseUrl = `http://localhost:${port}`;
     }
   }
 
@@ -381,7 +382,7 @@ class ConfigurationService {
       
       services: {
         apiGateway: {
-          port: parseInt(process.env.API_GATEWAY_PORT || '5001'),
+          port: parseInt(process.env.API_GATEWAY_PORT || '5000'),
           host: process.env.API_GATEWAY_HOST || '0.0.0.0',
           timeout: parseInt(process.env.API_GATEWAY_TIMEOUT || '30000')
         },

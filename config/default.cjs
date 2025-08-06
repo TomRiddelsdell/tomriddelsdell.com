@@ -98,8 +98,8 @@ module.exports = {
     },
     external: {
       baseUrl: process.env.BASE_URL || 'http://localhost:5000', // Documented default for development
-      callbackUrl: process.env.CALLBACK_URL || '',
-      logoutUrl: process.env.LOGOUT_URL || ''
+      callbackUrl: `${process.env.BASE_URL || 'http://localhost:5000'}/auth/callback`,
+      logoutUrl: process.env.BASE_URL || 'http://localhost:5000'
     }
   },
 

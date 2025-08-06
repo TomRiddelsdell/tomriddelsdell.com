@@ -18,6 +18,13 @@ export default defineConfig({
   },
   root: path.resolve(import.meta.dirname, "interfaces/web-frontend"),
 
+  // Server configuration to avoid port conflicts
+  server: {
+    hmr: {
+      port: 24679, // Use a different port for HMR WebSocket
+    },
+  },
+
   // Add this build configuration:
   build: {
     outDir: "dist", // Relative to root (interfaces/web-frontend)
