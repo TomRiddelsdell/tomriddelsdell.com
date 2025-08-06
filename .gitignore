@@ -18,6 +18,29 @@ build_output.log
 *.swp
 *.swo
 
+# DevContainer - Include configuration but exclude sensitive data
+# Include: Base configuration files
+!.devcontainer/
+!.devcontainer/devcontainer.json
+!.devcontainer/devcontainer.json.template
+!.devcontainer/docker-compose.yml
+!.devcontainer/Dockerfile*
+!.devcontainer/post-create.sh
+!.devcontainer/mcp-config/
+!.devcontainer/validate-security.sh
+!.devcontainer/pre-commit-hook
+!.devcontainer/SECURITY.md
+
+# Exclude: Sensitive or generated devcontainer files
+.devcontainer/**/*.secure
+.devcontainer/**/*credentials*
+.devcontainer/**/*secret*
+.devcontainer/**/*private*
+.devcontainer/**/*.log
+.devcontainer/**/runtime-*
+.devcontainer/**/session-*
+.devcontainer/**/.env*
+
 # Environment and secrets
 .env
 .env.*
@@ -31,6 +54,16 @@ build_output.log
 .aws/credentials
 credentials.json
 **/aws-credentials*
+**/mcp-credentials*
+
+# MCP Server security exclusions
+.devcontainer/mcp-config/**/*key*
+.devcontainer/mcp-config/**/*token*
+.devcontainer/mcp-config/**/*endpoint*
+.devcontainer/mcp-config/**/*.pem
+.devcontainer/mcp-config/**/*.p12
+.devcontainer/mcp-config/**/runtime-config.json
+.devcontainer/mcp-config/**/active-sessions.json
 
 # SSH keys and certificates
 *.pem
