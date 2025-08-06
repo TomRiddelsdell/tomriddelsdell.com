@@ -110,37 +110,13 @@ export async function googleSignIn(): Promise<AuthUser> {
 
 // Sign in with AWS
 export async function awsSignIn(): Promise<AuthUser> {
-  try {
-    const defaultEmail = "t.riddelsdell@gmail.com";
-    
-    const res = await fetch('/api/auth/aws-signin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        email: defaultEmail,
-        provider: 'aws', 
-        displayName: 'Tom Riddelsdell'
-      }),
-      credentials: 'include'
-    });
-    
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error('Error response:', errorText);
-      throw new Error('Failed to sign in with AWS');
-    }
-    
-    const data = await res.json();
-    
-    if (!data.user) {
-      throw new Error(data.message || 'Failed to sign in with AWS');
-    }
-    
-    return data.user;
-  } catch (error) {
-    console.error('AWS sign in error:', error);
-    throw error;
-  }
+  // Import the proper Cognito redirect function
+  const { redirectToCognito } = await import('./simple-auth');
+  
+  // Redirect to Cognito hosted UI for authentication
+  await redirectToCognito();
+  
+  // This function won't return normally since it redirects
+  // Return a promise that never resolves as we're redirecting
+  return new Promise(() => {});
 }

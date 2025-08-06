@@ -52,12 +52,8 @@ export class SimpleCognitoHandler {
     try {
       // Check if user is already authenticated to prevent duplicate processing
       if ((req.session as any)?.user) {
-        console.log('User already authenticated, skipping callback processing');
-        return res.status(200).json({ 
-          id: (req.session as any).user.cognitoId,
-          email: (req.session as any).user.email,
-          name: (req.session as any).user.displayName 
-        });
+        console.log('User already authenticated, redirecting to home');
+        return res.redirect(this.config.urls.baseUrl);
       }
 
       // Check if this code is already being processed
@@ -145,7 +141,8 @@ export class SimpleCognitoHandler {
       // Clean up the processing code
       this.processingCodes.delete(code);
       
-      res.json(user);
+      // Redirect to home page after successful authentication
+      res.redirect(this.config.urls.baseUrl);
     } catch (error) {
       // Clean up the processing code on error
       const { code } = req.body;
@@ -178,12 +175,8 @@ export class SimpleCognitoHandler {
         console.log('Token already used or expired - this can happen with multiple requests');
         // Check if user got authenticated in a parallel request
         if ((req.session as any)?.user) {
-          console.log('User was authenticated in parallel request, returning success');
-          return res.status(200).json({ 
-            id: (req.session as any).user.cognitoId,
-            email: (req.session as any).user.email,
-            name: (req.session as any).user.displayName 
-          });
+          console.log('User was authenticated in parallel request, redirecting to home');
+          return res.redirect(this.config.urls.baseUrl);
         }
         return res.status(400).json({ error: 'Authorization code expired or already used' });
       }
@@ -224,7 +217,7 @@ export class SimpleCognitoHandler {
       
       // Return the Cognito logout URL so frontend can redirect
       const logoutUri = encodeURIComponent(this.config.urls.logoutUrl);
-      const cognitoLogoutUrl = `${this.config.cognito.hostedUIDomain}/logout?client_id=${this.config.cognito.clientId}&logout_uri=${logoutUri}`;
+      const cognitoLogoutUrl = `https://${this.config.cognito.hostedUIDomain}/logout?client_id=${this.config.cognito.clientId}&logout_uri=${logoutUri}`;
       
       res.json({ 
         message: 'Signed out successfully',
@@ -254,7 +247,7 @@ export class SimpleCognitoHandler {
       };
     }
     
-    const response = await fetch(`${this.config.cognito.hostedUIDomain}/oauth2/token`, {
+    const response = await fetch(`https://${this.config.cognito.hostedUIDomain}/oauth2/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',

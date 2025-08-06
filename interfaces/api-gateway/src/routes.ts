@@ -67,6 +67,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('Successfully imported simple-cognito handler');
     
     console.log('Setting up auth routes...');
+    // GET route for Cognito OAuth callback (receives authorization code as query param)
+    app.get('/auth/callback', (req, res) => {
+      // Convert GET request with query params to expected POST format
+      const code = req.query.code as string;
+      if (!code) {
+        return res.status(400).json({ error: 'Authorization code required' });
+      }
+      
+      // Transform request to match the handler's expected format
+      req.body = { code };
+      req.method = 'POST';
+      
+      // Call the existing handler
+      simpleCognitoHandler.handleCallback(req, res);
+    });
     app.post('/api/auth/callback', simpleCognitoHandler.handleCallback.bind(simpleCognitoHandler));
     app.get('/api/auth/me', simpleCognitoHandler.getCurrentUser.bind(simpleCognitoHandler));
     app.post('/api/auth/signout', simpleCognitoHandler.signOut.bind(simpleCognitoHandler));
@@ -283,6 +298,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register analytics routes for monitoring dashboard
   app.use('/api/analytics', analyticsRouter);
+  
+  // Register config routes for frontend configuration
+  try {
+    const configRouter = await import('./routes/config');
+    app.use('/api/config', configRouter.default);
+    console.log('Config routes registered successfully');
+  } catch (error) {
+    console.error('Failed to register config routes:', error);
+  }
   
   // Register monitoring routes for Phase 1 enhanced dashboard
   try {
