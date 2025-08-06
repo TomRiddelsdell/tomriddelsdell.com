@@ -17,6 +17,7 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider";
 import { calculateSecretHash } from "./cognito-utils";
 import { AuthOptions, AuthProvider, AuthUser } from "./types";
+import { getConfig } from "../../../../infrastructure/configuration/node-config-service.js";
 
 export class AwsCognitoProvider implements AuthProvider {
   private client: CognitoIdentityProviderClient;
@@ -30,7 +31,6 @@ export class AwsCognitoProvider implements AuthProvider {
     }
 
     // Get AWS credentials from configuration
-    const { getConfig } = require('../../../../infrastructure/configuration/node-config-service');
     const config = getConfig();
 
     if (!config.aws.accessKeyId || !config.aws.secretAccessKey) {
