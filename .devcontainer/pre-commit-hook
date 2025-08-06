@@ -1,0 +1,18 @@
+#!/bin/bash
+# Pre-commit hook for DevContainer security validation
+# Install this as .git/hooks/pre-commit
+
+echo "🔒 Running DevContainer Security Validation..."
+
+# Run the security validation script
+if ! .devcontainer/validate-security.sh; then
+    echo ""
+    echo "❌ Pre-commit blocked: Security violations detected"
+    echo "Fix the issues above before committing"
+    echo ""
+    echo "To bypass this check (NOT RECOMMENDED):"
+    echo "git commit --no-verify"
+    exit 1
+fi
+
+echo "✅ Security validation passed - proceeding with commit"

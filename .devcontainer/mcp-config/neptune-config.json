@@ -1,0 +1,57 @@
+{
+  "name": "neptune-mcp-server",
+  "version": "1.0.0",
+  "description": "Neptune MCP Server for graph database operations",
+  "capabilities": {
+    "query": {
+      "languages": ["gremlin", "sparql"],
+      "operations": ["traverse", "filter", "aggregate", "path"]
+    },
+    "schema": {
+      "operations": ["introspect", "validate", "suggest"]
+    },
+    "management": {
+      "operations": ["cluster-status", "performance-metrics", "backup"]
+    }
+  },
+  "endpoints": {
+    "health": "/health",
+    "query": "/neptune/query",
+    "schema": "/neptune/schema"
+  },
+  "mock_data": {
+    "transaction_hierarchy": {
+      "vertices": [
+        {
+          "label": "Account",
+          "properties": ["id", "name", "type", "balance"]
+        },
+        {
+          "label": "Portfolio", 
+          "properties": ["id", "name", "strategy", "total_value"]
+        },
+        {
+          "label": "Transaction",
+          "properties": ["id", "amount", "timestamp", "type", "status"]
+        }
+      ],
+      "edges": [
+        {
+          "label": "contains",
+          "from": "Account",
+          "to": "Portfolio"
+        },
+        {
+          "label": "part_of",
+          "from": "Transaction", 
+          "to": "Portfolio"
+        },
+        {
+          "label": "transfers_to",
+          "from": "Transaction",
+          "to": "Account"
+        }
+      ]
+    }
+  }
+}

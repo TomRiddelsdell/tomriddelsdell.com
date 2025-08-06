@@ -1,0 +1,87 @@
+{
+	"name": "tomriddelsdell.com with AWS MCP",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"workspaceFolder": "/workspaces",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				// AWS Development
+				"amazonwebservices.aws-toolkit-vscode",
+				
+				// TypeScript/JavaScript
+				"ms-vscode.vscode-typescript-next",
+				"bradlc.vscode-tailwindcss",
+				"esbenp.prettier-vscode",
+				"dbaeumer.vscode-eslint",
+				
+				// React/Frontend
+				"ms-vscode.vscode-json",
+				"formulahendry.auto-rename-tag",
+				"christian-kohler.path-intellisense",
+				
+				// Testing
+				"ms-playwright.playwright",
+				"vitest.explorer",
+				
+				// Database/SQL
+				"ms-mssql.mssql",
+				"qwtel.sqlite-viewer",
+				
+				// Git/Version Control
+				"mhutchie.git-graph",
+				"github.vscode-pull-request-github",
+				
+				// Utilities
+				"figma.figma-vscode-extension",
+				"rogalmic.bash-debug",
+				"pzipper.amp-syntax",
+				"ms-vscode.vscode-json",
+				"yzhang.markdown-all-in-one",
+				"sourcegraph.amp",
+				"ms-azuretools.vscode-containers"
+			]
+		}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [3000,3001,5713,5000,8001,8002,5001],
+
+	// Environment variables from .env file - NEVER hardcode secrets!
+	"containerEnv": {
+		"DATABASE_URL": "${localEnv:DATABASE_URL}",
+		"VITE_AWS_COGNITO_CLIENT_ID": "${localEnv:VITE_AWS_COGNITO_CLIENT_ID}",
+		"VITE_AWS_COGNITO_REGION": "${localEnv:VITE_AWS_COGNITO_REGION}",
+		"VITE_AWS_COGNITO_USER_POOL_ID": "${localEnv:VITE_AWS_COGNITO_USER_POOL_ID}",
+		"AWS_COGNITO_HOSTED_UI_DOMAIN": "${localEnv:AWS_COGNITO_HOSTED_UI_DOMAIN}",
+		"VITE_AWS_COGNITO_HOSTED_UI_DOMAIN": "${localEnv:VITE_AWS_COGNITO_HOSTED_UI_DOMAIN}",
+		"AWS_COGNITO_CLIENT_SECRET": "${localEnv:AWS_COGNITO_CLIENT_SECRET}",
+		"AWS_ACCESS_KEY_ID": "${localEnv:AWS_ACCESS_KEY_ID}",
+		"AWS_SECRET_ACCESS_KEY": "${localEnv:AWS_SECRET_ACCESS_KEY}",
+		"SENDGRID_API_KEY": "${localEnv:SENDGRID_API_KEY}",
+		"SESSION_SECRET": "${localEnv:SESSION_SECRET}",
+		"GOOGLE_CLIENT_ID": "${localEnv:GOOGLE_CLIENT_ID}",
+		"GOOGLE_CLIENT_SECRET": "${localEnv:GOOGLE_CLIENT_SECRET}",
+		"PGDATABASE": "${localEnv:PGDATABASE}",
+		"PGHOST": "${localEnv:PGHOST}",
+		"PGUSER": "${localEnv:PGUSER}",
+		"PGPASSWORD": "${localEnv:PGPASSWORD}",
+		"GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
+		"GITHUB_OWNER": "${localEnv:GITHUB_OWNER}",
+		"GITHUB_REPO": "${localEnv:GITHUB_REPO}",
+		"AWS_ACCOUNT_ID": "${localEnv:AWS_ACCOUNT_ID}",
+		"STAGING_CERTIFICATE_ARN": "${localEnv:STAGING_CERTIFICATE_ARN}",
+		"PRODUCTION_CERTIFICATE_ARN": "${localEnv:PRODUCTION_CERTIFICATE_ARN}",
+		"COGNITO_USER_POOL_ID": "${localEnv:COGNITO_USER_POOL_ID}",
+		"NEON_API_KEY": "${localEnv:NEON_API_KEY}"
+	},
+
+	// Use 'postCreateCommand' to run setup after container creation
+	"postCreateCommand": "/workspaces/.devcontainer/post-create.sh",
+
+	"remoteEnv": {
+		"AWS_ACCESS_KEY_ID": "${localEnv:AWS_ACCESS_KEY_ID}",
+		"AWS_SECRET_ACCESS_KEY": "${localEnv:AWS_SECRET_ACCESS_KEY}",
+		"AWS_DEFAULT_REGION": "${localEnv:AWS_DEFAULT_REGION}"
+	}
+}

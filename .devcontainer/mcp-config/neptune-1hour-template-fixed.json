@@ -1,0 +1,146 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Auto-shutdown Neptune cluster for 1-hour testing sessions - tomriddelsdell.com",
+  "Parameters": {
+    "ClusterIdentifier": {
+      "Type": "String",
+      "Default": "tomriddelsdell-neptune-test-1h",
+      "Description": "Identifier for the temporary Neptune cluster"
+    },
+    "SessionDurationMinutes": {
+      "Type": "Number",
+      "Default": 60,
+      "Description": "Auto-shutdown after this many minutes"
+    }
+  },
+  "Resources": {
+    "AutoShutdownRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        ],
+        "Policies": [
+          {
+            "PolicyName": "NeptuneAutoShutdown",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "neptune:DeleteDBCluster",
+                    "neptune:DeleteDBInstance",
+                    "neptune:DescribeDBClusters",
+                    "neptune:DescribeDBInstances"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "AutoShutdownFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "FunctionName": "neptune-auto-shutdown",
+        "Runtime": "python3.9",
+        "Handler": "index.lambda_handler",
+        "Role": {"Fn::GetAtt": ["AutoShutdownRole", "Arn"]},
+        "Environment": {
+          "Variables": {
+            "CLUSTER_IDENTIFIER": {"Ref": "ClusterIdentifier"}
+          }
+        },
+        "Code": {
+          "ZipFile": "import boto3\nimport json\nimport os\n\ndef lambda_handler(event, context):\n    neptune = boto3.client('neptune')\n    cluster_id = os.environ['CLUSTER_IDENTIFIER']\n    \n    try:\n        print(f'Starting auto-shutdown for cluster: {cluster_id}')\n        \n        # Get cluster instances\n        response = neptune.describe_db_clusters(DBClusterIdentifier=cluster_id)\n        cluster = response['DBClusters'][0]\n        \n        # Delete instances first\n        for member in cluster['DBClusterMembers']:\n            instance_id = member['DBInstanceIdentifier']\n            print(f'Deleting instance: {instance_id}')\n            neptune.delete_db_instance(\n                DBInstanceIdentifier=instance_id,\n                SkipFinalSnapshot=True\n            )\n        \n        print('Auto-shutdown initiated successfully')\n        return {\n            'statusCode': 200,\n            'body': json.dumps('Auto-shutdown initiated')\n        }\n        \n    except Exception as e:\n        print(f'Error during auto-shutdown: {str(e)}')\n        raise e\n"
+        }
+      }
+    },
+    "ShutdownScheduleRule": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "Description": "Trigger Neptune auto-shutdown after specified duration",
+        "ScheduleExpression": {"Fn::Sub": "rate(${SessionDurationMinutes} minutes)"},
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {"Fn::GetAtt": ["AutoShutdownFunction", "Arn"]},
+            "Id": "NeptuneAutoShutdownTarget"
+          }
+        ]
+      }
+    },
+    "LambdaInvokePermission": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {"Ref": "AutoShutdownFunction"},
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {"Fn::GetAtt": ["ShutdownScheduleRule", "Arn"]}
+      }
+    },
+    "NeptuneCluster": {
+      "Type": "AWS::Neptune::DBCluster",
+      "Properties": {
+        "DBClusterIdentifier": {"Ref": "ClusterIdentifier"},
+        "Engine": "neptune",
+        "EngineVersion": "1.3.2.1",
+        "StorageEncrypted": false,
+        "BackupRetentionPeriod": 1,
+        "DeletionProtection": false,
+        "Tags": [
+          {
+            "Key": "Purpose",
+            "Value": "1-hour-testing"
+          },
+          {
+            "Key": "AutoShutdown",
+            "Value": "true"
+          },
+          {
+            "Key": "Project",
+            "Value": "tomriddelsdell.com"
+          }
+        ]
+      }
+    },
+    "NeptuneInstance": {
+      "Type": "AWS::Neptune::DBInstance",
+      "Properties": {
+        "DBInstanceIdentifier": {"Fn::Sub": "${ClusterIdentifier}-instance"},
+        "DBInstanceClass": "db.t3.medium",
+        "Engine": "neptune",
+        "DBClusterIdentifier": {"Ref": "NeptuneCluster"}
+      }
+    }
+  },
+  "Outputs": {
+    "NeptuneClusterEndpoint": {
+      "Description": "Neptune cluster endpoint (available for 1 hour)",
+      "Value": {"Fn::GetAtt": ["NeptuneCluster", "Endpoint"]}
+    },
+    "TestingDuration": {
+      "Description": "Testing session duration in minutes",
+      "Value": {"Ref": "SessionDurationMinutes"}
+    },
+    "EstimatedCost": {
+      "Description": "Estimated cost for this session (~$0.074/hour)",
+      "Value": "$0.074 for 1 hour session"
+    }
+  }
+}

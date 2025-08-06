@@ -1,0 +1,124 @@
+FROM python:3.10-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv for faster dependency management
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
+
+# Create working directory
+WORKDIR /app
+
+# Install Neptune MCP server using recommended method
+RUN uv pip install --system awslabs.amazon-neptune-mcp-server
+
+# Install additional dependencies for HTTP server
+RUN uv pip install --system fastapi uvicorn
+
+# Create a simple HTTP wrapper for the Neptune MCP server
+WORKDIR /app
+COPY <<EOF server.py
+import asyncio
+import subprocess
+import json
+import sys
+import os
+from datetime import datetime
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from typing import List, Optional, Dict, Any
+import uvicorn
+
+app = FastAPI()
+
+class QueryRequest(BaseModel):
+    query: str
+    language: str = "opencypher"  # or "gremlin"
+
+@app.get("/health")
+async def health_check():
+    neptune_endpoint = os.getenv('NEPTUNE_ENDPOINT', 'mock')
+    return {
+        "status": "healthy",
+        "service": "amazon-neptune-mcp-server",
+        "neptune_endpoint": neptune_endpoint,
+        "timestamp": datetime.now().isoformat()
+    }
+
+@app.post("/neptune/query")
+async def execute_neptune_query(request: QueryRequest):
+    try:
+        neptune_endpoint = os.getenv('NEPTUNE_ENDPOINT', 'mock')
+        
+        if neptune_endpoint == 'mock':
+            # Return mock data for development
+            return {
+                "success": True,
+                "data": {
+                    "mock": True,
+                    "query": request.query,
+                    "language": request.language,
+                    "message": "Mock Neptune response - no real endpoint configured"
+                }
+            }
+        
+        # In a real implementation, this would interface with the Neptune MCP server
+        # For now, return a placeholder
+        return {
+            "success": True,
+            "data": {
+                "endpoint": neptune_endpoint,
+                "query": request.query,
+                "language": request.language,
+                "message": "Neptune MCP server integration would go here"
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, 
+            detail={"success": False, "error": str(e)}
+        )
+
+@app.get("/neptune/schema")
+async def get_neptune_schema():
+    try:
+        neptune_endpoint = os.getenv('NEPTUNE_ENDPOINT', 'mock')
+        
+        if neptune_endpoint == 'mock':
+            return {
+                "success": True,
+                "data": {
+                    "mock": True,
+                    "schema": "Mock Neptune schema - no real endpoint configured"
+                }
+            }
+        
+        return {
+            "success": True,
+            "data": {
+                "endpoint": neptune_endpoint,
+                "schema": "Neptune schema would be retrieved here"
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, 
+            detail={"success": False, "error": str(e)}
+        )
+
+if __name__ == "__main__":
+    print("Amazon Neptune MCP Server starting on port 8002")
+    uvicorn.run(app, host="0.0.0.0", port=8002)
+EOF
+
+EXPOSE 8002
+
+CMD ["python", "server.py"]
