@@ -1,14 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { AuthUser, checkAuthStatus, emailSignIn, emailSignUp, googleSignIn, awsSignIn } from "../lib/auth";
+import { AuthUser, awsSignIn } from "../lib/auth";
 import { useToast } from "../hooks/use-toast";
 
 interface AuthContextType {
   user: AuthUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  signIn: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
   signInWithAWS: () => Promise<void>;
   signOut: () => Promise<void>;
   refetchUser: () => Promise<any>;
@@ -56,72 +53,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     checkAuth();
   }, []);
-
-  const signIn = async (email: string, password: string, rememberMe?: boolean) => {
-    setIsLoading(true);
-    try {
-      const user = await emailSignIn(email, password, rememberMe);
-      setUser(user);
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
-      });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to sign in";
-      toast({
-        title: "Sign in failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const signUp = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const user = await emailSignUp(email, password);
-      setUser(user);
-      toast({
-        title: "Account created",
-        description: "Your account has been successfully created.",
-      });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to sign up";
-      toast({
-        title: "Sign up failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const signInWithGoogle = async () => {
-    setIsLoading(true);
-    try {
-      const user = await googleSignIn();
-      setUser(user);
-      toast({
-        title: "Welcome back!",
-        description: `You have successfully signed in as ${user.displayName || user.email}.`,
-      });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to sign in with Google";
-      toast({
-        title: "Google sign in failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const signOut = async () => {
     setIsLoading(true);
@@ -187,9 +118,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     isLoading,
     isAuthenticated: !!user,
-    signIn,
-    signUp,
-    signInWithGoogle,
     signInWithAWS,
     signOut,
     refetchUser,
