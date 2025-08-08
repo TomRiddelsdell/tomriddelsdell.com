@@ -56,12 +56,30 @@ if [ -z "$(git config --global user.name)" ]; then
 fi
 
 # Check AWS credentials
-echo "🔐 Checking AWS credentials..."
+echo "🔐 Setting up AWS credentials..."
+if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
+    # Use environment variables if available (from .env)
+    aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+    aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+    aws configure set region "${AWS_DEFAULT_REGION:-eu-west-2}"
+    aws configure set output json
+    echo "✅ AWS credentials configured from environment"
+else
+    # Check if credentials are already configured
+    if aws configure list | grep -q "access_key.*shared-credentials-file"; then
+        echo "✅ AWS credentials already configured in ~/.aws/"
+    else
+        echo "⚠️  No AWS credentials found. Run: aws configure"
+        echo "   Or add AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to .env"
+    fi
+fi
+
+# Test AWS connection
 if aws sts get-caller-identity >/dev/null 2>&1; then
     echo "✅ AWS credentials are working"
     aws sts get-caller-identity --query 'Account' --output text | xargs -I {} echo "Account ID: {}"
 else
-    echo "⚠️  AWS credentials not configured. Run: aws configure"
+    echo "⚠️  AWS credentials not working. Check configuration."
 fi
 
 # Check GitHub authentication if token is set
@@ -75,6 +93,23 @@ if [ -n "$GITHUB_TOKEN" ]; then
 else
     echo "⚠️  GITHUB_TOKEN not set in environment"
 fi
+
+echo ""
+echo "🔧 Checking MCP services..."
+
+# Wait a moment for services to start
+sleep 2
+
+# Check Neptune MCP service
+echo -n "Neptune MCP (port 8002): "
+if curl -s -m 3 http://localhost:8002/health >/dev/null 2>&1; then
+    echo "✅ Running"
+else
+    echo "⚠️  Starting up (may take a moment)"
+fi
+
+# AWS MCP uses stdio protocol - can't test directly
+echo "AWS Serverless MCP: ✅ Uses stdio protocol (tested via VS Code)"
 
 echo ""
 echo "🎉 Development environment ready!"

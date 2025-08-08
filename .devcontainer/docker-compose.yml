@@ -8,6 +8,7 @@ services:
     volumes:
       - ..:/workspaces:cached
       - ~/.ssh:/home/vscode/.ssh:ro
+      - ~/.aws:/home/vscode/.aws
     environment:
       # All environment variables from .env file - NEVER hardcode secrets!
       - DATABASE_URL=${DATABASE_URL}
@@ -17,8 +18,7 @@ services:
       - AWS_COGNITO_HOSTED_UI_DOMAIN=${AWS_COGNITO_HOSTED_UI_DOMAIN}
       - VITE_AWS_COGNITO_HOSTED_UI_DOMAIN=${VITE_AWS_COGNITO_HOSTED_UI_DOMAIN}
       - AWS_COGNITO_CLIENT_SECRET=${AWS_COGNITO_CLIENT_SECRET}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      # AWS credentials removed - use aws configure instead
       - SENDGRID_API_KEY=${SENDGRID_API_KEY}
       - SESSION_SECRET=${SESSION_SECRET}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
@@ -29,11 +29,11 @@ services:
       - PGPASSWORD=${PGPASSWORD}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
       - GITHUB_TOKEN=${GITHUB_TOKEN}
-      # MCP Server endpoints
-      - AWS_MCP_ENDPOINT=http://aws-mcp:8001
+      # MCP Server endpoints (Neptune only, AWS now uses stdio)
       - NEPTUNE_MCP_ENDPOINT=http://neptune-mcp:8002
       # Neon MCP uses official remote server: https://mcp.neon.tech/mcp
       # GitHub MCP uses official remote server: https://api.githubcopilot.com/mcp/
+      # AWS MCP now uses stdio protocol via VS Code MCP integration
     ports:
       - "3000:3000"
       - "3001:3001"
@@ -49,28 +49,32 @@ services:
       context: .
       dockerfile: Dockerfile.aws-mcp
     environment:
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      # AWS credentials removed - use aws configure instead
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
       - AWS_REGION=${AWS_DEFAULT_REGION}
-    ports:
-      - "8001:8001"
     volumes:
       - ./mcp-config:/config:ro
     restart: unless-stopped
+    stdin_open: true
+    tty: true
 
   neptune-mcp:
     build:
       context: .
       dockerfile: Dockerfile.neptune-mcp
     environment:
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      # AWS credentials removed - use aws configure instead
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
       - AWS_REGION=${AWS_DEFAULT_REGION}
-            - NEPTUNE_ENDPOINT=${NEPTUNE_ENDPOINT:-mock}
+      - NEPTUNE_ENDPOINT=${NEPTUNE_ENDPOINT:-mock}
     ports:
       - "8002:8002"
     volumes:
       - ./mcp-config:/config:ro
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

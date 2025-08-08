@@ -27,10 +27,56 @@
 - **CI/CD**: GitHub Actions with automated deployments
 
 ### **Development Environment**
+- **Dev Container**: VS Code devcontainer with all tools pre-configured
 - **MCP Servers**: AWS, Neptune, GitHub automation
 - **CLI Tools**: GitHub CLI, AWS CLI, TypeScript, jq
 - **Testing**: Vitest, Playwright, comprehensive test coverage
 - **Security**: Environment variables, no hardcoded secrets
+
+### **AWS Authentication in Dev Container**
+This project uses AWS services and includes AWS MCP server integration. **AWS credentials are optional for most development**, but if you need to test AWS features:
+
+**🔧 Setup Process:**
+1. **AWS Account**: You'll need valid AWS credentials (Access Key ID + Secret Access Key)
+2. **Host Configuration**: Run `aws configure` on your **host machine** (not in container)
+3. **Volume Mount**: The dev container automatically mounts your `~/.aws/` directory
+4. **Persistence**: AWS credentials persist across container rebuilds
+5. **MCP Integration**: AWS MCP server uses your configured credentials automatically
+
+**📋 Step-by-Step AWS Setup:**
+```bash
+# On your HOST machine (outside dev container):
+aws configure
+# Enter your AWS Access Key ID
+# Enter your AWS Secret Access Key  
+# Enter default region: eu-west-2
+# Enter default output format: json
+
+# Then open/rebuild your dev container
+# Your AWS credentials will be available automatically
+```
+
+**✅ What Works Automatically:**
+- AWS CLI commands (`aws s3 ls`, `aws lambda list-functions`)
+- AWS MCP server integration (AI-powered AWS management)
+- Neptune MCP server (if you have Neptune resources)
+- All AWS SDK operations in the codebase
+
+**🔍 Testing Your Setup:**
+```bash
+# Inside the dev container, these should work:
+aws sts get-caller-identity  # Shows your AWS account info
+aws s3 ls                    # Lists your S3 buckets
+aws lambda list-functions    # Lists your Lambda functions
+```
+
+**💡 Pro Tips:**
+- **No container config needed**: Just configure on host, rebuild container
+- **Shared with host**: Same AWS config available on host and container  
+- **Secure**: No AWS credentials stored in repository or container images
+- **Optional**: Leave AWS fields empty in `.env` if not testing AWS features
+
+**🚨 Security Note**: Never commit AWS credentials! They're stored in `~/.aws/` which is in `.gitignore`.
 
 ## 🚀 Quick Start
 
@@ -38,7 +84,8 @@
 1. Fork → Clone → `npm install`
 2. `cp .env.template .env` → edit with development values
 3. Set up a database (local PostgreSQL or free cloud DB)
-4. `npm run dev` → start coding!
+4. **Optional**: Configure AWS on host (`aws configure`) for AWS features
+5. `npm run dev` → start coding!
 
 **🔒 Security Note**: This project uses centralized configuration management. You only need basic development credentials - no production secrets required!
 
@@ -248,10 +295,27 @@ GITHUB_TOKEN=
 
 **❌ "AWS credential errors"**
 ```bash
-# Solution: AWS features are optional for frontend development
-# Leave AWS fields empty unless testing AWS integrations
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
+# Problem: "The security token included in the request is invalid"
+# Solution 1: Configure AWS credentials on your HOST machine (not in container)
+aws configure  # Run this on your host machine
+
+# Solution 2: Check if credentials are properly mounted
+ls -la ~/.aws/  # Should show config and credentials files
+
+# Solution 3: Verify credentials are working
+aws sts get-caller-identity  # Should show your AWS account info
+
+# Solution 4: If credentials keep reverting after rebuild
+# Make sure you configured AWS on HOST machine, not in container
+# The dev container mounts ~/.aws/ from your host
+```
+
+**❌ "AWS MCP server not working"**
+```bash
+# Solution: AWS MCP requires valid AWS credentials
+# 1. Configure AWS on host: aws configure  
+# 2. Rebuild dev container
+# 3. Test: ./scripts/check-mcp-status.sh
 ```
 
 **❌ "Tests failing"**
