@@ -11,6 +11,7 @@ module.exports = {
   // Production security hardening
   security: {
     session: {
+      maxAge: 604800000, // 7 days for production sessions
       secure: true, // HTTPS only in production
       sameSite: 'strict' // Stricter CSRF protection
     },

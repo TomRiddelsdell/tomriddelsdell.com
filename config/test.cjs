@@ -83,10 +83,10 @@ module.exports = {
     provider: 'none'
   },
 
-  // Test service endpoints
+  // Test service endpoints  
   services: {
     apiGateway: {
-      port: 5001, // Different port to avoid conflicts
+      port: parseInt(process.env.API_GATEWAY_PORT || '5001', 10), // Different port to avoid conflicts
       host: '127.0.0.1',
       timeout: 5000
     },
