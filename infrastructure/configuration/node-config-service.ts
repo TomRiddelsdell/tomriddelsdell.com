@@ -322,7 +322,7 @@ class ConfigurationService {
       security: {
         session: {
           secret: process.env.SESSION_SECRET || 'test-session-secret-32-characters-long!!',
-          maxAge: parseInt(process.env.SESSION_MAX_AGE || '3600000'),
+          maxAge: parseInt(process.env.SESSION_MAX_AGE || '604800000'), // Match Node Config default (7 days)
           secure: env === 'production' || process.env.SESSION_SECURE === 'true',
           httpOnly: process.env.SESSION_HTTP_ONLY !== 'false',
           sameSite: process.env.SESSION_SAME_SITE || (env === 'production' ? 'strict' : 'lax')
@@ -382,7 +382,7 @@ class ConfigurationService {
       
       services: {
         apiGateway: {
-          port: parseInt(process.env.API_GATEWAY_PORT || '5000'),
+          port: parseInt(process.env.API_GATEWAY_PORT || (env === 'test' ? '5001' : '5000')),
           host: process.env.API_GATEWAY_HOST || '0.0.0.0',
           timeout: parseInt(process.env.API_GATEWAY_TIMEOUT || '30000')
         },
