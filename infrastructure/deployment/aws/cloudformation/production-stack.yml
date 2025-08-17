@@ -30,17 +30,6 @@ Parameters:
     Description: Database connection URL
     NoEcho: true
 
-Globals:
-  Function:
-    Timeout: 30
-    Runtime: nodejs18.x
-    Environment:
-      Variables:
-        NODE_ENV: production
-        DATABASE_URL: !Ref DatabaseUrl
-        COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
-        CORS_ORIGINS: !Sub 'https://${DomainName},https://www.${DomainName}'
-
 Resources:
   # S3 Bucket for static assets
   StaticAssetsBucket:
@@ -142,6 +131,7 @@ Resources:
       FunctionName: !Sub '${ProjectName}-${Environment}-api-gateway'
       Runtime: nodejs18.x
       Handler: aws-lambda-adapter.handler
+      Timeout: 30
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
         ZipFile: |
@@ -157,6 +147,7 @@ Resources:
           DATABASE_URL: !Ref DatabaseUrl
           COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
           STATIC_ASSETS_BUCKET: !Ref StaticAssetsBucket
+          CORS_ORIGINS: !Sub 'https://${DomainName},https://www.${DomainName}'
       ReservedConcurrencyLimit: 100
       TracingConfig:
         Mode: Active
