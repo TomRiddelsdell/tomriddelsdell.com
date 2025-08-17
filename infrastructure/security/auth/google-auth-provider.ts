@@ -69,7 +69,7 @@ export class GoogleAuthProvider implements AuthProvider {
     app.get('/api/auth/google', passport.authenticate('google'));
     
     app.get('/api/auth/google/callback', (req: Request, res: Response, next: NextFunction) => {
-      passport.authenticate('google', (err, user) => {
+      passport.authenticate('google', (err: any, user: any) => {
         if (err) {
           console.error("Google authentication error:", err);
           return res.redirect('/auth-error?error=google_auth_failed');

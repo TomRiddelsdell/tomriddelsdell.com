@@ -1,4 +1,4 @@
-import { db } from '../db';
+import { db } from '../../interfaces/api-gateway/src/db';
 import { users, activityLogs, InsertActivityLog, InsertUser } from '@shared/schema';
 import { eq, and, desc, sql, gt, count } from 'drizzle-orm';
 
