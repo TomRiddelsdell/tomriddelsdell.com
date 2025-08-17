@@ -130,6 +130,8 @@ Resources:
       ReservedConcurrentExecutions: 100
       TracingConfig:
         Mode: Active
+      DeadLetterConfig:
+        TargetArn: !GetAtt DeadLetterQueue.Arn
       Tags:
         - Key: Project
           Value: !Ref ProjectName
@@ -214,12 +216,30 @@ Resources:
         Project: !Ref ProjectName
         Environment: !Ref Environment
 
+  # Dead Letter Queue for Lambda function
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub '${ProjectName}-${Environment}-dlq'
+      MessageRetentionPeriod: 1209600  # 14 days
+      VisibilityTimeout: 60
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
   # CloudWatch Log Group for API Gateway
   ApiGatewayLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub '/aws/apigateway/${ProjectName}-${Environment}'
       RetentionInDays: 90
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
 
   # CloudFront Distribution with enhanced caching for production
   CloudFrontDistribution:
