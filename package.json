@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development FORCE_ENV_CONFIG=true tsx interfaces/api-gateway/src/index.ts",
-    "build": "vite build && esbuild interfaces/api-gateway/src/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build": "vite build && esbuild interfaces/api-gateway/src/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && cp -r interfaces/web-frontend/dist/* dist/",
     "build:lambda": "esbuild interfaces/api-gateway/src/aws-lambda-adapter.ts --platform=node --target=node18 --bundle --format=esm --external:aws-sdk --external:@aws-sdk/* --outfile=dist/lambda/index.mjs --sourcemap",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
