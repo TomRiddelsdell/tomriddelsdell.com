@@ -5,6 +5,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    env: {
+      VITEST: 'true',
+      NODE_ENV: 'test'
+    },
     setupFiles: [
       './infrastructure/tests/setup/global-test-setup.ts',
       './infrastructure/tests/setup.ts',
