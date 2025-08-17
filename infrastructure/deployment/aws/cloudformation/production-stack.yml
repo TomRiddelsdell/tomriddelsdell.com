@@ -409,12 +409,6 @@ Outputs:
     Export:
       Name: !Sub '${ProjectName}-${Environment}-static-bucket'
 
-  DeploymentBucket:
-    Description: 'S3 Bucket for deployment artifacts'
-    Value: !Ref DeploymentBucket
-    Export:
-      Name: !Sub '${ProjectName}-${Environment}-deployment-bucket'
-
   LambdaFunctionArn:
     Description: 'API Gateway Lambda Function ARN'
     Value: !GetAtt ApiGatewayFunction.Arn
