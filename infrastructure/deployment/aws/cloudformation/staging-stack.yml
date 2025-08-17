@@ -231,26 +231,6 @@ Resources:
         - Key: Environment
           Value: !Ref Environment
 
-  # CloudFront Origin Access Identity
-  CloudFrontOriginAccessIdentity:
-    Type: AWS::CloudFront::OriginAccessIdentity
-    Properties:
-      OriginAccessIdentityConfig:
-        Comment: !Sub 'OAI for ${ProjectName} ${Environment}'
-
-  # S3 Bucket Policy for CloudFront
-  StaticAssetsBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref StaticAssetsBucket
-      PolicyDocument:
-        Statement:
-          - Effect: Allow
-            Principal:
-              AWS: !Sub '${CloudFrontOriginAccessIdentity.S3CanonicalUserId}'
-            Action: s3:GetObject
-            Resource: !Sub '${StaticAssetsBucket}/*'
-
   # CloudFront Distribution
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
@@ -282,23 +262,6 @@ Resources:
               - Content-Type
               - Origin
               - Referer
-        CacheBehaviors:
-          - PathPattern: '/static/*'
-            TargetOriginId: s3-static
-            ViewerProtocolPolicy: redirect-to-https
-            AllowedMethods:
-              - GET
-              - HEAD
-              - OPTIONS
-            CachedMethods:
-              - GET
-              - HEAD
-              - OPTIONS
-            Compress: true
-            DefaultTTL: 86400
-            MaxTTL: 31536000
-            ForwardedValues:
-              QueryString: false
         Origins:
           - Id: api-gateway
             DomainName: !Sub '${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com'
@@ -308,10 +271,6 @@ Resources:
               OriginProtocolPolicy: https-only
               OriginSSLProtocols:
                 - TLSv1.2
-          - Id: s3-static
-            DomainName: !GetAtt StaticAssetsBucket.DomainName
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
         Enabled: true
         DefaultRootObject: index.html
         CustomErrorResponses:
