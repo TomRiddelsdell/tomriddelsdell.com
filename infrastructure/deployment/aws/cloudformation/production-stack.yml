@@ -165,7 +165,7 @@ Resources:
     Properties:
       QueueName: !Sub '${ProjectName}-${Environment}-dlq'
       MessageRetentionPeriod: 1209600  # 14 days
-      VisibilityTimeoutSeconds: 60
+      VisibilityTimeout: 60
       Tags:
         - Key: Project
           Value: !Ref ProjectName
@@ -345,7 +345,6 @@ Resources:
           Bucket: !GetAtt CloudFrontLogsBucket.DomainName
           IncludeCookies: false
           Prefix: !Sub '${Environment}/'
-        WebACLId: !GetAtt WebACL.Arn
       Tags:
         - Key: Project
           Value: !Ref ProjectName
@@ -362,49 +361,6 @@ Resources:
           - Id: DeleteOldLogs
             Status: Enabled
             ExpirationInDays: 30
-      Tags:
-        - Key: Project
-          Value: !Ref ProjectName
-        - Key: Environment
-          Value: !Ref Environment
-
-  # WAF Web ACL for enhanced security
-  WebACL:
-    Type: AWS::WAFv2::WebACL
-    Properties:
-      Name: !Sub '${ProjectName}-${Environment}-web-acl'
-      Scope: CLOUDFRONT
-      DefaultAction:
-        Allow: {}
-      Rules:
-        - Name: AWS-AWSManagedRulesCommonRuleSet
-          Priority: 1
-          OverrideAction:
-            None: {}
-          Statement:
-            ManagedRuleGroupStatement:
-              VendorName: AWS
-              Name: AWSManagedRulesCommonRuleSet
-          VisibilityConfig:
-            SampledRequestsEnabled: true
-            CloudWatchMetricsEnabled: true
-            MetricName: CommonRuleSetMetric
-        - Name: AWS-AWSManagedRulesKnownBadInputsRuleSet
-          Priority: 2
-          OverrideAction:
-            None: {}
-          Statement:
-            ManagedRuleGroupStatement:
-              VendorName: AWS
-              Name: AWSManagedRulesKnownBadInputsRuleSet
-          VisibilityConfig:
-            SampledRequestsEnabled: true
-            CloudWatchMetricsEnabled: true
-            MetricName: KnownBadInputsRuleSetMetric
-      VisibilityConfig:
-        SampledRequestsEnabled: true
-        CloudWatchMetricsEnabled: true
-        MetricName: !Sub '${ProjectName}${Environment}WebACL'
       Tags:
         - Key: Project
           Value: !Ref ProjectName
@@ -507,8 +463,4 @@ Outputs:
     Export:
       Name: !Sub '${ProjectName}-${Environment}-cloudfront-id'
 
-  WebACLArn:
-    Description: 'WAF Web ACL ARN'
-    Value: !GetAtt WebACL.Arn
-    Export:
-      Name: !Sub '${ProjectName}-${Environment}-web-acl-arn'
+
