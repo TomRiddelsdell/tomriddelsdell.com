@@ -220,11 +220,6 @@ Resources:
     Properties:
       LogGroupName: !Sub '/aws/apigateway/${ProjectName}-${Environment}'
       RetentionInDays: 90
-      Tags:
-        - Key: Project
-          Value: !Ref ProjectName
-        - Key: Environment
-          Value: !Ref Environment
 
   # CloudFront Distribution with enhanced caching for production
   CloudFrontDistribution:
