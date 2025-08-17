@@ -228,7 +228,11 @@ jobs:
           
           # Deploy using our deployment script
           chmod +x infrastructure/deployment/aws/scripts/deploy.sh
-          ./infrastructure/deployment/aws/scripts/deploy.sh staging
+          ./infrastructure/deployment/aws/scripts/deploy.sh --environment staging \
+            --domain "${{ secrets.STAGING_DOMAIN_NAME }}" \
+            --certificate "${{ secrets.STAGING_CERTIFICATE_ARN }}" \
+            --user-pool-id "${{ secrets.STAGING_COGNITO_USER_POOL_ID }}" \
+            --database-url "${{ secrets.STAGING_DATABASE_URL }}"
           
           echo "✅ Staging deployment completed"
 
@@ -315,7 +319,11 @@ jobs:
           
           # Deploy using our deployment script
           chmod +x infrastructure/deployment/aws/scripts/deploy.sh
-          ./infrastructure/deployment/aws/scripts/deploy.sh production
+          ./infrastructure/deployment/aws/scripts/deploy.sh --environment production \
+            --domain "${{ secrets.PRODUCTION_DOMAIN_NAME }}" \
+            --certificate "${{ secrets.PRODUCTION_CERTIFICATE_ARN }}" \
+            --user-pool-id "${{ secrets.PRODUCTION_COGNITO_USER_POOL_ID }}" \
+            --database-url "${{ secrets.PRODUCTION_DATABASE_URL }}"
           
           echo "✅ Production deployment completed"
 
