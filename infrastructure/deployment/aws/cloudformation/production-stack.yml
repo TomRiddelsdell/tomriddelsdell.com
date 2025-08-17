@@ -148,7 +148,7 @@ Resources:
           COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
           STATIC_ASSETS_BUCKET: !Ref StaticAssetsBucket
           CORS_ORIGINS: !Sub 'https://${DomainName},https://www.${DomainName}'
-      ReservedConcurrencyLimit: 100
+      ReservedConcurrentExecutions: 100
       TracingConfig:
         Mode: Active
       DeadLetterConfig:
