@@ -1,7 +1,7 @@
 import { Strategy as OAuthStrategy } from 'passport-oauth2';
 import { Request } from 'express';
 import passport from 'passport';
-import { storage } from './storage';
+import { storage } from '../../../interfaces/api-gateway/src/storage';
 
 // AWS Cognito OAuth2 strategy
 export function setupAwsAuth() {

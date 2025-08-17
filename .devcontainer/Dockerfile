@@ -29,6 +29,8 @@ RUN yum update -y && \
         patch \
         rsync \
         openssh-clients \
+        dig \
+        nslookup \
     && yum clean all
 
 # Create a non-root user

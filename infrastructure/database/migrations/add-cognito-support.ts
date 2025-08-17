@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { db } from '../db';
+import { db } from '../../../interfaces/api-gateway/src/db';
 
 /**
  * Migration script to update database schema for Cognito integration
