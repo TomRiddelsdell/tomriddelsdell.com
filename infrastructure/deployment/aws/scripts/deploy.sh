@@ -26,6 +26,7 @@ COGNITO_USER_POOL_ID=""
 DATABASE_URL=""
 DRY_RUN=false
 SKIP_BUILD=false
+AUTO_APPROVE=false
 
 # Usage function
 usage() {
@@ -41,6 +42,7 @@ usage() {
     echo "  -b, --database-url URL      Database connection URL"
     echo "  --dry-run                   Show what would be deployed without executing"
     echo "  --skip-build                Skip building the application"
+    echo "  --yes                       Skip confirmation prompt (for CI/CD)"
     echo "  -h, --help                  Show this help message"
     echo ""
     echo "Examples:"
@@ -85,6 +87,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-build)
             SKIP_BUILD=true
+            shift
+            ;;
+        --yes)
+            AUTO_APPROVE=true
             shift
             ;;
         -h|--help)
@@ -183,7 +189,7 @@ echo "$(yellow 'Skip Build:')     $SKIP_BUILD"
 echo ""
 
 # Confirm deployment
-if [ "$DRY_RUN" = false ]; then
+if [ "$DRY_RUN" = false ] && [ "$AUTO_APPROVE" = false ]; then
     read -p "$(yellow 'Proceed with deployment? (y/N): ')" -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
