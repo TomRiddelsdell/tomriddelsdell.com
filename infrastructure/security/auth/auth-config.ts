@@ -7,11 +7,13 @@ import { getConfig } from '../../configuration/node-config-service';
 
 export interface AuthConfig {
   cognito: {
-    clientId: string;
+    clientId?: string;
     clientSecret?: string;
-    userPoolId: string;
-    region: string;
-    hostedUIDomain: string;
+    userPoolId?: string;
+    region?: string;
+    hostedUIDomain?: string;
+    accessKeyId?: string;
+    secretAccessKey?: string;
   };
   urls: {
     baseUrl: string;

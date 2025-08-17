@@ -1,4 +1,4 @@
-import { db } from '../db';
+import { db } from '../../../interfaces/api-gateway/src/db';
 import { users, type User } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { AuthUser } from './types';
