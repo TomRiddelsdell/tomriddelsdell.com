@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getAuthConfig } from '../auth-config';
+import { getAuthConfig } from './auth-config';
 
 interface TokenResponse {
   access_token: string;
@@ -56,7 +56,7 @@ export class SimpleCognitoHandler {
       
       // Create or find user in database
       console.log('Creating or finding user in database...');
-      const { storage } = await import('../storage');
+      const { storage } = await import('../../../interfaces/api-gateway/src/storage');
       
       let dbUser = await storage.getUserByCognitoId(user.id);
       if (!dbUser) {

@@ -3,7 +3,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Express, Request, Response, NextFunction } from "express";
 
-export class GoogleAuthProvider implements AuthProvider {
+export class GoogleAuthProvider {
   private clientId: string;
   private clientSecret: string;
   private callbackURL: string;

@@ -76,7 +76,7 @@ export class NeptuneMCPClient {
   /**
    * Common Gremlin query patterns for hierarchical transactions
    */
-  async transactions = {
+  transactions = {
     /**
      * Find all transactions for an account
      */
@@ -111,7 +111,7 @@ export class NeptuneMCPClient {
   /**
    * Schema inspection helpers
    */
-  async schema = {
+  schema = {
     /**
      * Get all vertex labels
      */
@@ -142,7 +142,7 @@ export class NeptuneMCPClient {
   /**
    * Performance and analysis queries
    */
-  async analysis = {
+  analysis = {
     /**
      * Get graph statistics
      */
