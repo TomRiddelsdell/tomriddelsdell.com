@@ -54,27 +54,6 @@ Resources:
         - Key: Environment
           Value: !Ref Environment
 
-  # S3 Bucket for deployment artifacts
-  DeploymentBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub '${ProjectName}-${Environment}-deployment'
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      LifecycleConfiguration:
-        Rules:
-          - Id: DeleteOldArtifacts
-            Status: Enabled
-            ExpirationInDays: 180
-      Tags:
-        - Key: Project
-          Value: !Ref ProjectName
-        - Key: Environment
-          Value: !Ref Environment
-
   # Lambda Execution Role with enhanced permissions for production
   LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -151,21 +130,6 @@ Resources:
       ReservedConcurrentExecutions: 100
       TracingConfig:
         Mode: Active
-      DeadLetterConfig:
-        TargetArn: !GetAtt DeadLetterQueue.Arn
-      Tags:
-        - Key: Project
-          Value: !Ref ProjectName
-        - Key: Environment
-          Value: !Ref Environment
-
-  # Dead Letter Queue for failed Lambda invocations
-  DeadLetterQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      QueueName: !Sub '${ProjectName}-${Environment}-dlq'
-      MessageRetentionPeriod: 1209600  # 14 days
-      VisibilityTimeout: 60
       Tags:
         - Key: Project
           Value: !Ref ProjectName
