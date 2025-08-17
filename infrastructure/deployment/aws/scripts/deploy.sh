@@ -268,25 +268,54 @@ echo "$(yellow 'Packaging Lambda function...')"
 LAMBDA_PACKAGE="$ROOT_DIR/dist/lambda-package.zip"
 
 if [ "$DRY_RUN" = false ]; then
+    # Build Lambda-specific bundle first
+    echo "$(blue 'Building Lambda function...')"
+    cd "$ROOT_DIR"
+    npm run build:lambda
+    
     # Create temporary directory for Lambda package
     TEMP_DIR=$(mktemp -d)
     trap "rm -rf $TEMP_DIR" EXIT
     
-    # Copy built application
-    cp -r "$ROOT_DIR/dist/"* "$TEMP_DIR/"
+    # Copy Lambda build
+    if [ -f "$ROOT_DIR/dist/lambda/index.mjs" ]; then
+        cp "$ROOT_DIR/dist/lambda/index.mjs" "$TEMP_DIR/"
+        echo "$(green '✅ Lambda function code copied')"
+    else
+        echo "$(red '❌ No Lambda build found at dist/lambda/index.mjs')"
+        echo "Available files in dist/:"
+        ls -la "$ROOT_DIR/dist/" || echo "dist/ directory not found"
+        exit 1
+    fi
     
-    # Copy Lambda adapter
-    cp "$ROOT_DIR/interfaces/api-gateway/src/aws-lambda-adapter.ts" "$TEMP_DIR/"
+    # Copy source map if available
+    if [ -f "$ROOT_DIR/dist/lambda/index.mjs.map" ]; then
+        cp "$ROOT_DIR/dist/lambda/index.mjs.map" "$TEMP_DIR/"
+    fi
     
-    # Install production dependencies in temp directory
+    # Create package.json for Lambda runtime dependencies
+    cat > "$TEMP_DIR/package.json" << 'EOF'
+{
+  "name": "api-gateway-lambda", 
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.mjs",
+  "dependencies": {
+    "@vendia/serverless-express": "^4.12.6"
+  }
+}
+EOF
+    
+    # Install production dependencies
     cd "$TEMP_DIR"
-    npm init -y >/dev/null
-    npm install express aws-lambda-express-adapter >/dev/null
+    echo "$(blue 'Installing Lambda runtime dependencies...')"
+    npm install --omit=dev --omit=optional >/dev/null
     
     # Create Lambda package
     zip -r "$LAMBDA_PACKAGE" . >/dev/null
     
-    echo "$(green '✅ Lambda package created:') $LAMBDA_PACKAGE"
+    LAMBDA_SIZE=$(du -h "$LAMBDA_PACKAGE" | cut -f1)
+    echo "$(green '✅ Lambda package created:') $LAMBDA_PACKAGE (${LAMBDA_SIZE})"
 else
     echo "$(yellow '📋 Would create Lambda package at:') $LAMBDA_PACKAGE"
 fi

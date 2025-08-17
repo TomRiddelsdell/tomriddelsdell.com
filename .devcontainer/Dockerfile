@@ -31,6 +31,9 @@ RUN yum update -y && \
         openssh-clients \
         dig \
         nslookup \
+        zip \
+        unzip \
+        tar \
     && yum clean all
 
 # Create a non-root user
