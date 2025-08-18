@@ -206,9 +206,6 @@ Resources:
       ApiId: !Ref ApiGateway
       StageName: !Ref Environment
       AutoDeploy: true
-      ThrottleSettings:
-        BurstLimit: 2000
-        RateLimit: 1000
       AccessLogSettings:
         DestinationArn: !GetAtt ApiGatewayLogGroup.Arn
         Format: '$requestId $requestTime $httpMethod $routeKey $status $responseLength $requestTime $errorMessage $errorResponseType'
