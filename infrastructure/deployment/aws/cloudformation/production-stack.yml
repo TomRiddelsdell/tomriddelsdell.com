@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Production environment for tomriddelsdell.com - DDD architecture with AWS serverless (IAM permissions updated)'
+Description: 'Production environment for tomriddelsdell.com - DDD architecture with AWS serverless (S3 permissions updated)'
 
 Parameters:
   ProjectName:
