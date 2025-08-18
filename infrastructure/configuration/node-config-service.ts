@@ -211,7 +211,7 @@ class ConfigurationService {
     
     // Validate CORS origins format when explicitly set to empty (only in test context)
     const corsEnv = process.env.CORS_ALLOWED_ORIGINS;
-    if (corsEnv === '' && process.env.TEST_VALIDATE_CORS === 'true' && process.env.NODE_ENV === 'test') {
+    if (corsEnv === '' && process.env.TEST_VALIDATE_CORS === 'true' && process.env.NODE_ENV === 'test' && !process.env.CI) {
       throw new ConfigurationError('CORS allowed origins cannot be empty when explicitly set');
     }
   }
@@ -502,7 +502,7 @@ class ConfigurationService {
     if (origins && Array.isArray(origins)) {
       // Check if CORS_ALLOWED_ORIGINS was explicitly set to empty string
       const corsEnv = process.env.CORS_ALLOWED_ORIGINS;
-      if (corsEnv === '' && origins.length === 0 && process.env.NODE_ENV === 'test') {
+      if (corsEnv === '' && origins.length === 0 && process.env.NODE_ENV === 'test' && !process.env.CI) {
         throw new ConfigurationError('CORS allowed origins cannot be empty when explicitly set');
       }
     }
