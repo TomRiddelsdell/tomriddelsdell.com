@@ -326,6 +326,9 @@ jobs:
           export COGNITO_USER_POOL_ID=${{ secrets.PRODUCTION_COGNITO_USER_POOL_ID }}
           export DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
           
+          # Temporarily use minimal stack template for deployment debugging
+          cp infrastructure/deployment/aws/cloudformation/minimal-stack.yml infrastructure/deployment/aws/cloudformation/production-stack.yml
+          
           # Deploy using our enhanced deployment script (now handles ROLLBACK_COMPLETE)
           chmod +x infrastructure/deployment/aws/scripts/deploy.sh
           ./infrastructure/deployment/aws/scripts/deploy.sh --environment production \
