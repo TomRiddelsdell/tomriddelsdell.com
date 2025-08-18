@@ -226,7 +226,7 @@ jobs:
           export COGNITO_USER_POOL_ID=${{ secrets.STAGING_COGNITO_USER_POOL_ID }}
           export DATABASE_URL=${{ secrets.STAGING_DATABASE_URL }}
           
-          # Deploy using our deployment script
+          # Deploy using our enhanced deployment script (now handles ROLLBACK_COMPLETE)
           chmod +x infrastructure/deployment/aws/scripts/deploy.sh
           ./infrastructure/deployment/aws/scripts/deploy.sh --environment staging \
             --domain "${{ secrets.STAGING_DOMAIN_NAME }}" \
@@ -236,6 +236,14 @@ jobs:
             --yes
           
           echo "✅ Staging deployment completed"
+
+      - name: 🧹 Cleanup failed stacks (if deployment failed)
+        if: failure()
+        run: |
+          echo "🧹 Cleaning up failed stacks after deployment failure..."
+          chmod +x infrastructure/deployment/aws/scripts/cleanup-failed-stacks.sh
+          ./infrastructure/deployment/aws/scripts/cleanup-failed-stacks.sh --stack tomriddelsdell-com-staging --yes
+          echo "Failed stacks have been cleaned up for retry"
 
       - name: 🧪 Post-deployment testing
         run: |
@@ -318,7 +326,7 @@ jobs:
           export COGNITO_USER_POOL_ID=${{ secrets.PRODUCTION_COGNITO_USER_POOL_ID }}
           export DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
           
-          # Deploy using our deployment script
+          # Deploy using our enhanced deployment script (now handles ROLLBACK_COMPLETE)
           chmod +x infrastructure/deployment/aws/scripts/deploy.sh
           ./infrastructure/deployment/aws/scripts/deploy.sh --environment production \
             --domain "${{ secrets.PRODUCTION_DOMAIN_NAME }}" \
@@ -328,6 +336,14 @@ jobs:
             --yes
           
           echo "✅ Production deployment completed"
+
+      - name: 🧹 Cleanup failed stacks (if deployment failed)
+        if: failure()
+        run: |
+          echo "🧹 Cleaning up failed stacks after deployment failure..."
+          chmod +x infrastructure/deployment/aws/scripts/cleanup-failed-stacks.sh
+          ./infrastructure/deployment/aws/scripts/cleanup-failed-stacks.sh --stack tomriddelsdell-com-production --yes
+          echo "Failed stacks have been cleaned up for retry"
 
       - name: 🔄 Invalidate CloudFront cache
         run: |

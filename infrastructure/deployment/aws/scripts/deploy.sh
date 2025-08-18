@@ -354,19 +354,68 @@ TAGS=(
 )
 
 if [ "$DRY_RUN" = false ]; then
-    # Check if stack exists
+    # Check stack status and handle accordingly
+    STACK_STATUS=""
     if aws cloudformation describe-stacks --stack-name "$STACK_NAME" >/dev/null 2>&1; then
+        STACK_STATUS=$(aws cloudformation describe-stacks \
+            --stack-name "$STACK_NAME" \
+            --query 'Stacks[0].StackStatus' \
+            --output text)
+        echo "$(yellow 'Current stack status:') $STACK_STATUS"
+        
+        # Handle failed stacks that need to be deleted first
+        case "$STACK_STATUS" in
+            "ROLLBACK_COMPLETE"|"CREATE_FAILED"|"DELETE_FAILED"|"UPDATE_ROLLBACK_COMPLETE")
+                echo "$(red 'Stack is in a failed state and cannot be updated.')"
+                echo "$(yellow 'Deleting failed stack before redeployment...')"
+                
+                # Delete the failed stack
+                aws cloudformation delete-stack --stack-name "$STACK_NAME"
+                echo "$(yellow 'Waiting for stack deletion to complete...')"
+                aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME"
+                echo "$(green '✅ Failed stack deleted successfully')"
+                
+                # Set status to empty so we create a new stack
+                STACK_STATUS=""
+                ;;
+            "DELETE_IN_PROGRESS")
+                echo "$(yellow 'Stack is currently being deleted. Waiting for completion...')"
+                aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME"
+                STACK_STATUS=""
+                ;;
+            "CREATE_IN_PROGRESS"|"UPDATE_IN_PROGRESS"|"UPDATE_COMPLETE_CLEANUP_IN_PROGRESS")
+                echo "$(yellow 'Stack operation in progress. Waiting for completion...')"
+                # Wait for any in-progress operation to complete
+                sleep 30
+                STACK_STATUS=$(aws cloudformation describe-stacks \
+                    --stack-name "$STACK_NAME" \
+                    --query 'Stacks[0].StackStatus' \
+                    --output text)
+                echo "$(yellow 'Updated stack status:') $STACK_STATUS"
+                ;;
+        esac
+    fi
+    
+    # Deploy based on current state
+    if [ -n "$STACK_STATUS" ] && [ "$STACK_STATUS" != "DELETE_COMPLETE" ]; then
+        # Stack exists and is in a good state - update it
         echo "$(yellow 'Updating existing stack...')"
-        aws cloudformation update-stack \
+        
+        # Try to update the stack
+        if aws cloudformation update-stack \
             --stack-name "$STACK_NAME" \
             --template-body "file://$TEMPLATE_FILE" \
             --parameters "${PARAMETERS[@]}" \
             --tags "${TAGS[@]}" \
-            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
-        
-        echo "$(yellow 'Waiting for stack update to complete...')"
-        aws cloudformation wait stack-update-complete --stack-name "$STACK_NAME"
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM 2>/dev/null; then
+            
+            echo "$(yellow 'Waiting for stack update to complete...')"
+            aws cloudformation wait stack-update-complete --stack-name "$STACK_NAME"
+        else
+            echo "$(yellow 'No changes detected or update failed. Stack may already be up to date.')"
+        fi
     else
+        # Stack doesn't exist or was deleted - create it
         echo "$(yellow 'Creating new stack...')"
         aws cloudformation create-stack \
             --stack-name "$STACK_NAME" \
@@ -379,7 +428,25 @@ if [ "$DRY_RUN" = false ]; then
         aws cloudformation wait stack-create-complete --stack-name "$STACK_NAME"
     fi
     
-    echo "$(green '✅ CloudFormation stack deployed successfully')"
+    # Verify final stack status
+    FINAL_STATUS=$(aws cloudformation describe-stacks \
+        --stack-name "$STACK_NAME" \
+        --query 'Stacks[0].StackStatus' \
+        --output text)
+    
+    if [[ "$FINAL_STATUS" == *"COMPLETE" ]] && [[ "$FINAL_STATUS" != *"ROLLBACK"* ]]; then
+        echo "$(green '✅ CloudFormation stack deployed successfully')"
+    else
+        echo "$(red '❌ CloudFormation deployment failed with status:') $FINAL_STATUS"
+        
+        # Show recent stack events for debugging
+        echo "$(yellow 'Recent stack events:')"
+        aws cloudformation describe-stack-events \
+            --stack-name "$STACK_NAME" \
+            --query 'StackEvents[:10].[Timestamp,ResourceType,ResourceStatus,ResourceStatusReason]' \
+            --output table
+        exit 1
+    fi
 else
     echo "$(yellow '📋 Would deploy CloudFormation stack:') $STACK_NAME"
     echo "$(yellow '📋 Template:') $TEMPLATE_FILE"
