@@ -113,7 +113,6 @@ Resources:
           DATABASE_URL: !Ref DatabaseUrl
           COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
           DOMAIN_NAME: !Ref DomainName
-          AWS_REGION: !Ref AWS::Region
       Tags:
         - Key: Name
           Value: !Sub '${ProjectName}-${Environment}-api-gateway'
