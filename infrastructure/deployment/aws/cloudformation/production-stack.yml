@@ -31,26 +31,22 @@ Parameters:
     NoEcho: true
 
 Resources:
-  # S3 Bucket for static assets
+    # S3 Bucket for static assets (using working configuration from core stack)
   StaticAssetsBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub '${ProjectName}-${Environment}-static-assets'
       PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      VersioningConfiguration:
-        Status: Enabled
-      LifecycleConfiguration:
-        Rules:
-          - Id: DeleteOldVersions
-            Status: Enabled
-            NoncurrentVersionExpirationInDays: 90
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
       Tags:
-        - Key: Project
-          Value: !Ref ProjectName
+        - Key: Name
+          Value: !Sub '${ProjectName}-${Environment}-static-assets'
         - Key: Environment
           Value: !Ref Environment
 
@@ -130,8 +126,6 @@ Resources:
       ReservedConcurrentExecutions: 100
       TracingConfig:
         Mode: Active
-      DeadLetterConfig:
-        TargetArn: !GetAtt DeadLetterQueue.Arn
       Tags:
         - Key: Project
           Value: !Ref ProjectName
@@ -199,71 +193,16 @@ Resources:
       RouteKey: '$default'
       Target: !Sub 'integrations/${ApiGatewayIntegration}'
 
-  # API Gateway CloudWatch Role for Logging
-  ApiGatewayCloudWatchRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub '${ProjectName}-${Environment}-apigateway-cloudwatch-role'
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: apigateway.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
-      Tags:
-        - Key: Project
-          Value: !Ref ProjectName
-        - Key: Environment
-          Value: !Ref Environment
-
-  # API Gateway Account Configuration
-  ApiGatewayAccount:
-    Type: AWS::ApiGateway::Account
-    Properties:
-      CloudWatchRoleArn: !GetAtt ApiGatewayCloudWatchRole.Arn
-
-    # API Gateway Stage with proper logging configuration
+  # API Gateway Stage with simplified configuration
   ApiGatewayStage:
     Type: AWS::ApiGatewayV2::Stage
-    DependsOn: ApiGatewayAccount
     Properties:
       ApiId: !Ref ApiGateway
       StageName: !Ref Environment
       AutoDeploy: true
-      AccessLogSettings:
-        DestinationArn: !GetAtt ApiGatewayLogGroup.Arn
-        Format: '$context.requestId $context.requestTime $context.httpMethod $context.routeKey $context.status $context.responseLength $context.requestTime $context.error.message $context.error.responseType'
       Tags:
         Project: !Ref ProjectName
         Environment: !Ref Environment
-
-  # Dead Letter Queue for Lambda function
-  DeadLetterQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      QueueName: !Sub '${ProjectName}-${Environment}-dlq'
-      MessageRetentionPeriod: 1209600  # 14 days
-      VisibilityTimeout: 60
-      Tags:
-        - Key: Project
-          Value: !Ref ProjectName
-        - Key: Environment
-          Value: !Ref Environment
-
-  # CloudWatch Log Group for API Gateway
-  ApiGatewayLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub '/aws/apigateway/${ProjectName}-${Environment}'
-      RetentionInDays: 90
-      Tags:
-        - Key: Project
-          Value: !Ref ProjectName
-        - Key: Environment
-          Value: !Ref Environment
 
   # CloudFront Distribution with enhanced caching for production
   CloudFrontDistribution:
