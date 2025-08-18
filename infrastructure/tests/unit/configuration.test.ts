@@ -14,6 +14,8 @@ describe('Configuration System', () => {
   afterEach(() => {
     // Restore original environment
     process.env = originalEnv;
+    // Ensure test-specific vars are cleaned up
+    delete process.env.TEST_VALIDATE_CORS;
   });
 
   describe('Development Environment', () => {
@@ -227,6 +229,10 @@ describe('Configuration System', () => {
       process.env.TEST_VALIDATE_CORS = 'true'; // Enable CORS validation for this test
       
       expect(() => loadConfiguration()).toThrow();
+      
+      // Clean up test-specific environment variables
+      delete process.env.TEST_VALIDATE_CORS;
+      delete process.env.CORS_ALLOWED_ORIGINS;
     });
 
     it('should accept valid configuration', () => {
