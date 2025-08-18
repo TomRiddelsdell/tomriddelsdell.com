@@ -1,0 +1,315 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Incremental production stack - minimal plus additional production features'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: tomriddelsdell-com
+    Description: Name of the project
+    
+  Environment:
+    Type: String
+    Default: production
+    Description: Environment name
+    
+  DomainName:
+    Type: String
+    Description: Domain name for the production environment
+    
+  CertificateArn:
+    Type: String
+    Description: ARN of the SSL certificate for the domain
+    Default: arn:aws:acm:us-east-1:152903089773:certificate/8755d817-0f2a-4cae-93a3-7afea7d5ccee
+    
+  CognitoUserPoolId:
+    Type: String
+    Description: Cognito User Pool ID for authentication
+    
+  DatabaseUrl:
+    Type: String
+    Description: Database connection URL
+    NoEcho: true
+
+Resources:
+  # S3 Bucket for static assets (from minimal stack)
+  StaticAssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-${Environment}-static-assets'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-${Environment}-static-assets'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Lambda Execution Role (from production stack)
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-${Environment}-lambda-execution-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+      Policies:
+        - PolicyName: CloudWatchLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+        - PolicyName: CloudWatchMetrics
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudwatch:PutMetricData
+                Resource: '*'
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-${Environment}-lambda-execution-role'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Lambda Function (from production stack)
+  ApiGatewayFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${ProjectName}-${Environment}-api-gateway'
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          exports.handler = async (event) => {
+            return {
+              statusCode: 200,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+              },
+              body: JSON.stringify({
+                message: 'Production minimal deployment test',
+                timestamp: new Date().toISOString()
+              })
+            };
+          };
+      Environment:
+        Variables:
+          NODE_ENV: !Ref Environment
+          DATABASE_URL: !Ref DatabaseUrl
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
+          DOMAIN_NAME: !Ref DomainName
+          AWS_REGION: !Ref AWS::Region
+      TracingConfig:
+        Mode: Active
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-${Environment}-api-gateway'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # HTTP API Gateway (simplified from production stack)
+  HttpApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: !Sub '${ProjectName}-${Environment}-api'
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowCredentials: true
+        AllowHeaders:
+          - content-type
+          - authorization
+          - x-amz-date
+          - x-api-key
+          - x-amz-security-token
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        AllowOrigins:
+          - !Sub 'https://${DomainName}'
+        ExposeHeaders:
+          - date
+          - x-api-id
+        MaxAge: 86400
+      Tags:
+        Environment: !Ref Environment
+
+  # Lambda Permission
+  LambdaApiGatewayInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ApiGatewayFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub '${HttpApi}/*/*'
+
+  # API Integration
+  HttpApiIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiGatewayFunction.Arn}/invocations'
+      PayloadFormatVersion: '2.0'
+
+  # Default Route
+  HttpApiDefaultRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: '$default'
+      Target: !Sub 'integrations/${HttpApiIntegration}'
+
+  # THIS IS THE SUSPECT: API Gateway Account - Most likely to fail
+  ApiGatewayAccount:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn: !GetAtt ApiGatewayCloudWatchRole.Arn
+
+  # CloudWatch Role for API Gateway - Could also fail
+  ApiGatewayCloudWatchRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-${Environment}-apigateway-cloudwatch-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+      Tags:
+        - Key: Name
+          Value: !Sub '${ProjectName}-${Environment}-apigateway-cloudwatch-role'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # API Stage
+  HttpApiStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref HttpApi
+      StageName: '$default'
+      AutoDeploy: true
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 100
+        ThrottlingRateLimit: 50
+
+  # CloudFront Distribution (from minimal stack - we know this works)
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Aliases:
+          - !Ref DomainName
+        DefaultRootObject: index.html
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt StaticAssetsBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+          - Id: ApiOrigin
+            DomainName: !Sub '${HttpApi}.execute-api.${AWS::Region}.amazonaws.com'
+            CustomOriginConfig:
+              HTTPPort: 443
+              OriginProtocolPolicy: https-only
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        CacheBehaviors:
+          - PathPattern: '/api/*'
+            TargetOriginId: ApiOrigin
+            ViewerProtocolPolicy: https-only
+            AllowedMethods:
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            CachedMethods:
+              - GET
+              - HEAD
+            ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+                - Content-Type
+              Cookies:
+                Forward: all
+            MinTTL: 0
+            DefaultTTL: 0
+            MaxTTL: 0
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CertificateArn
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        # Logging disabled to resolve S3 ACL compatibility issues
+        # Logging:
+        #   Bucket: !GetAtt CloudFrontLoggingBucket.DomainName
+        #   IncludeCookies: false
+
+Outputs:
+  DistributionId:
+    Description: CloudFront Distribution ID
+    Value: !Ref CloudFrontDistribution
+    Export:
+      Name: !Sub '${ProjectName}-${Environment}-cloudfront-distribution-id'
+      
+  DistributionDomainName:
+    Description: CloudFront Distribution Domain Name
+    Value: !GetAtt CloudFrontDistribution.DomainName
+    Export:
+      Name: !Sub '${ProjectName}-${Environment}-cloudfront-domain'
+      
+  ApiGatewayUrl:
+    Description: API Gateway URL
+    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com'
+    Export:
+      Name: !Sub '${ProjectName}-${Environment}-api-url'
+      
+  S3BucketName:
+    Description: S3 Bucket for static assets
+    Value: !Ref StaticAssetsBucket
+    Export:
+      Name: !Sub '${ProjectName}-${Environment}-s3-bucket'
