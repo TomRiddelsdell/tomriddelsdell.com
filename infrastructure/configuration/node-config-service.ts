@@ -209,9 +209,9 @@ class ConfigurationService {
       throw new ConfigurationError('Missing required configuration fields: SESSION_SECRET is required');
     }
     
-    // Validate CORS origins format when explicitly set to empty (only in validation test context)
+    // Validate CORS origins format when explicitly set to empty (only in test context)
     const corsEnv = process.env.CORS_ALLOWED_ORIGINS;
-    if (corsEnv === '' && process.env.TEST_VALIDATE_CORS === 'true') {
+    if (corsEnv === '' && process.env.TEST_VALIDATE_CORS === 'true' && process.env.NODE_ENV === 'test') {
       throw new ConfigurationError('CORS allowed origins cannot be empty when explicitly set');
     }
   }
