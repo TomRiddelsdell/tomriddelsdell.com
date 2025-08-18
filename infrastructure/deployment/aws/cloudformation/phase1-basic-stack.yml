@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Progressive deployment test for tomriddelsdell.com - Phase 1: Basic resources'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: tomriddelsdell-com
+    Description: Project name for resource naming
+  
+  Environment:
+    Type: String
+    Default: production
+    Description: Environment name
+  
+  DomainName:
+    Type: String
+    Default: tomriddelsdell.com
+    Description: Domain name for the production environment
+  
+  CertificateArn:
+    Type: String
+    Description: SSL certificate ARN for CloudFront (must be in us-east-1)
+  
+  CognitoUserPoolId:
+    Type: String
+    Description: Cognito User Pool ID for authentication
+  
+  DatabaseUrl:
+    Type: String
+    Description: Database connection URL
+    NoEcho: true
+
+Resources:
+  # S3 Bucket for static assets - basic configuration
+  StaticAssetsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-${Environment}-static-assets'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+  # CloudFront logs bucket - simplified configuration
+  CloudFrontLogsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${ProjectName}-${Environment}-cloudfront-logs'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldLogs
+            Status: Enabled
+            ExpirationInDays: 30
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Basic IAM role for Lambda
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-${Environment}-lambda-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+Outputs:
+  StaticAssetsBucketName:
+    Description: Static assets bucket name
+    Value: !Ref StaticAssetsBucket
+    Export:
+      Name: !Sub '${ProjectName}-${Environment}-static-bucket'
+
+  CloudFrontLogsBucketName:
+    Description: CloudFront logs bucket name
+    Value: !Ref CloudFrontLogsBucket
+    Export:
+      Name: !Sub '${ProjectName}-${Environment}-logs-bucket'
+
+  LambdaRoleArn:
+    Description: Lambda execution role ARN
+    Value: !GetAtt LambdaExecutionRole.Arn
+    Export:
+      Name: !Sub '${ProjectName}-${Environment}-lambda-role-arn'
