@@ -102,7 +102,9 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 
 ### Data Management
 
-**Audited Data**: A uniquely named definition of some data. It may have one or more Data Sources which will produce Data Values for each Snap
+**Reference Data**: Timeseries data that which we may consume in a QIS Strategy. It may have one or more Data Sources which will produce Data Values for each Snap. Once all sources are reconciled for a given Snap we refer to the Data Value as an Official Data Value.
+
+**Reference Data ID**: A uniquely name for some timeseries data. 
 
 **Data Source**: A provider of data producing a stream of Data Values at different Snaps
 
@@ -114,7 +116,9 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 
 **Publication**: A Data Value may be published for a specific Snap to be made available to 3rd parties
 
-**Restatement**: The changing of an Official Data Value once it's already been published
+**Restatement**: The changing and republication of an Official Data Value once it's already been published.
+
+**Remark**: The changing of a Data Value.
 
 **Data Lineage**: The complete path and transformation history of data from source to consumption
 
