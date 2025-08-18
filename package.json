@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
+  "_comment": "IAM logging permissions updated - testing deployment",
   "scripts": {
     "dev": "NODE_ENV=development FORCE_ENV_CONFIG=true tsx interfaces/api-gateway/src/index.ts",
     "build": "vite build && esbuild interfaces/api-gateway/src/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist && cp -r interfaces/web-frontend/dist/* dist/",
