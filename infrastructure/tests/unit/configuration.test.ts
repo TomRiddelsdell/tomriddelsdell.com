@@ -223,7 +223,7 @@ describe('Configuration System', () => {
     });
 
     it('should validate CORS origins format', () => {
-      process.env.NODE_ENV = 'production';
+      process.env.NODE_ENV = 'test';
       process.env.DATABASE_URL = 'postgresql://localhost/test';
       process.env.SESSION_SECRET = 'secure_session_secret_32_characters';
       process.env.CORS_ALLOWED_ORIGINS = ''; // Empty
