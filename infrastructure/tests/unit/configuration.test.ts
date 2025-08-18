@@ -231,9 +231,12 @@ describe('Configuration System', () => {
       
       expect(() => loadConfiguration()).toThrow();
       
-      // Clean up test-specific environment variables
+      // Clean up test-specific environment variables immediately
       delete process.env.TEST_VALIDATE_CORS;
       delete process.env.CORS_ALLOWED_ORIGINS;
+      delete process.env.NODE_ENV;
+      delete process.env.DATABASE_URL;
+      delete process.env.SESSION_SECRET;
     });
 
     it('should accept valid configuration', () => {
