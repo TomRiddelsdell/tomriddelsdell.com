@@ -16,6 +16,7 @@ describe('Configuration System', () => {
     process.env = originalEnv;
     // Ensure test-specific vars are cleaned up
     delete process.env.TEST_VALIDATE_CORS;
+    delete process.env.CORS_ALLOWED_ORIGINS;
   });
 
   describe('Development Environment', () => {
