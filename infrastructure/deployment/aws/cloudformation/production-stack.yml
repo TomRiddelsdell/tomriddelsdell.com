@@ -344,58 +344,16 @@ Resources:
           AcmCertificateArn: !Ref CertificateArn
           SslSupportMethod: sni-only
           MinimumProtocolVersion: TLSv1.2_2021
-        Logging:
-          Bucket: !GetAtt CloudFrontLogsBucket.DomainName
-          IncludeCookies: false
-          Prefix: !Sub '${Environment}/'
+        # Logging temporarily disabled to resolve S3 ACL compatibility issues
+        # Logging:
+        #   Bucket: !GetAtt CloudFrontLogsBucket.DomainName
+        #   IncludeCookies: false
+        #   Prefix: !Sub '${Environment}/'
       Tags:
         - Key: Project
           Value: !Ref ProjectName
         - Key: Environment
           Value: !Ref Environment
-
-  # S3 Bucket for CloudFront Logs
-  CloudFrontLogsBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Sub '${ProjectName}-${Environment}-cloudfront-logs'
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: false
-        BlockPublicPolicy: true
-        IgnorePublicAcls: false
-        RestrictPublicBuckets: true
-      LifecycleConfiguration:
-        Rules:
-          - Id: DeleteOldLogs
-            Status: Enabled
-            ExpirationInDays: 30
-      Tags:
-        - Key: Project
-          Value: !Ref ProjectName
-        - Key: Environment
-          Value: !Ref Environment
-
-  # Bucket policy to allow CloudFront to write logs
-  CloudFrontLogsBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref CloudFrontLogsBucket
-      PolicyDocument:
-        Statement:
-          - Sid: AllowCloudFrontServicePrincipal
-            Effect: Allow
-            Principal:
-              Service: cloudfront.amazonaws.com
-            Action:
-              - s3:PutObject
-              - s3:PutObjectAcl
-            Resource: !Sub '${CloudFrontLogsBucket}/*'
-          - Sid: AllowCloudFrontGetBucketAcl
-            Effect: Allow
-            Principal:
-              Service: cloudfront.amazonaws.com
-            Action: s3:GetBucketAcl
-            Resource: !Ref CloudFrontLogsBucket
 
   # Enhanced CloudWatch Alarms for production monitoring
   HighErrorRateAlarm:
