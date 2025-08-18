@@ -149,7 +149,7 @@ Resources:
       FunctionName: !Ref ApiGatewayFunction
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub '${HttpApi}/*/*'
+      SourceArn: !Sub '${HttpApi}/*'
 
   # API Integration
   HttpApiIntegration:
