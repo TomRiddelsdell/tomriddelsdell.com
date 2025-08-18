@@ -199,16 +199,43 @@ Resources:
       RouteKey: '$default'
       Target: !Sub 'integrations/${ApiGatewayIntegration}'
 
-  # API Gateway Stage with enhanced logging
+  # API Gateway CloudWatch Role for Logging
+  ApiGatewayCloudWatchRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ProjectName}-${Environment}-apigateway-cloudwatch-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+        - Key: Environment
+          Value: !Ref Environment
+
+  # API Gateway Account Configuration
+  ApiGatewayAccount:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn: !GetAtt ApiGatewayCloudWatchRole.Arn
+
+    # API Gateway Stage with proper logging configuration
   ApiGatewayStage:
     Type: AWS::ApiGatewayV2::Stage
+    DependsOn: ApiGatewayAccount
     Properties:
       ApiId: !Ref ApiGateway
       StageName: !Ref Environment
       AutoDeploy: true
       AccessLogSettings:
         DestinationArn: !GetAtt ApiGatewayLogGroup.Arn
-        Format: '$context.requestId $context.requestTime $context.httpMethod $context.routeKey $context.status $context.responseLength $context.responseLatency $context.error.message $context.error.responseType'
+        Format: '$context.requestId $context.requestTime $context.httpMethod $context.routeKey $context.status $context.responseLength $context.requestTime $context.error.message $context.error.responseType'
       Tags:
         Project: !Ref ProjectName
         Environment: !Ref Environment
