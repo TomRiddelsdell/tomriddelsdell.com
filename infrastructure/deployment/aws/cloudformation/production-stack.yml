@@ -123,7 +123,6 @@ Resources:
           COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
           STATIC_ASSETS_BUCKET: !Ref StaticAssetsBucket
           CORS_ORIGINS: !Sub 'https://${DomainName},https://www.${DomainName}'
-      ReservedConcurrentExecutions: 100
       TracingConfig:
         Mode: Active
       Tags:
@@ -293,59 +292,6 @@ Resources:
           Value: !Ref ProjectName
         - Key: Environment
           Value: !Ref Environment
-
-  # Enhanced CloudWatch Alarms for production monitoring
-  HighErrorRateAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: !Sub '${ProjectName}-${Environment}-high-error-rate'
-      AlarmDescription: 'High error rate detected'
-      MetricName: Errors
-      Namespace: AWS/Lambda
-      Statistic: Sum
-      Period: 300
-      EvaluationPeriods: 2
-      Threshold: 5
-      ComparisonOperator: GreaterThanThreshold
-      Dimensions:
-        - Name: FunctionName
-          Value: !Ref ApiGatewayFunction
-      TreatMissingData: notBreaching
-
-  HighLatencyAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: !Sub '${ProjectName}-${Environment}-high-latency'
-      AlarmDescription: 'High latency detected'
-      MetricName: Duration
-      Namespace: AWS/Lambda
-      Statistic: Average
-      Period: 300
-      EvaluationPeriods: 2
-      Threshold: 5000
-      ComparisonOperator: GreaterThanThreshold
-      Dimensions:
-        - Name: FunctionName
-          Value: !Ref ApiGatewayFunction
-      TreatMissingData: notBreaching
-
-  # CloudFront Error Rate Alarm
-  CloudFrontErrorRateAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: !Sub '${ProjectName}-${Environment}-cloudfront-error-rate'
-      AlarmDescription: 'High CloudFront error rate detected'
-      MetricName: 4xxErrorRate
-      Namespace: AWS/CloudFront
-      Statistic: Average
-      Period: 300
-      EvaluationPeriods: 2
-      Threshold: 5
-      ComparisonOperator: GreaterThanThreshold
-      Dimensions:
-        - Name: DistributionId
-          Value: !Ref CloudFrontDistribution
-      TreatMissingData: notBreaching
 
 Outputs:
   ApiGatewayUrl:
