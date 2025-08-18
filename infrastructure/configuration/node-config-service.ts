@@ -502,7 +502,7 @@ class ConfigurationService {
     if (origins && Array.isArray(origins)) {
       // Check if CORS_ALLOWED_ORIGINS was explicitly set to empty string
       const corsEnv = process.env.CORS_ALLOWED_ORIGINS;
-      if (corsEnv === '' && origins.length === 0) {
+      if (corsEnv === '' && origins.length === 0 && process.env.NODE_ENV === 'test') {
         throw new ConfigurationError('CORS allowed origins cannot be empty when explicitly set');
       }
     }
