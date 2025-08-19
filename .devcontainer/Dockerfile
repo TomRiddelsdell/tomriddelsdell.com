@@ -29,8 +29,7 @@ RUN yum update -y && \
         patch \
         rsync \
         openssh-clients \
-        dig \
-        nslookup \
+        bind-utils \
         zip \
         unzip \
         tar \
