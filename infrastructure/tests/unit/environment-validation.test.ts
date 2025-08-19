@@ -27,7 +27,7 @@ describe('Environment Validation Scripts', () => {
     describe('Database Validation', () => {
       it('should pass when DATABASE_URL is properly configured', async () => {
         // Set all required environment variables for deployment readiness
-        process.env.DATABASE_URL = 'postgresql://user:pass@host:5432/database';
+        process.env.DATABASE_URL = 'postgresql://<username>:<password>@host:5432/database';
         process.env.SESSION_SECRET = 'test_session_secret_32_characters_long';
         process.env.VITE_AWS_COGNITO_CLIENT_ID = 'test_client_id';
         process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'test_pool_id';
@@ -68,7 +68,7 @@ describe('Environment Validation Scripts', () => {
         process.env.AWS_SECRET_ACCESS_KEY = 'test_secret_key';
         
         // Test postgresql://
-        process.env.DATABASE_URL = 'postgresql://user:pass@host:5432/db';
+        process.env.DATABASE_URL = 'postgresql://<username>:<password>@host:5432/db';
         await validator.validate();
         expect(validator.isDeploymentReady()).toBe(true);
 
@@ -335,7 +335,7 @@ describe('Environment Validation Scripts', () => {
     describe('Deployment Readiness Assessment', () => {
       it('should be ready when all critical checks pass', async () => {
         // Set all required variables
-        process.env.DATABASE_URL = 'postgresql://user:pass@host/db';
+        process.env.DATABASE_URL = 'postgresql://<username>:<password>@host/db';
         process.env.SESSION_SECRET = 'very_secure_session_secret_with_enough_length';
         process.env.VITE_AWS_COGNITO_CLIENT_ID = 'valid_client_id';
         process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'valid_pool_id';
@@ -363,7 +363,7 @@ describe('Environment Validation Scripts', () => {
 
       it('should be ready with warnings for optional services', async () => {
         // Set required variables but omit optional ones
-        process.env.DATABASE_URL = 'postgresql://user:pass@host/db';
+        process.env.DATABASE_URL = 'postgresql://<username>:<password>@host/db';
         process.env.SESSION_SECRET = 'very_secure_session_secret_with_enough_length';
         process.env.VITE_AWS_COGNITO_CLIENT_ID = 'valid_client_id';
         process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'valid_pool_id';

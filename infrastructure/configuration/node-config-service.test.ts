@@ -36,7 +36,7 @@ describe('Node Config Service', () => {
       
       expect(config.environment).toBe('test');
       expect(config.security.session.secret).toBe('test-session-secret-32-characters-long');
-      expect(config.database.url).toBe('postgresql://test:test@localhost:5432/test_db');
+      expect(config.database.url).toBe('postgresql://<username>:<password>@localhost:5432/test_db');
     });
 
     it('should have correct test-specific settings', () => {
@@ -103,7 +103,7 @@ describe('Node Config Service', () => {
     it('should load development configuration', () => {
       process.env.NODE_ENV = 'development';
       process.env.SESSION_SECRET = 'development-secret-32-characters-long';
-      process.env.DATABASE_URL = 'postgresql://dev:dev@localhost:5432/dev_db';
+      process.env.DATABASE_URL = 'postgresql://<username>:<password>@localhost:5432/dev_db';
       process.env.VITE_AWS_COGNITO_CLIENT_ID = 'dev-client-id';
       process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'eu-west-2_dev123';
       process.env.VITE_AWS_COGNITO_REGION = 'eu-west-2';
