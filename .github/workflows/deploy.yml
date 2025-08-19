@@ -219,20 +219,16 @@ jobs:
         run: |
           echo "🚀 Deploying to AWS staging environment..."
           
-          # Set staging environment variables
+          # Set staging environment variables for config system
           export ENVIRONMENT=staging
           export DOMAIN_NAME=${{ secrets.STAGING_DOMAIN_NAME }}
-          export CERTIFICATE_ARN=${{ secrets.STAGING_CERTIFICATE_ARN }}
-          export COGNITO_USER_POOL_ID=${{ secrets.STAGING_COGNITO_USER_POOL_ID }}
+          export STAGING_CERTIFICATE_ARN=${{ secrets.STAGING_CERTIFICATE_ARN }}
+          export VITE_AWS_COGNITO_USER_POOL_ID=${{ secrets.STAGING_COGNITO_USER_POOL_ID }}
           export DATABASE_URL=${{ secrets.STAGING_DATABASE_URL }}
           
-          # Deploy using our enhanced deployment script (now handles ROLLBACK_COMPLETE)
+          # Use centralized configuration deployment (same approach as production)
           chmod +x infrastructure/deployment/aws/scripts/deploy.sh
-          ./infrastructure/deployment/aws/scripts/deploy.sh --environment staging \
-            --domain "${{ secrets.STAGING_DOMAIN_NAME }}" \
-            --certificate "${{ secrets.STAGING_CERTIFICATE_ARN }}" \
-            --user-pool-id "${{ secrets.STAGING_COGNITO_USER_POOL_ID }}" \
-            --database-url "${{ secrets.STAGING_DATABASE_URL }}" \
+          ./infrastructure/deployment/aws/scripts/deploy.sh --environment staging --yes
             --yes
           
           echo "✅ Staging deployment completed"
@@ -319,11 +315,11 @@ jobs:
         run: |
           echo "🚀 Deploying to AWS production environment..."
           
-          # Set production environment variables
+          # Set production environment variables for config system
           export ENVIRONMENT=production
           export DOMAIN_NAME=${{ secrets.PRODUCTION_DOMAIN_NAME }}
-          export CERTIFICATE_ARN=${{ secrets.PRODUCTION_CERTIFICATE_ARN }}
-          export COGNITO_USER_POOL_ID=${{ secrets.PRODUCTION_COGNITO_USER_POOL_ID }}
+          export PRODUCTION_CERTIFICATE_ARN=${{ secrets.PRODUCTION_CERTIFICATE_ARN }}
+          export VITE_AWS_COGNITO_USER_POOL_ID=${{ secrets.PRODUCTION_COGNITO_USER_POOL_ID }}
           export DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
           
           # Use the comprehensive deployment script with all fixes applied

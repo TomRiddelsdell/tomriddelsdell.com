@@ -9,6 +9,7 @@
 			"extensions": [
 				// AWS Development
 				"amazonwebservices.aws-toolkit-vscode",
+				"amazonwebservices.amazon-q-vscode",
 				
 				// TypeScript/JavaScript
 				"ms-vscode.vscode-typescript-next",
