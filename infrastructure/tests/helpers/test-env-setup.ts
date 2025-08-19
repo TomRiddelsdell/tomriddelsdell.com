@@ -5,7 +5,7 @@
 
 export function setupValidTestEnvironment() {
   // Core required variables
-  process.env.DATABASE_URL = 'postgresql://localhost/test';
+  process.env.DATABASE_URL = 'postgresql://<username>:<password>@localhost/test';
   process.env.SESSION_SECRET = 'secure_session_secret_32_characters_long';
   
   // AWS Cognito required variables

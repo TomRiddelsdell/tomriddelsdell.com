@@ -334,7 +334,7 @@ describe('Server Startup Process', () => {
       const mockConfig = {
         environment: 'production',
         database: {
-          url: 'postgresql://user:pass@host/db',
+          url: 'postgresql://<username>:<password>@host/db',
           pool: { min: 2, max: 10 },
           ssl: { enabled: true, rejectUnauthorized: true },
         },

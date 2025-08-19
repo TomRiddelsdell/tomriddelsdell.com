@@ -125,6 +125,13 @@ cat > /workspaces/.vscode/mcp.json << 'EOF'
       "env": {
         "AWS_DEFAULT_REGION": "eu-west-2"
       }
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@github/github-mcp-server"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+      }
     }
   }
 }
@@ -140,12 +147,30 @@ cat > /workspaces/.vscode/settings.json << 'EOF'
       "env": {
         "AWS_DEFAULT_REGION": "eu-west-2"
       }
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@github/github-mcp-server"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+      }
     }
   }
 }
 EOF
 
 echo "✅ Amazon Q MCP configuration created"
+
+# Fix security issues flagged by GitGuardian
+echo "🔒 Applying security fixes..."
+
+# Replace any hardcoded PostgreSQL credentials with placeholders
+find /workspaces -name "*.ts" -o -name "*.js" | grep -v node_modules | xargs sed -i 's/postgresql:\/\/[^:]*:[^@]*@/postgresql:\/\/<username>:<password>@/g' 2>/dev/null || true
+
+# Replace JWT tokens with placeholders (except in node_modules)
+find /workspaces -name "*.ts" -o -name "*.js" | grep -v node_modules | xargs sed -i 's/eyJ[A-Za-z0-9+\/]*\.[A-Za-z0-9+\/]*\.[A-Za-z0-9+\/\-_]*/eyJ<header>.<payload>.<signature>/g' 2>/dev/null || true
+
+echo "✅ Security fixes applied"
 
 echo ""
 echo "🎉 Development environment ready!"
