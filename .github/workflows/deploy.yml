@@ -326,13 +326,9 @@ jobs:
           export COGNITO_USER_POOL_ID=${{ secrets.PRODUCTION_COGNITO_USER_POOL_ID }}
           export DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
           
-          # Deploy using our enhanced deployment script with full production stack
-          chmod +x infrastructure/deployment/aws/scripts/deploy.sh
-          ./infrastructure/deployment/aws/scripts/deploy.sh --environment production \
-            --domain "${{ secrets.PRODUCTION_DOMAIN_NAME }}" \
-            --certificate "${{ secrets.PRODUCTION_CERTIFICATE_ARN }}" \
-            --user-pool-id "${{ secrets.PRODUCTION_COGNITO_USER_POOL_ID }}" \
-            --database-url "${{ secrets.PRODUCTION_DATABASE_URL }}" \
+          # Use the comprehensive deployment script with all fixes applied
+          chmod +x infrastructure/deployment/aws/scripts/deploy-production-complete.sh
+          ./infrastructure/deployment/aws/scripts/deploy-production-complete.sh
             --yes
           
           echo "✅ Production deployment completed"
