@@ -329,8 +329,8 @@ jobs:
           export DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
           
           # Use the comprehensive deployment script with all fixes applied
-          chmod +x infrastructure/deployment/aws/scripts/deploy-production-complete.sh
-          ./infrastructure/deployment/aws/scripts/deploy-production-complete.sh
+          chmod +x infrastructure/deployment/aws/scripts/deploy-production.sh
+          ./infrastructure/deployment/aws/scripts/deploy-production.sh
             --yes
           
           echo "✅ Production deployment completed"

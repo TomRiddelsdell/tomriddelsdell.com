@@ -5,27 +5,30 @@
 
 set -e  # Exit on any error
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 PROJECT_NAME="tomriddelsdell-com"
 ENVIRONMENT="production"
-DOMAIN_NAME="tomriddelsdell.com"
-CERTIFICATE_ARN="arn:aws:acm:us-east-1:152903089773:certificate/8755d817-0f2a-4cae-93a3-7afea7d5ccee"
 STACK_NAME="${PROJECT_NAME}-${ENVIRONMENT}"
 
 echo "🚀 Starting production deployment with all fixes applied..."
 
-# Step 1: Validate environment variables
-echo "🔍 Validating environment variables..."
-if [ -z "$DATABASE_URL" ]; then
-    echo "❌ DATABASE_URL environment variable is required"
-    exit 1
-fi
+# Load configuration from centralized config system first
+echo "🔧 Loading configuration from centralized system..."
+CONFIG_OUTPUT=$(node infrastructure/deployment/aws/scripts/load-config.cjs)
 
-if [ -z "$COGNITO_USER_POOL_ID" ]; then
-    echo "❌ COGNITO_USER_POOL_ID environment variable is required"
-    exit 1
-fi
+# Parse configuration
+DOMAIN_NAME=$(echo "$CONFIG_OUTPUT" | node -e "console.log(JSON.parse(require('fs').readFileSync(0, 'utf8')).domainName)")
+CERTIFICATE_ARN=$(echo "$CONFIG_OUTPUT" | node -e "console.log(JSON.parse(require('fs').readFileSync(0, 'utf8')).certificateArn)")
+DATABASE_URL=$(echo "$CONFIG_OUTPUT" | node -e "console.log(JSON.parse(require('fs').readFileSync(0, 'utf8')).databaseUrl)")
+COGNITO_USER_POOL_ID=$(echo "$CONFIG_OUTPUT" | node -e "console.log(JSON.parse(require('fs').readFileSync(0, 'utf8')).cognitoUserPoolId)")
 
-echo "✅ Environment variables validated"
+echo "✅ Configuration loaded successfully"
+echo "  - Domain: $DOMAIN_NAME"
+echo "  - Certificate: $CERTIFICATE_ARN"
+echo "  - Database URL: [REDACTED]"
+echo "  - Cognito Pool ID: $COGNITO_USER_POOL_ID"
 
 # Step 2: Build application
 echo "🏗️ Building application..."
@@ -47,30 +50,94 @@ echo "✅ Application built successfully"
 # Step 3: Deploy CloudFormation stack with all fixes
 echo "📦 Deploying CloudFormation stack..."
 
-# Check if stack exists and is in a failed state
-STACK_STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "DOES_NOT_EXIST")
+# Check if stack exists and determine operation
+STACK_EXISTS=$(aws cloudformation describe-stacks --stack-name tomriddelsdell-com-production --query 'Stacks[0].StackName' --output text 2>/dev/null || echo "NONE")
+STACK_STATUS=$(aws cloudformation describe-stacks --stack-name tomriddelsdell-com-production --query 'Stacks[0].StackStatus' --output text 2>/dev/null || echo "NONE")
 
-if [[ "$STACK_STATUS" == "ROLLBACK_COMPLETE" ]] || [[ "$STACK_STATUS" == "UPDATE_ROLLBACK_COMPLETE" ]]; then
-    echo "🔄 Stack is in $STACK_STATUS state, deleting before redeployment..."
-    aws cloudformation delete-stack --stack-name "$STACK_NAME"
-    echo "⏳ Waiting for stack deletion to complete..."
-    aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME"
-    echo "✅ Stack deleted successfully"
+echo "📊 Current stack status: $STACK_STATUS"
+
+# Handle special cases where stack is stuck
+if [ "$STACK_STATUS" = "DELETE_FAILED" ]; then
+  echo "🧹 Stack deletion failed previously. Cleaning up S3 buckets and retrying..."
+  
+  # Clean up S3 buckets that might be preventing deletion
+  S3_BUCKET="tomriddelsdell-com-production-static-assets"
+  
+  # Check if bucket exists and empty it
+  if aws s3api head-bucket --bucket "$S3_BUCKET" 2>/dev/null; then
+    echo "🗑️ Emptying S3 bucket: $S3_BUCKET"
+    aws s3 rm s3://"$S3_BUCKET" --recursive --quiet || true
+    
+    # Also delete any versioned objects if versioning is enabled
+    aws s3api delete-objects --bucket "$S3_BUCKET" \
+      --delete "$(aws s3api list-object-versions --bucket "$S3_BUCKET" \
+      --query '{Objects: Versions[].{Key: Key, VersionId: VersionId}}' \
+      --output json)" --quiet 2>/dev/null || true
+    
+    # Delete any delete markers
+    aws s3api delete-objects --bucket "$S3_BUCKET" \
+      --delete "$(aws s3api list-object-versions --bucket "$S3_BUCKET" \
+      --query '{Objects: DeleteMarkers[].{Key: Key, VersionId: VersionId}}' \
+      --output json)" --quiet 2>/dev/null || true
+  fi
+  
+  echo "🔄 Retrying stack deletion..."
+  aws cloudformation delete-stack --stack-name tomriddelsdell-com-production
+  
+  echo "⏳ Waiting for stack deletion to complete..."
+  aws cloudformation wait stack-delete-complete --stack-name tomriddelsdell-com-production
+  
+  # Update status after deletion
+  STACK_STATUS="NONE"
+  STACK_EXISTS="NONE"
 fi
 
-# Deploy the stack using our production-ready template
-aws cloudformation deploy \
-    --template-file infrastructure/deployment/aws/cloudformation/production-complete-stack.yml \
-    --stack-name "$STACK_NAME" \
-    --parameter-overrides \
-        ProjectName="$PROJECT_NAME" \
-        Environment="$ENVIRONMENT" \
-        DomainName="$DOMAIN_NAME" \
-        CertificateArn="$CERTIFICATE_ARN" \
-        CognitoUserPoolId="$COGNITO_USER_POOL_ID" \
-        DatabaseUrl="$DATABASE_URL" \
-    --capabilities CAPABILITY_NAMED_IAM \
-    --no-fail-on-empty-changeset
+if [ "$STACK_EXISTS" = "NONE" ]; then
+  echo "🆕 Creating new CloudFormation stack..."
+  aws cloudformation create-stack \
+    --template-body file://"$SCRIPT_DIR/../cloudformation/production-stack.yml" \
+    --stack-name tomriddelsdell-com-production \
+    --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+    --parameters \
+      ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
+      ParameterKey=CertificateArn,ParameterValue="$CERTIFICATE_ARN" \
+      ParameterKey=DatabaseUrl,ParameterValue="$DATABASE_URL" \
+      ParameterKey=CognitoUserPoolId,ParameterValue="$COGNITO_USER_POOL_ID" \
+    --tags \
+      Key=Project,Value=tomriddelsdell-com \
+      Key=Environment,Value=production \
+      Key=ManagedBy,Value=cloudformation
+  
+  echo "⏳ Waiting for stack creation to complete..."
+  aws cloudformation wait stack-create-complete --stack-name tomriddelsdell-com-production
+
+elif [ "$STACK_STATUS" = "UPDATE_ROLLBACK_COMPLETE" ] || [ "$STACK_STATUS" = "CREATE_COMPLETE" ] || [ "$STACK_STATUS" = "UPDATE_COMPLETE" ]; then
+  echo "🔄 Updating existing CloudFormation stack..."
+  aws cloudformation update-stack \
+    --template-body file://"$SCRIPT_DIR/../cloudformation/production-stack.yml" \
+    --stack-name tomriddelsdell-com-production \
+    --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+    --parameters \
+      ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
+      ParameterKey=CertificateArn,ParameterValue="$CERTIFICATE_ARN" \
+      ParameterKey=DatabaseUrl,ParameterValue="$DATABASE_URL" \
+      ParameterKey=CognitoUserPoolId,ParameterValue="$COGNITO_USER_POOL_ID" \
+    --tags \
+      Key=Project,Value=tomriddelsdell-com \
+      Key=Environment,Value=production \
+      Key=ManagedBy,Value=cloudformation || {
+    echo "ℹ️ Update may have failed or no changes detected"
+  }
+  
+  if [ $? -eq 0 ]; then
+    echo "⏳ Waiting for stack update to complete..."
+    aws cloudformation wait stack-update-complete --stack-name tomriddelsdell-com-production
+  fi
+
+else
+  echo "❌ Stack is in state $STACK_STATUS - cannot proceed with deployment"
+  exit 1
+fi
 
 echo "✅ CloudFormation stack deployed successfully"
 

@@ -5,7 +5,7 @@ import { registerRoutes } from '../../src/routes';
 import { storage } from '../../src/storage';
 
 // Mock the configuration loader
-vi.mock('../../../../infrastructure/configuration/config-loader', () => ({
+vi.mock('../../../../infrastructure/configuration/node-config-service', () => ({
   getConfig: vi.fn(() => ({
     environment: 'test',
     security: {

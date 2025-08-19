@@ -14,7 +14,7 @@ export function setupAwsAuth() {
   const appDomain = process.env.REPLIT_DOMAINS 
     ? `https://${process.env.REPLIT_DOMAINS}`
     : (process.env.NODE_ENV === 'production' 
-        ? require('../../configuration/config-loader').getConfig().services.external.baseUrl
+        ? require('../../configuration/node-config-service').getConfig().services.external.baseUrl
         : 'http://localhost:5000');
 
   // Use environment variables if available, otherwise use defaults
