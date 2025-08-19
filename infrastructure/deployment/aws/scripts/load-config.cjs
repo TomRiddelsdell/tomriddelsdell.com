@@ -10,12 +10,18 @@ require('dotenv').config({ quiet: true });
 const config = require('config');
 
 try {
+  // Determine environment from ENVIRONMENT variable or default to production
+  const environment = process.env.ENVIRONMENT || 'production';
+  
   // Load configuration using the Node.js config package
   const deploymentConfig = {
     domainName: config.get('domain.name') || 'tomriddelsdell.com',
-    certificateArn: config.get('integration.github.deployment.productionCertArn'),
+    certificateArn: environment === 'staging' 
+      ? config.get('integration.github.deployment.stagingCertArn')
+      : config.get('integration.github.deployment.productionCertArn'),
     databaseUrl: config.get('database.url'),
-    cognitoUserPoolId: config.get('cognito.userPoolId')
+    cognitoUserPoolId: config.get('cognito.userPoolId'),
+    environment: environment
   };
   
   // Validate required configuration

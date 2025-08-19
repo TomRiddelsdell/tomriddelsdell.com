@@ -150,6 +150,35 @@ if [ -z "$DATABASE_URL" ]; then
     fi
 fi
 
+# Load configuration from centralized config system (same approach as production)
+echo "$(blue '🔧 Loading configuration from centralized system...')"
+if command -v node >/dev/null 2>&1; then
+    if [ -f "infrastructure/deployment/aws/scripts/load-config.cjs" ]; then
+        CONFIG_OUTPUT=$(node infrastructure/deployment/aws/scripts/load-config.cjs 2>/dev/null) || {
+            echo "$(yellow '⚠️ Centralized config unavailable, using environment variables')"
+            CONFIG_OUTPUT=""
+        }
+        
+        if [ -n "$CONFIG_OUTPUT" ]; then
+            echo "$(green '✅ Configuration loaded from centralized system')"
+            
+            # Override with centralized config if not already set
+            if [ -z "$DOMAIN_NAME" ]; then
+                DOMAIN_NAME=$(echo "$CONFIG_OUTPUT" | node -e "try { console.log(JSON.parse(require('fs').readFileSync(0, 'utf8')).domainName); } catch(e) { process.exit(1); }" 2>/dev/null) || ""
+            fi
+            if [ -z "$CERTIFICATE_ARN" ]; then
+                CERTIFICATE_ARN=$(echo "$CONFIG_OUTPUT" | node -e "try { console.log(JSON.parse(require('fs').readFileSync(0, 'utf8')).certificateArn); } catch(e) { process.exit(1); }" 2>/dev/null) || ""
+            fi
+            if [ -z "$COGNITO_USER_POOL_ID" ]; then
+                COGNITO_USER_POOL_ID=$(echo "$CONFIG_OUTPUT" | node -e "try { console.log(JSON.parse(require('fs').readFileSync(0, 'utf8')).cognitoUserPoolId); } catch(e) { process.exit(1); }" 2>/dev/null) || ""
+            fi
+            if [ -z "$DATABASE_URL" ]; then
+                DATABASE_URL=$(echo "$CONFIG_OUTPUT" | node -e "try { console.log(JSON.parse(require('fs').readFileSync(0, 'utf8')).databaseUrl); } catch(e) { process.exit(1); }" 2>/dev/null) || ""
+            fi
+        fi
+    fi
+fi
+
 # Validate required parameters
 missing_params=()
 if [ -z "$CERTIFICATE_ARN" ]; then
