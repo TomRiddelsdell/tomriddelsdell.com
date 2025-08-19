@@ -16,7 +16,7 @@ export class GoogleAuthProvider {
     const host = process.env.REPLIT_DOMAINS 
       ? `https://${process.env.REPLIT_DOMAINS}`
       : (process.env.NODE_ENV === 'production' 
-          ? require('../../configuration/config-loader').getConfig().services.external.baseUrl
+          ? require('../../configuration/node-config-service').getConfig().services.external.baseUrl
           : 'http://localhost:5000');
     
     this.callbackURL = `${host}/api/auth/google/callback`;

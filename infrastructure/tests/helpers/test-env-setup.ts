@@ -104,6 +104,6 @@ export function removeAllTestEnvironmentVars() {
 export function cleanSlate() {
   removeAllTestEnvironmentVars();
   // Reset configuration singleton
-  const configModule = '../../configuration/config-loader';
+  const configModule = '../../configuration/node-config-service';
   delete require.cache[require.resolve(configModule)];
 }
