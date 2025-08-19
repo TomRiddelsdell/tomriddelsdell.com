@@ -8,14 +8,19 @@
 **Setup once, deploy automatically**
 
 1. **Fork the repository** on GitHub
-2. **Add secrets** in your repo settings → Secrets and variables → Actions:
+2. **Configure AWS credentials** - See [AWS_CREDENTIALS_SETUP.md](AWS_CREDENTIALS_SETUP.md) for detailed instructions
+3. **Add secrets** in your repo settings → Secrets and variables → Actions:
    ```
    AWS_ACCESS_KEY_ID=AKIA...
    AWS_SECRET_ACCESS_KEY=your-secret...
    PRODUCTION_DATABASE_URL=postgresql://...
-   SESSION_SECRET=your-32-char-secret
+   PRODUCTION_DOMAIN_NAME=yourdomain.com
+   PRODUCTION_CERTIFICATE_ARN=arn:aws:acm:...
+   PRODUCTION_COGNITO_USER_POOL_ID=eu-west-2_...
    ```
-3. **Push to main branch** → Automatic deployment!
+4. **Push to main branch** → Automatic deployment!
+
+**💡 Quick Setup Helper:** Run `./scripts/setup-github-secrets.sh` for guided setup
 
 ### Option 2: Manual Deployment
 **Direct AWS deployment**

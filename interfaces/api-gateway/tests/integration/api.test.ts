@@ -51,7 +51,7 @@ vi.mock('../../../../infrastructure/configuration/node-config-service', () => ({
       secretAccessKey: 'test-secret-key',
     },
     database: {
-      url: process.env.DATABASE_URL || 'postgresql://test:test@localhost/test',
+      url: process.env.DATABASE_URL || 'postgresql://<username>:<password>@localhost/test',
       pool: {
         min: 2,
         max: 10,

@@ -75,7 +75,7 @@ describe('Configuration System', () => {
   describe('Production Environment', () => {
     beforeEach(() => {
       process.env.NODE_ENV = 'production';
-      process.env.DATABASE_URL = 'postgresql://prod-user:password@prod-host/prod_db';
+      process.env.DATABASE_URL = 'postgresql://<username>:<password>@prod-host/prod_db';
       process.env.SESSION_SECRET = 'production_session_secret_very_long_and_secure_32_plus_characters';
       process.env.VITE_AWS_COGNITO_CLIENT_ID = 'prod_client_id';
       process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'prod_pool_id';
@@ -252,7 +252,7 @@ describe('Configuration System', () => {
       delete process.env.SENDGRID_FROM_NAME;
       
       process.env.NODE_ENV = 'production';
-      process.env.DATABASE_URL = 'postgresql://user:pass@host/db';
+      process.env.DATABASE_URL = 'postgresql://<username>:<password>@host/db';
       process.env.SESSION_SECRET = 'very_secure_session_secret_32_plus_chars';
       process.env.VITE_AWS_COGNITO_CLIENT_ID = 'valid_client_id';
       process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'valid_pool_id';

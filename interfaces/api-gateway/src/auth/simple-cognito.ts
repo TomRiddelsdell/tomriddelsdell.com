@@ -240,7 +240,7 @@ export class SimpleCognitoHandler {
       // Return mock token for valid-looking codes in test environment
       return {
         access_token: 'mock_access_token',
-        id_token: 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0LXVzZXItaWQiLCJlbWFpbCI6InRlc3RAZW1haWwuY29tIiwibmFtZSI6IlRlc3QgVXNlciJ9.mock_signature',
+        id_token: 'eyJ<header>.<payload>.<signature><mock_signature>',
         refresh_token: 'mock_refresh_token',
         token_type: 'Bearer',
         expires_in: 3600

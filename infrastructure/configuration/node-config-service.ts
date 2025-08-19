@@ -355,7 +355,7 @@ class ConfigurationService {
       },
       
       database: {
-        url: process.env.DATABASE_URL || 'postgresql://test:test@localhost:5432/test_db',
+        url: process.env.DATABASE_URL || 'postgresql://<username>:<password>@localhost:5432/test_db',
         pool: {
           min: parseInt(process.env.DB_POOL_MIN || (env === 'development' ? '1' : '1')),
           max: parseInt(process.env.DB_POOL_MAX || (env === 'development' ? '5' : '3')),

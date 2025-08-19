@@ -9,7 +9,7 @@ vi.mock('../../configuration/node-config-service', () => ({
   getConfig: vi.fn(() => ({
     environment: 'test',
     database: {
-      url: 'postgresql://test:test@localhost:5432/test',
+      url: 'postgresql://<username>:<password>@localhost:5432/test',
       pool: {
         min: 2,
         max: 10,

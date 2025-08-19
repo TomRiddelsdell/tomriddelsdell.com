@@ -36,7 +36,7 @@ describe('Node Config Service', () => {
       
       expect(config.environment).toBe('test');
       expect(config.security.session.secret).toBe('test-session-secret-32-characters-long!!');
-      expect(config.database.url).toBe('postgresql://test:test@localhost:5432/test_db');
+      expect(config.database.url).toBe('postgresql://<username>:<password>@localhost:5432/test_db');
     });
 
     it('should have correct test-specific settings', () => {
@@ -71,7 +71,7 @@ describe('Node Config Service', () => {
       
       // Test environment has valid values for all required fields
       expect(config.security.session.secret).toBe('test-session-secret-32-characters-long!!');
-      expect(config.database.url).toBe('postgresql://test:test@localhost:5432/test_db');
+      expect(config.database.url).toBe('postgresql://<username>:<password>@localhost:5432/test_db');
       expect(config.cognito.clientId).toBe('test-client-id');
       
       // This validates the required field validation logic exists
@@ -119,7 +119,7 @@ describe('Node Config Service', () => {
     it('should use test-specific database configuration', () => {
       const config = getConfig();
       
-      expect(config.database.url).toBe('postgresql://test:test@localhost:5432/test_db');
+      expect(config.database.url).toBe('postgresql://<username>:<password>@localhost:5432/test_db');
       expect(config.database.pool.max).toBe(3); // Test environment override
       expect(config.database.ssl.enabled).toBe(false); // Test environment setting
     });

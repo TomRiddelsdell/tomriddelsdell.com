@@ -47,7 +47,7 @@ vi.mock('../../../configuration/node-config-service', () => ({
   getConfig: vi.fn(() => ({
     environment: 'test',
     database: {
-      url: 'postgresql://test:test@localhost:5432/test',
+      url: 'postgresql://<username>:<password>@localhost:5432/test',
       pool: { min: 2, max: 10, connectionTimeoutMillis: 5000 },
       ssl: { enabled: false, rejectUnauthorized: false }
     },
@@ -84,7 +84,7 @@ vi.mock('../../../configuration/node-config-service', () => ({
 
 // Set up test environment variables
 process.env.NODE_ENV = 'test';
-process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
+process.env.DATABASE_URL = 'postgresql://<username>:<password>@localhost:5432/test';
 process.env.SESSION_SECRET = 'test-session-secret-minimum-32-characters-long';
 process.env.VITE_AWS_COGNITO_CLIENT_ID = 'test-client-id';
 process.env.VITE_AWS_COGNITO_USER_POOL_ID = 'test-user-pool-id';
