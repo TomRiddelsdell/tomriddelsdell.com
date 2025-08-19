@@ -11,7 +11,7 @@ export function setupAwsAuth() {
   }
 
   // Use centralized configuration for domains
-  const { getConfig } = require('../../../../infrastructure/configuration/config-loader');
+  const { getConfig } = require('../../../../infrastructure/configuration/node-config-service');
   const config = getConfig();
   const appDomain = config.services.external.baseUrl;
 

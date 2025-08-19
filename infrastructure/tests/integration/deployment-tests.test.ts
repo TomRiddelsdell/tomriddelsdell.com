@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getConfig } from '../../configuration/node-config-service';
 
 // Mock the configuration loader
-vi.mock('../../configuration/config-loader', () => ({
+vi.mock('../../configuration/node-config-service', () => ({
   getConfig: vi.fn(() => ({
     environment: 'test',
     database: {

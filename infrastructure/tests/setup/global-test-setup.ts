@@ -43,7 +43,7 @@ vi.mock('@sendgrid/mail', () => ({
 }));
 
 // Mock configuration system
-vi.mock('../../../configuration/config-loader', () => ({
+vi.mock('../../../configuration/node-config-service', () => ({
   getConfig: vi.fn(() => ({
     environment: 'test',
     database: {

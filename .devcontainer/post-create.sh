@@ -111,12 +111,49 @@ fi
 # AWS MCP uses stdio protocol - can't test directly
 echo "AWS Serverless MCP: ✅ Uses stdio protocol (tested via VS Code)"
 
+# Setup Amazon Q MCP configuration
+echo "🤖 Setting up Amazon Q MCP configuration..."
+mkdir -p /workspaces/.vscode
+
+# Create MCP configuration
+cat > /workspaces/.vscode/mcp.json << 'EOF'
+{
+  "mcpServers": {
+    "aws-cli": {
+      "command": "/usr/local/bin/aws",
+      "args": ["help"],
+      "env": {
+        "AWS_DEFAULT_REGION": "eu-west-2"
+      }
+    }
+  }
+}
+EOF
+
+# Create VS Code settings for Amazon Q
+cat > /workspaces/.vscode/settings.json << 'EOF'
+{
+  "amazonQ.mcp.servers": {
+    "aws-cli": {
+      "command": "aws",
+      "args": ["--version"],
+      "env": {
+        "AWS_DEFAULT_REGION": "eu-west-2"
+      }
+    }
+  }
+}
+EOF
+
+echo "✅ Amazon Q MCP configuration created"
+
 echo ""
 echo "🎉 Development environment ready!"
 echo ""
 echo "📋 Quick commands:"
 echo "  • Test GitHub setup: node scripts/secure-github-setup.js"
 echo "  • Check AWS status: aws sts get-caller-identity"
+echo "  • Test Amazon Q MCP: bash scripts/test-amazonq-mcp.sh"
 echo "  • List GitHub secrets: gh secret list --repo TomRiddelsdell/tomriddelsdell.com"
 echo "  • Run test workflow: gh workflow run '🧪 Test Workflow'"
 echo ""

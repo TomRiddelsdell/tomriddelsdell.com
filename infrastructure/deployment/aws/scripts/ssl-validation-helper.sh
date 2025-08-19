@@ -10,7 +10,10 @@ yellow() { echo -e "\033[33m$*\033[0m"; }
 blue() { echo -e "\033[34m$*\033[0m"; }
 bold() { echo -e "\033[1m$*\033[0m"; }
 
-CERT_ARN="arn:aws:acm:us-east-1:152903089773:certificate/8755d817-0f2a-4cae-93a3-7afea7d5ccee"
+# Load certificate ARN from centralized configuration
+echo "$(blue '🔧 Loading configuration...')"
+CONFIG_OUTPUT=$(node infrastructure/deployment/aws/scripts/load-config.cjs)
+CERT_ARN=$(echo "$CONFIG_OUTPUT" | node -e "console.log(JSON.parse(require('fs').readFileSync(0, 'utf8')).certificateArn)")
 
 echo "$(blue '🔐 SSL Certificate DNS Validation')"
 echo "$(blue '=================================')"

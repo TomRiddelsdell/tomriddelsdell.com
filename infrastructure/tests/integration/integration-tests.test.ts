@@ -5,7 +5,7 @@ import { registerRoutes } from '../../../interfaces/api-gateway/src/routes';
 import express from 'express';
 
 // Mock the configuration loader
-vi.mock('../../configuration/config-loader', () => ({
+vi.mock('../../configuration/node-config-service', () => ({
   getConfig: vi.fn(() => ({
     environment: 'test',
     database: {
