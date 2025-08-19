@@ -44,8 +44,8 @@ curl http://aws-mcp:8001/health     # Should return: {"status":"healthy"...}
 curl http://neptune-mcp:8002/health # Should return: {"status":"healthy"...}
 
 # Verify AWS credentials
-echo $AWS_ACCESS_KEY_ID      # Should show: REDACTED_AWS_KEY_ID
-echo $AWS_SECRET_ACCESS_KEY  # Should show: REDACTED_AWS_SECRET
+echo $AWS_ACCESS_KEY_ID      # Should show: AKIA... (your actual key)
+echo $AWS_SECRET_ACCESS_KEY  # Should show: (your actual secret)
 echo $AWS_DEFAULT_REGION     # Should show: eu-west-2
 ```
 

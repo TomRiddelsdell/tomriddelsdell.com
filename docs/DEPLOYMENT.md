@@ -1,101 +1,235 @@
-# tomriddelsdell.com Production Deployment
+# ☁️ Deployment Guide
 
-## 🚀 READY FOR IMMEDIATE DEPLOYMENT
+**Simple AWS deployment with automated CI/CD**
 
-Your tomriddelsdell.com platform is **production-ready** with enterprise-grade optimization and comprehensive documentation.
+## Quick Deploy Options
 
-## Quick Start
+### Option 1: GitHub Actions (Recommended)
+**Setup once, deploy automatically**
 
-### Option 1: Replit Deployment (Recommended)
-1. Click the **"Deploy"** button in Replit
-2. Configure environment variables using [docs/SECURITY_CONFIG.md](docs/SECURITY_CONFIG.md)
-3. Deploy with optimized production settings
+1. **Fork the repository** on GitHub
+2. **Add secrets** in your repo settings → Secrets and variables → Actions:
+   ```
+   AWS_ACCESS_KEY_ID=AKIA...
+   AWS_SECRET_ACCESS_KEY=your-secret...
+   PRODUCTION_DATABASE_URL=postgresql://...
+   SESSION_SECRET=your-32-char-secret
+   ```
+3. **Push to main branch** → Automatic deployment!
 
 ### Option 2: Manual Deployment
+**Direct AWS deployment**
+
 ```bash
-# 1. Optimize database (optional - improves performance)
-psql $DATABASE_URL -f docs/DATABASE_OPTIMIZATION.sql
-
-# 2. Build and deploy
+# 1. Build the application
 npm run build
-NODE_ENV=production npm start
 
-# 3. Verify deployment
-curl https://your-domain.com/health
+# 2. Deploy to AWS
+./infrastructure/deployment/aws/scripts/deploy-production.sh
+
+# 3. Your site is live!
 ```
 
-## System Status
+## Prerequisites
 
-### ✅ Production Readiness Complete
-- **Security**: Enterprise-grade hardening with zero vulnerabilities
-- **Performance**: 818KB total build (exceeds industry standards)
-- **Testing**: 75/75 tests passing (100% success rate)
-- **Database**: Fully indexed with 12 performance optimizations
-- **Monitoring**: Health checks and real-time metrics enabled
-- **Documentation**: Comprehensive operational procedures
+### AWS Account Setup
+1. **AWS Account**: Free tier is sufficient to start
+2. **IAM User**: Create user with programmatic access
+3. **Permissions**: Attach these AWS managed policies:
+   - `AWSLambdaFullAccess`
+   - `AmazonS3FullAccess`
+   - `CloudFrontFullAccess`
+   - `AWSCloudFormationFullAccess`
+   - `AmazonAPIGatewayAdministrator`
 
-### Performance Benchmarks
-- **API Response**: <250ms (excellent)
-- **Database Queries**: <100ms with optimization
-- **Page Load Time**: <2 seconds target
-- **Memory Usage**: <512MB per instance
-- **Build Size**: 191KB backend, 296KB frontend JS
+### Domain Setup (Optional)
+1. **Domain Registration**: Register your domain
+2. **SSL Certificate**: Request in AWS Certificate Manager
+3. **DNS Configuration**: Point domain to CloudFront distribution
 
-## Complete Documentation
+## Infrastructure Overview
 
-The **[docs/](docs/)** directory contains all production documentation:
+### AWS Resources Created
+```
+Your Domain (HTTPS)
+    ↓
+CloudFront CDN (Global)
+    ↓
+API Gateway (Regional)
+    ↓
+Lambda Function (Your app)
+    ↓
+PostgreSQL Database
+```
 
-| Document | Purpose | When to Use |
-|----------|---------|-------------|
-| **[DEPLOYMENT_SUMMARY.md](docs/DEPLOYMENT_SUMMARY.md)** | Executive overview | Before deployment planning |
-| **[DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)** | Complete procedures | During deployment |
-| **[SECURITY_CONFIG.md](docs/SECURITY_CONFIG.md)** | Security settings | Environment setup |
-| **[BUILD_ANALYSIS.md](docs/BUILD_ANALYSIS.md)** | Performance details | Optimization planning |
-| **[PRODUCTION_STATUS.md](docs/PRODUCTION_STATUS.md)** | Final optimization status | Deployment validation |
-| **[DATABASE_OPTIMIZATION.sql](docs/DATABASE_OPTIMIZATION.sql)** | Performance script | Database setup |
-| **[production.env](docs/production.env)** | Environment template | Configuration |
+### Cost Estimation
+- **Development**: $0-5/month (within free tier)
+- **Small Production**: $10-25/month
+- **High Traffic**: $25-50/month
 
-## Health Monitoring
+## Environment Configuration
 
-### Production Endpoints
-- **Load Balancer**: `GET /health` (simple uptime check)
-- **System Health**: `GET /api/monitoring/health-check` (comprehensive status)  
-- **Detailed Metrics**: `GET /api/monitoring/status` (authenticated monitoring)
+### Required Environment Variables
+```bash
+# Core Application
+NODE_ENV=production
+DATABASE_URL=postgresql://user:pass@host:5432/database
 
-### Expected Performance
-- Health endpoint: <250ms response time
-- All services: "healthy" status
-- Database: Connected with optimized queries
-- Memory: <80% utilization
+# Security
+SESSION_SECRET=your-cryptographically-secure-32-character-secret
 
-## Support & Maintenance
+# AWS Infrastructure
+AWS_ACCESS_KEY_ID=AKIA...
+AWS_SECRET_ACCESS_KEY=your-secret
+AWS_ACCOUNT_ID=123456789012
+AWS_DEFAULT_REGION=eu-west-2
 
-### Key Features Ready
-- AWS Cognito authentication with secure sessions
-- Role-based access control (admin/user)
-- Real-time monitoring dashboard
-- Comprehensive user management
-- Database performance optimization
-- Security event logging
+# Optional: Custom Domain
+PRODUCTION_CERTIFICATE_ARN=arn:aws:acm:...
+DOMAIN_NAME=yourdomain.com
+```
 
-### Monitoring Active
-- System health tracking
-- Performance metrics collection
-- Security event monitoring
-- Database query optimization
-- User activity logging
+### Optional Integrations
+```bash
+# GitHub Integration (for portfolio features)
+GITHUB_TOKEN=ghp_...
+GITHUB_OWNER=yourusername
+GITHUB_REPO=yourrepo
 
----
+# Email Service (for contact forms)
+EMAIL_PROVIDER=sendgrid
+SENDGRID_API_KEY=SG...
+SENDGRID_FROM_EMAIL=noreply@yourdomain.com
 
-## Executive Summary
+# Authentication (if using AWS Cognito)
+COGNITO_USER_POOL_ID=eu-west-2_...
+COGNITO_CLIENT_ID=...
+```
 
-**tomriddelsdell.com is enterprise-ready for immediate production deployment.**
+## Database Setup
 
-- **Deployment Confidence**: 99% (comprehensive preparation)
-- **Risk Level**: Minimal (thorough testing and optimization)
-- **Performance Grade**: A+ (exceeds industry standards)
-- **Security Compliance**: Enterprise-grade (zero vulnerabilities)
+### Option 1: Neon (Recommended)
+**Free PostgreSQL with modern features**
 
-The platform meets all production requirements with excellent performance, comprehensive security, and complete operational documentation.
+1. **Create account** at [console.neon.tech](https://console.neon.tech)
+2. **Create database** → Copy connection string
+3. **Update environment**:
+   ```bash
+   DATABASE_URL=postgresql://user:pass@ep-example.us-east-2.aws.neon.tech/neondb?sslmode=require
+   ```
 
-**Ready to deploy now with maximum confidence.**
+### Option 2: AWS RDS
+**Managed PostgreSQL on AWS**
+
+```bash
+# Create RDS instance
+aws rds create-db-instance \
+  --db-instance-identifier myapp-db \
+  --db-instance-class db.t3.micro \
+  --engine postgres \
+  --master-username myuser \
+  --master-user-password mypassword \
+  --allocated-storage 20
+```
+
+### Option 3: Local Development
+**For testing only**
+
+```bash
+# Install PostgreSQL locally
+# Create database
+createdb tomriddelsdell_dev
+
+# Update .env
+DATABASE_URL=postgresql://user:pass@localhost:5432/tomriddelsdell_dev
+```
+
+## Deployment Process
+
+### Automated Deployment (GitHub Actions)
+**Triggers on every push to main**
+
+1. **Code Quality**: Linting, type checking, testing
+2. **Security Scan**: Dependency vulnerabilities, code analysis
+3. **Build**: Optimize for production
+4. **Deploy**: Update AWS infrastructure
+5. **Verify**: Health checks and monitoring
+
+### Manual Deployment
+**For direct control**
+
+```bash
+# 1. Prepare environment
+cp .env.template .env.production
+# Edit .env.production with production values
+
+# 2. Build application
+NODE_ENV=production npm run build
+
+# 3. Deploy to AWS
+export $(cat .env.production | xargs)
+./infrastructure/deployment/aws/scripts/deploy-production.sh
+
+# 4. Verify deployment
+curl https://yourdomain.com/api/health
+```
+
+## Troubleshooting
+
+### Common Issues
+
+❌ **"CloudFormation stack failed"**
+```bash
+# Check CloudFormation events
+aws cloudformation describe-stack-events --stack-name tomriddelsdell-com-production
+
+# Clean up failed stack
+aws cloudformation delete-stack --stack-name tomriddelsdell-com-production
+```
+
+❌ **"Lambda function timeout"**
+```bash
+# Check function logs
+aws logs tail /aws/lambda/tomriddelsdell-com-production --follow
+
+# Increase timeout in CloudFormation template
+Timeout: 30  # seconds
+```
+
+❌ **"Database connection failed"**
+```bash
+# Verify database URL
+echo $DATABASE_URL
+
+# Test connection
+psql "$DATABASE_URL" -c "SELECT 1;"
+```
+
+❌ **"Certificate validation failed"**
+```bash
+# Check certificate status
+aws acm describe-certificate --certificate-arn $CERTIFICATE_ARN
+
+# Ensure DNS validation records are created
+# Check domain registrar DNS settings
+```
+
+### Debug Mode
+```bash
+# Enable detailed logging
+export DEBUG=true
+
+# Deploy with verbose output
+./infrastructure/deployment/aws/scripts/deploy-production.sh --verbose
+```
+
+## Support & Resources
+
+For detailed information, see:
+- [SECURITY.md](SECURITY.md) - Security configuration and best practices
+- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture overview
+
+### Community
+- [GitHub Issues](https://github.com/TomRiddelsdell/tomriddelsdell.com/issues)
+- [GitHub Discussions](https://github.com/TomRiddelsdell/tomriddelsdell.com/discussions)
+- [AWS Community](https://aws.amazon.com/developer/community/)

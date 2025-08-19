@@ -375,7 +375,7 @@ docker-compose -f .devcontainer/docker-compose.yml restart
 ```bash
 # Test centralized configuration loading
 npx tsx -e "
-import { getConfig } from './infrastructure/configuration/config-loader.js';
+import { getConfig } from './infrastructure/configuration/node-config-service.js';
 const config = getConfig();
 console.log('GitHub Config:', {
   owner: config.integration.github.owner,
