@@ -231,49 +231,110 @@ INVALIDATION_ID=$(aws cloudfront create-invalidation \
 
 echo "✅ CloudFront invalidation created: $INVALIDATION_ID"
 
-# Step 8: Health checks
-echo "🧪 Running production health checks..."
+# Step 8: Comprehensive Health Checks with Polling
+echo "🧪 Running production health checks with propagation polling..."
 
-# Wait for deployment to be ready
-echo "⏳ Waiting 60 seconds for deployment to stabilize..."
-sleep 60
+# Function to test endpoint health
+test_endpoint() {
+    local url="$1"
+    local name="$2"
+    local max_attempts=20
+    local attempt=1
+    
+    echo "🔍 Testing $name: $url"
+    
+    while [ $attempt -le $max_attempts ]; do
+        local status=$(curl -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")
+        
+        if [ "$status" == "200" ]; then
+            echo "✅ $name is responding correctly (attempt $attempt)"
+            return 0
+        else
+            echo "⏳ $name returned status: $status (attempt $attempt/$max_attempts)"
+            if [ $attempt -lt $max_attempts ]; then
+                sleep 30
+            fi
+        fi
+        
+        attempt=$((attempt + 1))
+    done
+    
+    echo "⚠️ $name failed to respond after $max_attempts attempts"
+    return 1
+}
 
-# Test domain
-echo "🌐 Testing domain: https://$DOMAIN_NAME"
-DOMAIN_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://$DOMAIN_NAME" || echo "000")
+# Test CloudFront distribution first
+CLOUDFRONT_URL="https://$CLOUDFRONT_ID.cloudfront.net"
+test_endpoint "$CLOUDFRONT_URL" "CloudFront Distribution"
+CLOUDFRONT_HEALTHY=$?
 
-if [ "$DOMAIN_STATUS" == "200" ]; then
-    echo "✅ Domain is responding correctly"
+# Test custom domain
+test_endpoint "https://$DOMAIN_NAME" "Custom Domain"
+DOMAIN_HEALTHY=$?
+
+# Test API endpoint
+if [ -n "$API_URL" ]; then
+    test_endpoint "$API_URL" "API Gateway"
+    API_HEALTHY=$?
 else
-    echo "⚠️ Domain returned status: $DOMAIN_STATUS"
+    API_HEALTHY=0
+    echo "ℹ️ No API URL to test"
 fi
 
-# Test API if available
-if [ -n "$API_URL" ]; then
-    echo "🔗 Testing API: $API_URL"
-    API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL" || echo "000")
-    
-    if [ "$API_STATUS" == "200" ]; then
-        echo "✅ API is responding correctly"
-    else
-        echo "⚠️ API returned status: $API_STATUS"
-    fi
+# Health check summary
+echo ""
+echo "📊 Health Check Summary:"
+echo "========================"
+if [ $CLOUDFRONT_HEALTHY -eq 0 ]; then
+    echo "✅ CloudFront Distribution: Healthy"
+else
+    echo "❌ CloudFront Distribution: Unhealthy"
+fi
+
+if [ $DOMAIN_HEALTHY -eq 0 ]; then
+    echo "✅ Custom Domain: Healthy"
+else
+    echo "❌ Custom Domain: Unhealthy (DNS propagation may still be in progress)"
+fi
+
+if [ $API_HEALTHY -eq 0 ]; then
+    echo "✅ API Gateway: Healthy"
+else
+    echo "❌ API Gateway: Unhealthy"
+fi
+
+# Overall health status
+if [ $CLOUDFRONT_HEALTHY -eq 0 ] && [ $API_HEALTHY -eq 0 ]; then
+    echo "✅ Core infrastructure is healthy"
+    DEPLOYMENT_HEALTHY=true
+else
+    echo "⚠️ Some components are not responding - deployment may need more time"
+    DEPLOYMENT_HEALTHY=false
 fi
 
 # Step 9: Deployment summary
 echo ""
-echo "🎉 DEPLOYMENT COMPLETED SUCCESSFULLY!"
+if [ "$DEPLOYMENT_HEALTHY" = true ]; then
+    echo "🎉 DEPLOYMENT COMPLETED SUCCESSFULLY!"
+else
+    echo "⚠️ DEPLOYMENT COMPLETED WITH WARNINGS!"
+fi
 echo "=================================="
 echo "🌐 Website: https://$DOMAIN_NAME"
 echo "🔗 API: $API_URL"
 echo "📦 S3 Bucket: $S3_BUCKET"
 echo "🌐 CloudFront: $CLOUDFRONT_ID"
+echo "🔄 Invalidation: $INVALIDATION_ID"
 echo ""
-echo "📋 Post-deployment tasks:"
-echo "- Monitor CloudFront invalidation progress"
-echo "- Verify SSL certificate configuration"
-echo "- Test all website functionality"
-echo "- Monitor Lambda function logs if issues occur"
+if [ "$DEPLOYMENT_HEALTHY" = true ]; then
+    echo "📋 All systems operational - no further action required"
+else
+    echo "📋 Post-deployment tasks:"
+    echo "- Wait 10-15 minutes for DNS/CloudFront propagation"
+    echo "- Monitor CloudFront invalidation progress"
+    echo "- Verify SSL certificate configuration"
+    echo "- Check Lambda function logs if API issues persist"
+fi
 echo ""
 echo "🔧 Manual fixes applied in this deployment:"
 echo "- S3 bucket public access policy for CloudFront"
@@ -286,4 +347,11 @@ echo "=================================="
 # Cleanup
 rm -f lambda-deployment.zip s3-public-policy.json
 
-echo "🚀 Production deployment script completed!"
+if [ "$DEPLOYMENT_HEALTHY" = true ]; then
+    echo "🚀 Production deployment script completed successfully!"
+    exit 0
+else
+    echo "🚀 Production deployment script completed with warnings!"
+    echo "ℹ️ Infrastructure deployed but some endpoints need more time to propagate"
+    exit 0  # Still exit 0 since deployment succeeded, just health checks need time
+fi

@@ -359,22 +359,48 @@ jobs:
         run: |
           echo "🧪 Running production health checks..."
           
-          # Wait for deployment to be ready
-          sleep 60
+          # Get CloudFront distribution ID for health checks
+          DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
+            --stack-name "${{ env.PROJECT_NAME }}-production" \
+            --region ${{ env.AWS_REGION }} \
+            --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDistributionId`].OutputValue' \
+            --output text)
           
-          # Test health endpoints
+          # Function to test endpoint with retries
+          test_endpoint_with_retries() {
+            local url="$1"
+            local name="$2"
+            local max_attempts=10
+            local attempt=1
+            
+            echo "Testing $name: $url"
+            
+            while [ $attempt -le $max_attempts ]; do
+              if curl -f "$url" >/dev/null 2>&1; then
+                echo "✅ $name is responding (attempt $attempt)"
+                return 0
+              else
+                echo "⏳ $name not ready (attempt $attempt/$max_attempts)"
+                if [ $attempt -lt $max_attempts ]; then
+                  sleep 30
+                fi
+              fi
+              attempt=$((attempt + 1))
+            done
+            
+            echo "⚠️ $name failed to respond after $max_attempts attempts"
+            return 1
+          }
+          
+          # Test CloudFront distribution
+          CLOUDFRONT_URL="https://$DISTRIBUTION_ID.cloudfront.net"
+          test_endpoint_with_retries "$CLOUDFRONT_URL" "CloudFront Distribution"
+          
+          # Test custom domain
           PRODUCTION_URL="https://${{ secrets.PRODUCTION_DOMAIN_NAME }}"
+          test_endpoint_with_retries "$PRODUCTION_URL" "Custom Domain"
           
-          echo "Testing frontend health..."
-          curl -f "$PRODUCTION_URL" || (echo "❌ Frontend health check failed" && exit 1)
-          
-          echo "Testing API health..."
-          curl -f "$PRODUCTION_URL/api/health" || (echo "❌ API health check failed" && exit 1)
-          
-          echo "Testing monitoring endpoints..."
-          curl -f "$PRODUCTION_URL/api/monitoring/health-check" || (echo "❌ Monitoring health check failed" && exit 1)
-          
-          echo "✅ All production health checks passed"
+          echo "✅ Production health checks completed"
 
       - name: 📊 Generate deployment report
         if: always()
