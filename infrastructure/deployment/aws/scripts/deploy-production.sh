@@ -231,6 +231,61 @@ INVALIDATION_ID=$(aws cloudfront create-invalidation \
 
 echo "✅ CloudFront invalidation created: $INVALIDATION_ID"
 
+# Step 7.5: Configure DNS to point to CloudFront
+echo "🌐 Configuring DNS records..."
+
+# Get CloudFront domain name
+CLOUDFRONT_DOMAIN=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontUrl`].OutputValue' --output text | sed 's|https://||')
+
+if [ -n "$CLOUDFRONT_DOMAIN" ]; then
+    # Find hosted zone for the domain
+    HOSTED_ZONE_ID=$(aws route53 list-hosted-zones --query "HostedZones[?Name=='${DOMAIN_NAME}.'].Id" --output text | sed 's|/hostedzone/||')
+    
+    if [ -n "$HOSTED_ZONE_ID" ] && [ "$HOSTED_ZONE_ID" != "None" ]; then
+        echo "📍 Found hosted zone: $HOSTED_ZONE_ID"
+        
+        # Update main domain A record
+        echo "🔄 Updating DNS record for $DOMAIN_NAME..."
+        aws route53 change-resource-record-sets --hosted-zone-id "$HOSTED_ZONE_ID" --change-batch "{
+            \"Changes\": [{
+                \"Action\": \"UPSERT\",
+                \"ResourceRecordSet\": {
+                    \"Name\": \"$DOMAIN_NAME\",
+                    \"Type\": \"A\",
+                    \"AliasTarget\": {
+                        \"DNSName\": \"$CLOUDFRONT_DOMAIN\",
+                        \"EvaluateTargetHealth\": false,
+                        \"HostedZoneId\": \"Z2FDTNDATAQYW2\"
+                    }
+                }
+            }]
+        }" >/dev/null
+        
+        # Update www subdomain A record
+        echo "🔄 Updating DNS record for www.$DOMAIN_NAME..."
+        aws route53 change-resource-record-sets --hosted-zone-id "$HOSTED_ZONE_ID" --change-batch "{
+            \"Changes\": [{
+                \"Action\": \"UPSERT\",
+                \"ResourceRecordSet\": {
+                    \"Name\": \"www.$DOMAIN_NAME\",
+                    \"Type\": \"A\",
+                    \"AliasTarget\": {
+                        \"DNSName\": \"$CLOUDFRONT_DOMAIN\",
+                        \"EvaluateTargetHealth\": false,
+                        \"HostedZoneId\": \"Z2FDTNDATAQYW2\"
+                    }
+                }
+            }]
+        }" >/dev/null
+        
+        echo "✅ DNS records updated to point to CloudFront"
+    else
+        echo "⚠️ No Route 53 hosted zone found for $DOMAIN_NAME - DNS must be configured manually"
+    fi
+else
+    echo "⚠️ CloudFront domain not found - skipping DNS configuration"
+fi
+
 # Step 8: Comprehensive Health Checks with Polling
 echo "🧪 Running production health checks with propagation polling..."
 
