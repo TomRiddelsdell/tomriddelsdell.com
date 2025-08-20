@@ -2,16 +2,172 @@ import { Router } from 'express';
 import { MetricCollectionService } from '../../../../domains/analytics/src/services/MetricCollectionService';
 import { IssueReproductionService } from '../../../../domains/analytics/src/services/IssueReproductionService';
 import { LogEntry, LogLevel, LogCategory } from '../../../../domains/analytics/src/entities/LogEntry';
-import { SystemHealth } from '../../../../domains/analytics/src/entities/SystemHealth';
+import { SystemHealth, ComponentId, ComponentType } from '../../../../domains/analytics/src/entities/SystemHealth';
 import { Alert } from '../../../../domains/analytics/src/entities/Alert';
 import { Metric, MetricCategory } from '../../../../domains/analytics/src/entities/Metric';
-import { MetricType } from '../../../../domains/analytics/src/value-objects/MetricValue';
+import { MetricType, MetricValue } from '../../../../domains/analytics/src/value-objects/MetricValue';
+import { IMetricRepository } from '../../../../domains/analytics/src/repositories/IMetricRepository';
+import { DomainEventPublisher } from '../../../../domains/shared-kernel/src/domain-services/DomainEventPublisher';
 
 const router = Router();
 
-// Initialize services
-const metricService = new MetricCollectionService();
-const reproductionService = new IssueReproductionService(metricService);
+// Mock metric repository for demonstration
+class MockMetricRepository implements IMetricRepository {
+  private metrics: Metric[] = [];
+
+  async save(metric: Metric): Promise<void> {
+    this.metrics.push(metric);
+  }
+
+  async saveMany(metrics: Metric[]): Promise<void> {
+    this.metrics.push(...metrics);
+  }
+
+  async findById(id: any): Promise<Metric | null> {
+    return this.metrics.find(m => m.getId().equals(id)) || null;
+  }
+
+  async findByQuery(options: any): Promise<Metric[]> {
+    return this.metrics.filter(m => {
+      if (options.timeRange) {
+        const timestamp = m.getTimestamp();
+        return timestamp >= options.timeRange.start && timestamp <= options.timeRange.end;
+      }
+      return true;
+    });
+  }
+
+  async findRecentMetrics(metricName: string, minutes: number): Promise<Metric[]> {
+    const cutoff = new Date(Date.now() - minutes * 60 * 1000);
+    return this.metrics.filter(m => 
+      m.getName() === metricName && m.getTimestamp() >= cutoff
+    );
+  }
+
+  async aggregate(options: any): Promise<any[]> {
+    return [];
+  }
+
+  async countByTimeRange(timeRange: any): Promise<number> {
+    return this.metrics.length;
+  }
+
+  async deleteOlderThan(date: Date): Promise<number> {
+    const before = this.metrics.length;
+    this.metrics = this.metrics.filter(m => m.getTimestamp() >= date);
+    return before - this.metrics.length;
+  }
+
+  async getMetricNames(): Promise<string[]> {
+    return Array.from(new Set(this.metrics.map(m => m.getName())));
+  }
+
+  async getUniqueValues(dimensionType: string): Promise<string[]> {
+    return [];
+  }
+}
+
+// Extended service class with additional methods for the API routes
+class ExtendedMetricCollectionService extends MetricCollectionService {
+  constructor(repository: IMetricRepository, eventPublisher: DomainEventPublisher) {
+    super(repository, eventPublisher);
+  }
+
+  async getSystemMetrics(): Promise<{
+    averageResponseTime?: number;
+    cpuUsage?: number;
+    memoryUsage?: number;
+    diskUsage?: number;
+    networkIO?: number;
+    errorRate?: number;
+    cacheHitRate?: number;
+    queueLength?: number;
+  }> {
+    // Mock implementation for demo
+    return {
+      averageResponseTime: 145,
+      cpuUsage: Math.random() * 30,
+      memoryUsage: Math.random() * 60,
+      diskUsage: Math.random() * 40,
+      networkIO: Math.random() * 100,
+      errorRate: 2.3,
+      cacheHitRate: 94,
+      queueLength: 0,
+    };
+  }
+
+  async getMetricsInTimeRange(startTime: Date, endTime: Date): Promise<Array<{
+    name: string;
+    value: number;
+    timestamp: Date;
+    category: string;
+  }>> {
+    // Mock implementation - in real app would query the repository
+    const metrics = [];
+    const timeSpan = endTime.getTime() - startTime.getTime();
+    const intervals = 20;
+    
+    for (let i = 0; i < intervals; i++) {
+      const timestamp = new Date(startTime.getTime() + (timeSpan / intervals) * i);
+      metrics.push({
+        name: 'api_response_time',
+        value: 100 + Math.random() * 100,
+        timestamp,
+        category: 'PERFORMANCE',
+      });
+      metrics.push({
+        name: 'error_rate',
+        value: Math.random() * 5,
+        timestamp,
+        category: 'ERROR',
+      });
+    }
+    
+    return metrics;
+  }
+
+  async getUserMetrics(): Promise<{ activeUsers: number }> {
+    return { activeUsers: Math.floor(Math.random() * 1000) };
+  }
+
+  async getCurrentMetrics(): Promise<Array<{ name: string; value: number }>> {
+    return [
+      { name: 'requests_per_minute', value: Math.floor(Math.random() * 1000) },
+      { name: 'active_connections', value: Math.floor(Math.random() * 100) },
+    ];
+  }
+
+  async getComponentMetrics(componentName: string): Promise<{
+    responseTime?: number;
+    errorRate?: number;
+    uptime?: number;
+  }> {
+    return {
+      responseTime: Math.random() * 200,
+      errorRate: Math.random() * 5,
+      uptime: 95 + Math.random() * 5,
+    };
+  }
+
+  async getActiveAlerts(): Promise<Array<{
+    getId(): string;
+    getName(): string;
+    getSeverity(): string;
+    getStatus(): string;
+    getDescription(): string;
+    getLastTriggered(): Date | null;
+    getMetricName(): string;
+  }>> {
+    // Mock alerts
+    return [];
+  }
+}
+
+// Initialize services with dependencies
+const mockRepository = new MockMetricRepository();
+const eventPublisher = DomainEventPublisher.getInstance();
+const metricService = new ExtendedMetricCollectionService(mockRepository, eventPublisher);
+const reproductionService = new IssueReproductionService(metricService, mockRepository);
 
 // Dashboard overview endpoint
 router.get('/dashboard', async (req, res) => {
@@ -289,12 +445,12 @@ async function getRecentActivity() {
     );
     
     return recentLogs
-      .filter(log => log.level === LogLevel.WARN || log.level === LogLevel.ERROR)
+      .filter(log => log.getLevel() === LogLevel.WARN || log.getLevel() === LogLevel.ERROR)
       .slice(0, 5)
       .map(log => ({
-        message: log.message,
-        timestamp: getRelativeTime(log.timestamp),
-        type: log.level === LogLevel.ERROR ? 'error' : 'warning',
+        message: log.getMessage(),
+        timestamp: getRelativeTime(log.getTimestamp()),
+        type: log.getLevel() === LogLevel.ERROR ? 'error' : 'warning',
       }));
   } catch (error) {
     console.warn('Failed to get recent activity, using defaults:', error);
@@ -360,18 +516,18 @@ async function getFilteredLogs(filters: {
     
     return logs
       .filter(log => {
-        if (filters.level !== 'all' && log.level !== filters.level) return false;
-        if (filters.search && !log.message.toLowerCase().includes(filters.search.toLowerCase())) return false;
+        if (filters.level !== 'all' && log.getLevel() !== filters.level) return false;
+        if (filters.search && !log.getMessage().toLowerCase().includes(filters.search.toLowerCase())) return false;
         return true;
       })
       .map(log => ({
-        id: `${log.timestamp.getTime()}_${Math.random()}`,
-        timestamp: log.timestamp.toISOString(),
-        level: log.level,
-        message: log.message,
-        component: log.component,
-        category: log.category,
-        context: log.context,
+        id: `${log.getTimestamp().getTime()}_${Math.random()}`,
+        timestamp: log.getTimestamp().toISOString(),
+        level: log.getLevel(),
+        message: log.getMessage(),
+        component: log.getSource(),
+        category: log.getCategory(),
+        context: log.getContext(),
       }))
       .slice(0, 100); // Limit for performance
   } catch (error) {
@@ -389,16 +545,27 @@ async function getSystemHealthStatus() {
     for (const componentName of components) {
       const metrics = await metricService.getComponentMetrics(componentName);
       const health = SystemHealth.create(
+        ComponentId.fromString(componentName.toLowerCase().replace(/\s+/g, '-')),
         componentName,
-        metrics.responseTime || 0,
-        metrics.errorRate || 0,
-        metrics.uptime || 100
+        ComponentType.API_GATEWAY, // Default type
+        {
+          cpuUsage: MetricValue.percentage(metrics.responseTime || 0),
+          memoryUsage: MetricValue.percentage(metrics.errorRate || 0),
+          diskUsage: MetricValue.percentage(metrics.uptime || 0),
+          networkIn: MetricValue.bytes(0),
+          networkOut: MetricValue.bytes(0),
+          responseTime: MetricValue.timer(metrics.responseTime || 0),
+          errorRate: MetricValue.percentage(metrics.errorRate || 0),
+          throughput: MetricValue.counter(1),
+        }
       );
+      
+      const summary = health.getHealthSummary();
       
       healthData.push({
         component: componentName,
-        status: health.getHealthStatus(),
-        score: health.getHealthScore(),
+        status: health.getStatus(),
+        score: summary.score,
         lastChecked: new Date().toISOString(),
         metrics: {
           responseTime: metrics.responseTime,

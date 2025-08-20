@@ -1,6 +1,6 @@
 import express from 'express';
 import { createServer } from 'http';
-import { createViteServer } from 'vite';
+import { createServer as createViteServer } from 'vite';
 import path from 'path';
 
 const app = express();

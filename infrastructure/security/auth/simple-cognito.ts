@@ -70,7 +70,7 @@ export class SimpleCognitoHandler {
           });
           console.log('Updated existing user with Cognito ID:', {
             ...dbUser,
-            email: dbUser.email?.replace(/(.{2})(.*)(@.*)/, '$1***$3')
+            email: dbUser?.email?.replace(/(.{2})(.*)(@.*)/, '$1***$3') || 'unknown'
           });
         } else {
           // Create new user with unique username
@@ -190,7 +190,7 @@ export class SimpleCognitoHandler {
       },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
-        client_id: this.config.cognito.clientId,
+        client_id: this.config.cognito.clientId || '',
         code,
         redirect_uri: redirectUri,
       }),

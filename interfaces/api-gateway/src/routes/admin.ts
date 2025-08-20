@@ -1,5 +1,5 @@
 import { Express, Request, Response } from 'express';
-import { storage } from './storage';
+import { storage } from '../storage';
 import type { Session } from 'express-session';
 
 // Middleware to check if user is an admin
@@ -86,7 +86,7 @@ export async function registerAdminRoutes(app: Express) {
         
         // Log this action
         await storage.createActivityLog({
-          userId: req.session.user.id,
+          userId: req.session.user?.id || 0,
           eventType: 'admin_action',
           status: 'success',
           details: {
@@ -103,7 +103,7 @@ export async function registerAdminRoutes(app: Express) {
         
         // Log this action
         await storage.createActivityLog({
-          userId: req.session.user.id,
+          userId: req.session.user?.id || 0,
           eventType: 'admin_action',
           status: 'success',
           details: {
