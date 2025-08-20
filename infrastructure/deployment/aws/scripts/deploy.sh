@@ -275,21 +275,27 @@ if [ ! -f "$TEMPLATE_FILE" ]; then
     exit 1
 fi
 
-# Check if deployment bucket exists, create if needed
-echo "$(yellow 'Checking deployment bucket...')"
+# Clean up any existing deployment bucket from failed deployments
+echo "$(yellow 'Cleaning up any existing deployment bucket...')"
 if [ "$DRY_RUN" = false ]; then
-    if ! aws s3 ls "s3://$DEPLOYMENT_BUCKET" >/dev/null 2>&1; then
-        echo "$(yellow 'Creating deployment bucket...')"
-        aws s3 mb "s3://$DEPLOYMENT_BUCKET" --region "$REGION"
-        
-        # Enable versioning
-        aws s3api put-bucket-versioning \
-            --bucket "$DEPLOYMENT_BUCKET" \
-            --versioning-configuration Status=Enabled
+    if aws s3 ls "s3://$DEPLOYMENT_BUCKET" >/dev/null 2>&1; then
+        echo "$(yellow 'Found existing deployment bucket, cleaning up...')"
+        aws s3 rm "s3://$DEPLOYMENT_BUCKET" --recursive --quiet || true
+        aws s3 rb "s3://$DEPLOYMENT_BUCKET" --region "$REGION" || true
+        echo "$(green '✅ Existing deployment bucket cleaned up')"
     fi
+    
+    echo "$(yellow 'Creating fresh deployment bucket...')"
+    aws s3 mb "s3://$DEPLOYMENT_BUCKET" --region "$REGION"
+    
+    # Enable versioning
+    aws s3api put-bucket-versioning \
+        --bucket "$DEPLOYMENT_BUCKET" \
+        --versioning-configuration Status=Enabled
+    
     echo "$(green '✅ Deployment bucket ready:') $DEPLOYMENT_BUCKET"
 else
-    echo "$(yellow '📋 Would check/create deployment bucket:') $DEPLOYMENT_BUCKET"
+    echo "$(yellow '📋 Would clean up and recreate deployment bucket:') $DEPLOYMENT_BUCKET"
 fi
 
 # Package Lambda function
