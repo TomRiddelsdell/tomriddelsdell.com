@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 
 // Mock AWS Cognito for infrastructure tests
-vi.mock('../../../interfaces/api-gateway/src/auth/simple-cognito', () => {
+vi.mock('../../../interfaces/api-gateway/src/auth/aws-cognito-handler', () => {
   const mockHandler = {
     handleCallback: vi.fn().mockImplementation(async (req: any, res: any) => {
       const { code } = req.body;
@@ -39,8 +39,8 @@ vi.mock('../../../interfaces/api-gateway/src/auth/simple-cognito', () => {
   };
 
   return {
-    SimpleCognitoHandler: vi.fn().mockImplementation(() => mockHandler),
-    simpleCognitoHandler: mockHandler
+    AwsCognitoHandler: vi.fn().mockImplementation(() => mockHandler),
+    awsCognitoHandler: mockHandler
   };
 });
 

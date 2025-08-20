@@ -1,6 +1,21 @@
 import type { Express, Request, Response } from "express";
 import { storage } from "./storage";
 
+// Extend session types
+declare module 'express-session' {
+  interface SessionData {
+    userId?: number;
+    googleUser?: any;
+    user?: {
+      id: number;
+      email: string;
+      displayName: string;
+      cognitoId: string;
+      role: string;
+    };
+  }
+}
+
 export function isAdmin(req: Request, res: Response, next: Function) {
   // Simple admin check - in production this should be more robust
   const user = req.session?.user;

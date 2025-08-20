@@ -2,6 +2,21 @@ import { Express, Request, Response } from 'express';
 import { storage } from '../storage';
 import type { Session } from 'express-session';
 
+// Extend session types
+declare module 'express-session' {
+  interface SessionData {
+    userId?: number;
+    googleUser?: any;
+    user?: {
+      id: number;
+      email: string;
+      displayName: string;
+      cognitoId: string;
+      role: string;
+    };
+  }
+}
+
 // Middleware to check if user is an admin
 export function isAdmin(req: Request, res: Response, next: Function) {
   // Check if user is logged in and has admin role

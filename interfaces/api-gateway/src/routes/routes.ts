@@ -15,6 +15,21 @@ import { AuthController } from "../auth/auth-controller";
 import { migrateToCognito } from "../migrations/add-cognito-support";
 import { getAuthConfig, validateAuthConfig } from "../auth/auth-config";
 
+// Extend session types
+declare module 'express-session' {
+  interface SessionData {
+    userId?: number;
+    googleUser?: any;
+    user?: {
+      id: number;
+      email: string;
+      displayName: string;
+      cognitoId: string;
+      role: string;
+    };
+  }
+}
+
 const SessionStore = MemoryStore(session);
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -59,11 +74,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // API Routes
-  // Simple Cognito authentication routes
-  const { simpleCognitoHandler } = await import('../auth/simple-cognito');
-  app.post('/api/auth/callback', simpleCognitoHandler.handleCallback.bind(simpleCognitoHandler));
-  app.get('/api/auth/me', simpleCognitoHandler.getCurrentUser.bind(simpleCognitoHandler));
-  app.post('/api/auth/signout', simpleCognitoHandler.signOut.bind(simpleCognitoHandler));
+  // AWS Cognito authentication routes
+  const { awsCognitoHandler } = await import('../auth/aws-cognito-handler');
+  app.post('/api/auth/callback', awsCognitoHandler.handleCallback.bind(awsCognitoHandler));
+  app.get('/api/auth/me', awsCognitoHandler.getCurrentUser.bind(awsCognitoHandler));
+  app.post('/api/auth/signout', awsCognitoHandler.signOut.bind(awsCognitoHandler));
 
   // Dashboard stats
   app.get('/api/dashboard/stats', AuthController.isAuthenticated, async (req: Request, res: Response) => {
