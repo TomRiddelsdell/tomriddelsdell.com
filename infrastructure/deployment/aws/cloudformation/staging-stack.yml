@@ -121,7 +121,7 @@ Resources:
     Properties:
       FunctionName: !Sub '${ProjectName}-${Environment}-api-gateway'
       Runtime: nodejs18.x
-      Handler: aws-lambda-adapter.handler
+      Handler: index.handler
       Timeout: 30
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
