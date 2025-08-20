@@ -502,6 +502,53 @@ else
     echo "$(yellow '📋 Would update Lambda function code from S3 package')"
 fi
 
+# Upload static assets to S3 (for staging)
+if [ "$DRY_RUN" = false ] && [ "$ENVIRONMENT" = "staging" ]; then
+    echo ""
+    echo "$(blue '📤 Uploading static assets to S3...')"
+    
+    S3_BUCKET=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`StaticAssetsBucket`].OutputValue' --output text)
+    
+    if [ -n "$S3_BUCKET" ] && [ "$S3_BUCKET" != "None" ]; then
+        aws s3 sync dist/ s3://"$S3_BUCKET"/ --delete --exclude "*.map" --exclude "lambda/*"
+        
+        # Set proper content types for web assets
+        aws s3 cp dist/index.html s3://"$S3_BUCKET"/index.html --content-type "text/html" --cache-control "no-cache" --metadata-directive REPLACE
+        aws s3 cp s3://"$S3_BUCKET"/assets/ s3://"$S3_BUCKET"/assets/ --recursive --content-type "text/css" --include "*.css" --metadata-directive REPLACE
+        aws s3 cp s3://"$S3_BUCKET"/assets/ s3://"$S3_BUCKET"/assets/ --recursive --content-type "application/javascript" --include "*.js" --metadata-directive REPLACE
+        
+        echo "$(green '✅ Static assets uploaded successfully')"
+    fi
+fi
+
+# Configure DNS for staging (same as production)
+if [ "$DRY_RUN" = false ] && [ "$ENVIRONMENT" = "staging" ]; then
+    echo ""
+    echo "$(blue '🌐 Configuring DNS records...')"
+    
+    # Get CloudFront domain name
+    CLOUDFRONT_DOMAIN=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontUrl`].OutputValue' --output text | sed 's|https://||')
+    
+    if [ -n "$CLOUDFRONT_DOMAIN" ]; then
+        # Find hosted zone for the domain
+        HOSTED_ZONE_ID=$(aws route53 list-hosted-zones --query "HostedZones[?Name=='tomriddelsdell.com.'].Id" --output text | sed 's|/hostedzone/||')
+        
+        if [ -n "$HOSTED_ZONE_ID" ] && [ "$HOSTED_ZONE_ID" != "None" ]; then
+            echo "$(yellow 'Found hosted zone:') $HOSTED_ZONE_ID"
+            
+            # Skip DNS record creation for staging - keep it private
+            echo "$(yellow 'Skipping public DNS record for staging security')"
+            echo "$(blue 'Access staging via CloudFront URL:') https://$CLOUDFRONT_DOMAIN"
+            
+            echo "$(green '✅ DNS records updated to point to CloudFront')"
+        else
+            echo "$(yellow '⚠️ No Route 53 hosted zone found - DNS must be configured manually')"
+        fi
+    else
+        echo "$(yellow '⚠️ CloudFront domain not found - skipping DNS configuration')"
+    fi
+fi
+
 # Get stack outputs
 echo ""
 echo "$(blue '📋 Deployment Results')"

@@ -121,7 +121,12 @@ class SecureGitHubSetup {
       const secrets = this.generateSecretsList();
       
       console.log(`\n✅ Setup complete! ${secrets.length} secrets ready to configure.`);
-      console.log('\n🎉 Your CI/CD pipeline will be active once secrets are set!');
+      console.log('\n🔧 Next steps:');
+      console.log('1. Run SSL certificate setup: ./infrastructure/deployment/aws/scripts/setup-ssl-certificates.sh');
+      console.log('2. Add DNS validation records for your certificates');
+      console.log('3. Wait for certificate validation (5-30 minutes)');
+      console.log('4. Test deployment pipeline');
+      console.log('\n🎉 Your CI/CD pipeline will be active once certificates are validated!');
       
     } catch (error) {
       console.error('\n❌ Setup failed:', error.message);
