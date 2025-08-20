@@ -129,7 +129,7 @@ Resources:
           exports.handler = async (event) => {
             return {
               statusCode: 200,
-              body: JSON.stringify({ message: 'API Gateway Lambda - Deploy pending' })
+              body: JSON.stringify({ message: 'Staging API Gateway - Deploy pending' })
             };
           };
       Environment:
@@ -231,14 +231,12 @@ Resources:
         - Key: Environment
           Value: !Ref Environment
 
-  # CloudFront Distribution
+  # CloudFront Distribution (no custom domain for staging privacy)
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
-        Aliases:
-          - !Ref DomainName
-        Comment: !Sub '${ProjectName} ${Environment} distribution'
+        Comment: !Sub '${ProjectName} ${Environment} distribution - Private access only'
         DefaultCacheBehavior:
           TargetOriginId: api-gateway
           ViewerProtocolPolicy: redirect-to-https

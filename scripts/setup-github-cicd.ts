@@ -58,20 +58,9 @@ class GitHubCICDSetup {
     // Get repository public key
     const publicKeyData = await this.githubRequest(`/repos/${this.config.owner}/${this.config.repo}/actions/secrets/public-key`);
     
-    // Use Node.js crypto for encryption (simpler than sodium-native in script)
-    const crypto = await import('crypto');
-    const sodium = await import('sodium-native');
-    
-    const messageBytes = Buffer.from(value);
-    const keyBytes = Buffer.from(publicKeyData.key, 'base64');
-    const encryptedBytes = Buffer.alloc(messageBytes.length + sodium.crypto_box_SEALBYTES);
-    
-    sodium.crypto_box_seal(encryptedBytes, messageBytes, keyBytes);
-    
-    return {
-      encrypted_value: encryptedBytes.toString('base64'),
-      key_id: publicKeyData.key_id
-    };
+    // Note: This is a simplified approach for the setup script
+    // In production, use the GitHub CLI or proper sodium encryption
+    throw new Error('Use GitHub CLI for secret encryption: gh secret set SECRET_NAME --body "value"');
   }
 
   async setSecret(name: string, value: string): Promise<void> {
@@ -221,10 +210,12 @@ class GitHubCICDSetup {
       console.log('✅ Created production environment (deploys from main branch with approval)');
       console.log('');
       console.log('🔗 Next steps:');
-      console.log('1. Validate SSL certificates in AWS Console');
-      console.log('2. Test the pipeline by creating a PR');
-      console.log('3. Deploy to staging by pushing to develop branch');
-      console.log('4. Deploy to production by merging to main branch');
+      console.log('1. Run SSL certificate setup: ./infrastructure/deployment/aws/scripts/setup-ssl-certificates.sh');
+      console.log('2. Add DNS validation records for your certificates');
+      console.log('3. Wait for certificate validation (5-30 minutes)');
+      console.log('4. Test the pipeline by creating a PR');
+      console.log('5. Deploy to staging by pushing to develop branch');
+      console.log('6. Deploy to production by merging to main branch');
       
     } catch (error) {
       console.error('❌ Setup failed:', error);
