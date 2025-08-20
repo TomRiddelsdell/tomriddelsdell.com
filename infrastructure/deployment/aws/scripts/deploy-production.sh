@@ -186,9 +186,9 @@ echo "📤 Uploading static assets to S3..."
 aws s3 sync dist/ s3://"$S3_BUCKET"/ --delete --exclude "*.map" --exclude "lambda/*"
 
 # Set proper content types for web assets
-aws s3 cp dist/index.html s3://"$S3_BUCKET"/index.html --content-type "text/html" --cache-control "no-cache"
-aws s3 cp dist/assets/ s3://"$S3_BUCKET"/assets/ --recursive --content-type "text/css" --include "*.css"
-aws s3 cp dist/assets/ s3://"$S3_BUCKET"/assets/ --recursive --content-type "application/javascript" --include "*.js"
+aws s3 cp dist/index.html s3://"$S3_BUCKET"/index.html --content-type "text/html" --cache-control "no-cache" --metadata-directive REPLACE
+aws s3 cp s3://"$S3_BUCKET"/assets/ s3://"$S3_BUCKET"/assets/ --recursive --content-type "text/css" --include "*.css" --metadata-directive REPLACE
+aws s3 cp s3://"$S3_BUCKET"/assets/ s3://"$S3_BUCKET"/assets/ --recursive --content-type "application/javascript" --include "*.js" --metadata-directive REPLACE
 
 echo "✅ Static assets uploaded successfully"
 
