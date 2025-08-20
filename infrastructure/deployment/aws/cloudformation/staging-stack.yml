@@ -20,6 +20,7 @@ Parameters:
   CertificateArn:
     Type: String
     Description: SSL certificate ARN for CloudFront (must be in us-east-1)
+    Default: ""
   
   CognitoUserPoolId:
     Type: String
@@ -278,9 +279,7 @@ Resources:
             ErrorCachingMinTTL: 300
         PriceClass: PriceClass_100
         ViewerCertificate:
-          AcmCertificateArn: !Ref CertificateArn
-          SslSupportMethod: sni-only
-          MinimumProtocolVersion: TLSv1.2_2021
+          CloudFrontDefaultCertificate: true
       Tags:
         - Key: Project
           Value: !Ref ProjectName
