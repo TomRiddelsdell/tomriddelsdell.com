@@ -206,6 +206,10 @@ if [ -f "dist/lambda/index.mjs" ]; then
     aws lambda update-function-code \
         --function-name "$LAMBDA_FUNCTION_NAME" \
         --zip-file fileb://lambda-deployment.zip
+    
+    # Wait for function update to complete before updating configuration
+    echo "⏳ Waiting for Lambda function update to complete..."
+    aws lambda wait function-updated --function-name "$LAMBDA_FUNCTION_NAME"
         
     # Update handler if needed
     aws lambda update-function-configuration \
