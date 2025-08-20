@@ -127,6 +127,7 @@ cat > /tmp/permissions-policy.json << EOF
                 "route53:ListHostedZones",
                 "route53:ChangeResourceRecordSets",
                 "route53:GetChange",
+                "route53:ListResourceRecordSets",
                 "iam:GetRole",
                 "iam:PassRole",
                 "iam:CreateRole",
