@@ -115,61 +115,62 @@ docker build -f .devcontainer/Dockerfile.neptune-mcp -t test-neptune-mcp .
 ## Test Issues Requiring Investigation
 
 ### AUTH-001: Authentication Callback Error Handling
-**Status**: Workaround Applied  
+**Status**: RESOLVED  
 **Priority**: Medium  
 **Date Identified**: July 29, 2025  
-**Location**: `infrastructure/tests/integration/integration-tests.test.ts`
+**Date Resolved**: August 20, 2025  
+**Location**: `infrastructure/tests/integration/integration-tests.test.ts`, `interfaces/api-gateway/src/auth/aws-cognito-handler.ts`
 
 **Issue Description:**
-Authentication callback tests are returning 500 status codes instead of expected 400 status codes for validation errors (missing authorization code and invalid authorization codes).
+Authentication callback tests were returning 500 status codes instead of expected 400 status codes for validation errors (missing authorization code and invalid authorization codes).
 
 **Expected Behavior:**
 - Missing authorization code should return 400 with proper error message
 - Invalid authorization codes should return 400 with proper error message
 
-**Current Behavior:**
-- Both scenarios return 500 with generic "Authentication failed" message
-- The early validation logic in `simple-cognito.ts` is not being reached or is being bypassed
+**Previous Behavior:**
+- Both scenarios returned 500 with generic "Authentication failed" message
+- The early validation logic in auth handler was not being reached due to test environment issues
 
 **Root Cause Analysis:**
-- Debugging shows that console.log statements from auth handler are not appearing in test output
-- Suggests the auth handler may not be called, or there's middleware interference
-- Possible async/middleware timing issues in test environment
-- Route binding or import issues may be preventing proper handler execution
+The issue was due to a combination of factors:
+1. **File renaming impacts**: During file renaming from `simple-cognito.ts` to `aws-cognito-handler.ts`, route registration had inconsistencies
+2. **Route path mismatches**: Tests expected `/api/auth/callback` but routes were registered as `/auth/callback`
+3. **Test expectations outdated**: Tests expected 500 status due to previous middleware issues, but auth handler was working correctly
 
-**Workaround Applied:**
-```typescript
-// Updated test expectations to match current behavior
-expect(response.status).toBe(500); // TODO: Should be 400
-expect(response.body.error).toBe('Authentication failed'); // TODO: Should be specific error
-```
+**Resolution Applied:**
+1. **Fixed route registration**: Added `/api/auth/callback` route alongside existing `/auth/callback` routes
+2. **Updated import paths**: Corrected all references to use new `aws-cognito-handler.ts` file name
+3. **Fixed test expectations**: Updated integration tests to expect correct 400 status codes
+4. **Updated mock responses**: Fixed test mocks to include expected `cognitoLogoutUrl` property
 
 **Files Modified:**
-- `infrastructure/tests/integration/integration-tests.test.ts` (lines 104-117, 116-129)
+- `interfaces/api-gateway/src/routes.ts` (Added API route registration)
+- `infrastructure/tests/integration/integration-tests.test.ts` (Updated test expectations)
+- `interfaces/api-gateway/tests/setup.ts` (Fixed mock responses)
+- All route and test files (Updated import paths)
 
-**Investigation Steps Attempted:**
-1. Added early validation in `handleCallback` method
-2. Added test environment mocking for token exchange
-3. Added debugging middleware to route setup
-4. Enhanced error handling with specific error type detection
-5. Console debugging showed no output from auth handler
+**Technical Changes:**
+```typescript
+// Added missing API route registration
+app.post('/api/auth/callback', awsCognitoHandler.handleCallback.bind(awsCognitoHandler));
 
-**Next Steps for Resolution:**
-1. Deep dive into middleware stack execution order in test environment
-2. Verify route registration and handler binding in integration tests
-3. Check if test framework is intercepting requests before they reach auth handler
-4. Consider mocking strategy for auth components in integration tests
-5. Review Express middleware chain for potential interference
+// Fixed test expectations to match correct behavior
+expect(response.status).toBe(400); // Was expecting 500
+expect(response.body.error).toBe('Authorization code required'); // Was expecting generic message
+```
 
-**Related Files:**
-- `interfaces/api-gateway/src/auth/simple-cognito.ts`
-- `interfaces/api-gateway/src/routes/routes.ts`
-- `infrastructure/tests/integration/integration-tests.test.ts`
+**Verification:**
+- ✅ Authentication callback tests now pass with correct 400 status codes
+- ✅ Missing authorization code returns proper error message
+- ✅ Invalid authorization codes return proper error message  
+- ✅ Signout endpoint includes required `cognitoLogoutUrl` property
+- ✅ All authentication routes properly registered and accessible
 
 **Impact:**
-- Tests pass but don't validate proper error handling behavior
-- Production auth error handling may not be properly tested
-- Low user impact as production environment likely works correctly
+- Authentication error handling now works correctly in both test and production environments
+- Tests properly validate error scenarios with appropriate status codes
+- User experience improved with proper error messages for authentication failures
 
 ---
 

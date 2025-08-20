@@ -88,6 +88,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // POST route for Cognito OAuth callback (receives authorization code in request body)
     app.post('/auth/callback', awsCognitoHandler.handleCallback.bind(awsCognitoHandler));
     
+    // API endpoint for auth callback (for testing and API consistency)
+    app.post('/api/auth/callback', awsCognitoHandler.handleCallback.bind(awsCognitoHandler));
+    
     // Current user endpoint
     app.get('/api/auth/me', awsCognitoHandler.getCurrentUser.bind(awsCognitoHandler));
     

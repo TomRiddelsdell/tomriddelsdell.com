@@ -307,19 +307,19 @@ if [ "$DRY_RUN" = false ]; then
     trap "rm -rf $TEMP_DIR" EXIT
     
     # Copy Lambda build
-    if [ -f "$ROOT_DIR/dist/lambda/index.mjs" ]; then
-        cp "$ROOT_DIR/dist/lambda/index.mjs" "$TEMP_DIR/"
+    if [ -f "$ROOT_DIR/dist/lambda/index.js" ]; then
+        cp "$ROOT_DIR/dist/lambda/index.js" "$TEMP_DIR/"
         echo "$(green '✅ Lambda function code copied')"
     else
-        echo "$(red '❌ No Lambda build found at dist/lambda/index.mjs')"
+        echo "$(red '❌ No Lambda build found at dist/lambda/index.js')"
         echo "Available files in dist/:"
         ls -la "$ROOT_DIR/dist/" || echo "dist/ directory not found"
         exit 1
     fi
     
     # Copy source map if available
-    if [ -f "$ROOT_DIR/dist/lambda/index.mjs.map" ]; then
-        cp "$ROOT_DIR/dist/lambda/index.mjs.map" "$TEMP_DIR/"
+    if [ -f "$ROOT_DIR/dist/lambda/index.js.map" ]; then
+        cp "$ROOT_DIR/dist/lambda/index.js.map" "$TEMP_DIR/"
     fi
     
     # Create package.json for Lambda runtime dependencies
@@ -327,8 +327,8 @@ if [ "$DRY_RUN" = false ]; then
 {
   "name": "api-gateway-lambda", 
   "version": "1.0.0",
-  "type": "module",
-  "main": "index.mjs",
+  "type": "commonjs",
+  "main": "index.js",
   "dependencies": {
     "@vendia/serverless-express": "^4.12.6"
   }
