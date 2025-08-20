@@ -58,6 +58,7 @@ class GitHubCICDSetup {
     // Get repository public key
     const publicKeyData = await this.githubRequest(`/repos/${this.config.owner}/${this.config.repo}/actions/secrets/public-key`);
     
+
     // Note: This is a simplified approach for the setup script
     // In production, use the GitHub CLI or proper sodium encryption
     throw new Error('Use GitHub CLI for secret encryption: gh secret set SECRET_NAME --body "value"');
