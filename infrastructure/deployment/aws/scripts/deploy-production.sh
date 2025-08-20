@@ -3,7 +3,7 @@
 # Production Deployment Script with All Fixes Applied
 # This script captures all the manual steps and fixes we discovered during deployment
 
-set -e  # Exit on any error
+set -euo pipefail  # Exit on any error, undefined variables, or pipe failures
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -13,6 +13,19 @@ ENVIRONMENT="production"
 STACK_NAME="${PROJECT_NAME}-${ENVIRONMENT}"
 
 echo "🚀 Starting production deployment with all fixes applied..."
+
+# Function to check AWS credentials
+check_aws_credentials() {
+  if ! aws sts get-caller-identity >/dev/null 2>&1; then
+    echo "❌ AWS credentials expired or invalid"
+    exit 1
+  fi
+}
+
+# Initial credentials check
+echo "🔐 Verifying AWS credentials..."
+check_aws_credentials
+echo "✅ AWS credentials verified"
 
 # Load configuration from centralized config system first
 echo "🔧 Loading configuration from centralized system..."
@@ -113,7 +126,9 @@ if [ "$STACK_EXISTS" = "NONE" ]; then
 
 elif [ "$STACK_STATUS" = "UPDATE_ROLLBACK_COMPLETE" ] || [ "$STACK_STATUS" = "CREATE_COMPLETE" ] || [ "$STACK_STATUS" = "UPDATE_COMPLETE" ]; then
   echo "🔄 Updating existing CloudFormation stack..."
-  aws cloudformation update-stack \
+  
+  # Capture update result to handle "No updates" case properly
+  UPDATE_OUTPUT=$(aws cloudformation update-stack \
     --template-body file://"$SCRIPT_DIR/../cloudformation/production-stack.yml" \
     --stack-name tomriddelsdell-com-production \
     --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
@@ -125,13 +140,25 @@ elif [ "$STACK_STATUS" = "UPDATE_ROLLBACK_COMPLETE" ] || [ "$STACK_STATUS" = "CR
     --tags \
       Key=Project,Value=tomriddelsdell-com \
       Key=Environment,Value=production \
-      Key=ManagedBy,Value=cloudformation || {
-    echo "ℹ️ Update may have failed or no changes detected"
-  }
+      Key=ManagedBy,Value=cloudformation 2>&1) || UPDATE_FAILED=true
   
-  if [ $? -eq 0 ]; then
-    echo "⏳ Waiting for stack update to complete..."
-    aws cloudformation wait stack-update-complete --stack-name tomriddelsdell-com-production
+  if [[ "$UPDATE_OUTPUT" == *"No updates are to be performed"* ]]; then
+    echo "ℹ️ No changes detected - stack is already up to date"
+  elif [ "$UPDATE_FAILED" = true ]; then
+    echo "❌ Stack update failed: $UPDATE_OUTPUT"
+    exit 1
+  else
+    echo "⏳ Waiting for stack update to complete (with 30-minute timeout)..."
+    timeout 1800 aws cloudformation wait stack-update-complete --stack-name tomriddelsdell-com-production || {
+      echo "⚠️ Wait operation timed out, checking final status..."
+      FINAL_STATUS=$(aws cloudformation describe-stacks --stack-name tomriddelsdell-com-production --query 'Stacks[0].StackStatus' --output text)
+      if [[ "$FINAL_STATUS" == "UPDATE_COMPLETE" ]]; then
+        echo "✅ Stack update completed successfully"
+      else
+        echo "❌ Stack update failed with status: $FINAL_STATUS"
+        exit 1
+      fi
+    }
   fi
 
 else
@@ -143,6 +170,9 @@ echo "✅ CloudFormation stack deployed successfully"
 
 # Step 4: Get stack outputs
 echo "📋 Retrieving stack outputs..."
+
+# Check credentials before proceeding with post-deployment steps
+check_aws_credentials
 S3_BUCKET=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`StaticAssetsBucket`].OutputValue' --output text)
 CLOUDFRONT_ID=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDistributionId`].OutputValue' --output text)
 API_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`ApiGatewayUrl`].OutputValue' --output text)
