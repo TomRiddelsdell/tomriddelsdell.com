@@ -106,13 +106,12 @@ describe('Integration Tests - Core Platform', () => {
         .post('/api/auth/callback')
         .send({});
       
-      // FIXME: AUTH-001 - This test expects 500 due to middleware/async issues in test environment
-      // TODO: Fix auth handler to properly return 400 for missing code (see docs/Bugs.md#AUTH-001)
+      // FIXED: AUTH-001 - Auth handler now properly returns 400 for missing code
+      // Updated expectation to match correct behavior
       // Expected: 400 with "Authorization code required"
-      // Current: 500 with "Authentication failed"
-      expect(response.status).toBe(500);
+      expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toBe('Authentication failed');
+      expect(response.body.error).toBe('Authorization code required');
     });
 
     it('should handle invalid authentication tokens', async () => {
@@ -120,13 +119,12 @@ describe('Integration Tests - Core Platform', () => {
         .post('/api/auth/callback')
         .send({ code: 'invalid_code' });
       
-      // FIXME: AUTH-001 - This test expects 500 due to middleware/async issues in test environment  
-      // TODO: Fix auth handler to properly return 400 for invalid codes (see docs/Bugs.md#AUTH-001)
+      // FIXED: AUTH-001 - Auth handler now properly returns 400 for invalid codes
+      // Updated expectation to match correct behavior
       // Expected: 400 with "Invalid authorization code"
-      // Current: 500 with "Authentication failed"
-      expect(response.status).toBe(500);
+      expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toBe('Authentication failed');
+      expect(response.body.error).toBe('Invalid authorization code');
     });
   });
 

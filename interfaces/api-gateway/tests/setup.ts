@@ -35,7 +35,10 @@ vi.mock('../src/auth/aws-cognito-handler', () => {
     }),
     signOut: vi.fn().mockImplementation((req: any, res: any) => {
       req.session.destroy(() => {
-        res.json({ message: 'Signed out successfully' });
+        res.json({ 
+          message: 'Signed out successfully',
+          cognitoLogoutUrl: 'https://cognito.logout.url'
+        });
       });
     })
   };
