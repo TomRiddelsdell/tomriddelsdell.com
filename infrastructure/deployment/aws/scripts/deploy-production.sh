@@ -318,8 +318,12 @@ test_endpoint() {
     return 1
 }
 
-# Test CloudFront distribution first
-CLOUDFRONT_URL="https://$CLOUDFRONT_ID.cloudfront.net"
+# Test CloudFront distribution first (use the actual CloudFront URL from stack)
+CLOUDFRONT_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontUrl`].OutputValue' --output text)
+if [ -z "$CLOUDFRONT_URL" ] || [ "$CLOUDFRONT_URL" = "None" ]; then
+    # Fallback to constructing URL from distribution ID
+    CLOUDFRONT_URL="https://$CLOUDFRONT_ID.cloudfront.net"
+fi
 test_endpoint "$CLOUDFRONT_URL" "CloudFront Distribution"
 CLOUDFRONT_HEALTHY=$?
 
