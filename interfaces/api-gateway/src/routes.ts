@@ -17,6 +17,21 @@ import { migrateToCognito } from "./migrations/add-cognito-support";
 import { getAuthConfig, validateAuthConfig } from "./auth/auth-config";
 import analyticsRouter from "./routes/analytics";
 
+// Extend session types
+declare module 'express-session' {
+  interface SessionData {
+    userId?: number;
+    googleUser?: any;
+    user?: {
+      id: number;
+      email: string;
+      displayName: string;
+      cognitoId: string;
+      role: string;
+    };
+  }
+}
+
 const SessionStore = MemoryStore(session);
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -62,47 +77,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API Routes
   // Simple Cognito authentication routes
   try {
-    console.log('Attempting to import simple-cognito handler...');
-    const { simpleCognitoHandler } = await import('./auth/simple-cognito');
-    console.log('Successfully imported simple-cognito handler');
+    console.log('Attempting to import aws-cognito-handler...');
+    const { awsCognitoHandler } = await import('./auth/aws-cognito-handler');
+    console.log('Successfully imported aws-cognito-handler');
     
     console.log('Setting up auth routes...');
     // GET route for Cognito OAuth callback (receives authorization code as query param)
-    app.get('/auth/callback', (req, res) => {
-      // Convert GET request with query params to expected POST format
-      const code = req.query.code as string;
-      if (!code) {
-        return res.status(400).json({ error: 'Authorization code required' });
-      }
-      
-      // Transform request to match the handler's expected format
-      req.body = { code };
-      req.method = 'POST';
-      
-      // Call the existing handler
-      simpleCognitoHandler.handleCallback(req, res);
-    });
-    app.post('/api/auth/callback', simpleCognitoHandler.handleCallback.bind(simpleCognitoHandler));
-    app.get('/api/auth/me', simpleCognitoHandler.getCurrentUser.bind(simpleCognitoHandler));
-    app.post('/api/auth/signout', simpleCognitoHandler.signOut.bind(simpleCognitoHandler));
+    app.get('/auth/callback', awsCognitoHandler.handleCallback.bind(awsCognitoHandler));
+    
+    // POST route for Cognito OAuth callback (receives authorization code in request body)
+    app.post('/auth/callback', awsCognitoHandler.handleCallback.bind(awsCognitoHandler));
+    
+    // Current user endpoint
+    app.get('/api/auth/me', awsCognitoHandler.getCurrentUser.bind(awsCognitoHandler));
+    
+    // Sign out endpoint
+    app.post('/api/auth/signout', awsCognitoHandler.signOut.bind(awsCognitoHandler));
+    
     console.log('Auth routes set up successfully');
   } catch (error) {
     console.error('Failed to set up auth routes:', error);
-    // Fallback handler for auth routes to prevent 404s
-    app.post('/api/auth/callback', (req, res) => {
-      console.log('FALLBACK: Auth callback called');
-      const { code } = req.body;
-      if (!code) {
-        return res.status(400).json({ error: 'Authorization code required' });
-      }
-      return res.status(400).json({ error: 'Invalid authorization code' });
-    });
-    app.get('/api/auth/me', (req, res) => {
-      res.status(401).json({ error: 'Not authenticated' });
-    });
-    app.post('/api/auth/signout', (req, res) => {
-      res.json({ message: 'Signed out' });
-    });
   }
 
   // Dashboard stats

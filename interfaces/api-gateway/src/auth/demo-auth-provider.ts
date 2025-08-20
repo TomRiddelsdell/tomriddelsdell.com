@@ -1,9 +1,9 @@
 import { AuthOptions, AuthProvider, AuthUser } from "./types";
 
 /**
- * A simplified authentication provider for local development and demos
+ * A demo authentication provider for local development and testing
  */
-export class SimpleAuthProvider implements AuthProvider {
+export class DemoAuthProvider implements AuthProvider {
   private users: Map<string, AuthUser> = new Map();
   private emailToId: Map<string, string> = new Map();
   private passwords: Map<string, string> = new Map(); // Simple password storage
@@ -23,7 +23,7 @@ export class SimpleAuthProvider implements AuthProvider {
     this.emailToId.set(demoUser.email, demoUser.id);
     this.passwords.set(demoUser.id, 'password123'); // Default password for demo
     
-    console.log('SimpleAuthProvider initialized with demo user');
+    console.log('DemoAuthProvider initialized with demo user');
   }
 
   /**
