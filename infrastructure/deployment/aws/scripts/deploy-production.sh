@@ -197,10 +197,39 @@ echo "🔧 Updating Lambda function with application code..."
 LAMBDA_FUNCTION_NAME="${PROJECT_NAME}-${ENVIRONMENT}-api-gateway"
 
 if [ -f "dist/lambda/index.js" ]; then
-    # Create deployment package
-    cd dist/lambda
-    zip -r ../../lambda-deployment.zip index.js
-    cd ../..
+    # Create temporary directory for Lambda package
+    TEMP_DIR=$(mktemp -d)
+    trap "rm -rf $TEMP_DIR" EXIT
+    
+    # Copy Lambda build
+    cp "dist/lambda/index.js" "$TEMP_DIR/"
+    
+    # Copy source map if available
+    if [ -f "dist/lambda/index.js.map" ]; then
+        cp "dist/lambda/index.js.map" "$TEMP_DIR/"
+    fi
+    
+    # Create package.json for Lambda runtime dependencies
+    cat > "$TEMP_DIR/package.json" << 'EOF'
+{
+  "name": "api-gateway-lambda", 
+  "version": "1.0.0",
+  "type": "commonjs",
+  "main": "index.js",
+  "dependencies": {
+    "@vendia/serverless-express": "^4.12.6"
+  }
+}
+EOF
+    
+    # Install production dependencies
+    cd "$TEMP_DIR"
+    echo "📦 Installing Lambda runtime dependencies..."
+    npm install --omit=dev --omit=optional >/dev/null
+    
+    # Create Lambda package
+    zip -r ../lambda-deployment.zip . >/dev/null
+    cd ..
     
     # Update Lambda function code
     aws lambda update-function-code \
