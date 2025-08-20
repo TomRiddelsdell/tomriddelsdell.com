@@ -146,6 +146,7 @@ export class UserAdapter {
             .insert(users)
             .values({
               email: email,
+              username: email.split('@')[0] + '_demo',
               displayName: 'Demo User',
               photoURL: null,
               cognitoId: null,

@@ -30,6 +30,11 @@ export class AwsCognitoProvider implements AuthProvider {
       throw new Error("AWS Cognito provider requires region, userPoolId, and clientId options");
     }
 
+    // Initialize required properties first
+    this.userPoolId = options.userPoolId;
+    this.clientId = options.clientId;
+    this.clientSecret = options.clientSecret;
+
     // Get AWS credentials from configuration
     const config = getConfig();
 
@@ -52,10 +57,6 @@ export class AwsCognitoProvider implements AuthProvider {
         secretAccessKey: config.aws.secretAccessKey
       }
     });
-    
-    this.userPoolId = options.userPoolId;
-    this.clientId = options.clientId;
-    this.clientSecret = options.clientSecret;
   }
 
   /**

@@ -1,11 +1,12 @@
 import { 
   User, InsertUser, 
-  Workflow, InsertWorkflow, 
   ConnectedApp, InsertConnectedApp, 
   Template, InsertTemplate, 
   ActivityLogEntry, InsertActivityLog,
   DashboardStats
 } from "../../../domains/shared-kernel/src/schema";
+
+
 
 export interface IStorage {
   // User operations
@@ -21,14 +22,6 @@ export interface IStorage {
   getNewUserCount(days: number): Promise<number>;
   trackUserLogin(userId: number): Promise<void>;
   getTotalLoginCount(): Promise<number>;
-  
-  // Workflow operations 
-  getWorkflow(id: number): Promise<Workflow | undefined>;
-  getWorkflowsByUserId(userId: number): Promise<Workflow[]>;
-  getRecentWorkflows(userId: number, limit?: number): Promise<Workflow[]>;
-  createWorkflow(workflow: InsertWorkflow): Promise<Workflow>;
-  updateWorkflow(id: number, workflowData: Partial<Workflow>): Promise<Workflow | undefined>;
-  deleteWorkflow(id: number): Promise<boolean>;
   
   // Connected app operations
   getConnectedApp(id: number): Promise<ConnectedApp | undefined>;
@@ -61,28 +54,24 @@ export interface IStorage {
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
-  private workflows: Map<number, Workflow>;
-  private connectedApps: Map<number, ConnectedApp>;
+  private apps: Map<number, ConnectedApp>;
   private templates: Map<number, Template>;
   private activityLogs: Map<number, ActivityLogEntry>;
   private availableApps: ConnectedApp[];
   
   private userId: number;
-  private workflowId: number;
   private appId: number;
   private templateId: number;
   private logId: number;
 
   constructor() {
     this.users = new Map();
-    this.workflows = new Map();
-    this.connectedApps = new Map();
+    this.apps = new Map();
     this.templates = new Map();
     this.activityLogs = new Map();
     this.availableApps = [];
     
     this.userId = 1;
-    this.workflowId = 1;
     this.appId = 1;
     this.templateId = 1;
     this.logId = 1;
@@ -150,7 +139,7 @@ export class MemStorage implements IStorage {
     totalCount: number;
   }> {
     const loginLogs = Array.from(this.activityLogs.values())
-      .filter(log => log.action === 'login')
+      .filter(log => log.eventType === 'login')
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
     
     const totalCount = loginLogs.length;
@@ -168,7 +157,6 @@ export class MemStorage implements IStorage {
     const id = this.userId++;
     const now = new Date();
     const user: User = { 
-      ...insertUser, 
       id,
       lastLogin: now,
       createdAt: now,
@@ -176,7 +164,14 @@ export class MemStorage implements IStorage {
       role: 'user',
       isActive: true,
       loginCount: 0,
-      lastIP: null
+      lastIP: null,
+      cognitoId: insertUser.cognitoId ?? null,
+      username: insertUser.username,
+      email: insertUser.email,
+      displayName: insertUser.displayName ?? null,
+      photoURL: insertUser.photoURL ?? null,
+      provider: insertUser.provider ?? 'email',
+      preferredLanguage: insertUser.preferredLanguage ?? 'en'
     };
     this.users.set(id, user);
     return user;
@@ -196,68 +191,13 @@ export class MemStorage implements IStorage {
     return updatedUser;
   }
 
-  // Workflow operations
-  async getWorkflow(id: number): Promise<Workflow | undefined> {
-    return this.workflows.get(id);
-  }
-
-  async getWorkflowsByUserId(userId: number): Promise<Workflow[]> {
-    return Array.from(this.workflows.values()).filter(
-      (workflow) => workflow.userId === userId
-    );
-  }
-
-  async getRecentWorkflows(userId: number, limit: number = 3): Promise<Workflow[]> {
-    return Array.from(this.workflows.values())
-      .filter((workflow) => workflow.userId === userId)
-      .sort((a, b) => {
-        // Sort by last run date or creation date if no runs
-        const aDate = a.lastRun || a.createdAt;
-        const bDate = b.lastRun || b.createdAt;
-        return bDate.getTime() - aDate.getTime();
-      })
-      .slice(0, limit);
-  }
-
-  async createWorkflow(insertWorkflow: InsertWorkflow): Promise<Workflow> {
-    const id = this.workflowId++;
-    const now = new Date();
-    const workflow: Workflow = {
-      ...insertWorkflow,
-      id,
-      createdAt: now,
-      updatedAt: now,
-      lastRun: null
-    };
-    this.workflows.set(id, workflow);
-    return workflow;
-  }
-
-  async updateWorkflow(id: number, workflowData: Partial<Workflow>): Promise<Workflow | undefined> {
-    const workflow = this.workflows.get(id);
-    if (!workflow) return undefined;
-    
-    const updatedWorkflow = {
-      ...workflow,
-      ...workflowData,
-      updatedAt: new Date()
-    };
-    
-    this.workflows.set(id, updatedWorkflow);
-    return updatedWorkflow;
-  }
-
-  async deleteWorkflow(id: number): Promise<boolean> {
-    return this.workflows.delete(id);
-  }
-
   // Connected app operations
   async getConnectedApp(id: number): Promise<ConnectedApp | undefined> {
-    return this.connectedApps.get(id);
+    return this.apps.get(id);
   }
 
   async getConnectedAppsByUserId(userId: number): Promise<ConnectedApp[]> {
-    return Array.from(this.connectedApps.values()).filter(
+    return Array.from(this.apps.values()).filter(
       (app) => app.userId === userId
     );
   }
@@ -270,17 +210,25 @@ export class MemStorage implements IStorage {
     const id = this.appId++;
     const now = new Date();
     const app: ConnectedApp = {
-      ...insertApp,
       id,
+      name: insertApp.name,
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
+      status: insertApp.status ?? 'connected',
+      userId: insertApp.userId,
+      description: insertApp.description ?? null,
+      icon: insertApp.icon ?? null,
+      config: insertApp.config ?? {},
+      accessToken: insertApp.accessToken ?? null,
+      refreshToken: insertApp.refreshToken ?? null,
+      tokenExpiry: insertApp.tokenExpiry ?? null
     };
-    this.connectedApps.set(id, app);
+    this.apps.set(id, app);
     return app;
   }
 
   async updateConnectedApp(id: number, appData: Partial<ConnectedApp>): Promise<ConnectedApp | undefined> {
-    const app = this.connectedApps.get(id);
+    const app = this.apps.get(id);
     if (!app) return undefined;
     
     const updatedApp = {
@@ -289,12 +237,12 @@ export class MemStorage implements IStorage {
       updatedAt: new Date()
     };
     
-    this.connectedApps.set(id, updatedApp);
+    this.apps.set(id, updatedApp);
     return updatedApp;
   }
 
   async deleteConnectedApp(id: number): Promise<boolean> {
-    return this.connectedApps.delete(id);
+    return this.apps.delete(id);
   }
 
   // Template operations
@@ -340,9 +288,13 @@ export class MemStorage implements IStorage {
     const id = this.logId++;
     const now = new Date();
     const log: ActivityLogEntry = {
-      ...insertLog,
       id,
-      timestamp: now
+      status: insertLog.status,
+      userId: insertLog.userId,
+      eventType: insertLog.eventType,
+      details: insertLog.details ?? {},
+      timestamp: now,
+      ipAddress: insertLog.ipAddress ?? null
     };
     this.activityLogs.set(id, log);
     return log;
@@ -350,22 +302,17 @@ export class MemStorage implements IStorage {
 
   // Dashboard operations
   async getDashboardStats(userId: number): Promise<DashboardStats> {
-    const userWorkflows = await this.getWorkflowsByUserId(userId);
-    const activeWorkflows = userWorkflows.filter(w => w.status === 'active').length;
-    
     const connectedApps = (await this.getConnectedAppsByUserId(userId)).length;
+    const timeSaved = `${connectedApps * 2}h`; // Estimated time saved per app
     
-    // Calculate statistics based on actual user data
-    const tasksAutomated = userWorkflows.reduce((sum, workflow) => {
-      return sum + (workflow.status === 'active' ? 10 : 0);
-    }, 0);
-    
-    const hoursPerWorkflow = 2;
-    const timeSaved = `${userWorkflows.length * hoursPerWorkflow}h`;
-    
+    // Return basic system-like stats (this is mock data)
     return {
-      activeWorkflows,
-      tasksAutomated,
+      totalUsers: this.users.size,
+      activeUsers: Array.from(this.users.values()).filter(u => u.isActive).length,
+      requestsPerMinute: 25, // Mock value
+      averageResponseTime: 150, // Mock value in ms
+      errorRate: 0.02, // Mock 2% error rate
+      uptime: 99.9, // Mock 99.9% uptime
       connectedApps,
       timeSaved
     };

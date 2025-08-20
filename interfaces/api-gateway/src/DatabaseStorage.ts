@@ -97,37 +97,6 @@ export class DatabaseStorage implements IStorage {
     return Number(result.total) || 0;
   }
   
-  // Workflow operations - temporarily disabled (workflow table not yet implemented)
-  async getWorkflow(id: number): Promise<any | undefined> {
-    // TODO: Implement when workflow schema is added
-    return undefined;
-  }
-
-  async getWorkflowsByUserId(userId: number): Promise<any[]> {
-    // TODO: Implement when workflow schema is added
-    return [];
-  }
-
-  async getRecentWorkflows(userId: number, limit: number = 3): Promise<any[]> {
-    // TODO: Implement when workflow schema is added
-    return [];
-  }
-
-  async createWorkflow(workflow: any): Promise<any> {
-    // TODO: Implement when workflow schema is added
-    throw new Error('Workflow creation not yet implemented');
-  }
-
-  async updateWorkflow(id: number, workflowData: any): Promise<any | undefined> {
-    // TODO: Implement when workflow schema is added
-    return undefined;
-  }
-
-  async deleteWorkflow(id: number): Promise<boolean> {
-    // TODO: Implement when workflow schema is added
-    return false;
-  }
-
   // Connected app operations
   async getConnectedApp(id: number): Promise<ConnectedApp | undefined> {
     const [app] = await db.select().from(connectedApps).where(eq(connectedApps.id, id));
@@ -193,7 +162,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteConnectedApp(id: number): Promise<boolean> {
     const result = await db.delete(connectedApps).where(eq(connectedApps.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Template operations
@@ -224,7 +193,7 @@ export class DatabaseStorage implements IStorage {
     userId: number, 
     page: number = 1, 
     perPage: number = 20
-  ): Promise<{ entries: ActivityLogEntry[]; totalCount: number }> {
+  ): Promise<{ entries: ActivityLogEntry[]; totalCount: number; totalPages: number; currentPage: number }> {
     const offset = (page - 1) * perPage;
     
     const entries = await db
@@ -240,9 +209,13 @@ export class DatabaseStorage implements IStorage {
       .from(activityLogs)
       .where(eq(activityLogs.userId, userId));
     
+    const totalPages = Math.ceil(Number(totalCount) / perPage);
+    
     return {
       entries,
-      totalCount
+      totalCount: Number(totalCount),
+      totalPages,
+      currentPage: page
     };
   }
 
