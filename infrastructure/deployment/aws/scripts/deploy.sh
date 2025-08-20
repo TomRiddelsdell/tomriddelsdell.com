@@ -279,10 +279,28 @@ fi
 echo "$(yellow 'Cleaning up any existing deployment bucket...')"
 if [ "$DRY_RUN" = false ]; then
     if aws s3 ls "s3://$DEPLOYMENT_BUCKET" >/dev/null 2>&1; then
-        echo "$(yellow 'Found existing deployment bucket, cleaning up...')"
-        aws s3 rm "s3://$DEPLOYMENT_BUCKET" --recursive --quiet || true
-        aws s3 rb "s3://$DEPLOYMENT_BUCKET" --region "$REGION" || true
+        echo "$(yellow 'Found existing deployment bucket, force cleaning...')"
+        
+        # Delete all objects and versions
+        aws s3 rm "s3://$DEPLOYMENT_BUCKET" --recursive --quiet 2>/dev/null || true
+        
+        # Delete all object versions if versioning is enabled
+        aws s3api delete-objects --bucket "$DEPLOYMENT_BUCKET" \
+            --delete "$(aws s3api list-object-versions --bucket "$DEPLOYMENT_BUCKET" \
+            --query '{Objects: Versions[].{Key: Key, VersionId: VersionId}}' \
+            --output json)" --quiet 2>/dev/null || true
+        
+        # Delete any delete markers
+        aws s3api delete-objects --bucket "$DEPLOYMENT_BUCKET" \
+            --delete "$(aws s3api list-object-versions --bucket "$DEPLOYMENT_BUCKET" \
+            --query '{Objects: DeleteMarkers[].{Key: Key, VersionId: VersionId}}' \
+            --output json)" --quiet 2>/dev/null || true
+        
+        # Remove the bucket
+        aws s3 rb "s3://$DEPLOYMENT_BUCKET" --force 2>/dev/null || true
+        
         echo "$(green '✅ Existing deployment bucket cleaned up')"
+        sleep 2  # Wait for AWS to process
     fi
     
     echo "$(yellow 'Creating fresh deployment bucket...')"
