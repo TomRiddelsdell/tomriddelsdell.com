@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 
 // Mock AWS Cognito for testing
-vi.mock('../src/auth/simple-cognito', () => {
+vi.mock('../src/auth/aws-cognito-handler', () => {
   const mockHandler = {
     handleCallback: vi.fn().mockImplementation(async (req: any, res: any) => {
       const { code } = req.body;
@@ -10,25 +10,38 @@ vi.mock('../src/auth/simple-cognito', () => {
         res.redirect('/dashboard');
         return;
       }
-      // Simulate auth failure
+      
+      if (code === 'invalid_code') {
+        // Simulate invalid code error
+        res.status(400).json({ error: 'Invalid authorization code' });
+        return;
+      }
+      
+      // Simulate missing code
+      if (!code) {
+        res.status(400).json({ error: 'Authorization code required' });
+        return;
+      }
+      
+      // Default case - simulate server error
       res.status(500).json({ error: 'Authentication failed' });
     }),
-    getCurrentUser: vi.fn().mockImplementation(async (req: any, res: any) => {
-      res.status(401).json({ error: 'Not authenticated' });
+    getCurrentUser: vi.fn().mockImplementation((req: any, res: any) => {
+      if (req.session?.user) {
+        res.json(req.session.user);
+      } else {
+        res.status(401).json({ error: 'Not authenticated' });
+      }
     }),
-    signOut: vi.fn().mockImplementation(async (req: any, res: any) => {
-      res.json({ 
-        message: 'Signed out successfully',
-        cognitoLogoutUrl: 'https://cognito.logout.url'
+    signOut: vi.fn().mockImplementation((req: any, res: any) => {
+      req.session.destroy(() => {
+        res.json({ message: 'Signed out successfully' });
       });
-    }),
-    getAuthUrl: vi.fn().mockReturnValue('https://cognito.auth.url'),
-    getLogoutUrl: vi.fn().mockReturnValue('https://cognito.logout.url')
+    })
   };
-
+  
   return {
-    SimpleCognitoHandler: vi.fn().mockImplementation(() => mockHandler),
-    simpleCognitoHandler: mockHandler
+    awsCognitoHandler: mockHandler
   };
 });
 

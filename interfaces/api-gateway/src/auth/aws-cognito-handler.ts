@@ -15,7 +15,7 @@ interface CognitoUser {
   name?: string;
 }
 
-export class SimpleCognitoHandler {
+export class AwsCognitoHandler {
   private config = getAuthConfig();
   private processingCodes = new Set<string>(); // Track codes being processed
 
@@ -294,4 +294,4 @@ export class SimpleCognitoHandler {
   }
 }
 
-export const simpleCognitoHandler = new SimpleCognitoHandler();
+export const awsCognitoHandler = new AwsCognitoHandler();

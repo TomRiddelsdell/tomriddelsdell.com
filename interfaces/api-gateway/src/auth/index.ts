@@ -29,5 +29,4 @@ const authService = new AuthServiceImpl({
 
 export default authService;
 export * from './types';
-export * from './aws-auth-controller';
 export * from './user-adapter';

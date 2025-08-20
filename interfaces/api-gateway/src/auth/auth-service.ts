@@ -1,6 +1,6 @@
-import { AuthOptions, AuthProvider, AuthService } from './types';
+import { AuthUser, AuthOptions, AuthProvider, AuthService } from './types';
 import { AwsCognitoProvider } from './aws-cognito-provider';
-import { SimpleAuthProvider } from './simple-auth-provider';
+import { DemoAuthProvider } from './demo-auth-provider';
 
 /**
  * Main authentication service that manages auth providers
@@ -15,7 +15,7 @@ export class AuthServiceImpl implements AuthService {
         this.provider = new AwsCognitoProvider(options);
         break;
       case 'simple':
-        this.provider = new SimpleAuthProvider(options);
+        this.provider = new DemoAuthProvider(options);
         break;
       default:
         throw new Error(`Unsupported auth provider: ${options.provider}`);
