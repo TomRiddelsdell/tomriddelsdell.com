@@ -229,7 +229,6 @@ jobs:
           # Use centralized configuration deployment (same approach as production)
           chmod +x infrastructure/deployment/aws/scripts/deploy.sh
           ./infrastructure/deployment/aws/scripts/deploy.sh --environment staging --yes
-            --yes
           
           echo "✅ Staging deployment completed"
 
@@ -324,8 +323,7 @@ jobs:
           
           # Use the comprehensive deployment script with all fixes applied
           chmod +x infrastructure/deployment/aws/scripts/deploy-production.sh
-          ./infrastructure/deployment/aws/scripts/deploy-production.sh
-            --yes
+          ./infrastructure/deployment/aws/scripts/deploy-production.sh --yes
           
           echo "✅ Production deployment completed"
 
