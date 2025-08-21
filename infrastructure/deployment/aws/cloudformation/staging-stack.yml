@@ -80,7 +80,7 @@ Resources:
                 Action:
                   - s3:GetObject
                   - s3:PutObject
-                Resource: !Sub '${StaticAssetsBucket}/*'
+                Resource: !Sub '${StaticAssetsBucket.Arn}/*'
         - PolicyName: CloudWatchLogs
           PolicyDocument:
             Version: '2012-10-17'
