@@ -158,6 +158,7 @@ cat > /tmp/permissions-policy.json << EOF
                 "logs:DescribeDeliveries",
                 "logs:DescribeDeliveryDestinations",
                 "logs:DescribeDeliverySources",
+                "iam:CreateServiceLinkedRole",
                 "cloudwatch:PutMetricAlarm",
                 "cloudwatch:DeleteAlarms",
                 "cloudwatch:DescribeAlarms",
