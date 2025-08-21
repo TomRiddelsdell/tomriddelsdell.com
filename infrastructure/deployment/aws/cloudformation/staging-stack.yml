@@ -55,7 +55,18 @@ Resources:
         - Key: Environment
           Value: !Ref Environment
 
-
+  # S3 Bucket Policy for CloudFront
+  StaticAssetsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StaticAssetsBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}'
+            Action: s3:GetObject
+            Resource: !Sub '${StaticAssetsBucket.Arn}/*'
 
   # Lambda Execution Role
   LambdaExecutionRole:
@@ -160,7 +171,7 @@ Resources:
       FunctionName: !Ref ApiGatewayFunction
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
-      SourceArn: !Sub '${ApiGateway}/*/*'
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/*/*'
 
   # API Gateway Integration
   ApiGatewayIntegration:
@@ -211,51 +222,67 @@ Resources:
         - Key: Environment
           Value: !Ref Environment
 
-  # CloudFront Distribution (no custom domain for staging privacy)
+  # CloudFront Origin Access Identity
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub '${ProjectName} ${Environment} OAI'
+
+  # CloudFront Distribution (simplified for staging)
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
-        Comment: !Sub '${ProjectName} ${Environment} distribution - Private access only'
+        Comment: !Sub '${ProjectName} ${Environment} distribution'
         DefaultCacheBehavior:
-          TargetOriginId: api-gateway
+          TargetOriginId: s3-origin
           ViewerProtocolPolicy: redirect-to-https
           AllowedMethods:
-            - DELETE
             - GET
             - HEAD
-            - OPTIONS
-            - PATCH
-            - POST
-            - PUT
           CachedMethods:
             - GET
             - HEAD
-            - OPTIONS
           Compress: true
           ForwardedValues:
-            QueryString: true
-            Headers:
-              - Authorization
-              - Content-Type
-              - Origin
-              - Referer
+            QueryString: false
+            Cookies:
+              Forward: none
+        CacheBehaviors:
+          - PathPattern: '/api/*'
+            TargetOriginId: api-gateway
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - DELETE
+              - GET
+              - HEAD
+              - OPTIONS
+              - PATCH
+              - POST
+              - PUT
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+            ForwardedValues:
+              QueryString: true
+              Headers:
+                - Authorization
+                - Content-Type
         Origins:
+          - Id: s3-origin
+            DomainName: !GetAtt StaticAssetsBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
           - Id: api-gateway
             DomainName: !Sub '${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com'
             OriginPath: !Sub '/${Environment}'
             CustomOriginConfig:
               HTTPPort: 443
               OriginProtocolPolicy: https-only
-              OriginSSLProtocols:
-                - TLSv1.2
         Enabled: true
         DefaultRootObject: index.html
-        CustomErrorResponses:
-          - ErrorCode: 404
-            ResponseCode: 200
-            ResponsePagePath: /index.html
-            ErrorCachingMinTTL: 300
         PriceClass: PriceClass_100
         ViewerCertificate:
           CloudFrontDefaultCertificate: true
