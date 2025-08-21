@@ -194,9 +194,7 @@ Resources:
       ApiId: !Ref ApiGateway
       StageName: !Ref Environment
       AutoDeploy: true
-      AccessLogSettings:
-        DestinationArn: !GetAtt ApiGatewayLogGroup.Arn
-        Format: '$context.requestId $context.requestTime $context.httpMethod $context.routeKey $context.status $context.responseLength'
+      # AccessLogSettings removed for staging to avoid permission issues
       Tags:
         Project: !Ref ProjectName
         Environment: !Ref Environment
