@@ -223,7 +223,7 @@ jobs:
           export ENVIRONMENT=staging
           export DOMAIN_NAME=${{ secrets.STAGING_DOMAIN_NAME }}
           export STAGING_CERTIFICATE_ARN=${{ secrets.STAGING_CERTIFICATE_ARN }}
-          export VITE_AWS_COGNITO_USER_POOL_ID=${{ secrets.STAGING_COGNITO_USER_POOL_ID }}
+          export STAGING_COGNITO_USER_POOL_ID=${{ secrets.STAGING_COGNITO_USER_POOL_ID }}
           export DATABASE_URL=${{ secrets.STAGING_DATABASE_URL }}
           
           # Use centralized configuration deployment (same approach as production)
@@ -318,7 +318,7 @@ jobs:
           export ENVIRONMENT=production
           export DOMAIN_NAME=${{ secrets.PRODUCTION_DOMAIN_NAME }}
           export PRODUCTION_CERTIFICATE_ARN=${{ secrets.PRODUCTION_CERTIFICATE_ARN }}
-          export VITE_AWS_COGNITO_USER_POOL_ID=${{ secrets.PRODUCTION_COGNITO_USER_POOL_ID }}
+          export PRODUCTION_COGNITO_USER_POOL_ID=${{ secrets.PRODUCTION_COGNITO_USER_POOL_ID }}
           export DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
           
           # Use the comprehensive deployment script with all fixes applied
