@@ -100,6 +100,8 @@ cat > /tmp/permissions-policy.json << EOF
                 "s3:PutBucketPublicAccessBlock",
                 "s3:PutBucketVersioning",
                 "s3:PutBucketLifecycleConfiguration",
+                "s3:GetBucketLifecycleConfiguration",
+                "s3:PutLifecycleConfiguration",
                 "s3:PutBucketTagging",
                 "s3:GetBucketTagging",
                 "s3:ListAllMyBuckets",
@@ -147,7 +149,12 @@ cat > /tmp/permissions-policy.json << EOF
                 "logs:PutRetentionPolicy",
                 "logs:DescribeLogGroups",
                 "logs:TagResource",
-                "logs:UntagResource"
+                "logs:UntagResource",
+                "cloudwatch:PutMetricAlarm",
+                "cloudwatch:DeleteAlarms",
+                "cloudwatch:DescribeAlarms",
+                "cloudwatch:TagResource",
+                "cloudwatch:UntagResource"
             ],
             "Resource": "*"
         }
