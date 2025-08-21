@@ -1,0 +1,1 @@
+When a access or permission issue is discovered, prefer to grant the required permission by updating the relevant IAM policies or resource-based policies, rather than working around the issue. Ensure that the principle of least privilege is followed, granting only the permissions necessary for the task at hand.
