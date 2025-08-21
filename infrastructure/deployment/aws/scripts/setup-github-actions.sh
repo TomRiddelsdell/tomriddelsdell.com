@@ -127,6 +127,8 @@ cat > /tmp/permissions-policy.json << EOF
                 "cloudfront:CreateOriginAccessIdentity",
                 "cloudfront:GetOriginAccessIdentity",
                 "cloudfront:DeleteOriginAccessIdentity",
+                "cloudfront:UpdateOriginAccessIdentity",
+                "cloudfront:ListOriginAccessIdentities",
                 "cloudfront:TagResource",
                 "cloudfront:UntagResource",
                 "route53:CreateHostedZone",
