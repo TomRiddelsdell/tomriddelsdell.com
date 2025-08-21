@@ -268,42 +268,29 @@ echo "$(blue '📦 Preparing deployment artifacts...')"
 
 STACK_NAME="$PROJECT_NAME-$ENVIRONMENT"
 TEMPLATE_FILE="$SCRIPT_DIR/../cloudformation/$ENVIRONMENT-stack.yml"
-DEPLOYMENT_BUCKET="$PROJECT_NAME-$ENVIRONMENT-deployment"
+DEPLOYMENT_BUCKET="$PROJECT_NAME-$ENVIRONMENT-deployment-$(date +%Y%m%d-%H%M%S)"
 
 if [ ! -f "$TEMPLATE_FILE" ]; then
     echo "$(red '❌ CloudFormation template not found:') $TEMPLATE_FILE"
     exit 1
 fi
 
-# Clean up any existing deployment bucket from failed deployments
-echo "$(yellow 'Cleaning up any existing deployment bucket...')"
+# Clean up old deployment buckets from failed deployments
+echo "$(yellow 'Cleaning up old deployment buckets...')"
 if [ "$DRY_RUN" = false ]; then
-    if aws s3 ls "s3://$DEPLOYMENT_BUCKET" >/dev/null 2>&1; then
-        echo "$(yellow 'Found existing deployment bucket, force cleaning...')"
-        
-        # Delete all objects and versions
-        aws s3 rm "s3://$DEPLOYMENT_BUCKET" --recursive --quiet 2>/dev/null || true
-        
-        # Delete all object versions if versioning is enabled
-        aws s3api delete-objects --bucket "$DEPLOYMENT_BUCKET" \
-            --delete "$(aws s3api list-object-versions --bucket "$DEPLOYMENT_BUCKET" \
-            --query '{Objects: Versions[].{Key: Key, VersionId: VersionId}}' \
-            --output json)" --quiet 2>/dev/null || true
-        
-        # Delete any delete markers
-        aws s3api delete-objects --bucket "$DEPLOYMENT_BUCKET" \
-            --delete "$(aws s3api list-object-versions --bucket "$DEPLOYMENT_BUCKET" \
-            --query '{Objects: DeleteMarkers[].{Key: Key, VersionId: VersionId}}' \
-            --output json)" --quiet 2>/dev/null || true
-        
-        # Remove the bucket
-        aws s3 rb "s3://$DEPLOYMENT_BUCKET" --force 2>/dev/null || true
-        
-        echo "$(green '✅ Existing deployment bucket cleaned up')"
-        sleep 2  # Wait for AWS to process
+    # Clean up any old deployment buckets for this environment
+    OLD_BUCKETS=$(aws s3 ls | grep "$PROJECT_NAME-$ENVIRONMENT-deployment-" | awk '{print $3}' || true)
+    if [ -n "$OLD_BUCKETS" ]; then
+        echo "$(yellow 'Found old deployment buckets, cleaning up...')"
+        for bucket in $OLD_BUCKETS; do
+            echo "$(yellow 'Removing old bucket:') $bucket"
+            aws s3 rm "s3://$bucket" --recursive --quiet 2>/dev/null || true
+            aws s3 rb "s3://$bucket" --force 2>/dev/null || true
+        done
+        echo "$(green '✅ Old deployment buckets cleaned up')"
     fi
     
-    echo "$(yellow 'Creating fresh deployment bucket...')"
+    echo "$(yellow 'Creating deployment bucket:') $DEPLOYMENT_BUCKET"
     aws s3 mb "s3://$DEPLOYMENT_BUCKET" --region "$REGION"
     
     # Enable versioning
@@ -313,7 +300,7 @@ if [ "$DRY_RUN" = false ]; then
     
     echo "$(green '✅ Deployment bucket ready:') $DEPLOYMENT_BUCKET"
 else
-    echo "$(yellow '📋 Would clean up and recreate deployment bucket:') $DEPLOYMENT_BUCKET"
+    echo "$(yellow '📋 Would create deployment bucket:') $DEPLOYMENT_BUCKET"
 fi
 
 # Package Lambda function
