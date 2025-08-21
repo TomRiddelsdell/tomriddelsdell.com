@@ -236,40 +236,40 @@ Resources:
       DistributionConfig:
         Comment: !Sub '${ProjectName} ${Environment} distribution'
         DefaultCacheBehavior:
-          TargetOriginId: s3-origin
+          TargetOriginId: api-gateway
           ViewerProtocolPolicy: redirect-to-https
           AllowedMethods:
+            - DELETE
             - GET
             - HEAD
+            - OPTIONS
+            - PATCH
+            - POST
+            - PUT
           CachedMethods:
             - GET
             - HEAD
           Compress: true
           ForwardedValues:
-            QueryString: false
-            Cookies:
-              Forward: none
+            QueryString: true
+            Headers:
+              - Authorization
+              - Content-Type
         CacheBehaviors:
-          - PathPattern: '/api/*'
-            TargetOriginId: api-gateway
+          - PathPattern: '/static/*'
+            TargetOriginId: s3-origin
             ViewerProtocolPolicy: redirect-to-https
             AllowedMethods:
-              - DELETE
               - GET
               - HEAD
-              - OPTIONS
-              - PATCH
-              - POST
-              - PUT
             CachedMethods:
               - GET
               - HEAD
             Compress: true
             ForwardedValues:
-              QueryString: true
-              Headers:
-                - Authorization
-                - Content-Type
+              QueryString: false
+              Cookies:
+                Forward: none
         Origins:
           - Id: s3-origin
             DomainName: !GetAtt StaticAssetsBucket.RegionalDomainName
@@ -282,7 +282,6 @@ Resources:
               HTTPPort: 443
               OriginProtocolPolicy: https-only
         Enabled: true
-        DefaultRootObject: index.html
         PriceClass: PriceClass_100
         ViewerCertificate:
           CloudFrontDefaultCertificate: true
