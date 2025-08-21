@@ -1,5 +1,5 @@
 To Do:
-- Are all the scripts in /workspaces/interfaces/api-gateway/src/auth/ actually required? I would like to remove any that are unused if possible.
+- What is the benefit of adding back the api gateway logging that was removed in commit: eb36421 
 - Can we add a hook in the git commit that blocks if there are TypeScript errors?
 - Is the "monitoring" domain complete and functioning as expected?
 - You are a Domain Driven Design expert. Please review the repo architecture, focusing on the following aspects:
