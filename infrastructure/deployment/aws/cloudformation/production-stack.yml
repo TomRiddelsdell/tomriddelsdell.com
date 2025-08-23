@@ -28,6 +28,12 @@ Parameters:
     Type: String
     Description: Database connection URL
     NoEcho: true
+    
+  SessionSecret:
+    Type: String
+    Description: Session secret for authentication
+    NoEcho: true
+    Default: "production-session-secret-change-me"
 
 Resources:
   # S3 Bucket for static assets with public access configuration
@@ -141,6 +147,7 @@ Resources:
           COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
           STATIC_ASSETS_BUCKET: !Ref StaticAssetsBucket
           CORS_ORIGINS: !Sub 'https://${DomainName},https://www.${DomainName}'
+          SESSION_SECRET: !Ref SessionSecret
       # Note: ReservedConcurrentExecutions removed - requires lambda:PutFunctionConcurrency permission
       TracingConfig:
         Mode: Active

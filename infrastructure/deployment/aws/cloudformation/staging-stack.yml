@@ -30,6 +30,12 @@ Parameters:
     Type: String
     Description: Database connection URL
     NoEcho: true
+  
+  SessionSecret:
+    Type: String
+    Description: Session secret for authentication
+    NoEcho: true
+    Default: "staging-session-secret-change-in-production"
 
 Resources:
   # S3 Bucket for static assets
@@ -119,6 +125,7 @@ Resources:
           COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
           STATIC_ASSETS_BUCKET: !Ref StaticAssetsBucket
           CORS_ORIGINS: !Sub 'https://${DomainName}'
+          SESSION_SECRET: !Ref SessionSecret
       Tags:
         - Key: Project
           Value: !Ref ProjectName
