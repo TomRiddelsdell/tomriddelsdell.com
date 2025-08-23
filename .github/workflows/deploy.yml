@@ -224,6 +224,7 @@ jobs:
           export DOMAIN_NAME=${{ secrets.STAGING_DOMAIN_NAME }}
           export STAGING_CERTIFICATE_ARN=${{ secrets.STAGING_CERTIFICATE_ARN }}
           export STAGING_COGNITO_USER_POOL_ID=${{ secrets.STAGING_COGNITO_USER_POOL_ID }}
+          export STAGING_DATABASE_URL=${{ secrets.STAGING_DATABASE_URL }}
           export DATABASE_URL=${{ secrets.STAGING_DATABASE_URL }}
           
           # Use centralized configuration deployment (same approach as production)
@@ -244,8 +245,11 @@ jobs:
         run: |
           echo "🧪 Running post-deployment tests..."
           
+          # Get the actual CloudFront URL from CloudFormation outputs
+          CLOUDFRONT_URL=$(aws cloudformation describe-stacks --stack-name "tomriddelsdell-com-staging" --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontUrl`].OutputValue' --output text)
+          
           # Test health endpoints with 15-minute timeout
-          STAGING_URL="https://${{ secrets.STAGING_DOMAIN_NAME }}"
+          STAGING_URL="$CLOUDFRONT_URL"
           
           # Function to test endpoint with 15-minute polling
           test_endpoint_with_timeout() {
