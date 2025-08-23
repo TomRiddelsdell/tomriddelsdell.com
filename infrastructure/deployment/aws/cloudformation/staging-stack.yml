@@ -126,6 +126,7 @@ Resources:
           STATIC_ASSETS_BUCKET: !Ref StaticAssetsBucket
           CORS_ORIGINS: !Sub 'https://${DomainName}'
           SESSION_SECRET: !Ref SessionSecret
+          FORCE_ENV_CONFIG: 'true'
       Tags:
         - Key: Project
           Value: !Ref ProjectName
