@@ -353,6 +353,7 @@ jobs:
           export DOMAIN_NAME=${{ secrets.PRODUCTION_DOMAIN_NAME }}
           export PRODUCTION_CERTIFICATE_ARN=${{ secrets.PRODUCTION_CERTIFICATE_ARN }}
           export PRODUCTION_COGNITO_USER_POOL_ID=${{ secrets.PRODUCTION_COGNITO_USER_POOL_ID }}
+          export PRODUCTION_DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
           export DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
           
           # Use the comprehensive deployment script with all fixes applied
