@@ -1,4 +1,5 @@
 To Do:
+- I see a long list of s3 buckets being cleaned up on each deployment. Is there something preventing the clean-up being successful each time and causing the list of historical deployments to grow indefinitely?
 - What is the benefit of adding back the api gateway logging that was removed in commit: eb36421 
 - Can we add a hook in the git commit that blocks if there are TypeScript errors?
 - Is the "monitoring" domain complete and functioning as expected?

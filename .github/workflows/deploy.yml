@@ -244,17 +244,47 @@ jobs:
         run: |
           echo "🧪 Running post-deployment tests..."
           
-          # Wait for deployment to be ready
-          sleep 30
-          
-          # Test health endpoints
+          # Test health endpoints with 15-minute timeout
           STAGING_URL="https://${{ secrets.STAGING_DOMAIN_NAME }}"
           
-          echo "Testing frontend health..."
-          curl -f "$STAGING_URL" || (echo "❌ Frontend health check failed" && exit 1)
+          # Function to test endpoint with 15-minute polling
+          test_endpoint_with_timeout() {
+            local url="$1"
+            local name="$2"
+            local timeout_minutes=15
+            local timeout_seconds=$((timeout_minutes * 60))
+            local interval=30
+            local elapsed=0
+            
+            echo "Testing $name: $url (timeout: ${timeout_minutes} minutes)"
+            
+            while [ $elapsed -lt $timeout_seconds ]; do
+              if curl -f "$url" >/dev/null 2>&1; then
+                echo "✅ $name is responding (after ${elapsed}s)"
+                return 0
+              else
+                echo "⏳ $name not ready yet (${elapsed}s/${timeout_seconds}s elapsed)"
+                sleep $interval
+                elapsed=$((elapsed + interval))
+              fi
+            done
+            
+            echo "❌ $name failed to respond within ${timeout_minutes} minutes"
+            return 1
+          }
           
-          echo "Testing API health..."
-          curl -f "$STAGING_URL/api/health" || (echo "❌ API health check failed" && exit 1)
+          # Test endpoints with proper timeout
+          echo "🔍 Starting health checks with 15-minute timeout per endpoint..."
+          
+          if ! test_endpoint_with_timeout "$STAGING_URL" "Frontend"; then
+            echo "❌ Frontend health check failed"
+            exit 1
+          fi
+          
+          if ! test_endpoint_with_timeout "$STAGING_URL/api/health" "API Health"; then
+            echo "❌ API health check failed"
+            exit 1
+          fi
           
           echo "✅ All post-deployment tests passed"
 
