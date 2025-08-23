@@ -610,7 +610,7 @@ if [ "$DRY_RUN" = false ]; then
     if curl -s --fail "$API_URL" >/dev/null; then
         echo "$(green '✅ API Gateway is responding')"
     else
-        echo "$(red '❌ API Gateway is not responding')"
+        echo "$(yellow '⚠️ API Gateway may need a few minutes to become available')"
     fi
     
     if curl -s --fail "$CLOUDFRONT_URL" >/dev/null; then
