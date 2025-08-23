@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Staging environment for tomriddelsdell.com - DDD architecture with AWS serverless'
+Description: 'Optimized staging environment for GitHub Actions - tomriddelsdell.com'
 
 Parameters:
   ProjectName:
@@ -54,19 +54,6 @@ Resources:
           Value: !Ref ProjectName
         - Key: Environment
           Value: !Ref Environment
-
-  # S3 Bucket Policy for CloudFront
-  StaticAssetsBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref StaticAssetsBucket
-      PolicyDocument:
-        Statement:
-          - Effect: Allow
-            Principal:
-              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}'
-            Action: s3:GetObject
-            Resource: !Sub '${StaticAssetsBucket.Arn}/*'
 
   # Lambda Execution Role
   LambdaExecutionRole:
@@ -179,7 +166,7 @@ Resources:
     Properties:
       ApiId: !Ref ApiGateway
       IntegrationType: AWS_PROXY
-      IntegrationUri: !Sub '${ApiGatewayFunction.Arn}'
+      IntegrationUri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiGatewayFunction.Arn}/invocations'
       PayloadFormatVersion: '2.0'
 
   # API Gateway Route (catch-all)
@@ -222,59 +209,21 @@ Resources:
         - Key: Environment
           Value: !Ref Environment
 
-  # CloudFront Origin Access Identity
-  CloudFrontOriginAccessIdentity:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub '${ProjectName} ${Environment} OAI'
-
-  # CloudFront Distribution (simplified for staging)
+  # Minimal CloudFront Distribution (GitHub Actions optimized)
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
-        Comment: !Sub '${ProjectName} ${Environment} distribution'
+        Comment: !Sub '${ProjectName} ${Environment} distribution - GitHub Actions optimized'
         DefaultCacheBehavior:
           TargetOriginId: api-gateway
           ViewerProtocolPolicy: redirect-to-https
-          AllowedMethods:
-            - DELETE
-            - GET
-            - HEAD
-            - OPTIONS
-            - PATCH
-            - POST
-            - PUT
-          CachedMethods:
-            - GET
-            - HEAD
+          AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+          CachedMethods: [GET, HEAD]
           Compress: true
-          ForwardedValues:
-            QueryString: true
-            Headers:
-              - Authorization
-              - Content-Type
-        CacheBehaviors:
-          - PathPattern: '/static/*'
-            TargetOriginId: s3-origin
-            ViewerProtocolPolicy: redirect-to-https
-            AllowedMethods:
-              - GET
-              - HEAD
-            CachedMethods:
-              - GET
-              - HEAD
-            Compress: true
-            ForwardedValues:
-              QueryString: false
-              Cookies:
-                Forward: none
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled managed policy
+          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf  # CORS-S3Origin managed policy
         Origins:
-          - Id: s3-origin
-            DomainName: !GetAtt StaticAssetsBucket.RegionalDomainName
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
           - Id: api-gateway
             DomainName: !Sub '${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com'
             OriginPath: !Sub '/${Environment}'
