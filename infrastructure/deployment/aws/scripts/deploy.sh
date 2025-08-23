@@ -267,7 +267,7 @@ echo ""
 echo "$(blue '📦 Preparing deployment artifacts...')"
 
 STACK_NAME="$PROJECT_NAME-$ENVIRONMENT"
-TEMPLATE_FILE="$SCRIPT_DIR/../cloudformation/$ENVIRONMENT-stack-backup.yml"
+TEMPLATE_FILE="$SCRIPT_DIR/../cloudformation/$ENVIRONMENT-stack.yml"
 DEPLOYMENT_BUCKET="$PROJECT_NAME-$ENVIRONMENT-deployment-$(date +%Y%m%d-%H%M%S)"
 
 if [ ! -f "$TEMPLATE_FILE" ]; then
@@ -521,6 +521,13 @@ if [ "$DRY_RUN" = false ] && [ "$ENVIRONMENT" = "staging" ]; then
     S3_BUCKET=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query 'Stacks[0].Outputs[?OutputKey==`StaticAssetsBucket`].OutputValue' --output text)
     
     if [ -n "$S3_BUCKET" ] && [ "$S3_BUCKET" != "None" ]; then
+        # Ensure we're in the root directory and the dist folder exists
+        cd "$ROOT_DIR"
+        if [ ! -d "dist" ]; then
+            echo "$(red '❌ dist/ directory not found. Build may have failed.')"
+            exit 1
+        fi
+        
         aws s3 sync dist/ s3://"$S3_BUCKET"/ --delete --exclude "*.map" --exclude "lambda/*"
         
         # Set proper content types for web assets
