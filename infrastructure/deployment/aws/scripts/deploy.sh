@@ -383,6 +383,7 @@ PARAMETERS=(
     "ParameterKey=CertificateArn,ParameterValue=$CERTIFICATE_ARN"
     "ParameterKey=CognitoUserPoolId,ParameterValue=$COGNITO_USER_POOL_ID"
     "ParameterKey=DatabaseUrl,ParameterValue=$DATABASE_URL"
+    "ParameterKey=SessionSecret,ParameterValue=${SESSION_SECRET:-staging-session-secret-$(date +%s)}"
 )
 
 # Prepare stack tags
