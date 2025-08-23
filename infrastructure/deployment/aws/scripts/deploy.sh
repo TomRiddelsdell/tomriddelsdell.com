@@ -267,7 +267,7 @@ echo ""
 echo "$(blue '📦 Preparing deployment artifacts...')"
 
 STACK_NAME="$PROJECT_NAME-$ENVIRONMENT"
-TEMPLATE_FILE="$SCRIPT_DIR/../cloudformation/$ENVIRONMENT-stack.yml"
+TEMPLATE_FILE="$SCRIPT_DIR/../cloudformation/$ENVIRONMENT-stack-backup.yml"
 DEPLOYMENT_BUCKET="$PROJECT_NAME-$ENVIRONMENT-deployment-$(date +%Y%m%d-%H%M%S)"
 
 if [ ! -f "$TEMPLATE_FILE" ]; then
