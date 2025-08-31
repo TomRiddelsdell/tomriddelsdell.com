@@ -9,6 +9,8 @@ import { getConfig } from '../../../infrastructure/configuration/node-config-ser
 // Create Express app
 const createApp = () => {
   const app = express();
+  
+  // Get config only when creating the app (at runtime, not module load)
   const config = getConfig();
 
   // Security middleware - adapted for Lambda
