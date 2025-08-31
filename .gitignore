@@ -86,3 +86,6 @@ id_ed25519*
 
 # Sensitive docs
 docs/CONFIG_MIGRATION_PLAN.md
+
+# Lambda environment configuration (contains secrets)
+lambda-env.json
