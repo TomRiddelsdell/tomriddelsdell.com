@@ -234,7 +234,6 @@ Resources:
         Origins:
           - Id: api-gateway
             DomainName: !Sub '${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com'
-            OriginPath: !Sub '/${Environment}'
             CustomOriginConfig:
               HTTPPort: 443
               OriginProtocolPolicy: https-only
