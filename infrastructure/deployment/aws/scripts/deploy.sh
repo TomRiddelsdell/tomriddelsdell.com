@@ -275,22 +275,9 @@ if [ ! -f "$TEMPLATE_FILE" ]; then
     exit 1
 fi
 
-# Clean up old deployment buckets from failed deployments
-echo "$(yellow 'Cleaning up old deployment buckets...')"
+# Create deployment bucket first
+echo "$(yellow 'Creating deployment bucket:') $DEPLOYMENT_BUCKET"
 if [ "$DRY_RUN" = false ]; then
-    # Clean up any old deployment buckets for this environment
-    OLD_BUCKETS=$(aws s3 ls | grep "$PROJECT_NAME-$ENVIRONMENT-deployment-" | awk '{print $3}' || true)
-    if [ -n "$OLD_BUCKETS" ]; then
-        echo "$(yellow 'Found old deployment buckets, cleaning up...')"
-        for bucket in $OLD_BUCKETS; do
-            echo "$(yellow 'Removing old bucket:') $bucket"
-            aws s3 rm "s3://$bucket" --recursive --quiet 2>/dev/null || true
-            aws s3 rb "s3://$bucket" --force 2>/dev/null || true
-        done
-        echo "$(green '✅ Old deployment buckets cleaned up')"
-    fi
-    
-    echo "$(yellow 'Creating deployment bucket:') $DEPLOYMENT_BUCKET"
     aws s3 mb "s3://$DEPLOYMENT_BUCKET" --region "$REGION"
     
     # Enable versioning
@@ -301,6 +288,36 @@ if [ "$DRY_RUN" = false ]; then
     echo "$(green '✅ Deployment bucket ready:') $DEPLOYMENT_BUCKET"
 else
     echo "$(yellow '📋 Would create deployment bucket:') $DEPLOYMENT_BUCKET"
+fi
+
+# Clean up old deployment buckets (keep current one)
+echo "$(yellow 'Cleaning up old deployment buckets...')"
+if [ "$DRY_RUN" = false ]; then
+    # Get all deployment buckets except the current one
+    OLD_BUCKETS=$(aws s3 ls | grep "$PROJECT_NAME-$ENVIRONMENT-deployment-" | awk '{print $3}' | grep -v "$DEPLOYMENT_BUCKET" || true)
+    if [ -n "$OLD_BUCKETS" ]; then
+        echo "$(yellow 'Found old deployment buckets, cleaning up...')"
+        for bucket in $OLD_BUCKETS; do
+            echo "$(yellow 'Removing old bucket:') $bucket"
+            # First empty the bucket (including versioned objects)
+            aws s3api list-object-versions --bucket "$bucket" --query 'Versions[].[Key,VersionId]' --output text 2>/dev/null | while read key version; do
+                if [ -n "$key" ] && [ -n "$version" ]; then
+                    aws s3api delete-object --bucket "$bucket" --key "$key" --version-id "$version" 2>/dev/null || true
+                fi
+            done
+            # Remove delete markers
+            aws s3api list-object-versions --bucket "$bucket" --query 'DeleteMarkers[].[Key,VersionId]' --output text 2>/dev/null | while read key version; do
+                if [ -n "$key" ] && [ -n "$version" ]; then
+                    aws s3api delete-object --bucket "$bucket" --key "$key" --version-id "$version" 2>/dev/null || true
+                fi
+            done
+            # Now delete the bucket
+            aws s3 rb "s3://$bucket" --force 2>/dev/null || true
+        done
+        echo "$(green '✅ Old deployment buckets cleaned up')"
+    fi
+else
+    echo "$(yellow '📋 Would clean up old deployment buckets (keeping current:') $DEPLOYMENT_BUCKET)"
 fi
 
 # Package Lambda function
