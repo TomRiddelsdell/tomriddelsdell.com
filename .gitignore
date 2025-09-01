@@ -12,6 +12,7 @@ vite.config.ts.*
 attached_assets/
 build_output.log
 temp/
+changes/
 
 # IDE and editor files
 .vscode/
