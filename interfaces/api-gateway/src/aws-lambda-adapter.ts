@@ -1,7 +1,7 @@
 import serverlessExpress from '@vendia/serverless-express';
 import { type APIGatewayProxyEvent, type APIGatewayProxyResult, type Context } from 'aws-lambda';
 import express from 'express';
-import { registerRoutes } from './routes';
+import { registerRoutes } from './routes/index';
 import { securityHeaders, generalRateLimit, sanitizeInput } from './security';
 import { logger } from './logger';
 import { getConfig } from '../../../infrastructure/configuration/node-config-service';
@@ -128,6 +128,9 @@ export const handler = async (
   context: Context
 ): Promise<APIGatewayProxyResult> => {
   try {
+    // Configure Lambda context to not wait for empty event loop
+    context.callbackWaitsForEmptyEventLoop = false;
+
     // Log Lambda context for monitoring
     logger.info('Lambda invocation started', {
       requestId: context.awsRequestId,
@@ -141,7 +144,12 @@ export const handler = async (
 
     // Call the serverless Express handler with Promise wrapper
     const result = await new Promise<APIGatewayProxyResult>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Lambda function timeout'));
+      }, 25000); // 25 second timeout
+
       serverlessExpressInstance(event, context, (error, result) => {
+        clearTimeout(timeout);
         if (error) {
           reject(error);
         } else {

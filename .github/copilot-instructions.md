@@ -1,7 +1,9 @@
 # GitHub Copilot Instructions for tomriddelsdell.com
 
 ## Project Overview
-This is a personal website with enterprise-grade architecture using pure Domain Driven Design (DDD). The system provides secure access to sub-projects with comprehensive monitoring, authentication, and workflow capabilities.
+This is a personal website that acts as a platform for showcasing projects to authorized users.
+The project follows Domain Driven Design (DDD) with a focus on architecture and code quality. 
+Security, Testing and monitoring are integral parts of the system.
 
 ## Architecture & Technology Stack
 
@@ -9,18 +11,22 @@ This is a personal website with enterprise-grade architecture using pure Domain 
 - **Domain Driven Design (DDD)**: Pure domain layer with strict bounded contexts
 - **Monorepo Structure**: Organized into domains, interfaces, and infrastructure
 - **Layered Architecture**: Clear separation between domain, application, infrastructure, and interface layers
-- **Technology Stack**: TypeScript throughout, React with Vite, PostgreSQL with Drizzle ORM, AWS Cognito, Express.js
+- **Technology Stack**: 
+- ***Frontends*** should be TypeScript using React with Vite
+- ***Backtends*** should be either TypeScript, Java or Python
+- ***Databases*** should be PostgreSQL using Drizzle ORM where appropriate. NeonDB is used for serverless database hosting.
+- ***Infrastructure*** should be AWS with CDK for provisioning and management.
 
 ### Directory Structure
 ```
-domains/                 # Domain layer - business logic and entities
+domains/                # Domain layer - business logic and entities
 ├── identity/           # User management and authentication
-├── workflow/           # Core workflow logic and execution
 ├── integration/        # External service integrations
 ├── analytics/          # Metrics collection and logging
 ├── notification/       # Multi-channel notification system
 ├── monitoring/         # System health and performance monitoring
-└── shared-kernel/      # Common value objects and domain events
+├── shared-kernel/      # Common value objects and domain events
+└── app-1,2,.../        # For all access controlled sub applications (e.g. qis-data-management will be an additional domain added here)
 
 interfaces/             # Interface layer - external boundaries
 ├── api-gateway/        # Express.js HTTP API
@@ -38,50 +44,33 @@ infrastructure/         # Infrastructure concerns
 - Maintain strict DDD boundaries - no cross-domain imports except through shared kernel
 - Database schema defined in `domains/shared-kernel/src/schema.ts`
 
-## Development Workflow - CRITICAL
+## Development Workflow
 
 ### Code Change Protocol (MANDATORY)
-1. **Always ask before making changes** - Never implement code modifications without explicit confirmation
-2. **Present changes first** - Describe what will be modified, which files affected, expected outcome
-3. **Wait for approval** - Never proceed without explicit user confirmation
-4. **Break down complex changes** - Split multi-file modifications into reviewable chunks
-5. **Explain reasoning** - Always explain why changes are necessary
-6. **Record Bugs in docs/Bugs.md** - Document any bugs or issues encountered, with reproduction unit test and resolution status.
-
-### Required Change Format
-```
-Problem: [Brief description of the issue]
-Proposed Solution: [What needs to be changed]
-Files Affected: [List of files to be modified]
-Implementation Steps: [Step-by-step approach]
-Confirmation: "Should I proceed with these changes?"
-```
-
-### Emergency Exceptions Only
-- User explicitly says "go ahead and implement"
-- User gives blanket approval for specific task
-- Critical security issue requires immediate action
+- **Tests** - Always review tests before making changes. Adding new tests for any new functionality is mandatory
+- **Break down complex changes** - Split multi-file modifications into reviewable chunks. Suggest multiple commits or new git branches if necessary
+- **Explain reasoning and provide options** - Always explain why changes are necessary and provide alternative solutions and their trade offs where appropriate
+- **Record Bugs in docs/Bugs.md** - Document any bugs or issues encountered, with reproduction unit test and resolution status
+- **Document work done in changes/yyyy-mm-dd-copilot.md** - Summarize changes made, including any relevant context or decisions
+- **Git Branching** - Perform minor changes in 'develop' branch. Major changes should be done in feature branches and merged into develop. 
 
 ## Technical Standards
 
 ### Code Quality
-- **TypeScript**: Strict typing throughout, no `any` types
 - **DDD Boundaries**: Maintain strict separation between domains
+- **Strict Typing**: Strict typing throughout, no `any` types
+- **Clean-up**: Remove unused code and dependencies
 - **Security First**: All inputs validated, proper authentication checks
-- **Testing**: Domain-focused tests with Vitest, integration tests, E2E with Playwright. Follow Test-First best practices.
-
-### Database Operations
-- **ORM**: All database operations through Drizzle ORM
-- **Migrations**: Use `npm run db:push` for schema changes
-- **Schema**: Centrally defined in shared kernel
-- **Type Safety**: Leverage Drizzle's type-safe queries
+- **Test First**: Write tests before implementing features. Bugs should be reproduced with tests before fixing.
 
 ### Security Requirements
+- **Credentials**: Never hard-code credentials in the codebase or config that will be committed to version control
 - **Authentication**: AWS Cognito integration required
 - **Authorization**: Role-based access control (RBAC)
 - **Input Validation**: Zod schemas for all inputs
 - **Environment Variables**: Centralized configuration with validation
 - **Session Management**: Secure session handling with cleanup
+- **Environment Variables**: Minimize the use of environment variables. Use centralized config where possible.
 
 ## Common Commands
 - `npm run dev` - Start development server
@@ -90,27 +79,12 @@ Confirmation: "Should I proceed with these changes?"
 - `npm run db:push` - Apply database schema changes
 - `./pre-deploy.sh` - Pre-deployment validation
 
-## Key Components to Remember
-
-### Domains
-- **Identity**: User management, AWS Cognito integration
-- **Workflow**: Core business logic and execution
-- **Monitoring**: System health, metrics, performance tracking
-- **Shared Kernel**: Value objects, events, common patterns
-
-### Infrastructure
-- **Database**: PostgreSQL with Neon serverless, connection pooling
-- **Authentication**: AWS Cognito with hosted UI
-- **Security**: Rate limiting, CORS, security headers
-- **Configuration**: Environment-based with Zod validation
-- **MCP Servers**: Model Context Protocol integration for AI tool capabilities
-
-## MCP (Model Context Protocol) Architecture
+## MCP Servers
 
 ### Active MCP Servers
 The system integrates with multiple MCP servers for enhanced AI capabilities:
 
-#### 1. AWS API MCP Server
+#### AWS API MCP Server
 - **Location**: `.devcontainer/Dockerfile.aws-mcp`
 - **Purpose**: AWS service management through AI tools
 - **Technology**: Python 3.10-slim + uv package manager
@@ -119,37 +93,7 @@ The system integrates with multiple MCP servers for enhanced AI capabilities:
 - **Features**: EC2, S3, Lambda, CloudFormation management
 - **Authentication**: AWS credentials via environment variables
 
-#### 2. Amazon Neptune MCP Server  
-- **Location**: `.devcontainer/Dockerfile.neptune-mcp`
-- **Purpose**: Graph database operations through AI tools
-- **Technology**: Python 3.10-slim + uv package manager
-- **Package**: `awslabs.amazon-neptune-mcp-server` (official AWS Labs)
-- **Port**: 8002
-- **Features**: Graph queries, relationship analysis, data exploration
-- **Configuration**: NEPTUNE_ENDPOINT environment variable
-
-### Active MCP Servers
-The system integrates with multiple MCP servers for enhanced AI capabilities:
-
-#### 1. AWS API MCP Server
-- **Location**: `.devcontainer/Dockerfile.aws-mcp`
-- **Purpose**: AWS service management through AI tools
-- **Technology**: Python 3.10-slim + uv package manager
-- **Package**: `awslabs.aws-api-mcp-server` (official AWS Labs)
-- **Port**: 8001
-- **Features**: EC2, S3, Lambda, CloudFormation management
-- **Authentication**: AWS credentials via environment variables
-
-#### 2. Amazon Neptune MCP Server  
-- **Location**: `.devcontainer/Dockerfile.neptune-mcp`
-- **Purpose**: Graph database operations through AI tools
-- **Technology**: Python 3.10-slim + uv package manager
-- **Package**: `awslabs.amazon-neptune-mcp-server` (official AWS Labs)
-- **Port**: 8002
-- **Features**: Graph queries, relationship analysis, data exploration
-- **Configuration**: NEPTUNE_ENDPOINT environment variable
-
-#### 3. Neon MCP Server (Remote)
+#### Neon MCP Server (Remote)
 - **Type**: Official remote server (recommended approach)
 - **URL**: `https://mcp.neon.tech/mcp`
 - **Purpose**: PostgreSQL database cost tracking, analytics, and management
@@ -158,7 +102,7 @@ The system integrates with multiple MCP servers for enhanced AI capabilities:
 - **Authentication**: OAuth flow or Neon API key
 - **Features**: Cost monitoring, database metrics, query performance insights, resource management
 
-#### 4. GitHub MCP Server (Remote)
+#### GitHub MCP Server (Remote)
 - **Type**: Official GitHub-hosted remote server
 - **URL**: `https://api.githubcopilot.com/mcp/`
 - **Purpose**: GitHub repository and workflow management
