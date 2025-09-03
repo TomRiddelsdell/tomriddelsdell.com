@@ -1,76 +1,100 @@
-# tomriddelsdell.com
+# AMP Instructions for tomriddelsdell.com
 
-## Overview
+## Project Overview
+This is a personal website that acts as a platform for showcasing projects to authorized users.
+The project follows Domain Driven Design (DDD) with a focus on architecture and code quality. 
+Security, Testing and monitoring are integral parts of the system.
 
-tomriddelsdel.com is a peronl website that provides a secure platfor for access to sub projects with pure Domain Driven Design (DDD) architecture. The system is designed for enterprise-grade reliability, focusing on separation of concerns and clean architecture principles.
+## Architecture & Technology Stack
 
-## System Architecture
-
-### Architecture Pattern
-- **Domain Driven Design (DDD)**: Pure domain layer with bounded contexts
-- **Monorepo Structure**: Organized into domains, services, interfaces, and infrastructure
+### Core Architecture
+- **Domain Driven Design (DDD)**: Pure domain layer with strict bounded contexts
+- **Monorepo Structure**: Organized into domains, interfaces, and infrastructure
 - **Layered Architecture**: Clear separation between domain, application, infrastructure, and interface layers
+- **Technology Stack**: 
+- ***Frontends*** should be TypeScript using React with Vite
+- ***Backtends*** should be either TypeScript, Java or Python
+- ***Databases*** should be PostgreSQL using Drizzle ORM where appropriate. NeonDB is used for serverless database hosting.
+- ***Infrastructure*** should be AWS with CDK for provisioning and management.
 
-### Key Architectural Decisions
-- **Technology Stack**: TypeScript throughout for type safety
-- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
-- **Authentication**: AWS Cognito for enterprise-grade identity management
-- **Frontend**: React with Vite for fast development and modern tooling
-- **Testing**: Comprehensive testing strategy with Vitest and Playwright
+### Directory Structure
+```
+domains/                # Domain layer - business logic and entities
+├── identity/           # User management and authentication
+├── integration/        # External service integrations
+├── analytics/          # Metrics collection and logging
+├── notification/       # Multi-channel notification system
+├── monitoring/         # System health and performance monitoring
+├── shared-kernel/      # Common value objects and domain events
+└── app-1,2,.../        # For all access controlled sub applications (e.g. qis-data-management will be an additional domain added here)
 
-## Key Components
+interfaces/             # Interface layer - external boundaries
+├── api-gateway/        # Express.js HTTP API
+└── web-frontend/       # React SPA with Shadcn/ui
 
-### Domain Layer (`domains/`)
-- **Identity Domain**: User management, authentication, and authorization with AWS Cognito integration
-- **Workflow Domain**: Core workflow logic, execution, and validation
-- **Integration Domain**: External service integrations and data transformation
-- **Analytics Domain**: Metrics collection, logging, and issue reproduction
-- **Notification Domain**: Multi-channel notification system with SendGrid
-- **Shared Kernel**: Common value objects, domain events, and base patterns
+infrastructure/         # Infrastructure concerns
+├── database/           # PostgreSQL, migrations, schemas
+├── security/           # Authentication, authorization, RBAC
+└── configuration/      # Environment and system configuration
+```
 
-### Application Services (`services/`)
-- **Identity Service**: User authentication and profile management
-- **Workflow Service**: Workflow creation, execution, and management
-- **Integration Service**: External API connections and data sync
-- **Notification Service**: Email and notification delivery
+### Import Patterns
+- Use `@shared/*` for shared kernel references
+- Always import from `domains/shared-kernel/src/*` for shared components
+- Maintain strict DDD boundaries - no cross-domain imports except through shared kernel
+- Database schema defined in `domains/shared-kernel/src/schema.ts`
 
-### Interface Layer (`interfaces/`)
-- **API Gateway**: Express.js server handling all HTTP requests and authentication
-- **Web Frontend**: React SPA with Shadcn/ui components and Tailwind CSS
-- **Test Frontend**: Minimal testing interface for validation
+## Development Workflow
 
-### Infrastructure
-- **Database**: PostgreSQL with connection pooling via Neon serverless
-- **ORM**: Drizzle with type-safe migrations and schema management
-- **Logging**: Centralized logging system for issue reproduction and debugging
-- **Security**: Rate limiting, CORS, security headers, and input sanitization
-- **MCP Servers**: Model Context Protocol integration for AI tool capabilities
+### Code Change Protocol (MANDATORY)
+- **Tests** - Always review tests before making changes. Adding new tests for any new functionality is mandatory
+- **Break down complex changes** - Split multi-file modifications into reviewable chunks. Suggest multiple commits or new git branches if necessary
+- **Explain reasoning and provide options** - Always explain why changes are necessary and provide alternative solutions and their trade offs where appropriate
+- **Record Bugs in docs/Bugs.md** - Document any bugs or issues encountered, with reproduction unit test and resolution status
+- **Document work done in changes/yyyy-mm-dd-AMP.md** - Summarize changes made regularly, particularly after each commit, including any relevant context or decisions. Updates should be appended at the top of the file with a timestamp. Previous timestamps should not be modified.
+- **Changes** Never delete the changes directory or any of its files. Only modify the file matching today's date.
+- **Git Branching** - Perform minor changes in 'develop' branch. Major changes should be done in feature branches and merged into develop. 
 
-### MCP (Model Context Protocol) Architecture
-The system integrates multiple MCP servers for enhanced AI capabilities in development:
+## Technical Standards
 
-#### Active MCP Servers
-1. **AWS API MCP Server**
-   - **Location**: `.devcontainer/Dockerfile.aws-mcp`
-   - **Package**: `awslabs.aws-api-mcp-server` (official AWS Labs)
-   - **Port**: 8001
-   - **Purpose**: AWS service management (EC2, S3, Lambda, CloudFormation)
-   - **Technology**: Python 3.10-slim with uv package manager
+### Code Quality
+- **DDD Boundaries**: Maintain strict separation between domains
+- **Strict Typing**: Strict typing throughout, no `any` types
+- **Clean-up**: Remove unused code and dependencies
+- **Security First**: All inputs validated, proper authentication checks
+- **Test First**: Write tests before implementing features. Bugs should be reproduced with tests before fixing.
 
-2. **Amazon Neptune MCP Server**
-   - **Location**: `.devcontainer/Dockerfile.neptune-mcp`
-   - **Package**: `awslabs.amazon-neptune-mcp-server` (official AWS Labs)
-   - **Port**: 8002
-   - **Purpose**: Graph database operations and relationship analysis
-   - **Technology**: Python 3.10-slim with uv package manager
+### Security Requirements
+- **Credentials**: Never hard-code credentials in the codebase or config that will be committed to version control
+- **Authentication**: AWS Cognito integration required
+- **Authorization**: Role-based access control (RBAC)
+- **Input Validation**: Zod schemas for all inputs
+- **Environment Variables**: Centralized configuration with validation
+- **Session Management**: Secure session handling with cleanup
+- **Environment Variables**: Minimize the use of environment variables. Use centralized config where possible.
 
-3. **GitHub MCP Server (Remote)**
-   - **URL**: `https://api.githubcopilot.com/mcp/`
-   - **Type**: Official GitHub-hosted remote server
-   - **Purpose**: Repository management, Issues, PRs, CI/CD, code analysis
-   - **Authentication**: GitHub Copilot OAuth or Personal Access Token
+## Common Commands
+- `npm run dev` - Start development server
+- `npm run build` - Production build
+- `npm run test` - Run test suite
+- `npm run db:push` - Apply database schema changes
+- `./pre-deploy.sh` - Pre-deployment validation
 
-4. **Neon MCP Server (Remote)**
+## MCP Servers
+
+### Active MCP Servers
+The system integrates with multiple MCP servers for enhanced AI capabilities:
+
+#### AWS API MCP Server
+- **Location**: `.devcontainer/Dockerfile.aws-mcp`
+- **Purpose**: AWS service management through AI tools
+- **Technology**: Python 3.10-slim + uv package manager
+- **Package**: `awslabs.aws-api-mcp-server` (official AWS Labs)
+- **Port**: 8001
+- **Features**: EC2, S3, Lambda, CloudFormation management
+- **Authentication**: AWS credentials via environment variables
+
+#### Neon MCP Server (Remote)
 - **Type**: Official remote server (recommended approach)
 - **URL**: `https://mcp.neon.tech/mcp`
 - **Purpose**: PostgreSQL database cost tracking, analytics, and management
@@ -79,227 +103,31 @@ The system integrates multiple MCP servers for enhanced AI capabilities in devel
 - **Authentication**: OAuth flow or Neon API key
 - **Features**: Cost monitoring, database metrics, query performance insights, resource management
 
-#### MCP Integration Details
-- **Docker Compose**: Configured in `.devcontainer/docker-compose.yml`
-- **HTTP Wrappers**: Custom FastAPI wrappers for AWS/Neptune servers
-- **Base Image**: Debian-slim for PyTorch compatibility (AWS ML features)
+#### GitHub MCP Server (Remote)
+- **Type**: Official GitHub-hosted remote server
+- **URL**: `https://api.githubAMP.com/mcp/`
+- **Purpose**: GitHub repository and workflow management
+- **Technology**: GitHub's official Go-based server
+- **Authentication**: GitHub AMP OAuth or Personal Access Token
+- **Features**: Repository management, Issues, PRs, CI/CD, code analysis
+
+### MCP Integration Notes
+- **Docker Compose**: All MCP servers defined in `.devcontainer/docker-compose.yml`
+- **HTTP Wrappers**: Custom FastAPI wrappers for AWS/Neptune servers (ports 8001/8002)
+- **Official Packages**: Using AWS Labs official packages for reliability
+- **Base Image**: Switched from Alpine to Debian-slim for PyTorch compatibility
 - **Package Manager**: Using `uv` for faster dependency management
-- **Build Status**: Successfully resolved (documented in `docs/Bugs.md` DEV-001, DEV-002)
-- **Networking**: Internal Docker network with health check endpoints
+- **Health Checks**: HTTP endpoints for container health monitoring
 
-## Data Flow
+### MCP Server Management
+- **Build Issues**: Documented in `docs/Bugs.md` (DEV-001, DEV-002)
+- **Configuration**: Environment variables in devcontainer.json
+- **Networking**: Internal Docker network communication
+- **Development**: Accessible via forwarded ports for debugging
 
-### Authentication Flow
-1. User authenticates via AWS Cognito Hosted UI
-2. Cognito returns authorization code to callback
-3. API Gateway exchanges code for tokens
-4. User session established with local database sync
-5. Frontend receives authenticated user state
+## Communication Style
+- Be concise but thorough in explanations
+- Always confirm understanding before proceeding
 
-### Data Persistence
-- All domain entities persisted via Drizzle ORM
-- Database schema managed through migrations
-- Session data stored in memory with configurable persistence
-
-## External Dependencies
-
-### Required Services
-- **AWS Cognito**: User pool and client configuration required
-- **PostgreSQL Database**: Connection string via `DATABASE_URL`
-- **SendGrid** (Optional): Email delivery service
-
-### Configuration
-- Environment variables should not be used directly
-- Config should be loaded via centralized configuration system
-- Use `.env` as template for required variables
-- Never hardcode sensitive information in codebase. They should be defined only in the centralized config which is in .gitignore
-
-## Deployment Strategy
-
-### Development Environment
-- **Primary Command**: `npm run dev` - Starts API Gateway with hot reload
-- **Alternative**: `NODE_ENV=development tsx interfaces/api-gateway/src/index.ts`
-- **Frontend**: Served via Vite development server integrated with Express
-- **Database**: Uses same PostgreSQL instance as production
-
-### Production Build
-- **Build Command**: `npm run build` - Builds both frontend and backend
-- **Start Command**: `npm run start` - Runs production server
-- **Deployment**: Configured for Replit autoscale deployment target
-
-### Testing Strategy
-- **Unit Tests**: Domain-focused tests with Vitest
-- **Integration Tests**: API and service integration tests
-- **E2E Tests**: Playwright for full user journey testing
-- **Pre-deployment**: Automated test script (`./pre-deploy.sh`) validates environment and runs tests
-
-### Database Management
-- **Migrations**: `npm run db:push` applies schema changes
-- **Schema**: Defined in `domains/shared-kernel/src/schema.ts` with Drizzle
-- **Initialization**: Automatic template seeding on first run
-
-## Changelog
-- June 30, 2025. COMPLETED: Production Documentation Consolidation and Final Deployment Readiness
-  - Consolidated all production documentation into organized docs/ directory structure
-  - Created DEPLOYMENT.md as primary deployment reference with executive summary
-  - Organized documentation: DEPLOYMENT_SUMMARY.md, DEPLOYMENT_GUIDE.md, SECURITY_CONFIG.md, BUILD_ANALYSIS.md
-  - Completed final database optimization with 12 performance indexes for production workloads
-  - Verified production build performance: 191KB backend, 296KB frontend, 818KB total
-  - Updated README.md with production deployment section and documentation references
-  - All production preparation complete: security hardened, performance optimized, fully documented
-  - Platform ready for immediate enterprise deployment with 99% confidence level
-- June 28, 2025. COMPLETED: All Tests Passing - Zero Test Failures Achieved 
-  - Fixed final timing-sensitive concurrent execution test in domain event publisher
-  - Adjusted test timing thresholds to account for system variance while maintaining concurrency validation
-  - All 75 active tests now passing: 19 domain, 10 validation, 39 infrastructure, 6 API integration, 1 shared kernel
-  - 81 tests appropriately skipped for incomplete domains (analytics, integration, notification)
-  - Created comprehensive mocking infrastructure for AWS Cognito and SendGrid services
-  - Updated test configurations with proper path aliases and setup files
-  - Test suite fully validated and deployment-ready with 100% success rate
-- June 20, 2025. COMPLETED: Deployment Readiness - All Tests Passing and Production Build Successful
-  - Fixed all failing tests by updating import paths to match DDD architecture
-  - Successfully skipped incomplete analytics domain tests (non-blocking for deployment)
-  - Validated production build generates optimized bundles (300.29 kB frontend, 190.3kb backend)
-  - Confirmed application starts and runs correctly in production mode
-  - Created comprehensive deployment readiness report with security and performance metrics
-  - All critical systems operational: API Gateway, Authentication, Database, Frontend, Monitoring
-  - Security status: SECURE with enhanced RBAC and session management
-  - Codebase ready for enterprise deployment with clean architecture and 0 production risks
-- June 20, 2025. COMPLETED: Comprehensive Code Cleanup and Production Readiness
-  - Removed 9.3MB of unused files, demo code, and development artifacts
-  - Eliminated test-frontend, attached debug assets, build artifacts, and demo scripts
-  - Cleaned up storage implementation removing all demo data initialization
-  - Fixed corrupted storage file that was preventing application startup
-  - Enhanced security by removing development cookies and test credentials
-  - Streamlined codebase with 18% reduction in project size
-  - Application now production-ready with clean, maintainable architecture
-- June 20, 2025. COMPLETED: Comprehensive Security Vulnerability Assessment and Remediation
-  - Identified and assessed 4 moderate severity vulnerabilities in development dependencies
-  - Created comprehensive security audit system with automated vulnerability classification
-  - Confirmed all vulnerabilities are development-only (esbuild in drizzle-kit) with zero production impact
-  - Implemented development environment security hardening to contain potential risks
-  - Generated detailed security compliance documentation (SECURITY_AUDIT.md, SECURITY_VALIDATION_REPORT.md)
-  - Security Status: SECURE with 0 production risks, 4 acceptable development-only dependencies
-  - Added automated security auditing script for ongoing vulnerability monitoring
-- June 19, 2025. COMPLETED: Role-Based Authentication Security Hardening
-  - Implemented database-backed role verification preventing session tampering
-  - Added real-time admin privilege validation on each request
-  - Enhanced session integrity checks with automatic cleanup of invalid sessions
-  - Implemented data sanitization removing sensitive fields (cognitoId, passwords) from API responses
-  - Added comprehensive security logging for unauthorized access attempts
-  - Created multi-layer security architecture with defense-in-depth approach
-  - Documented comprehensive security improvement roadmap for future enhancements
-- June 19, 2025. COMPLETED: Enhanced Dashboard with User Management Interface
-  - Added comprehensive user management section displaying all users and their authorized roles
-  - Created user statistics dashboard showing Total Users (4), Active Users (4), Admin Users (1)
-  - Implemented user table with role badges (admin/user), login counts, and activity tracking
-  - Added authentication-gated access requiring admin privileges to view user management
-  - Enhanced admin panel with system administration tools and user directory
-- June 19, 2025. COMPLETED: Phase 1 Enhanced Dashboard - Monitoring & Administration Hub
-  - Implemented comprehensive monitoring domain with health service, metrics service, and monitoring orchestration
-  - Added monitoring database schema: system_metrics, service_health, performance_metrics, audit_logs, configuration_status
-  - Created real-time system health monitoring with service status tracking (database, auth, api-gateway)
-  - Built performance metrics dashboard with endpoint statistics, response times, and error rate monitoring
-  - Enhanced Dashboard page with live monitoring components and admin-only system administration panel
-  - Added API routes for monitoring: /api/monitoring/status, /api/monitoring/health, /api/monitoring/metrics, /api/monitoring/dashboard-stats
-  - Implemented automatic health checks with 30-second intervals and performance metric collection
-  - Created SystemHealthCard and PerformanceMetricsCard React components with real-time data updates
-  - Added role-based access control for admin monitoring features and configuration validation
-- June 19, 2025. COMPLETED: Phase 0 Security Hardening - Critical vulnerabilities eliminated
-  - Removed hardcoded session secret from auth-config.ts using centralized configuration
-  - Fixed insecure wildcard CORS configuration with proper origin validation
-  - Eliminated hardcoded production domains throughout the codebase
-  - Implemented comprehensive environment variable validation with startup checks
-  - Created secure CORS middleware with configurable origins and development fallbacks
-  - Updated rate limiting to use centralized configuration with environment-specific thresholds
-  - Implemented configurable Content Security Policy through centralized system
-  - Application now starts successfully with secure configuration validation
-  - Created SECURITY_VALIDATION_REPORT.md documenting all fixes and compliance status
-- June 19, 2025. CRITICAL: Security hardening and centralized configuration implementation
-  - Implemented comprehensive centralized configuration system with type-safe validation
-  - Created base configuration schema with Zod validation for all security settings
-  - Developed environment-specific configuration loading with secure defaults
-  - Comprehensive environment template (.env.example) with security documentation
-  - Identified and documented critical security vulnerabilities requiring immediate attention
-  - Created Phase 0 security roadmap prioritizing configuration externalization
-  - Updated Plan.txt to include 1-2 week security hardening timeline before feature work
-  - Addressed hardcoded secrets, insecure CORS, and missing environment validation
-- June 19, 2025. Complete project cleanup and component simplification
-  - Fixed React import issue in Dashboard page that was causing loading failures
-  - Removed all unused components and pages to streamline the codebase
-  - Eliminated complex sidebar and navigation dependencies causing import errors
-  - Rebuilt Projects page with self-contained navigation matching Dashboard approach
-  - Updated MainNavigation component to inline navigation links without dependencies
-  - Cleaned up 30+ unused UI components and 10+ unused page components
-  - Each page now has its own integrated navigation for better isolation and reliability
-  - Maintained professional content while ensuring all pages load without errors
-- June 19, 2025. Navigation refactoring and Dashboard page rebuild
-  - Extracted navigation bar into reusable MainNavigation component for better code organization
-  - Removed Tasks and Workflows pages and all references from navigation and routing
-  - Completely rebuilt Dashboard page with self-contained implementation to fix loading issues
-  - Added professional dashboard featuring Goldman Sachs role, activity tracking, and quick actions
-  - Streamlined application to focus on core portfolio sections: Home, Career, Projects, Dashboard
-  - Maintained all original Home page content while improving component reusability
-  - Updated sidebar and navigation components to reflect simplified page structure
-- June 19, 2025. Enhanced career page with authentic professional content
-  - Replaced placeholder content with actual Goldman Sachs Executive Director experience
-  - Added comprehensive work history: Goldman Sachs (2015-Present), Barclays Capital (2012-2015), Sophis/Misys (2009-2012)
-  - Integrated King's College London MSci education with First Class Honours and Springer-Verlag Award
-  - Updated technical skills section with accurate programming language proficiencies (Slang 8/10, Python 6/10, etc.)
-  - Enhanced contact information with authentic details and professional positioning
-  - Improved language throughout for elegance and precision
-- June 19, 2025. Enforced strict DDD architectural boundaries
-  - Removed root-level dist/ directory that violated domain separation
-  - Build artifacts now properly contained within interface boundaries
-  - Career page updated with authentic professional information
-  - Fixed React import issues preventing proper page rendering
-  - Maintained clean separation between domains, interfaces, and infrastructure
-- June 17, 2025. Completed comprehensive DDD architecture cleanup
-  - Removed all legacy directories (services/, shared/, client/) 
-  - Consolidated all imports to proper DDD structure using @shared/* paths
-  - Updated TypeScript configuration for correct module resolution
-  - Moved template initialization to infrastructure/database/initTemplates.ts
-  - Fixed all import paths to reference domains/shared-kernel/src/*
-  - Validated complete directory structure alignment with DDD principles
-- June 17, 2025. Upgraded to Vite 6.3.5 (latest version)
-  - Migrated from Vite 5.4.15 to 6.3.5 for improved performance and stability
-  - Updated @vitejs/plugin-react to 4.5.2 for enhanced React integration
-  - Maintained full compatibility with existing DDD architecture
-- June 17, 2025. Fixed authentication UI flickering and completed DDD migration
-  - Implemented callback protection to prevent duplicate authentication processing
-  - Enhanced error handling to show only one consistent authentication result
-  - Migrated client directory to interfaces/web-frontend following DDD patterns
-  - Updated Tailwind and components.json configurations for new structure
-- June 14, 2025. Restored page structure from commit f32ae3d with DDD architecture integration
-  - Implemented separate page components (Dashboard, Career, Projects)
-  - Restored sidebar-based navigation with TopNavbar and Sidebar components
-  - Updated routing to support individual page navigation
-  - Maintained DDD architecture while incorporating f32ae3d page structure
-- June 13, 2025. Initial setup
-
-## Development Workflow
-
-### Code Change Protocol
-- **Always ask before making changes**: Before implementing any code modifications, Amp should describe the proposed changes and ask for explicit confirmation
-- **Show changes first**: Present a clear explanation of what will be modified, which files will be affected, and the expected outcome
-- **Wait for approval**: Never proceed with code changes without explicit user approval
-- **Break down complex changes**: For multi-file or complex modifications, break them into smaller, reviewable chunks
-- **Explain reasoning**: Always explain why the proposed changes are necessary and how they solve the problem
-
-### Implementation Guidelines
-- Present changes in this format:
-  1. **Problem**: Brief description of the issue
-  2. **Proposed Solution**: What needs to be changed
-  3. **Files Affected**: List of files to be modified
-  4. **Implementation Steps**: Step-by-step approach
-  5. **Ask for confirmation**: "Should I proceed with these changes?"
-
-### Emergency Exceptions
-- Only proceed without asking if:
-  - User explicitly says "go ahead and implement"
-  - User gives blanket approval for a specific task
-  - Critical security issue requires immediate action
-
-## User Preferences
-
-Preferred communication style: Simple, everyday language.
+## Remember
+This is a production-ready enterprise system. Always maintain the high standards of code quality, security, and architectural integrity that have been established. When in doubt, ask for clarification rather than making assumptions.
