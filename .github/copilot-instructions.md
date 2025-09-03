@@ -51,7 +51,7 @@ infrastructure/         # Infrastructure concerns
 - **Break down complex changes** - Split multi-file modifications into reviewable chunks. Suggest multiple commits or new git branches if necessary
 - **Explain reasoning and provide options** - Always explain why changes are necessary and provide alternative solutions and their trade offs where appropriate
 - **Record Bugs in docs/Bugs.md** - Document any bugs or issues encountered, with reproduction unit test and resolution status
-- **Document work done in changes/yyyy-mm-dd-copilot.md** - Summarize changes made, including any relevant context or decisions
+- **Document work done in changes/yyyy-mm-dd-copilot.md** - Summarize changes made regularly, particularly after each commit, including any relevant context or decisions. Updates should be appended at the top of the file with a timestamp. Previous timestamps should not be modified.
 - **Git Branching** - Perform minor changes in 'develop' branch. Major changes should be done in feature branches and merged into develop. 
 
 ## Technical Standards

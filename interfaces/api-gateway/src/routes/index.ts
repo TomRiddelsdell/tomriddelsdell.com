@@ -1,24 +1,90 @@
 import type { Express, Request, Response } from "express";
-import { storage } from "../storage";
-import { insertConnectedAppSchema, insertTemplateSchema, insertActivityLogSchema } from "../../../../domains/shared-kernel/src/schema";
-import { z, ZodError } from "zod";
-import { fromZodError } from "zod-validation-error";
-import { sendContactEmail } from "../email";
-import { registerAdminRoutes } from "./admin";
-import { AuthController } from "../auth/auth-controller";
-import { getAuthConfig, validateAuthConfig } from "../auth/auth-config";
-import analyticsRouter from "./analytics";
+// !! CRITICAL: Apply lazy loading pattern to prevent Lambda cold start timeouts !!
+
+// Type-only imports - these don't trigger module loading
+import type { ZodError } from "zod";
+
+// Lazy-loaded modules to avoid expensive initialization during cold start
+let storage: any = null;
+let authConfig: any = null;
+let AuthController: any = null;
+let emailService: any = null;
+let analyticsRouter: any = null;
+let adminRoutes: any = null;
+let schemas: any = null;
+
+// Cached lazy loaders
+async function getStorage() {
+  if (!storage) {
+    const { storage: storageInstance } = await import("../storage");
+    storage = storageInstance;
+  }
+  return storage;
+}
+
+async function getAuthConfig() {
+  if (!authConfig) {
+    const authModule = await import("../auth/auth-config");
+    authConfig = authModule;
+  }
+  return authConfig;
+}
+
+async function getAuthController() {
+  if (!AuthController) {
+    const { AuthController: controller } = await import("../auth/auth-controller");
+    AuthController = controller;
+  }
+  return AuthController;
+}
+
+async function getEmailService() {
+  if (!emailService) {
+    const { sendContactEmail } = await import("../email");
+    emailService = { sendContactEmail };
+  }
+  return emailService;
+}
+
+async function getAnalyticsRouter() {
+  if (!analyticsRouter) {
+    const router = await import("./analytics");
+    analyticsRouter = router.default;
+  }
+  return analyticsRouter;
+}
+
+async function getAdminRoutes() {
+  if (!adminRoutes) {
+    const { registerAdminRoutes } = await import("./admin");
+    adminRoutes = { registerAdminRoutes };
+  }
+  return adminRoutes;
+}
+
+async function getSchemas() {
+  if (!schemas) {
+    const schemaModule = await import("../../../../domains/shared-kernel/src/schema");
+    const { z } = await import("zod");
+    schemas = { ...schemaModule, z };
+  }
+  return schemas;
+}
 
 /**
- * Lambda-compatible route registration function
- * Does not return a Server, just registers routes on the provided Express app
+ * Lambda-optimized route registration function
+ * Uses lazy loading to minimize cold start time
  */
 export async function registerRoutes(app: Express): Promise<void> {
   try {
-    // Validate authentication configuration
-    validateAuthConfig();
-    const authConfig = getAuthConfig();
+    // Lazy load auth configuration only when needed
+    const authModule = await getAuthConfig();
+    authModule.validateAuthConfig();
+    const authConfig = authModule.getAuthConfig();
     console.log('Authentication configuration validated');
+
+    // Preload AuthController to avoid null reference issues
+    const authController = await getAuthController();
 
     // Root route handler for Lambda - serve simple index response
     app.get('/', (req: Request, res: Response) => {
@@ -43,7 +109,7 @@ export async function registerRoutes(app: Express): Promise<void> {
       });
     });
 
-    // API Routes - Authentication
+    // API Routes - Authentication (lazy loaded)
     try {
       console.log('Attempting to import aws-cognito-handler...');
       const { awsCognitoHandler } = await import('../auth/aws-cognito-handler');
@@ -77,6 +143,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           return res.status(401).json({ message: 'Unauthorized' });
         }
         
+        const storage = await getStorage();
         const stats = await storage.getDashboardStats(req.session.userId);
         return res.json(stats);
       } catch (error) {
@@ -92,6 +159,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           return res.status(401).json({ message: 'Unauthorized' });
         }
         
+        const storage = await getStorage();
         const apps = await storage.getConnectedAppsByUserId(req.session.userId);
         return res.json(apps);
       } catch (error) {
@@ -102,6 +170,7 @@ export async function registerRoutes(app: Express): Promise<void> {
 
     app.get('/api/available-apps', AuthController.isAuthenticated, async (req: Request, res: Response) => {
       try {
+        const storage = await getStorage();
         const apps = await storage.getAvailableApps();
         return res.json(apps);
       } catch (error) {
@@ -119,12 +188,15 @@ export async function registerRoutes(app: Express): Promise<void> {
         const appData = { ...req.body, userId: req.session.userId };
         
         try {
-          const validatedData = insertConnectedAppSchema.parse(appData);
+          const storageModule = await getStorage();
+          const validatedData = storageModule.insertConnectedAppSchema.parse(appData);
+          const storage = await storageModule.getStorage();
           const app = await storage.createConnectedApp(validatedData);
           return res.status(201).json(app);
         } catch (error) {
+          const { ZodError } = await import('zod');
           if (error instanceof ZodError) {
-            return res.status(400).json({ message: 'Invalid app data', errors: fromZodError(error).message });
+            return res.status(400).json({ message: 'Invalid app data', errors: error.message });
           }
           throw error;
         }
@@ -137,6 +209,7 @@ export async function registerRoutes(app: Express): Promise<void> {
     // Template routes
     app.get('/api/templates', AuthController.isAuthenticated, async (req: Request, res: Response) => {
       try {
+        const storage = await getStorage();
         const templates = await storage.getAllTemplates();
         return res.json(templates);
       } catch (error) {
@@ -154,6 +227,7 @@ export async function registerRoutes(app: Express): Promise<void> {
           return res.status(400).json({ message: 'Invalid limit parameter' });
         }
         
+        const storage = await getStorage();
         const templates = await storage.getPopularTemplates(limit);
         return res.json(templates);
       } catch (error) {
@@ -172,6 +246,7 @@ export async function registerRoutes(app: Express): Promise<void> {
         const page = req.query.page ? parseInt(req.query.page as string) : 1;
         const perPage = req.query.perPage ? parseInt(req.query.perPage as string) : 20;
         
+        const storage = await getStorage();
         const activityLogs = await storage.getActivityLogsByUserId(req.session.userId, page, perPage);
         return res.json(activityLogs);
       } catch (error) {
@@ -193,12 +268,15 @@ export async function registerRoutes(app: Express): Promise<void> {
         };
         
         try {
-          const validatedData = insertActivityLogSchema.parse(logData);
+          const storageModule = await getStorage();
+          const validatedData = storageModule.insertActivityLogSchema.parse(logData);
+          const storage = await storageModule.getStorage();
           const log = await storage.createActivityLog(validatedData);
           return res.status(201).json(log);
         } catch (error) {
+          const { ZodError } = await import('zod');
           if (error instanceof ZodError) {
-            return res.status(400).json({ message: 'Invalid log data', errors: fromZodError(error).message });
+            return res.status(400).json({ message: 'Invalid log data', errors: error.message });
           }
           throw error;
         }
@@ -217,7 +295,8 @@ export async function registerRoutes(app: Express): Promise<void> {
           return res.status(400).json({ message: 'Name, email and message are required' });
         }
         
-        const success = await sendContactEmail({
+        const emailModule = await getEmailService();
+        const success = await emailModule.sendContactEmail({
           name,
           email,
           subject: subject || 'Contact Form Submission',
@@ -256,8 +335,14 @@ export async function registerRoutes(app: Express): Promise<void> {
       console.error('Failed to register monitoring routes:', error);
     }
     
-    // Register admin routes for user management
-    await registerAdminRoutes(app);
+    // Register admin routes for user management (lazy loaded)
+    try {
+      const adminModule = await getAdminRoutes();
+      await adminModule.registerAdminRoutes(app);
+      console.log('Admin routes registered successfully');
+    } catch (error) {
+      console.error('Failed to register admin routes:', error);
+    }
 
     console.log('All routes registered successfully for Lambda');
   } catch (error) {
