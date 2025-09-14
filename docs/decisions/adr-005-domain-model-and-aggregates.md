@@ -128,6 +128,103 @@ interface ContactRequestProcessed extends DomainEvent {
 }
 ```
 
+### Event Schema Management with Avro
+
+**Schema Definition Strategy:**
+We use Apache Avro schemas for domain events to provide type safety, schema evolution, and cross-language support while maintaining JSON serialization compatibility for event store queryability.
+
+```typescript
+// Event schema registry structure
+interface EventSchemaRegistry {
+  // Schema versioning follows Avro evolution rules
+  schemas: {
+    [eventType: string]: {
+      [version: string]: AvroSchema;
+    };
+  };
+  
+  // Runtime validation and serialization
+  validator: {
+    validateEvent(event: DomainEvent): ValidationResult;
+    serializeToJson(event: DomainEvent): string;
+    deserializeFromJson<T>(json: string, schema: AvroSchema): T;
+  };
+}
+```
+
+**Example Event Schema:**
+```json
+{
+  "type": "record",
+  "name": "ProjectCreated",
+  "namespace": "portfolio.domain.events",
+  "version": "1.0.0",
+  "doc": "Published when a new project is created in the portfolio",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string",
+      "doc": "Unique identifier for this event occurrence"
+    },
+    {
+      "name": "aggregateId", 
+      "type": "string",
+      "doc": "ProjectId that this event relates to"
+    },
+    {
+      "name": "aggregateVersion",
+      "type": "long",
+      "doc": "Version number of the aggregate after this event"
+    },
+    {
+      "name": "occurredAt",
+      "type": "long",
+      "logicalType": "timestamp-millis",
+      "doc": "When this event occurred"
+    },
+    {
+      "name": "causedBy",
+      "type": "string",
+      "doc": "UserId who caused this event"
+    },
+    {
+      "name": "projectData",
+      "type": {
+        "type": "record",
+        "name": "ProjectCreatedData",
+        "fields": [
+          { "name": "ownerId", "type": "string" },
+          { "name": "title", "type": "string" },
+          { "name": "description", "type": "string" },
+          { 
+            "name": "initialVisibility", 
+            "type": {
+              "type": "enum",
+              "name": "ProjectVisibility",
+              "symbols": ["PRIVATE", "PUBLIC", "SHARED"]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+**Schema Evolution Benefits:**
+- **Backward Compatibility**: Add new fields with default values
+- **Forward Compatibility**: Remove fields safely with proper versioning
+- **Type Generation**: Generate TypeScript interfaces from schemas
+- **Cross-Language Support**: Same schemas work in Java, TypeScript, Python
+- **Contract Validation**: Ensure producers and consumers stay in sync
+
+**Integration Points:**
+- **ADR-006 (Event Sourcing)**: Events stored as Avro JSON, queryable and human-readable
+- **ADR-007 (Event Versioning)**: Avro schema evolution provides structured versioning approach
+- **ADR-011 (Message Bus)**: Schema registry validates integration events across bounded contexts
+- **ADR-022 (Message Bus Architecture)**: Avro schemas define message bus contracts
+- **ADR-023 (Contract Management)**: Domain events use Avro schemas; cross-service contracts use JSON Schema for broader language support
+
 ### Project Visibility Model (Access-Based)
 Projects are considered "live" or "published" when they have public access grants. No explicit publication events are needed - visibility is determined by the presence of access grants:
 - **Private**: No access grants exist (only owner can view)
@@ -244,11 +341,13 @@ interface ContactWorkflowService {
 
 ### Code Generation Patterns
 ```typescript
-// Aggregate Root Base Pattern
+// Avro-Enhanced Aggregate Root Pattern
 abstract class AggregateRoot<TId> {
   private uncommittedEvents: DomainEvent[] = [];
   
   protected addEvent(event: DomainEvent): void {
+    // Validate against Avro schema before adding
+    this.eventSchemaValidator.validate(event);
     this.uncommittedEvents.push(event);
   }
   
@@ -261,10 +360,47 @@ abstract class AggregateRoot<TId> {
   }
 }
 
+// Event Factory with Schema Validation
+class EventFactory {
+  static createProjectCreated(data: ProjectCreatedData): ProjectCreated {
+    const event = {
+      eventId: generateEventId(),
+      eventType: 'ProjectCreated',
+      aggregateId: data.projectId,
+      aggregateVersion: data.version,
+      occurredAt: new Date().getTime(),
+      causedBy: data.ownerId,
+      projectData: data
+    };
+    
+    // Validate against Avro schema
+    SchemaRegistry.validate('ProjectCreated', event);
+    return event;
+  }
+}
+
 // Value Object Pattern
 abstract class ValueObject {
   abstract equals(other: ValueObject): boolean;
   abstract toString(): string;
+}
+```
+
+### Schema Management Patterns
+```typescript
+// Schema Registry Integration
+interface SchemaRegistry {
+  // ***please check*** if we need schema versioning strategy
+  getSchema(eventType: string, version?: string): AvroSchema;
+  validateEvent(eventType: string, eventData: unknown): ValidationResult;
+  evolveSchema(eventType: string, newSchema: AvroSchema): SchemaEvolutionResult;
+}
+
+// Event Serialization
+interface EventSerializer {
+  toJson(event: DomainEvent): string;
+  fromJson<T extends DomainEvent>(json: string, eventType: string): T;
+  toBinary(event: DomainEvent): Uint8Array; // For performance-critical paths
 }
 ```
 
@@ -274,6 +410,13 @@ abstract class ValueObject {
 - **Large aggregates**: Keep aggregates focused on single business concept
 - **Event coupling**: Don't couple events to specific projection needs
 
+### Avro Schema Pitfalls
+- **Schema Evolution**: Always follow Avro compatibility rules (add fields with defaults)
+- **Field Naming**: Use consistent naming conventions across all schemas
+- **Logical Types**: Use Avro logical types for timestamps, UUIDs, decimals
+- **Documentation**: Include "doc" fields for all schema elements
+- **Namespace Management**: Use consistent namespacing (e.g., portfolio.domain.events)
+
 ### Integration Points
 - Events must be JSON serializable for ADR-006 (Event Sourcing)
 - Access grants integrate with ADR-003 (Authentication Strategy)
@@ -281,8 +424,10 @@ abstract class ValueObject {
 
 ## Technical Debt Introduced
 - **Testing Complexity**: Event-driven testing is more complex than simple unit tests
-- **Event Schema Evolution**: Need strategy for changing event structures over time  
+- **Avro Schema Management**: Need tooling for schema registry, validation, and code generation
+- **Event Schema Evolution**: Must maintain backward compatibility across schema versions  
 - **Projection Synchronization**: Must maintain consistency between aggregates and projections
+- **Schema Registry Dependency**: Additional infrastructure component for schema management
 
 ## Evolution Path
 - **Trigger for Review**: When business processes from ADR-001 change significantly
@@ -290,4 +435,4 @@ abstract class ValueObject {
 - **Migration Strategy**: Event sourcing allows safe refactoring through event replay
 
 ---
-*Last Updated: September 10, 2025*
+*Last Updated: September 13, 2025*
