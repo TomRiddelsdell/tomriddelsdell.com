@@ -10,7 +10,99 @@ Given our relatively low traffic expectations and prioritization of development 
 
 ## Decision
 
-### Answered Questions (41-45)
+### Consolidated Observability Strategy
+
+**Merging ADR-019 Content**: This ADR now consolidates all observability concerns from the previously separate ADR-019, creating a single comprehensive observability strategy.
+
+### Developer-Focused Observability Framework
+
+Our observability strategy balances **practical development needs** with **platform portability**, using OpenTelemetry as the foundation for all instrumentation while prioritizing debugging capabilities over enterprise complexity.
+
+**Core Principle: Standards-Based Implementation with Developer Experience Focus**
+- Use **OpenTelemetry** as the universal foundation for all observability
+- Prioritize **debugging and development velocity** over comprehensive monitoring  
+- Implement **portable abstractions** that work across cloud providers
+- Ensure **easy migration between platforms** (Cloudflare, AWS, Vercel, etc.)
+- Maintain **vendor-agnostic configurations** to avoid lock-in
+
+### Unified Instrumentation Strategy
+
+**OpenTelemetry as Universal Standard:**
+```typescript
+// src/observability/telemetry.ts - Consolidated from ADR-019
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import { Resource } from '@opentelemetry/resources';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+
+// Platform-agnostic wrapper library: @platform/observability
+interface ObservabilityAdapter {
+  exportMetrics(metrics: MetricData[]): Promise<void>;
+  exportLogs(logs: LogData[]): Promise<void>;
+  exportTraces(traces: SpanData[]): Promise<void>;
+}
+
+// Portable telemetry setup with consistent developer interface
+class PortableTelemetry {
+  private sdk: NodeSDK;
+  
+  constructor(private config: TelemetryConfig) {
+    this.sdk = new NodeSDK({
+      resource: new Resource({
+        [SemanticResourceAttributes.SERVICE_NAME]: config.serviceName,
+        [SemanticResourceAttributes.SERVICE_VERSION]: config.version,
+        [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: config.environment,
+      }),
+      metricReader: this.createMetricReader(),
+      spanProcessor: this.createSpanProcessor(),
+      logRecordProcessor: this.createLogProcessor(),
+    });
+  }
+  
+  private createMetricReader() {
+    // Can export to Prometheus, OTLP, or platform-specific endpoints
+    switch (this.config.platform) {
+      case 'cloudflare':
+        return new CloudflareMetricsReader();
+      case 'aws':
+        return new AWSCloudWatchReader();
+      case 'prometheus':
+        return new PrometheusMetricsReader();
+      default:
+        return new OTLPMetricReader();
+    }
+  }
+}
+
+// Shared wrapper library enforcing consistency (from ADR-019)
+export interface PlatformObservability {
+  // Structured logging with JSON output
+  log: {
+    info(message: string, context?: Record<string, any>): void;
+    error(message: string, error?: Error, context?: Record<string, any>): void;
+    debug(message: string, context?: Record<string, any>): void;
+    warn(message: string, context?: Record<string, any>): void;
+  };
+  
+  // Metrics with standard interface
+  metrics: {
+    counter: {
+      inc(name: string, value: number, tags?: Record<string, string>): void;
+    };
+    histogram: {
+      observe(name: string, value: number, tags?: Record<string, string>): void;
+    };
+    gauge: {
+      set(name: string, value: number, tags?: Record<string, string>): void;
+    };
+  };
+  
+  // Distributed tracing
+  tracing: {
+    startSpan(name: string, context?: SpanContext): Span;
+    createTrace(correlationId?: string): TraceContext;
+  };
+}
+```
 
 **Q41: What metrics are most important to track? Business metrics vs technical metrics?**
 
@@ -672,4 +764,73 @@ const alertRules = [
 
 ---
 
-**This approach provides practical observability for development and debugging while maintaining platform portability and cost-effectiveness.**
+**This comprehensive approach provides practical observability for development and debugging while maintaining platform portability and cost-effectiveness. It consolidates all observability concerns into a single, coherent strategy that balances developer needs with operational requirements.**
+
+## Related ADRs
+
+### Supersedes
+- **ADR-019**: Observability and Centralized Logging - Content merged into this comprehensive ADR
+
+### Dependencies  
+- **Requires**: ADR-006 (Event Sourcing) - Observability must track event processing
+- **Requires**: ADR-011 (Message Bus) - Monitoring Kafka streaming and event flow
+
+### Influences
+- **Influences**: ADR-008 (Infrastructure) - Deployment platform affects observability choices
+- **Influences**: ADR-025 (Error Handling) - Error handling strategy affects logging and alerting
+- **Influences**: ADR-024 (Performance) - Performance requirements define monitoring needs
+
+## AI Agent Guidance
+
+### Implementation Priority
+**High** - Essential for development debugging and production operations
+
+### Code Generation Patterns
+```typescript
+// Always use the shared observability wrapper
+import { observability } from '@platform/observability';
+
+// Consistent structured logging
+observability.log.info('User registered successfully', {
+  userId,
+  email: user.email,
+  registrationSource,
+  correlationId: request.correlationId
+});
+
+// Standard metrics collection
+observability.metrics.counter.inc('user.registration.total', 1, {
+  source: registrationSource,
+  environment: process.env.NODE_ENV
+});
+
+// Distributed tracing
+const span = observability.tracing.startSpan('user.registration.process');
+try {
+  // Business logic
+  await registerUser(userData);
+  span.setStatus('OK');
+} catch (error) {
+  span.recordError(error);
+  span.setStatus('ERROR');
+  throw error;
+} finally {
+  span.end();
+}
+```
+
+### Common Integration Points
+- All services and apps must use shared `@platform/observability` library
+- Never import vendor SDKs directly (Datadog, New Relic, etc.)
+- Always include correlationId, tenantId, userId in log context
+- Use OpenTelemetry Protocol (OTLP) for telemetry export to collector
+
+### Platform Migration Benefits
+- **Easy Migration**: Change configuration to point to new platform  
+- **Cost Optimization**: Compare platforms with same observability data
+- **Risk Mitigation**: No single point of failure in tooling choices
+- **Preserve History**: Maintain operational visibility during migrations
+
+---
+*Last Updated: September 15, 2025*
+*Consolidated with ADR-019 for comprehensive observability strategy*

@@ -1,7 +1,7 @@
 # ADR-024: Performance Requirements and SLA Definitions
 
 ## Status
-Proposed
+Accepted
 
 ## Decision Drivers
 - Need clear performance benchmarks for system implementation
