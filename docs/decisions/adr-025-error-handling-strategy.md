@@ -1,7 +1,7 @@
 # ADR-025: Error Handling and Exception Management Strategy
 
 ## Status
-Proposed
+Accepted
 
 ## Decision Drivers
 - Consistent error handling required across all system components

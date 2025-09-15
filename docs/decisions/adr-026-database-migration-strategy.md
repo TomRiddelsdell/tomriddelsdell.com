@@ -1,7 +1,7 @@
 # ADR-026: Database Schema Evolution and Migration Strategy
 
 ## Status
-Proposed
+Accepted
 
 ## Decision Drivers
 - Event sourcing requires schema evolution strategy (referenced by ADR-006)

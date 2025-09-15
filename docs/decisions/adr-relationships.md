@@ -58,10 +58,11 @@ These ADRs handle cross-cutting concerns and system integration.
 | ADR | Title | Status | Dependencies | Required By |
 |-----|-------|--------|--------------|-------------|
 | ADR-010 | Observability Requirements | Accepted | ADR-001 | ADR-011, ADR-012, ADR-015 |
+| ~~ADR-019~~ | ~~Observability~~ | **Merged into ADR-010** | **Superseded** | **See ADR-010** |
 | ADR-011 | Message Bus Strategy (High-Level) | Accepted | ADR-006, ADR-007, ADR-004 | ADR-012, ADR-022 |
 | ADR-012 | Projection Strategy | Proposed | ADR-006, ADR-009, ADR-011 | ADR-013 |
 
-### Implementation Layer (New)
+### Implementation Layer
 These ADRs provide detailed implementation guidance for higher-level strategies.
 
 | ADR | Title | Status | Dependencies | Required By |
@@ -70,9 +71,9 @@ These ADRs provide detailed implementation guidance for higher-level strategies.
 | ADR-021 | Testing Strategy | Proposed | All implementation ADRs | None |
 | ADR-022 | Message Bus Architecture | Proposed | ADR-011, ADR-006 | ADR-012 |
 | ADR-023 | Contract Management | Proposed | ADR-011, ADR-007 | ADR-022 |
-| ADR-024 | Performance Requirements | Proposed | ADR-001 | ADR-010, ADR-012, ADR-015 |
-| ADR-025 | Error Handling Strategy | Proposed | ADR-006, ADR-011 | ADR-021 |
-| ADR-026 | Database Migration Strategy | Proposed | ADR-006, ADR-008 | ADR-015 |
+| ADR-024 | Performance Requirements | **Accepted** | ADR-001 | ADR-010, ADR-012, ADR-015 |
+| ADR-025 | Error Handling Strategy | **Accepted** | ADR-006, ADR-011 | ADR-021 |
+| ADR-026 | Database Migration Strategy | **Accepted** | ADR-006, ADR-008 | ADR-015 |
 
 ### Application Layer
 These ADRs define the application and infrastructure implementation.
