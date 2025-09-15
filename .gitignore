@@ -1,0 +1,92 @@
+node_modules
+dist
+.DS_Store
+server/public
+vite.config.ts.*
+*.tar.gz
+.devcontainer
+.amplify
+**/archive*
+
+# Development assets and temporary files
+attached_assets/
+build_output.log
+temp/
+changes/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# DevContainer - Include configuration but exclude sensitive data
+# Include: Base configuration files
+!.devcontainer/
+!.devcontainer/devcontainer.json
+!.devcontainer/devcontainer.json.template
+!.devcontainer/docker-compose.yml
+!.devcontainer/Dockerfile*
+!.devcontainer/post-create.sh
+!.devcontainer/mcp-config/
+!.devcontainer/validate-security.sh
+!.devcontainer/pre-commit-hook
+!.devcontainer/SECURITY.md
+
+# Exclude: Sensitive or generated devcontainer files
+.devcontainer/**/*.secure
+.devcontainer/**/*credentials*
+.devcontainer/**/*secret*
+.devcontainer/**/*private*
+.devcontainer/**/*.log
+.devcontainer/**/runtime-*
+.devcontainer/**/session-*
+.devcontainer/**/.env*
+
+# Environment and secrets
+.env
+.env.*
+!.env.template
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# AWS credentials
+.aws/credentials
+credentials.json
+**/aws-credentials*
+**/mcp-credentials*
+
+# MCP Server security exclusions
+.devcontainer/mcp-config/**/*key*
+.devcontainer/mcp-config/**/*token*
+.devcontainer/mcp-config/**/*endpoint*
+.devcontainer/mcp-config/**/*.pem
+.devcontainer/mcp-config/**/*.p12
+.devcontainer/mcp-config/**/runtime-config.json
+.devcontainer/mcp-config/**/active-sessions.json
+
+# SSH keys and certificates
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# Temporary sensitive files
+**/secrets/
+**/*secret*
+**/*password*
+**/*token*
+**/*credential*
+**/*.log
+
+# Build artifacts
+*.tgz
+.cache/
+
+# Sensitive docs
+docs/CONFIG_MIGRATION_PLAN.md
+
+# Lambda environment configuration (contains secrets)
+lambda-env.json
