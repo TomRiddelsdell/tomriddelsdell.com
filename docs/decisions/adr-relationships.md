@@ -1,17 +1,27 @@
 # ADR Relationship Matrix
 
-**Purpose**: This document maps the dependencies and relationships b### Missing Dependencies
+**Purpose**: This document maps the dependencies and relationships b### Missing Dependencies - UPDATED
 
-### Critical Gaps Identified
-These architectural areas lack ADRs but are referenced by existing decisions:
+### ✅ Recently Created ADRs
+These architectural gaps have been addressed:
 
-| Missing ADR | Priority | Required By | Estimated Effort | Status |
-|-------------|----------|-------------|------------------|--------|
-| ~~API Design Standards~~ | ~~High~~ | ~~ADR-013, ADR-012~~ | ~~Medium~~ | ✅ **Created ADR-020** |
-| ~~Testing Strategy~~ | ~~High~~ | ~~All implementation ADRs~~ | ~~High~~ | ✅ **Created ADR-021** |
-| Performance Requirements | Medium | ADR-010, ADR-012 | Medium | ❌ **Still needed** |
-| Error Handling Strategy | Medium | ADR-006, ADR-011 | Low | ❌ **Still needed** |
-| Database Migration Strategy | Medium | ADR-006, ADR-008 | Low | ❌ **Still needed** |to guide implementation order and ensure consistency.
+| New ADR | Priority | Required By | Status |
+|---------|----------|-------------|--------|
+| ~~API Design Standards~~ | ~~High~~ | ~~ADR-013, ADR-012~~ | ✅ **Created ADR-020** |
+| ~~Testing Strategy~~ | ~~High~~ | ~~All implementation ADRs~~ | ✅ **Created ADR-021** |
+| ~~Performance Requirements~~ | ~~Medium~~ | ~~ADR-010, ADR-012~~ | ✅ **Created ADR-024** |
+| ~~Error Handling Strategy~~ | ~~Medium~~ | ~~ADR-006, ADR-011~~ | ✅ **Created ADR-025** |
+| ~~Database Migration Strategy~~ | ~~Medium~~ | ~~ADR-006, ADR-008~~ | ✅ **Created ADR-026** |
+
+### 🔄 Remaining Decisions Required
+| Issue | Priority | Action Needed |
+|-------|----------|---------------|
+| ADR-019 vs ADR-010 Overlap | Medium | **USER DECISION**: Merge, separate, or rename |
+| ADR-007 Content Expansion | Low | **USER DECISION**: Enhance now or later |
+
+**Status**: All critical ADR gaps filled - only consolidation decisions remaining.
+
+---to guide implementation order and ensure consistency.
 
 ## Implementation Layers
 
@@ -60,6 +70,9 @@ These ADRs provide detailed implementation guidance for higher-level strategies.
 | ADR-021 | Testing Strategy | Proposed | All implementation ADRs | None |
 | ADR-022 | Message Bus Architecture | Proposed | ADR-011, ADR-006 | ADR-012 |
 | ADR-023 | Contract Management | Proposed | ADR-011, ADR-007 | ADR-022 |
+| ADR-024 | Performance Requirements | Proposed | ADR-001 | ADR-010, ADR-012, ADR-015 |
+| ADR-025 | Error Handling Strategy | Proposed | ADR-006, ADR-011 | ADR-021 |
+| ADR-026 | Database Migration Strategy | Proposed | ADR-006, ADR-008 | ADR-015 |
 
 ### Application Layer
 These ADRs define the application and infrastructure implementation.
