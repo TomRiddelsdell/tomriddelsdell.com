@@ -49,7 +49,7 @@ The system integrates with multiple MCP servers for enhanced AI capabilities:
 - **URL**: `https://mcp.neon.tech/mcp`
 - **Purpose**: PostgreSQL database cost tracking, analytics, and management
 - **Technology**: Neon's hosted MCP server
-- **Configuration**: `.vscode/mcp.json` file for VS Code integration
+- **Configuration**: `.vscode/settings.json` amazonQ.mcp.servers
 - **Authentication**: OAuth flow or Neon API key
 - **Features**: Cost monitoring, database metrics, query performance insights, resource management
 
@@ -60,5 +60,108 @@ The system integrates with multiple MCP servers for enhanced AI capabilities:
 - **Technology**: GitHub's official Go-based server
 - **Authentication**: GitHub Copilot OAuth or Personal Access Token
 - **Features**: Repository management, Issues, PRs, CI/CD, code analysis
+
+#### AWS CLI MCP Server
+- **Type**: Official Model Context Protocol server
+- **Package**: `@modelcontextprotocol/server-aws-cli`
+- **Purpose**: AWS infrastructure management through AI tools
+- **Authentication**: AWS credentials via environment variables
+- **Features**: EC2, S3, Lambda, CloudFormation management
+
+## CLI Tools
+
+### Required CLI Tools
+The development environment includes these essential CLI tools for platform development and deployment:
+
+#### **Doppler CLI**
+- **Purpose**: Centralized secrets management across all environments
+- **Installation**: `curl -Ls --tlsv1.2 --proto "=https" --retry 3 https://cli.doppler.com/install.sh | sudo sh`
+- **Usage**: Manages environment variables, API keys, and configuration secrets
+- **Key Commands**:
+  - `doppler secrets set --config dev` - Set development secrets
+  - `doppler secrets get NEON_API_KEY --config dev` - Retrieve specific secrets
+  - `doppler run -- npm run dev` - Run commands with injected secrets
+- **Integration**: Used for all environment configurations (dev, staging, production)
+
+#### **Wrangler CLI** 
+- **Purpose**: Cloudflare Workers deployment and management
+- **Installation**: `npm install -g wrangler@latest`
+- **Usage**: Deploy serverless functions, manage Workers KV, configure routes
+- **Key Commands**:
+  - `wrangler deploy` - Deploy Workers to Cloudflare
+  - `wrangler dev` - Local development server with Workers runtime
+  - `wrangler kv:namespace create` - Manage Workers KV storage
+- **Integration**: Primary deployment tool for API endpoints and serverless functions
+
+#### **Terraform CLI**
+- **Purpose**: Infrastructure as Code deployment and management
+- **Installation**: Via HashiCorp official repository
+- **Usage**: Deploy and manage cloud infrastructure across providers
+- **Key Commands**:
+  - `terraform plan` - Preview infrastructure changes
+  - `terraform apply` - Deploy infrastructure changes
+  - `terraform destroy` - Remove infrastructure resources
+- **Integration**: Manages Neon databases, Confluent Kafka, Cloudflare configuration
+
+#### **Neon CLI (neonctl)**
+- **Purpose**: PostgreSQL database management and operations
+- **Installation**: `npm install -g neonctl`
+- **Usage**: Database branching, query execution, schema management
+- **Key Commands**:
+  - `neonctl branches create` - Create database branch for development
+  - `neonctl databases list` - List all databases in project
+  - `neonctl sql-editor` - Interactive SQL query interface
+- **Integration**: Essential for event sourcing database operations and migrations
+
+#### **Confluent CLI**
+- **Purpose**: Apache Kafka cluster and streaming management
+- **Installation**: Platform-specific installer from Confluent
+- **Usage**: Manage Kafka topics, producers, consumers, and connectors
+- **Key Commands**:
+  - `confluent kafka cluster list` - List available Kafka clusters
+  - `confluent kafka topic create` - Create new Kafka topics
+  - `confluent kafka consumer consume` - Test message consumption
+- **Integration**: Critical for event bus and message streaming operations
+
+### CLI Tool Integration Notes
+- **Environment Variables**: All CLIs configured through Doppler for consistent secret management
+- **Authentication**: Each tool uses project-specific API keys managed securely
+- **Development Workflow**: Tools integrated into package.json scripts for common operations
+- **Container Support**: All CLIs available in development container for consistent environment
+- **Automation**: CLIs used in GitHub Actions for CI/CD pipeline automation
+
+## Common Commands
+
+### Development Commands
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Production build with optimization
+- `npm run test` - Run comprehensive test suite
+- `npm run test:watch` - Run tests in watch mode
+- `npm run lint` - Code linting and formatting check
+- `npm run type-check` - TypeScript type validation
+
+### Database Operations
+- `doppler run -- neonctl sql-editor` - Interactive database queries with secrets
+- `neonctl branches create feature/new-schema` - Create database branch for schema changes
+- `terraform apply -target=module.neon` - Deploy database infrastructure changes
+
+### Deployment Commands  
+- `wrangler deploy` - Deploy Cloudflare Workers to production
+- `terraform plan` - Preview all infrastructure changes
+- `doppler run -- terraform apply` - Deploy infrastructure with injected secrets
+
+### Development Workflow
+- `doppler run -- npm run dev` - Start development with all environment secrets
+- `git checkout -b feature/new-feature && npm run test` - Create feature branch and validate
+- `doppler secrets get --config dev` - View current development configuration
+
+## Communication Style
+- Be concise but thorough in explanations
+- Always confirm understanding before proceeding
+- Reference specific ADRs when making architectural decisions
+- Prioritize security and testing in all recommendations
+
+## Remember
+This is a production-ready enterprise system following Domain Driven Design with Event Sourcing. Always maintain the high standards of code quality, security, and architectural integrity that have been established. When in doubt, reference the comprehensive ADR collection in `/docs/decisions/` or ask for clarification rather than making assumptions.
 
 
