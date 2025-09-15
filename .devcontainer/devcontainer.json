@@ -1,0 +1,103 @@
+{
+	"name": "Portfolio Platform - Event-Sourced Microservices",
+	"image": "mcr.microsoft.com/vscode/devcontainers/typescript-node:20-bookworm",
+	"features": {
+		"ghcr.io/devcontainers/features/aws-cli:1": {},
+		"ghcr.io/devcontainers/features/terraform:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				// Essential Development
+				"github.copilot",
+				"github.copilot-chat",
+				
+				// TypeScript/JavaScript
+				"ms-vscode.vscode-typescript-next",
+				"esbenp.prettier-vscode",
+				"dbaeumer.vscode-eslint",
+				
+				// React/Next.js Frontend
+				"bradlc.vscode-tailwindcss",
+				"formulahendry.auto-rename-tag",
+				"christian-kohler.path-intellisense",
+				
+				// Testing
+				"ms-playwright.playwright",
+				"vitest.explorer",
+				
+				// Database/SQL
+				"ms-mssql.mssql",
+				"mtxr.sqltools",
+				"mtxr.sqltools-driver-pg",
+				
+				// Infrastructure & DevOps
+				"hashicorp.terraform",
+				"ms-azuretools.vscode-docker",
+				
+				// Git/Version Control
+				"mhutchie.git-graph",
+				"github.vscode-pull-request-github",
+				
+				// Documentation
+				"yzhang.markdown-all-in-one",
+				"davidanson.vscode-markdownlint",
+				
+				// Utilities
+				"ms-vscode.vscode-json",
+				"redhat.vscode-yaml"
+			],
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"typescript.preferences.useAliasesForRenames": false,
+				"eslint.workingDirectories": ["packages", "services", "apps"],
+				"amazonQ.mcp.servers": {
+					"github": {
+						"command": "npx",
+						"args": ["-y", "@modelcontextprotocol/server-github"],
+						"env": {
+							"GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_TOKEN}"
+						}
+					},
+					"neon": {
+						"command": "npx",
+						"args": ["-y", "@neondatabase/mcp-server-neon"],
+						"env": {
+							"NEON_API_KEY": "${env:NEON_API_KEY}"
+						}
+					},
+					"aws-cli": {
+						"command": "npx",
+						"args": ["-y", "@modelcontextprotocol/server-aws-cli"],
+						"env": {
+							"AWS_ACCESS_KEY_ID": "${env:AWS_ACCESS_KEY_ID}",
+							"AWS_SECRET_ACCESS_KEY": "${env:AWS_SECRET_ACCESS_KEY}",
+							"AWS_DEFAULT_REGION": "${env:AWS_DEFAULT_REGION}"
+						}
+					}
+				}
+			}
+		}
+	},
+	"forwardPorts": [3000, 3001, 5000, 8080, 9090],
+	"postCreateCommand": "bash .devcontainer/setup.sh",
+	"remoteUser": "node",
+	"containerEnv": {
+		// Essential environment variables - values come from host .env or Doppler
+		"NODE_ENV": "development",
+		"DATABASE_URL": "${localEnv:DATABASE_URL}",
+		"NEON_API_KEY": "${localEnv:NEON_API_KEY}",
+		"GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
+		"DOPPLER_TOKEN": "${localEnv:DOPPLER_TOKEN}",
+		"AWS_ACCESS_KEY_ID": "${localEnv:AWS_ACCESS_KEY_ID}",
+		"AWS_SECRET_ACCESS_KEY": "${localEnv:AWS_SECRET_ACCESS_KEY}",
+		"AWS_DEFAULT_REGION": "${localEnv:AWS_DEFAULT_REGION}",
+		"CLOUDFLARE_API_TOKEN": "${localEnv:CLOUDFLARE_API_TOKEN}",
+		"CONFLUENT_CLOUD_API_KEY": "${localEnv:CONFLUENT_CLOUD_API_KEY}",
+		"CONFLUENT_CLOUD_API_SECRET": "${localEnv:CONFLUENT_CLOUD_API_SECRET}"
+	}
+}
