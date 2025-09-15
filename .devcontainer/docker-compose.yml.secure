@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspaces:cached
+      - ~/.ssh:/home/vscode/.ssh:ro
+    environment:
+      # All environment variables from .env file - NEVER hardcode secrets!
+      - DATABASE_URL=${DATABASE_URL}
+      - VITE_AWS_COGNITO_CLIENT_ID=${VITE_AWS_COGNITO_CLIENT_ID}
+      - VITE_AWS_COGNITO_REGION=${VITE_AWS_COGNITO_REGION}
+      - VITE_AWS_COGNITO_USER_POOL_ID=${VITE_AWS_COGNITO_USER_POOL_ID}
+      - AWS_COGNITO_HOSTED_UI_DOMAIN=${AWS_COGNITO_HOSTED_UI_DOMAIN}
+      - VITE_AWS_COGNITO_HOSTED_UI_DOMAIN=${VITE_AWS_COGNITO_HOSTED_UI_DOMAIN}
+      - AWS_COGNITO_CLIENT_SECRET=${AWS_COGNITO_CLIENT_SECRET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - PGDATABASE=${PGDATABASE}
+      - PGHOST=${PGHOST}
+      - PGUSER=${PGUSER}
+      - PGPASSWORD=${PGPASSWORD}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      # MCP Server endpoints
+      - AWS_MCP_ENDPOINT=http://aws-mcp:8001
+      - NEPTUNE_MCP_ENDPOINT=http://neptune-mcp:8002
+      # Neon MCP uses official remote server: https://mcp.neon.tech/mcp
+      # GitHub MCP uses official remote server: https://api.githubcopilot.com/mcp/
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+      - "5713:5713"
+      - "5000:5000"
+    depends_on:
+      - aws-mcp
+      - neptune-mcp
+    command: sleep infinity
+
+  aws-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.aws-mcp
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - AWS_REGION=${AWS_DEFAULT_REGION}
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./mcp-config:/config:ro
+    restart: unless-stopped
+
+  neptune-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.neptune-mcp
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - AWS_REGION=${AWS_DEFAULT_REGION}
+      - NEPTUNE_ENDPOINT=${NEPTUNE_ENDPOINT:-mock}
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./mcp-config:/config:ro
+    restart: unless-stopped
