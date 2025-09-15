@@ -1,97 +1,104 @@
 # GitHub Copilot Instructions for tomriddelsdell.com
 
-## Project Overview
-This is a personal website that acts as a platform for showcasing projects to authorized users.
-The project follows Domain Driven Design (DDD) with a focus on architecture and code quality. 
-Security, Testing and monitoring are integral parts of the system.
-
-## Architecture & Technology Stack
-
-### Core Architecture
-- **Domain Driven Design (DDD)**: Pure domain layer with strict bounded contexts
-- **Monorepo Structure**: Organized into domains, interfaces, and infrastructure
-- **Layered Architecture**: Clear separation between domain, application, infrastructure, and interface layers
-- **Technology Stack**: 
-- ***Frontends*** should be TypeScript using React with Vite
-- ***Backtends*** should be either TypeScript, Java or Python
-- ***Databases*** should be PostgreSQL using Drizzle ORM where appropriate. NeonDB is used for serverless database hosting.
-- ***Infrastructure*** should be AWS with CDK for provisioning and management.
-
-### Directory Structure
-```
-domains/                # Domain layer - business logic and entities
-├── identity/           # User management and authentication
-├── integration/        # External service integrations
-├── analytics/          # Metrics collection and logging
-├── notification/       # Multi-channel notification system
-├── monitoring/         # System health and performance monitoring
-├── shared-kernel/      # Common value objects and domain events
-└── app-1,2,.../        # For all access controlled sub applications (e.g. qis-data-management will be an additional domain added here)
-
-interfaces/             # Interface layer - external boundaries
-├── api-gateway/        # Express.js HTTP API
-└── web-frontend/       # React SPA with Shadcn/ui
-
-infrastructure/         # Infrastructure concerns
-├── database/           # PostgreSQL, migrations, schemas
-├── security/           # Authentication, authorization, RBAC
-└── configuration/      # Environment and system configuration
-```
-
-### Import Patterns
-- Use `@shared/*` for shared kernel references
-- Always import from `domains/shared-kernel/src/*` for shared components
-- Maintain strict DDD boundaries - no cross-domain imports except through shared kernel
-- Database schema defined in `domains/shared-kernel/src/schema.ts`
-
-## Development Workflow
-
-### Code Change Protocol (MANDATORY)
-- **Tests** - Always review tests before making changes. Adding new tests for any new functionality is mandatory
-- **Break down complex changes** - Split multi-file modifications into reviewable chunks. Suggest multiple commits or new git branches if necessary
-- **Explain reasoning and provide options** - Always explain why changes are necessary and provide alternative solutions and their trade offs where appropriate
+## General Guidance
+- Always prefer **clarity and correctness** over brevity.
+- Follow **Domain-Driven Design (DDD)** principles in all code, documentation, and suggestions.
+- Ensure code is **well-structured, readable, and maintainable**.
+- Prefer **explicitness** (naming, interfaces, contracts) over implicit or "magic" behavior.
+- Generate **tests alongside code** where appropriate. Favour TDD practices.
 - **Record Bugs in docs/Bugs.md** - Document any bugs or issues encountered, with reproduction unit test and resolution status
 - **Document work done in changes/yyyy-mm-dd-copilot.md** - Summarize changes made, including any relevant context or decisions
 - **Git Branching** - Perform minor changes in 'develop' branch. Major changes should be done in feature branches and merged into develop. 
+---
 
-## Technical Standards
+## Domain-Driven Design (DDD)
+- Treat each service or app as a **bounded context** with its own ubiquitous language.
+- Maintain separation between:
+  - **Domain layer** (entities, aggregates, value objects, domain events, invariants).
+  - **Application layer** (use cases, commands, queries, orchestrations).
+  - **Infrastructure layer** (adapters for persistence, messaging, APIs).
+- Domain logic must not import infrastructure code or depend on external frameworks.
+- Use **aggregates** to enforce invariants and control access to domain events.
+- Name classes, functions, and files consistently with the **ubiquitous language**.
 
-### Code Quality
-- **DDD Boundaries**: Maintain strict separation between domains
-- **Strict Typing**: Strict typing throughout, no `any` types
-- **Clean-up**: Remove unused code and dependencies
-- **Security First**: All inputs validated, proper authentication checks
-- **Test First**: Write tests before implementing features. Bugs should be reproduced with tests before fixing.
+---
 
-### Security Requirements
-- **Credentials**: Never hard-code credentials in the codebase or config that will be committed to version control
-- **Authentication**: AWS Cognito integration required
-- **Authorization**: Role-based access control (RBAC)
-- **Input Validation**: Zod schemas for all inputs
-- **Environment Variables**: Centralized configuration with validation
-- **Session Management**: Secure session handling with cleanup
-- **Environment Variables**: Minimize the use of environment variables. Use centralized config where possible.
+## Event Sourcing & CQRS
+- Capture all state changes as **domain events**.
+- Append events to a store in an **append-only** fashion with versioning to support optimistic concurrency.
+- Build **read models** (projections) from event streams for queries and UI needs.
+- Ensure **projections are rebuildable** from event history.
+- Use the **outbox pattern** for reliable publishing of events to message buses.
+- Consumers must be **idempotent** when applying events or handling side effects.
 
-## Common Commands
-- `npm run dev` - Start development server
-- `npm run build` - Production build
-- `npm run test` - Run test suite
-- `npm run db:push` - Apply database schema changes
-- `./pre-deploy.sh` - Pre-deployment validation
+---
+
+## Hexagonal Architecture (Ports & Adapters)
+- Define **ports** (interfaces) for persistence, messaging, external APIs, and other infrastructure.
+- Implement **adapters** that fulfill these ports for specific infrastructure technologies.
+- Application and domain layers depend only on ports, not on concrete adapter implementations.
+- Keep adapters thin and focused — never allow infrastructure logic to leak into the domain.
+
+---
+
+## Contracts & Interfaces
+- Define all inter-service communication via **explicit contracts** (e.g., schemas, APIs, event definitions).
+- Version contracts carefully; maintain backward compatibility where possible.
+- Store contracts in a dedicated `/contracts` directory.
+- Generate client/server code from contracts, never hardcode schema assumptions in multiple places.
+
+---
+
+## Testing
+- Write **unit tests** for domain logic — these should run without infrastructure dependencies.
+- Write **integration tests** for adapters (persistence, messaging, APIs).
+- Write **end-to-end tests** for key workflows across services.
+- Add **contract tests** to ensure producers and consumers adhere to agreed schemas.
+- Favor **fast, deterministic tests** over brittle or flaky ones.
+
+---
+
+## Documentation
+- Keep architecture decisions recorded as **ADRs** in `/docs/decisions`.
+- Maintain a **glossary** of domain terms in `/docs/glossary.md`.
+- Document conventions and style in `/docs/conventions.md`.
+- Update documentation when introducing significant changes in design, contracts, or architecture.
+
+---
+
+## Coding Style
+- Use **descriptive names** that reflect domain meaning, not implementation detail.
+- Write **small, composable functions** with single responsibilities.
+- Avoid duplication; extract reusable concepts where patterns emerge.
+- Follow consistent folder and module structure: `domain`, `app`, `adapters`, `tests`.
+- Include meaningful docstrings or comments for complex logic.
+
+---
+
+## Security & Reliability
+- Never hardcode secrets; always depend on injected configuration.
+- Apply **least privilege** principles for access and permissions.
+- Ensure **multi-tenancy** is enforced at both the application and persistence layers where applicable.
+- Handle **errors and failures gracefully**; log meaningfully, avoid silent failures.
+- Favor **auditable designs**: security-sensitive actions should produce immutable audit events.
+
+---
+
+
+## Copilot Interaction
+When providing suggestions:
+1. **Respect domain boundaries** — don’t collapse domain and infrastructure logic together.  
+2. **Ask clarifying questions** if requirements are ambiguous.  
+3. **Explain reasoning** behind design choices, not just code output.  
+4. **Align with existing docs** (`architecture-overview.md`, ADRs, glossary).  
+5. **Stay consistent** with prior patterns in the codebase.  
+
+---
 
 ## MCP Servers
 
 ### Active MCP Servers
 The system integrates with multiple MCP servers for enhanced AI capabilities:
-
-#### AWS API MCP Server
-- **Location**: `.devcontainer/Dockerfile.aws-mcp`
-- **Purpose**: AWS service management through AI tools
-- **Technology**: Python 3.10-slim + uv package manager
-- **Package**: `awslabs.aws-api-mcp-server` (official AWS Labs)
-- **Port**: 8001
-- **Features**: EC2, S3, Lambda, CloudFormation management
-- **Authentication**: AWS credentials via environment variables
 
 #### Neon MCP Server (Remote)
 - **Type**: Official remote server (recommended approach)
@@ -109,24 +116,3 @@ The system integrates with multiple MCP servers for enhanced AI capabilities:
 - **Technology**: GitHub's official Go-based server
 - **Authentication**: GitHub Copilot OAuth or Personal Access Token
 - **Features**: Repository management, Issues, PRs, CI/CD, code analysis
-
-### MCP Integration Notes
-- **Docker Compose**: All MCP servers defined in `.devcontainer/docker-compose.yml`
-- **HTTP Wrappers**: Custom FastAPI wrappers for AWS/Neptune servers (ports 8001/8002)
-- **Official Packages**: Using AWS Labs official packages for reliability
-- **Base Image**: Switched from Alpine to Debian-slim for PyTorch compatibility
-- **Package Manager**: Using `uv` for faster dependency management
-- **Health Checks**: HTTP endpoints for container health monitoring
-
-### MCP Server Management
-- **Build Issues**: Documented in `docs/Bugs.md` (DEV-001, DEV-002)
-- **Configuration**: Environment variables in devcontainer.json
-- **Networking**: Internal Docker network communication
-- **Development**: Accessible via forwarded ports for debugging
-
-## Communication Style
-- Be concise but thorough in explanations
-- Always confirm understanding before proceeding
-
-## Remember
-This is a production-ready enterprise system. Always maintain the high standards of code quality, security, and architectural integrity that have been established. When in doubt, ask for clarification rather than making assumptions.

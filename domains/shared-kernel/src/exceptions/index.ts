@@ -1,1 +1,0 @@
-export { DomainException } from './DomainException';

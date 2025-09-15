@@ -30,7 +30,7 @@ These ADRs define the domain model and core architectural patterns.
 |-----|-------|--------|--------------|-------------|
 | ADR-003 | Authentication Strategy | Accepted | ADR-001, ADR-002 | ADR-004, ADR-018 |
 | ADR-004 | Security Compliance | Accepted | ADR-001, ADR-002, ADR-003 | ADR-006, ADR-011 |
-| ADR-005 | Domain Model | Proposed | ADR-001, ADR-002 | ADR-006, ADR-007, ADR-008 |
+| ADR-005 | Domain Model | Accepted | ADR-001, ADR-002 | ADR-006, ADR-007, ADR-008 |
 
 ### Event Sourcing Core
 These ADRs implement the event sourcing and CQRS foundation.
@@ -97,7 +97,6 @@ Foundation Layer → Domain Core → Event Sourcing Core → Integration Layer �
 ## Conflict Resolution
 
 ### Status Conflicts
-- **ADR-005 (Domain Model)**: Status shows "Proposed" but is foundational. ***please check*** if this should be "Accepted"
 - **ADR-019 vs ADR-010**: Overlapping observability concerns. ***please check*** whether to merge or keep separate
 
 ### Content Conflicts
