@@ -1,18 +1,1 @@
-{
-  "mcpServers": {
-    "aws-cli": {
-      "command": "/usr/local/bin/aws",
-      "args": ["help"],
-      "env": {
-        "AWS_DEFAULT_REGION": "eu-west-2"
-      }
-    },
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@github/github-mcp-server"],
-      "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-      }
-    }
-  }
-}
+{}
