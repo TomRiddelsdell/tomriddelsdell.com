@@ -85,6 +85,8 @@
 	},
 	"forwardPorts": [3000, 3001, 5000, 8080, 9090],
 	"postCreateCommand": "bash .devcontainer/setup.sh",
+	"workspaceFolder": "/workspaces",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces,type=bind",
 	"remoteUser": "node",
 	"containerEnv": {
 		// Essential environment variables - values come from host .env or Doppler
@@ -98,6 +100,9 @@
 		"AWS_DEFAULT_REGION": "${localEnv:AWS_DEFAULT_REGION}",
 		"CLOUDFLARE_API_TOKEN": "${localEnv:CLOUDFLARE_API_TOKEN}",
 		"CONFLUENT_CLOUD_API_KEY": "${localEnv:CONFLUENT_CLOUD_API_KEY}",
-		"CONFLUENT_CLOUD_API_SECRET": "${localEnv:CONFLUENT_CLOUD_API_SECRET}"
+		"CONFLUENT_CLOUD_API_SECRET": "${localEnv:CONFLUENT_CLOUD_API_SECRET}",
+		// Git configuration - optional
+		"GIT_USER_NAME": "${localEnv:GIT_USER_NAME}",
+		"GIT_USER_EMAIL": "${localEnv:GIT_USER_EMAIL}"
 	}
 }

@@ -13,6 +13,7 @@ attached_assets/
 build_output.log
 temp/
 changes/
+**/changes/
 
 # IDE and editor files
 .vscode/
@@ -85,8 +86,3 @@ id_ed25519*
 *.tgz
 .cache/
 
-# Sensitive docs
-docs/CONFIG_MIGRATION_PLAN.md
-
-# Lambda environment configuration (contains secrets)
-lambda-env.json
