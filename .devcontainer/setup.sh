@@ -21,6 +21,11 @@ sudo apt-get install -y \
     lsb-release \
     software-properties-common
 
+# Ensure we have the latest npm
+echo "📦 Updating npm to latest version..."
+npm install -g npm@latest
+echo "  • npm version: $(npm --version)"
+
 echo "🔧 Installing CLI tools for Portfolio Platform..."
 
 # Install Doppler CLI (Secrets Management)
@@ -49,20 +54,21 @@ confluent version || echo "⚠️ Confluent CLI installation may need manual ver
 echo "🛠️ Installing additional development utilities..."
 npm install -g \
     pnpm@latest \
-    @playwright/test \
-    eslint \
-    prettier \
-    typescript \
-    ts-node \
-    nodemon \
-    turbo@latest
+    @playwright/test@latest \
+    eslint@latest \
+    prettier@latest \
+    typescript@latest \
+    ts-node@latest \
+    nodemon@latest \
+    turbo@latest \
+    @types/node@latest
 
 # Install Avro tools for event schema management
 echo "📋 Installing Avro tools for event sourcing..."
 npm install -g \
-    avro-typescript \
-    avro-js \
-    @kafkajs/confluent-schema-registry
+    avro-typescript@latest \
+    avro-js@latest \
+    @kafkajs/confluent-schema-registry@latest
 
 # Setup git configuration for development
 echo "⚙️ Configuring git..."
