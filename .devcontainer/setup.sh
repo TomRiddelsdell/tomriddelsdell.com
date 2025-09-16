@@ -66,22 +66,43 @@ npm install -g \
 
 # Setup git configuration for development
 echo "⚙️ Configuring git..."
+
+# Configure git user if environment variables are provided
+if [ -n "$GIT_USER_NAME" ]; then
+    git config --global user.name "$GIT_USER_NAME"
+    echo "  • Git name configured: $GIT_USER_NAME"
+else
+    echo "  • GIT_USER_NAME not set, skipping git user.name configuration"
+fi
+
+if [ -n "$GIT_USER_EMAIL" ]; then
+    git config --global user.email "$GIT_USER_EMAIL"
+    echo "  • Git email configured: $GIT_USER_EMAIL"
+else
+    echo "  • GIT_USER_EMAIL not set, skipping git user.email configuration"
+fi
+
 git config --global init.defaultBranch main
 git config --global pull.rebase false
 git config --global core.editor "code --wait"
 
 # Create project workspace directories if they don't exist
 echo "📁 Setting up workspace directories..."
-mkdir -p /workspaces/packages/{shared,ui-components,events,contracts}
-mkdir -p /workspaces/services/{accounts,admin,app-catalog,entitlements}
-mkdir -p /workspaces/apps/{app-bar,app-foo}
-mkdir -p /workspaces/contracts/{api,events,ui}
-mkdir -p /workspaces/tests/{unit,integration,e2e,contract}
-mkdir -p /workspaces/infra/{terraform,scripts}
+# Work with the current workspace directory structure
+CURRENT_DIR=$(pwd)
+cd "$CURRENT_DIR" || exit 1
 
-# Set proper permissions
+# Ensure directory structure exists (most already exist from git)
+mkdir -p packages/{shared,ui-components,events,contracts}
+mkdir -p services/{accounts,admin,app-catalog,entitlements}
+mkdir -p apps/{app-bar,app-foo}
+mkdir -p contracts/{api,events,ui}
+mkdir -p tests/{unit,integration,e2e,contract}
+mkdir -p infra/{terraform,scripts}
+
+# Set proper permissions for current workspace
 echo "🔒 Setting workspace permissions..."
-sudo chown -R node:node /workspaces
+sudo chown -R node:node "$CURRENT_DIR"
 
 # Verify installations
 echo "✅ Verifying installations..."
