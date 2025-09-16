@@ -34,22 +34,39 @@
 				"ms-mssql.mssql",
 				"mtxr.sqltools",
 				"mtxr.sqltools-driver-pg",
+				"cweijan.vscode-postgresql-client2",
 				
 				// Infrastructure & DevOps
 				"hashicorp.terraform",
 				"ms-azuretools.vscode-docker",
+				"ms-vscode.azure-account",
+				"ms-azuretools.vscode-azureresourcegroups",
+				
+				// Cloudflare Workers (Wrangler CLI Support)
+				"cloudflare.vscode-cloudflare-workers",
+				
+				// Environment & Secrets Management
+				"ms-vscode.dotenv",
+				"johnpapa.vscode-peacock",
+				
+				// Apache Kafka & Event Streaming
+				"jeppeandersen.vscode-kafka",
 				
 				// Git/Version Control
 				"mhutchie.git-graph",
 				"github.vscode-pull-request-github",
+				"eamodio.gitlens",
 				
 				// Documentation
 				"yzhang.markdown-all-in-one",
 				"davidanson.vscode-markdownlint",
+				"bierner.markdown-mermaid",
 				
 				// Utilities
 				"ms-vscode.vscode-json",
-				"redhat.vscode-yaml"
+				"redhat.vscode-yaml",
+				"ms-vscode.hexdump",
+				"streetsidesoftware.code-spell-checker"
 			],
 			"settings": {
 				"terminal.integrated.defaultProfile.linux": "bash",
