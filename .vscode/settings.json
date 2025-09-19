@@ -26,11 +26,27 @@
     }
   },
   "cSpell.words": [
+    "amazoncognito",
+    "Appender",
+    "behaviour",
     "cicd",
+    "frontends",
+    "Minimise",
+    "Minimising",
     "modelcontextprotocol",
     "neonctl",
     "neondatabase",
+    "rebuildable",
+    "replit",
+    "sgto",
+    "stabilise",
+    "stdlib",
+    "sudb",
+    "Supabase",
     "tlsv",
-    "tomriddelsdell"
-  ]
+    "tomriddelsdell",
+    "xiwn"
+  ],
+  "doppler.autocomplete.enable": true,
+  "doppler.hover.enable": true
 }

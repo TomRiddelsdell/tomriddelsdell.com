@@ -73,7 +73,8 @@
 				"ms-vscode.vscode-npm-script-explorer",
 				"formulahendry.auto-close-tag",
 				"ms-vsliveshare.vsliveshare",
-				"github.vscode-github-actions"
+				"github.vscode-github-actions",
+				"doppler.doppler-vscode"
 			],
 			"settings": {
 				"terminal.integrated.defaultProfile.linux": "bash",
