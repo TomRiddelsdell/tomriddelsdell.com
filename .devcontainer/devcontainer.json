@@ -1,13 +1,22 @@
 {
 	"name": "Portfolio Platform - Event-Sourced Microservices",
-	"image": "mcr.microsoft.com/vscode/devcontainers/typescript-node:22-bookworm",
+	"image": "mcr.microsoft.com/devcontainers/universal:2-linux",
 	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "latest",
+			"jdkDistro": "ms"
+		},
+		"ghcr.io/devcontainers/features/python:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "latest"
+		},
 		"ghcr.io/devcontainers/features/aws-cli:1": {},
 		"ghcr.io/devcontainers/features/terraform:1": {
 			"version": "latest"
 		},
-		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
-		"ghcr.io/devcontainers/features/github-cli:1": {}
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
 	},
 	"customizations": {
 		"vscode": {
@@ -15,59 +24,46 @@
 				// Essential Development
 				"github.copilot",
 				"github.copilot-chat",
-				
 				// TypeScript/JavaScript
 				"ms-vscode.vscode-typescript-next",
 				"esbenp.prettier-vscode",
 				"dbaeumer.vscode-eslint",
-				
 				// React/Next.js Frontend
 				"bradlc.vscode-tailwindcss",
 				"formulahendry.auto-rename-tag",
 				"christian-kohler.path-intellisense",
-				
 				// Testing
 				"ms-playwright.playwright",
 				"vitest.explorer",
-				
 				// Database/SQL
 				"ms-mssql.mssql",
 				"mtxr.sqltools",
-				"mtxr.sqltools-driver-pg", 
+				"mtxr.sqltools-driver-pg",
 				"cweijan.vscode-postgresql-client2",
-				
 				// Infrastructure & DevOps
 				"hashicorp.terraform",
 				"ms-azuretools.vscode-docker",
-				"ms-vscode.azure-account",
 				"ms-azuretools.vscode-azureresourcegroups",
-				
 				// Cloudflare Workers (Wrangler CLI Support)
 				"cloudflare.vscode-cloudflare-workers",
-				
 				// Environment & Secrets Management
 				"ms-vscode.dotenv",
 				"johnpapa.vscode-peacock",
-				
 				// Apache Kafka & Event Streaming
 				"jeppeandersen.vscode-kafka",
-				
 				// Git/Version Control
 				"mhutchie.git-graph",
 				"github.vscode-pull-request-github",
 				"eamodio.gitlens",
-				
 				// Documentation
 				"yzhang.markdown-all-in-one",
 				"davidanson.vscode-markdownlint",
 				"bierner.markdown-mermaid",
-				
 				// Utilities & Quality
 				"ms-vscode.vscode-json",
 				"redhat.vscode-yaml",
 				"ms-vscode.hexdump",
 				"streetsidesoftware.code-spell-checker",
-				
 				// Enhanced Development Experience
 				"bradlc.vscode-tailwindcss",
 				"usernamehw.errorlens",
@@ -82,25 +78,73 @@
 			"settings": {
 				"terminal.integrated.defaultProfile.linux": "bash",
 				"typescript.preferences.useAliasesForRenames": false,
-				"eslint.workingDirectories": ["packages", "services", "apps"],
+				"eslint.workingDirectories": [
+					"packages",
+					"services",
+					"apps"
+				],
+				"github.copilot.chat.terminal.autoApprove": [
+					// Default safe commands
+					"echo *",
+					"ls *",
+					"cat *",
+					"pwd",
+					"whoami",
+					"date",
+					"which *",
+					"head *",
+					"tail *",
+					"grep *",
+					"find *",
+					"wc *",
+					"sort *",
+					"uniq *",
+					"tree *",
+					"git status",
+					"git log *",
+					"git diff *",
+					"git show *",
+					"git branch *",
+					"npm list *",
+					"npm view *",
+					"node --version",
+					"npm --version",
+					"tsc --version",
+					// Additional curl GET commands
+					"curl -s*",
+					"curl --silent*",
+					"curl -L*",
+					"curl --location*",
+					"curl -X GET*",
+					"curl --request GET*"
+				],
 				"amazonQ.mcp.servers": {
 					"github": {
 						"command": "npx",
-						"args": ["-y", "@modelcontextprotocol/server-github@latest"],
+						"args": [
+							"-y",
+							"@modelcontextprotocol/server-github@latest"
+						],
 						"env": {
 							"GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_TOKEN}"
 						}
 					},
 					"neon": {
 						"command": "npx",
-						"args": ["-y", "@neondatabase/mcp-server-neon@latest"],
+						"args": [
+							"-y",
+							"@neondatabase/mcp-server-neon@latest"
+						],
 						"env": {
 							"NEON_API_KEY": "${env:NEON_API_KEY}"
 						}
 					},
 					"aws-cli": {
 						"command": "npx",
-						"args": ["-y", "@modelcontextprotocol/server-aws-cli@latest"],
+						"args": [
+							"-y",
+							"@modelcontextprotocol/server-aws-cli@latest"
+						],
 						"env": {
 							"AWS_ACCESS_KEY_ID": "${env:AWS_ACCESS_KEY_ID}",
 							"AWS_SECRET_ACCESS_KEY": "${env:AWS_SECRET_ACCESS_KEY}",
@@ -111,26 +155,42 @@
 			}
 		}
 	},
-	"forwardPorts": [3000, 3001, 5000, 8080, 9090],
+	"forwardPorts": [
+		3000,
+		3001,
+		5000,
+		8080,
+		9090
+	],
 	"postCreateCommand": "bash .devcontainer/setup.sh",
 	"workspaceFolder": "/workspaces",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces,type=bind",
-	"remoteUser": "node",
+	"remoteUser": "codespace",
 	"containerEnv": {
-		// Essential environment variables - values come from host .env or Doppler
+		// Essential environment variables
 		"NODE_ENV": "development",
-		"DATABASE_URL": "${localEnv:DATABASE_URL}",
-		"NEON_API_KEY": "${localEnv:NEON_API_KEY}",
-		"GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
+		
+		// Doppler token for secrets management (from host)
 		"DOPPLER_TOKEN": "${localEnv:DOPPLER_TOKEN}",
-		"AWS_ACCESS_KEY_ID": "${localEnv:AWS_ACCESS_KEY_ID}",
-		"AWS_SECRET_ACCESS_KEY": "${localEnv:AWS_SECRET_ACCESS_KEY}",
-		"AWS_DEFAULT_REGION": "${localEnv:AWS_DEFAULT_REGION}",
-		"CLOUDFLARE_API_TOKEN": "${localEnv:CLOUDFLARE_API_TOKEN}",
-		"CONFLUENT_CLOUD_API_KEY": "${localEnv:CONFLUENT_CLOUD_API_KEY}",
-		"CONFLUENT_CLOUD_API_SECRET": "${localEnv:CONFLUENT_CLOUD_API_SECRET}",
-		// Git configuration - optional
-		"GIT_USER_NAME": "${localEnv:GIT_USER_NAME}",
-		"GIT_USER_EMAIL": "${localEnv:GIT_USER_EMAIL}"
+		
+		// User identity from host machine (non-sensitive)
+		"DEV_EMAIL": "${localEnv:DEV_EMAIL}",
+		"DEV_USER_NAME": "${localEnv:DEV_USER_NAME}",
+		
+		// Map host identity to all service-specific variables
+		"CLOUDFLARE_EMAIL": "${localEnv:DEV_EMAIL}",
+		"NEON_EMAIL": "${localEnv:DEV_EMAIL}",
+		"CONFLUENT_EMAIL": "${localEnv:DEV_EMAIL}",
+		"GIT_USER_EMAIL": "${localEnv:DEV_EMAIL}",
+		"GIT_USER_NAME": "${localEnv:DEV_USER_NAME}"
+		
+		// All API keys, tokens, and secrets will come from Doppler
+		// Use: doppler secrets set NEON_API_KEY="..." 
+		// Use: doppler secrets set CLOUDFLARE_API_KEY="..."
+		// Use: doppler secrets set GITHUB_TOKEN="..."
+		// Use: doppler secrets set AWS_ACCESS_KEY_ID="..."
+		// Use: doppler secrets set AWS_SECRET_ACCESS_KEY="..."
+		// Use: doppler secrets set CONFLUENT_CLOUD_API_KEY="..."
+		// Use: doppler secrets set CONFLUENT_CLOUD_API_SECRET="..."
 	}
 }

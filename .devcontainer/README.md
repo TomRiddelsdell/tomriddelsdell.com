@@ -20,6 +20,16 @@ This directory contains the VS Code dev container configuration for the Portfoli
 - **Confluent CLI**: Apache Kafka management
 - **AWS CLI**: AWS services integration
 
+### Setup & Authentication Scripts
+- **`setup.sh`**: Main setup script (runs automatically)
+- **`inject-doppler-env.sh`**: Manual secret injection
+- **`verify-cli-auth.sh`**: Authentication verification
+- **`diagnose-host-env.sh`**: Host environment troubleshooting
+
+### Documentation
+- **`HOST_ENVIRONMENT_SETUP.md`**: Host variable configuration guide
+- **`ENV_VARIABLE_SOLUTIONS.md`**: Environment troubleshooting guide
+
 ### VS Code Extensions
 - GitHub Copilot & Chat
 - TypeScript/JavaScript development
@@ -75,6 +85,36 @@ The setup script creates the standard monorepo structure:
 
 All sensitive values are loaded from the host environment or Doppler.
 See `.env.example` for required variables.
+
+### Authentication Flow
+
+1. **Host Variables** (non-sensitive, in `~/.bashrc` and `~/.profile`)
+   - `DEV_EMAIL` → Maps to all service email variables
+   - `DEV_USER_NAME` → Maps to Git configuration
+   - `DOPPLER_TOKEN` → Service token for secrets access
+
+2. **Doppler Secrets** (sensitive API keys, stored securely)
+   - `CLOUDFLARE_API_KEY` / `NEON_API_KEY` / `GITHUB_TOKEN`
+   - `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`
+   - `CONFLUENT_CLOUD_API_KEY` / `CONFLUENT_CLOUD_API_SECRET`
+
+3. **Automatic Setup**
+   - Host variables inherited by container at startup
+   - Doppler secrets injected as environment variables
+   - All CLI tools authenticate automatically
+
+### Troubleshooting Authentication
+
+```bash
+# Verify all CLI authentications
+.devcontainer/verify-cli-auth.sh
+
+# Manually inject Doppler secrets if needed
+source .devcontainer/inject-doppler-env.sh
+
+# Diagnose host environment issues (run on host machine)
+.devcontainer/diagnose-host-env.sh
+```
 
 ## 🗑️ Removed Components
 
