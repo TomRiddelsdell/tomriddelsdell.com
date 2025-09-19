@@ -1,63 +1,37 @@
-# AMP Instructions for tomriddelsdell.com
-
-## Project Overview
-This is a personal website that acts as a platform for showcasing projects to authorized users.
-The project follows Domain Driven Design (DDD) with a focus on architecture and code quality. 
-Security, Testing and monitoring are integral parts of the system.
+# Instructions for AI Agents
 
 ## Architecture & Technology Stack
 
+### AI Agent Rules
+
+- ***Instructions Files*** Never modify or delete .github/copilot-instructions.md or AGENT.md. These files contain critical instructions for AI agents and must remain unchanged.
+- **Creating Files** - Avoid creating file in the root directory. Use appropriate subdirectories following the established DDD structure.
+- **Record Bugs in docs/Bugs.md** - Document any bugs or issues encountered, with reproduction unit test and resolution status
+ **Document work done in changes/yyyy-mm-dd-short-description.md** - Summarize changes made regularly, particularly after each commit, including any relevant context or decisions. Updates should be appended at the top of the file with a timestamp. Previous timestamps should not be modified.
+- **Changes** Never delete the 'changes' directory or any of its files. Only modify the file matching today's date in an append-only manner.
+
 ### Core Architecture
-- **Domain Driven Design (DDD)**: Pure domain layer with strict bounded contexts
+
+- **Domain Driven Design (DDD)**: Repository is divided into strict bounded contexts with minimal dependencies between domains. Adherence to concepts including: Domain Events, Integration Events, Value Objects, Entities, Aggregates, Modules, Services, Repositories, Factories and Anti-Corruption Layers
+- **Clean Architecture**: Each domain follows clean architecture principles with clear separation of concerns.
+- **Event Sourcing with CQRS and an Event Bus**: Asynchronous processing with clear separation of commands and queries. Events are published to an event bus for processing by interested consumers.
 - **Monorepo Structure**: Organized into domains, interfaces, and infrastructure
 - **Layered Architecture**: Clear separation between domain, application, infrastructure, and interface layers
-- **Technology Stack**: 
-- ***Frontends*** should be TypeScript using React with Vite
-- ***Backtends*** should be either TypeScript, Java or Python
-- ***Databases*** should be PostgreSQL using Drizzle ORM where appropriate. NeonDB is used for serverless database hosting.
-- ***Infrastructure*** should be AWS with CDK for provisioning and management.
-
-### Directory Structure
-```
-domains/                # Domain layer - business logic and entities
-├── identity/           # User management and authentication
-├── integration/        # External service integrations
-├── analytics/          # Metrics collection and logging
-├── notification/       # Multi-channel notification system
-├── monitoring/         # System health and performance monitoring
-├── shared-kernel/      # Common value objects and domain events
-└── app-1,2,.../        # For all access controlled sub applications (e.g. qis-data-management will be an additional domain added here)
-
-interfaces/             # Interface layer - external boundaries
-├── api-gateway/        # Express.js HTTP API
-└── web-frontend/       # React SPA with Shadcn/ui
-
-infrastructure/         # Infrastructure concerns
-├── database/           # PostgreSQL, migrations, schemas
-├── security/           # Authentication, authorization, RBAC
-└── configuration/      # Environment and system configuration
-```
-
-### Import Patterns
-- Use `@shared/*` for shared kernel references
-- Always import from `domains/shared-kernel/src/*` for shared components
-- Maintain strict DDD boundaries - no cross-domain imports except through shared kernel
-- Database schema defined in `domains/shared-kernel/src/schema.ts`
+- **Deployment Style**: Hybrid (modular monolith + selected microservices). Landing Page, Identity, Notifications and Service Discovery domains are to be bundled as a Modular Monolith into a single Micro Service. All other domains will be implemented as separate Micro Services.
 
 ## Development Workflow
 
-### Code Change Protocol (MANDATORY)
+### Code Change Protocol
+
 - **Tests** - Always review tests before making changes. Adding new tests for any new functionality is mandatory
 - **Break down complex changes** - Split multi-file modifications into reviewable chunks. Suggest multiple commits or new git branches if necessary
-- **Explain reasoning and provide options** - Always explain why changes are necessary and provide alternative solutions and their trade offs where appropriate
-- **Record Bugs in docs/Bugs.md** - Document any bugs or issues encountered, with reproduction unit test and resolution status
-- **Document work done in changes/yyyy-mm-dd-AMP.md** - Summarize changes made regularly, particularly after each commit, including any relevant context or decisions. Updates should be appended at the top of the file with a timestamp. Previous timestamps should not be modified.
-- **Changes** Never delete the changes directory or any of its files. Only modify the file matching today's date.
-- **Git Branching** - Perform minor changes in 'develop' branch. Major changes should be done in feature branches and merged into develop. 
+- **Git Branching** - Perform minor changes in 'develop' branch. Major changes should be done in feature branches and merged into develop.
+- **Markdown Files** - Always create markdown files in compliance with /docs/markdown-standards.md
 
 ## Technical Standards
 
 ### Code Quality
+
 - **DDD Boundaries**: Maintain strict separation between domains
 - **Strict Typing**: Strict typing throughout, no `any` types
 - **Clean-up**: Remove unused code and dependencies
@@ -65,6 +39,7 @@ infrastructure/         # Infrastructure concerns
 - **Test First**: Write tests before implementing features. Bugs should be reproduced with tests before fixing.
 
 ### Security Requirements
+
 - **Credentials**: Never hard-code credentials in the codebase or config that will be committed to version control
 - **Authentication**: AWS Cognito integration required
 - **Authorization**: Role-based access control (RBAC)
@@ -73,61 +48,90 @@ infrastructure/         # Infrastructure concerns
 - **Session Management**: Secure session handling with cleanup
 - **Environment Variables**: Minimize the use of environment variables. Use centralized config where possible.
 
-## Common Commands
-- `npm run dev` - Start development server
-- `npm run build` - Production build
-- `npm run test` - Run test suite
-- `npm run db:push` - Apply database schema changes
-- `./pre-deploy.sh` - Pre-deployment validation
-
 ## MCP Servers
 
 ### Active MCP Servers
+
 The system integrates with multiple MCP servers for enhanced AI capabilities:
 
-#### AWS API MCP Server
-- **Location**: `.devcontainer/Dockerfile.aws-mcp`
-- **Purpose**: AWS service management through AI tools
-- **Technology**: Python 3.10-slim + uv package manager
-- **Package**: `awslabs.aws-api-mcp-server` (official AWS Labs)
-- **Port**: 8001
-- **Features**: EC2, S3, Lambda, CloudFormation management
-- **Authentication**: AWS credentials via environment variables
-
 #### Neon MCP Server (Remote)
-- **Type**: Official remote server (recommended approach)
+
 - **URL**: `https://mcp.neon.tech/mcp`
-- **Purpose**: PostgreSQL database cost tracking, analytics, and management
-- **Technology**: Neon's hosted MCP server
-- **Configuration**: `.vscode/mcp.json` file for VS Code integration
-- **Authentication**: OAuth flow or Neon API key
 - **Features**: Cost monitoring, database metrics, query performance insights, resource management
 
 #### GitHub MCP Server (Remote)
-- **Type**: Official GitHub-hosted remote server
-- **URL**: `https://api.githubAMP.com/mcp/`
-- **Purpose**: GitHub repository and workflow management
-- **Technology**: GitHub's official Go-based server
-- **Authentication**: GitHub AMP OAuth or Personal Access Token
+
+- **URL**: `https://api.githubcopilot.com/mcp/`
 - **Features**: Repository management, Issues, PRs, CI/CD, code analysis
 
-### MCP Integration Notes
-- **Docker Compose**: All MCP servers defined in `.devcontainer/docker-compose.yml`
-- **HTTP Wrappers**: Custom FastAPI wrappers for AWS/Neptune servers (ports 8001/8002)
-- **Official Packages**: Using AWS Labs official packages for reliability
-- **Base Image**: Switched from Alpine to Debian-slim for PyTorch compatibility
-- **Package Manager**: Using `uv` for faster dependency management
-- **Health Checks**: HTTP endpoints for container health monitoring
+#### AWS CLI MCP Server
 
-### MCP Server Management
-- **Build Issues**: Documented in `docs/Bugs.md` (DEV-001, DEV-002)
-- **Configuration**: Environment variables in devcontainer.json
-- **Networking**: Internal Docker network communication
-- **Development**: Accessible via forwarded ports for debugging
+- **Package**: `@modelcontextprotocol/server-aws-cli`
+- **Features**: EC2, S3, Lambda, CloudFormation management
+
+## CLI Tools
+
+### Required CLI Tools
+
+The development environment includes these essential CLI tools for platform development and deployment:
+
+#### **Doppler CLI**
+
+- **Purpose**: Centralized secrets management across all environments. Used for all environment configurations (dev, staging, production)
+- **Installation**: `curl -Ls --tlsv1.2 --proto "=https" --retry 3 https://cli.doppler.com/install.sh | sudo sh`
+- **Usage**: Manages environment variables, API keys, and configuration secrets
+
+#### **Wrangler CLI**
+
+- **Purpose**: Cloudflare Workers deployment and management. Primary deployment tool for API endpoints and serverless functions
+- **Installation**: `npm install -g wrangler@latest`
+
+#### **Terraform CLI**
+
+- **Purpose**: Infrastructure as Code deployment and management. Deploy and manage cloud infrastructure across providers
+- **Installation**: Via HashiCorp official repository
+
+#### **Neon CLI (neonctl)**
+
+- **Purpose**: PostgreSQL database management and operations. Essential for event sourcing database operations and migrations
+- **Installation**: `npm install -g neonctl`
+
+#### **Confluent CLI**
+
+- **Purpose**: Apache Kafka cluster and streaming management. Critical for event bus and message streaming operations
+- **Installation**: Platform-specific installer from Confluent
+
+## Common Commands
+
+### Development Commands
+
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Production build with optimization
+- `npm run test` - Run comprehensive test suite
+- `npm run test:watch` - Run tests in watch mode
+- `npm run lint` - Code linting and formatting check
+- `npm run type-check` - TypeScript type validation
+
+### Database Operations
+
+- `doppler run -- neonctl sql-editor` - Interactive database queries with secrets
+- `neonctl branches create feature/new-schema` - Create database branch for schema changes
+- `terraform apply -target=module.neon` - Deploy database infrastructure changes
+
+### Deployment Commands  
+
+- `wrangler deploy` - Deploy Cloudflare Workers to production
+- `terraform plan` - Preview all infrastructure changes
+- `doppler run -- terraform apply` - Deploy infrastructure with injected secrets
 
 ## Communication Style
-- Be concise but thorough in explanations
-- Always confirm understanding before proceeding
+
+- Assume you are communicating with a senior developer familiar with DDD and Event Sourcing
+- Reference specific ADRs when making architectural decisions
+- Prioritize security and testing in all recommendations
+- When suggesting a change, provide alternative solutions and their trade offs where appropriate.
+- When recommending an option, provide reasoning for why it is the best choice in the given context.
 
 ## Remember
-This is a production-ready enterprise system. Always maintain the high standards of code quality, security, and architectural integrity that have been established. When in doubt, ask for clarification rather than making assumptions.
+
+This is a production-ready enterprise system following Domain Driven Design with Event Sourcing. Always maintain the high standards of code quality, security, and architectural integrity that have been established. When in doubt, reference the comprehensive ADR collection in `/docs/decisions/` or ask for clarification rather than making assumptions.

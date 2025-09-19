@@ -1,6 +1,7 @@
 # Implementation Plan - Portfolio Platform
+
 **Date Created**: September 15, 2025  
-**Last Updated**: September 16, 2025  
+**Last Updated**: September 19, 2025  
 **Project**: tomriddelsdell.com - Portfolio Platform  
 **Architecture**: Event-Sourced Microservices in Monorepo  
 
@@ -9,51 +10,43 @@
 **DevOps-Optimized Implementation Strategy**: This plan prioritizes rapid value delivery through incremental releases, with production-first approach and continuous deployment. We'll implement a "walking skeleton" in Phase 1 to validate the entire stack end-to-end, then add features incrementally.
 
 **Key DevOps Principles Applied**:
+
 - 🚀 **Deploy Early, Deploy Often**: Live system within 48 hours
 - 📊 **Measure Everything**: Observability from day one  
 - 🔄 **Continuous Feedback**: Production validation drives development
 - 🛡️ **Security by Default**: Zero-trust security model from start
 - ⚡ **Performance First**: Sub-200ms response times as baseline
 
+**✅ Phase 0.1 Complete**: CLI Authentication infrastructure established with automatic secret injection
+
 ---
 
-## 🔄 **PHASE 0: INFRASTRUCTURE & OBSERVABILITY** *(4 hours total - Enhanced)*
+## 🔄 **PHASE 0: INFRASTRUCTURE & OBSERVABILITY** *(3.5 hours remaining)*
 
-**DevOps Enhancement**: Add monitoring and CI/CD pipeline setup alongside infrastructure
+**Current Status**: CLI Authentication complete, proceeding with infrastructure deployment
 
-### **Step 0.1: CLI Authentication** *(30 minutes)*
+### **Step 0.2: Infrastructure Secrets Setup** *(45 minutes)*
 
-```bash
-# Essential authentication steps
-doppler login        # Browser OAuth for secrets management
-wrangler login       # Browser OAuth for Cloudflare Workers  
-neonctl auth         # Browser OAuth for PostgreSQL database
-gh auth login        # Browser OAuth for enhanced GitHub MCP
-```
-
-### **Step 0.2: Doppler Project Setup** *(15 minutes)*
+Configure all required secrets in Doppler for development, staging, and production environments.
 
 ```bash
-# Create and configure Doppler project
-doppler projects create portfolio-platform
-doppler configs create dev --project portfolio-platform
-doppler configs create staging --project portfolio-platform
-doppler configs create production --project portfolio-platform
-
-# Setup local development
-doppler setup --project portfolio-platform --config dev
-
-# Add essential secrets (replace with actual values)
+# Add essential secrets to Doppler (via dashboard or CLI)
 doppler secrets set --config dev \
   CLOUDFLARE_API_TOKEN="your_cloudflare_token" \
   NEON_API_KEY="your_neon_api_key" \
   GITHUB_TOKEN="your_github_token" \
   AWS_ACCESS_KEY_ID="your_aws_key" \
   AWS_SECRET_ACCESS_KEY="your_aws_secret" \
-  AWS_DEFAULT_REGION="eu-west-2"
+  AWS_DEFAULT_REGION="eu-west-2" \
+  CONFLUENT_CLOUD_API_KEY="your_confluent_key" \
+  CONFLUENT_CLOUD_API_SECRET="your_confluent_secret"
+
+# Verify secret injection working
+source .devcontainer/inject-doppler-env.sh
+echo "Secrets loaded: $(env | grep -E 'NEON_|CLOUDFLARE_' | wc -l)"
 ```
 
-### **Step 0.3: Infrastructure Deployment** *(60 minutes)*
+### **Step 0.3: Infrastructure Deployment** *(90 minutes)*
 
 ```bash
 cd infra/terraform
@@ -83,7 +76,7 @@ doppler run --config dev -- terraform plan
 doppler run --config dev -- terraform apply
 ```
 
-### **Step 0.4: CI/CD Pipeline Setup** *(90 minutes - NEW)*
+### **Step 0.4: CI/CD Pipeline Setup** *(60 minutes)*
 
 **Priority Enhancement**: Establish deployment automation immediately
 
@@ -102,6 +95,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
       - run: npm ci
       - run: npm run test
       - run: npm run lint
@@ -114,6 +110,8 @@ jobs:
     steps:
       - name: Deploy to Development
         run: doppler run --config dev -- wrangler deploy
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
       
   deploy-prod:
     if: github.ref == 'refs/heads/main'
@@ -122,7 +120,70 @@ jobs:
     steps:
       - name: Deploy to Production
         run: doppler run --config production -- wrangler deploy
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
 ```
+
+### **Step 0.5: Observability Foundation** *(45 minutes)*
+
+**Critical for Production**: Monitoring, logging, and alerting from day one
+
+```typescript
+// utils/telemetry.ts - Basic observability setup
+export const telemetry = {
+  // Cloudflare Analytics integration
+  trackEvent: (event: string, properties: Record<string, any>) => {
+    // Track user interactions, API calls, errors
+  },
+  
+  // Performance monitoring
+  measureDuration: <T>(operation: string, fn: () => T): T => {
+    const start = performance.now();
+    const result = fn();
+    const duration = performance.now() - start;
+    console.log(`${operation}: ${duration.toFixed(2)}ms`);
+    return result;
+  },
+  
+  // Error tracking
+  logError: (error: Error, context: Record<string, any>) => {
+    console.error('Application Error:', { error, context });
+    // Send to external service (DataDog, Sentry, etc.)
+  }
+};
+```
+
+### **Step 0.6: MCP Server Validation** *(30 minutes)*
+
+**Test each MCP server connection:**
+
+- **Neon MCP**: Database operations, query execution, schema management
+- **GitHub MCP**: Repository operations, issues, pull requests  
+- **AWS CLI MCP**: Basic AWS resource operations
+- Verify all servers can access their APIs with configured secrets
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm ci
+      - run: npm run test
+      - run: npm run lint
+      - run: npm run type-check
+
+  deploy-dev:
+    if: github.ref == 'refs/heads/develop'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Development
+        run: doppler run --config dev -- wrangler deploy
+
+  deploy-prod:
+    if: github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Production
+        run: doppler run --config production -- wrangler deploy
 
 ### **Step 0.5: Observability Foundation** *(60 minutes - NEW)*
 
@@ -289,7 +350,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <header className="container mx-auto px-4 py-16">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Tom Riddell - Full Stack Developer
+          Tom Riddelsdell - Full Stack Developer
         </h1>
         <p className="text-xl text-gray-600 mb-8">
           Building scalable solutions with modern technologies
@@ -442,23 +503,60 @@ export default function HomePage() {
 
 ---
 
-## 🎯 **Next Immediate Actions - DevOps Optimized**
+## 🎯 **Next Immediate Actions - Updated Status**
 
-### **Phase 0 Completion Criteria**
-- [ ] All CLI tools authenticated
-- [ ] Doppler project configured with secrets  
-- [ ] Infrastructure deployed via Terraform
-- [ ] MCP servers validated and operational
+### **✅ Phase 0.1: CLI Authentication - COMPLETED**
 
-### **Phase 1 Completion Criteria**
-- [ ] Core domain models implemented
-- [ ] Event versioning and schema management working
-- [ ] Event store operational with basic persistence
+- [x] All CLI tools authenticated (Doppler, GitHub, Neon, Wrangler, Confluent)
+- [x] Two-tier environment variable system established
+- [x] Automatic secret injection via dev container setup
+- [x] Verification and diagnostic scripts created
+
+### **🔄 Phase 0.2: Infrastructure Secrets Setup - NEXT** *(45 minutes)*
+
+1. ⏱️ **Doppler Secrets Configuration** - Add all API keys and tokens to Doppler dashboard
+2. ⏱️ **Environment Testing** - Verify secret injection working across all environments  
+3. ⏱️ **Service Account Setup** - Configure production-ready service accounts
+4. ⏱️ **Access Control** - Set up proper RBAC for team access to secrets
+
+### **🔄 Phase 0.3: Infrastructure Deployment - FOLLOWING** *(90 minutes)*
+
+1. 🏗️ **Terraform Deployment** - Deploy Neon databases, Confluent Kafka, Cloudflare Workers
+2. 🏗️ **Network Configuration** - Set up DNS, SSL certificates, and routing  
+3. 🏗️ **Resource Validation** - Test all deployed infrastructure components
+4. 🏗️ **Environment Consistency** - Ensure dev/staging/prod parity
+
+---
+
+## 📊 **Updated Success Metrics & KPIs**
+
+### **Phase 0.1 Success Criteria - ✅ COMPLETED**
+
+- [x] **CLI Authentication**: All 5 tools authenticated with container-compatible methods
+- [x] **Environment Setup**: Two-tier variable system (host + Doppler) working
+- [x] **Automation**: Automatic secret injection on container startup
+- [x] **Verification**: Comprehensive testing and diagnostic scripts created
+
+### **Phase 0 Remaining Success Criteria**
+
+- [ ] **Infrastructure Secrets**: All production secrets configured in Doppler
+- [ ] **Terraform Deployment**: Core infrastructure (database, messaging, CDN) deployed
+- [ ] **CI/CD Pipeline**: Automated deployment working for dev/staging/production
+- [ ] **Observability**: Basic monitoring, logging, and error tracking operational
+
+### **Phase 1 Success Criteria**
+
+- [ ] **Domain Models**: Core User and ContactRequest entities implemented
+- [ ] **Event Sourcing**: Basic event store with PostgreSQL persistence
+- [ ] **API Endpoints**: POST /api/contacts and GET /api/contacts working
+- [ ] **Frontend**: Landing page with functional contact form deployed
 
 ### **Overall Project Success Metrics**
-- **Technical**: < 200ms API response times, 99.5% uptime
-- **Business**: Functional user registration, project CRUD, contact system
-- **Architecture**: Complete event-sourced CQRS implementation
+
+- **Technical**: < 200ms API response times, 99.5% uptime, zero security incidents
+- **Business**: Functional contact form, professional portfolio showcase
+- **Architecture**: Complete event-sourced CQRS implementation validated
+- **DevOps**: < 5 minute deployment pipeline, comprehensive observability
 
 ---
 
