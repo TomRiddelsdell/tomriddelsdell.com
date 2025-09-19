@@ -150,11 +150,11 @@ if [ -n "$DOPPLER_TOKEN" ]; then
     # Add Doppler environment variable injection to bashrc
     cat >> ~/.bashrc << 'EOF'
 
-# Auto-inject Doppler secrets as environment variables
+# Auto-inject Doppler secrets as environment variables from infrastructure project
 if command -v doppler &> /dev/null && [ -n "$DOPPLER_TOKEN" ]; then
     # Only inject if not already done (check for marker)
     if [ -z "$DOPPLER_SECRETS_LOADED" ]; then
-        eval "$(doppler run --project tomriddelsdell-dev --config dev --command env 2>/dev/null | grep -E '^(CONFLUENT_CLOUD_|CLOUDFLARE_|NEON_|AWS_|GITHUB_TOKEN)' | sed 's/^/export /')"
+        eval "$(doppler run --project tomriddelsdell-infra --config dev --command env 2>/dev/null | grep -E '^(CONFLUENT_CLOUD_|CLOUDFLARE_|NEON_|AWS_|GITHUB_TOKEN)' | sed 's/^/export /')"
         export DOPPLER_SECRETS_LOADED=true
     fi
 fi
@@ -164,8 +164,8 @@ EOF
     
     # Also inject for current session
     if doppler whoami > /dev/null 2>&1; then
-        echo "🔄 Injecting secrets for current session..."
-        eval "$(doppler run --project tomriddelsdell-dev --config dev --command env 2>/dev/null | grep -E '^(CONFLUENT_CLOUD_|CLOUDFLARE_|NEON_|AWS_|GITHUB_TOKEN)' | sed 's/^/export /')"
+        echo "🔄 Injecting secrets for current session from infrastructure project..."
+        eval "$(doppler run --project tomriddelsdell-infra --config dev --command env 2>/dev/null | grep -E '^(CONFLUENT_CLOUD_|CLOUDFLARE_|NEON_|AWS_|GITHUB_TOKEN)' | sed 's/^/export /')"
         export DOPPLER_SECRETS_LOADED=true
         echo "✅ Secrets injected for current session"
     else

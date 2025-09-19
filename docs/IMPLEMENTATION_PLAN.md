@@ -33,13 +33,13 @@ Configure all required secrets in Doppler for development, staging, and producti
 # Add essential secrets to Doppler (via dashboard or CLI)
 doppler secrets set --config dev \
   CLOUDFLARE_API_TOKEN="your_cloudflare_token" \
-  NEON_API_KEY="your_neon_api_key" \
-  GITHUB_TOKEN="your_github_token" \
-  AWS_ACCESS_KEY_ID="your_aws_key" \
-  AWS_SECRET_ACCESS_KEY="your_aws_secret" \
+  NEON_API_KEY="napi_****" \
+  GITHUB_TOKEN="ghp_****" \
+  AWS_ACCESS_KEY_ID="AKIA****" \
+  AWS_SECRET_ACCESS_KEY="****" \
   AWS_DEFAULT_REGION="eu-west-2" \
-  CONFLUENT_CLOUD_API_KEY="your_confluent_key" \
-  CONFLUENT_CLOUD_API_SECRET="your_confluent_secret"
+  CONFLUENT_CLOUD_API_KEY="****" \
+  CONFLUENT_CLOUD_API_SECRET="****"
 
 # Verify secret injection working
 source .devcontainer/inject-doppler-env.sh

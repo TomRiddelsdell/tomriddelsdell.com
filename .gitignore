@@ -52,6 +52,8 @@ build_output.log
 .env.development.local
 .env.test.local
 .env.production.local
+doppler.env
+**/doppler.env
 
 # AWS credentials
 .aws/credentials
