@@ -16,10 +16,11 @@
 - **Tests** - Always review tests before making changes. Adding new tests for any new functionality is mandatory
 - **Break down complex changes** - Split multi-file modifications into reviewable chunks. Suggest multiple commits or new git branches if necessary
 - **Explain reasoning and provide options** - Always explain why changes are necessary and provide alternative solutions and their trade offs where appropriate
-- **Document work done in changes/yyyy-mm-dd-copilot.md** - Summarize changes made regularly, particularly after each commit, including any relevant context or decisions. Updates should be appended at the top of the file with a timestamp. Previous timestamps should not be modified.
+- **Document work done in changes/yyyy-mm-dd-<short description>.md** - Summarize changes made regularly, particularly after each commit, including any relevant context or decisions. Updates should be appended at the top of the file with a timestamp. Previous timestamps should not be modified.
 - **Record Bugs in docs/Bugs.md** - Document any bugs or issues encountered, with reproduction unit test and resolution status
 - **Changes** Never delete the changes directory or any of its files. Only modify the file matching today's date.
 - **Git Branching** - Perform minor changes in 'develop' branch. Major changes should be done in feature branches and merged into develop. 
+- **Creating Files** - Avoid creating file in the root directory. Use appropriate subdirectories following the established DDD structure.
 
 ## Technical Standards
 
