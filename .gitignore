@@ -11,9 +11,9 @@ vite.config.ts.*
 # Development assets and temporary files
 attached_assets/
 build_output.log
-temp/
-changes/
+**/temp/
 **/changes/
+**/.prompts/
 
 # IDE and editor files
 .vscode/

@@ -4,7 +4,8 @@ This directory contains the VS Code dev container configuration for the Portfoli
 
 ## 🏗️ Architecture
 
-**Simplified Single-Container Setup**
+## Simplified Single-Container Setup
+
 - Uses official Microsoft TypeScript-Node base image
 - Includes all necessary CLI tools for the platform
 - Configured for Event-Sourced Microservices development
@@ -13,6 +14,7 @@ This directory contains the VS Code dev container configuration for the Portfoli
 ## 🔧 What's Included
 
 ### CLI Tools (Installed via setup.sh)
+
 - **Doppler CLI**: Centralized secrets management
 - **Wrangler CLI**: Cloudflare Workers deployment
 - **Terraform CLI**: Infrastructure as Code
@@ -21,16 +23,19 @@ This directory contains the VS Code dev container configuration for the Portfoli
 - **AWS CLI**: AWS services integration
 
 ### Setup & Authentication Scripts
+
 - **`setup.sh`**: Main setup script (runs automatically)
 - **`inject-doppler-env.sh`**: Manual secret injection
 - **`verify-cli-auth.sh`**: Authentication verification
 - **`diagnose-host-env.sh`**: Host environment troubleshooting
 
 ### Documentation
+
 - **`HOST_ENVIRONMENT_SETUP.md`**: Host variable configuration guide
 - **`ENV_VARIABLE_SOLUTIONS.md`**: Environment troubleshooting guide
 
 ### VS Code Extensions
+
 - GitHub Copilot & Chat
 - TypeScript/JavaScript development
 - React/Next.js support
@@ -40,6 +45,7 @@ This directory contains the VS Code dev container configuration for the Portfoli
 - Documentation (Markdown)
 
 ### MCP Server Integration
+
 - **GitHub MCP**: Official @modelcontextprotocol/server-github
 - **Neon MCP**: Official @neondatabase/mcp-server-neon
 - **AWS CLI MCP**: Official @modelcontextprotocol/server-aws-cli
@@ -47,6 +53,7 @@ This directory contains the VS Code dev container configuration for the Portfoli
 ## 🚀 Getting Started
 
 1. **Environment Setup**:
+
    ```bash
    cp .env.example .env
    # Fill in your actual values in .env
@@ -57,12 +64,14 @@ This directory contains the VS Code dev container configuration for the Portfoli
    - Run: "Dev Containers: Reopen in Container"
 
 3. **Post-Setup Commands** (run automatically):
+
    ```bash
    # The setup.sh script installs all CLI tools
    # and creates necessary directories
    ```
 
 4. **Verify Installation**:
+
    ```bash
    doppler --version
    wrangler --version
@@ -74,8 +83,9 @@ This directory contains the VS Code dev container configuration for the Portfoli
 ## 📁 Directory Structure Created
 
 The setup script creates the standard monorepo structure:
+
 - `packages/` - Shared libraries and components
-- `services/` - Domain microservices 
+- `services/` - Domain microservices
 - `apps/` - Frontend applications
 - `contracts/` - API and event contracts
 - `tests/` - All test types
@@ -119,12 +129,14 @@ source .devcontainer/inject-doppler-env.sh
 ## 🗑️ Removed Components
 
 **Previous Complex Setup** (backed up as *.backup):
+
 - Multi-container Docker Compose setup
 - Custom MCP server containers
 - Complex environment variable duplication
 - Unnecessary service dependencies
 
 **Why Simplified**:
+
 - Official MCP servers are more reliable
 - Single container is faster to start
 - Less configuration complexity
@@ -134,6 +146,7 @@ source .devcontainer/inject-doppler-env.sh
 ## 🎯 Ready for Phase 0
 
 This configuration supports the implementation plan:
+
 - All required CLI tools
 - Proper MCP server integration  
 - Environment variable management

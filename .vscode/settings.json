@@ -24,5 +24,13 @@
         "AWS_SECRET_ACCESS_KEY": "${AWS_SECRET_ACCESS_KEY}"
       }
     }
-  }
+  },
+  "cSpell.words": [
+    "cicd",
+    "modelcontextprotocol",
+    "neonctl",
+    "neondatabase",
+    "tlsv",
+    "tomriddelsdell"
+  ]
 }
