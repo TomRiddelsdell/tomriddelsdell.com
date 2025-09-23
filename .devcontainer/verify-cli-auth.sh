@@ -4,7 +4,7 @@
 
 echo "=== CLI AUTHENTICATION VERIFICATION ==="
 echo "Date: $(date)"
-echo "Project: tomriddelsdell-dev"
+echo "Project: tomriddelsdell-infra"
 echo ""
 
 PASSED=0
@@ -37,9 +37,9 @@ echo ""
 
 # Test 3: Neon CLI (via Doppler)
 echo "3. 🗄️ Neon CLI (via Doppler):"
-if doppler run --project tomriddelsdell-dev --config dev -- neonctl me > /dev/null 2>&1; then
+if doppler run --project tomriddelsdell-infra --config dev -- neonctl me > /dev/null 2>&1; then
     echo "   ✅ Authenticated via Doppler secrets"
-    doppler run --project tomriddelsdell-dev --config dev -- neonctl me --output json | jq -r '.email' 2>/dev/null || echo "   API key working"
+    doppler run --project tomriddelsdell-infra --config dev -- neonctl me --output json | jq -r '.email' 2>/dev/null || echo "   API key working"
     PASSED=$((PASSED+1))
 else
     echo "   ❌ Authentication failed"
@@ -48,9 +48,9 @@ echo ""
 
 # Test 4: Cloudflare Wrangler (via Doppler)
 echo "4. ☁️ Cloudflare Wrangler (via Doppler):"
-if doppler run --project tomriddelsdell-dev --config dev -- wrangler whoami > /dev/null 2>&1; then
+if doppler run --project tomriddelsdell-infra --config dev -- wrangler whoami > /dev/null 2>&1; then
     echo "   ✅ Authenticated via Doppler secrets"
-    doppler run --project tomriddelsdell-dev --config dev -- wrangler whoami 2>/dev/null | head -3 || echo "   API key working"
+    doppler run --project tomriddelsdell-infra --config dev -- wrangler whoami 2>/dev/null | head -3 || echo "   API key working"
     PASSED=$((PASSED+1))
 else
     echo "   ❌ Authentication failed"
@@ -61,7 +61,7 @@ echo ""
 echo "5. 📊 Confluent CLI (via Doppler - Optional):"
 echo "   ℹ️  Confluent CLI requires interactive login even with API keys"
 echo "   ℹ️  This is expected in container environments"
-if doppler run --project tomriddelsdell-dev --config dev -- confluent environment list > /dev/null 2>&1; then
+if doppler run --project tomriddelsdell-infra --config dev -- confluent environment list > /dev/null 2>&1; then
     echo "   ✅ Authenticated via Doppler secrets"
     echo "   Environments accessible"
     PASSED=$((PASSED+1))
@@ -84,8 +84,8 @@ echo ""
 
 # Doppler Secrets Check
 echo "🔐 Doppler Secrets Available:"
-if doppler secrets --project tomriddelsdell-dev --config dev --format json > /dev/null 2>&1; then
-    SECRET_COUNT=$(doppler secrets --project tomriddelsdell-dev --config dev --format json | jq '. | length' 2>/dev/null || echo "N/A")
+if doppler secrets --project tomriddelsdell-infra --config dev --json > /dev/null 2>&1; then
+    SECRET_COUNT=$(doppler secrets --project tomriddelsdell-infra --config dev --json | jq '. | length' 2>/dev/null || echo "N/A")
     echo "   ✅ $SECRET_COUNT secrets configured in Doppler"
 else
     echo "   ❌ Cannot access Doppler secrets"

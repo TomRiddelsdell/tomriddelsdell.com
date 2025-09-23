@@ -6,7 +6,7 @@ This document contains questions that need to be answered to fill gaps in our de
 
 ### Core Domain Understanding
 
-4. **What are the critical business rules and invariants** that must be enforced at the domain level?
+- **What are the critical business rules and invariants** that must be enforced at the domain level?
 
 **Answer (from ADR-005):**
 
@@ -15,9 +15,9 @@ This document contains questions that need to be answered to fill gaps in our de
 - **Contact Aggregate**: Message validation, spam prevention, processing workflows
 - **Cross-aggregate**: Eventual consistency via domain events, no synchronous cross-aggregate transactions
 
-### Bounded Contexts & Aggregates  
+### Bounded Contexts & Aggregates
 
-9. **How do we handle cross-aggregate consistency?** What eventual consistency scenarios are acceptable?
+- **How do we handle cross-aggregate consistency?** What eventual consistency scenarios are acceptable?
 
 **Answer (from ADR-005, ADR-006, ADR-012):**
 
@@ -28,9 +28,9 @@ This document contains questions that need to be answered to fill gaps in our de
 
 ## Application Architecture
 
-### Development Best Practices
+### Development Best Practices (Application Architecture)
 
-61. **What is our definition of done** for features? Code, tests, docs, deployment?
+- **What is our definition of done** for features? Code, tests, docs, deployment?
 
 **Answer (from ADR-021, ADR-016):**
 
@@ -39,7 +39,7 @@ This document contains questions that need to be answered to fill gaps in our de
 - **Docs**: ADR for architectural changes, change log for features
 - **Deployment**: Terraform changes, environment validation, monitoring alerts
 
-62. **How should we handle technical debt?** Regular refactoring cycles, debt tracking?
+- **How should we handle technical debt?** Regular refactoring cycles, debt tracking?
 
 **Answer (from ADR-016):**
 
@@ -48,7 +48,7 @@ This document contains questions that need to be answered to fill gaps in our de
 - **Tracking**: GitHub issues with 'tech-debt' label, dependency updates via Dependabot
 - **Prioritization**: DDD violations and hexagonal boundary breaks get highest priority
 
-63. **What code review practices should we establish?** Review checklist, approval requirements?
+- **What code review practices should we establish?** Review checklist, approval requirements?
 
 **Answer (from ADR-016):**
 
@@ -56,7 +56,7 @@ This document contains questions that need to be answered to fill gaps in our de
 - **Checklist**: Domain logic separation, test coverage, hexagonal boundaries, conventional commits
 - **AI Review**: Copilot pre-review for code patterns, human verification for business logic
 
-64. **How should we manage dependencies?** Update policies, security scanning, license compliance?
+- **How should we manage dependencies?** Update policies, security scanning, license compliance?
 
 **Answer (from ADR-016):**
 
@@ -65,7 +65,7 @@ This document contains questions that need to be answered to fill gaps in our de
 - **Security**: GitHub security scanning, manual audit for domain dependencies
 - **Licenses**: Permissive licenses only (MIT, Apache 2.0), avoid copyleft
 
-65. **What performance benchmarks should we establish?** Load testing, performance budgets?
+- **What performance benchmarks should we establish?** Load testing, performance budgets?
 
 **Answer (from ADR-010, ADR-021):**
 
@@ -78,33 +78,25 @@ This document contains questions that need to be answered to fill gaps in our de
 
 ### Copilot Integration
 
-56. **What context should always be provided to Copilot?** Architecture docs, domain glossary, coding standards?
-57. **How should we structure prompts** for consistent code generation? Templates, examples?
-58. **What file patterns should Copilot follow** when creating new services, apps, or components?
-59. **How should we handle AI-generated code review?** What human verification is needed?
-60. **What documentation should Copilot maintain?** ADRs, change logs, bug reports?
-
-### Development Best Practices
-
-61. **What is our definition of done** for features? Code, tests, docs, deployment?
-62. **How should we handle technical debt?** Regular refactoring cycles, debt tracking?
-63. **What code review practices should we establish?** Review checklist, approval requirements?
-64. **How should we manage dependencies?** Update policies, security scanning, license compliance?
-65. **What performance benchmarks should we establish?** Load testing, performance budgets?
+- **What context should always be provided to Copilot?** Architecture docs, domain glossary, coding standards?
+- **How should we structure prompts** for consistent code generation? Templates, examples?
+- **What file patterns should Copilot follow** when creating new services, apps, or components?
+- **How should we handle AI-generated code review?** What human verification is needed?
+- **What documentation should Copilot maintain?** ADRs, change logs, bug reports?
 
 ### AI Assistance Guidelines
 
-66. **When should developers use AI assistance vs manual coding?** Boilerplate, complex logic, testing?
-67. **How should we validate AI-generated architecture decisions?** Human review checkpoints?
-68. **What prompting strategies work best** for our domain and tech stack?
-69. **How should we handle AI-generated test coverage?** What types of tests should AI focus on?
-70. **What documentation should AI assistants help maintain?** Auto-generated docs, decision records?
+- **When should developers use AI assistance vs manual coding?** Boilerplate, complex logic, testing?
+- **How should we validate AI-generated architecture decisions?** Human review checkpoints?
+- **What prompting strategies work best** for our domain and tech stack?
+- **How should we handle AI-generated test coverage?** What types of tests should AI focus on?
+- **What documentation should AI assistants help maintain?** Auto-generated docs, decision records?
 
 ## Platform-Specific Questions
 
-### Database Performance & Operations  
+### Database Performance & Operations
 
-75. **What connection pooling strategy should we use?** Connection limits, pool sizing for Neon?
+- **What connection pooling strategy should we use?** Connection limits, pool sizing for Neon?
 
 **Answer (from ADR-014, ADR-015):**
 
@@ -113,7 +105,7 @@ This document contains questions that need to be answered to fill gaps in our de
 - **Timeout**: 30-second connection timeout, 5-second query timeout
 - **Monitoring**: Connection utilization metrics in observability dashboard
 
-76. **How should we handle database branching** for development and testing workflows?
+- **How should we handle database branching** for development and testing workflows?
 
 **Answer (from ADR-015, ADR-017):**
 
@@ -122,7 +114,7 @@ This document contains questions that need to be answered to fill gaps in our de
 - **Staging**: Shared staging branch with production data snapshots
 - **Cleanup**: Automatic branch deletion after feature merge
 
-77. **What backup and point-in-time recovery strategy** do we need beyond Neon's built-in features?
+- **What backup and point-in-time recovery strategy** do we need beyond Neon's built-in features?
 
 **Answer (from ADR-014):**
 
@@ -131,7 +123,7 @@ This document contains questions that need to be answered to fill gaps in our de
 - **Testing**: Monthly restore testing to verify backup integrity
 - **Retention**: 30 days Neon backup, 1 year archived event streams
 
-78. **How should we monitor database performance?** Query optimization, index strategies, projection lag?
+- **How should we monitor database performance?** Query optimization, index strategies, projection lag?
 
 **Answer (from ADR-010, ADR-012):**
 
@@ -144,22 +136,22 @@ This document contains questions that need to be answered to fill gaps in our de
 
 ### Scaling & Growth
 
-83. **What are the expected load patterns?** Traffic spikes, seasonal variations?
-84. **What is our capacity planning strategy?** Auto-scaling, resource monitoring?
-85. **How should we handle feature flags** and gradual rollouts?
-86. **What is our approach to A/B testing** and experimentation?
+- **What are the expected load patterns?** Traffic spikes, seasonal variations?
+- **What is our capacity planning strategy?** Auto-scaling, resource monitoring?
+- **How should we handle feature flags** and gradual rollouts?
+- **What is our approach to A/B testing** and experimentation?
 
 ### Cost Management
 
-87. **What are our cost optimization strategies?** Resource right-sizing, usage monitoring?
-88. **How should we implement cost allocation** across teams or tenants?
-89. **What cost alerting and budgeting** should we implement?
+- **What are our cost optimization strategies?** Resource right-sizing, usage monitoring?
+- **How should we implement cost allocation** across teams or tenants?
+- **What cost alerting and budgeting** should we implement?
 
 ### Compliance & Legal
 
-90. **What data privacy regulations apply?** GDPR, CCPA, regional requirements?
-91. **How should we handle data subject requests?** Data export, deletion, rectification?
-92. **What terms of service and privacy policies** need to be implemented?
+- **What data privacy regulations apply?** GDPR, CCPA, regional requirements?
+- **How should we handle data subject requests?** Data export, deletion, rectification?
+- **What terms of service and privacy policies** need to be implemented?
 
 ---
 

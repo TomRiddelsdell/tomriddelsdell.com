@@ -4,35 +4,43 @@ This directory contains the VS Code dev container configuration for the Portfoli
 
 ## 🏗️ Architecture
 
-## Simplified Single-Container Setup
+## Universal Image with Dev Container Features
 
-- Uses official Microsoft TypeScript-Node base image
-- Includes all necessary CLI tools for the platform
+- Uses Microsoft Universal dev container image (multi-language support)
+- Languages included: Node.js, Python, Java, and system tools
+- CLI tools installed via dev container features and setup script
 - Configured for Event-Sourced Microservices development
 - Optimized for our tech stack: TypeScript, Next.js, PostgreSQL, Kafka
 
 ## 🔧 What's Included
 
-### CLI Tools (Installed via setup.sh)
+### Core Languages & Tools (Via Universal Image + Features)
+
+- **Node.js**: Latest LTS with npm/pnpm package managers
+- **Python**: Latest version with pip package manager
+- **Java**: JDK 24 (Microsoft distribution)
+- **AWS CLI**: Official AWS command line interface
+- **Terraform CLI**: Infrastructure as Code deployment
+- **Docker**: Docker-outside-of-docker for container operations
+
+### Additional CLI Tools (Installed via setup-optimized.sh)
 
 - **Doppler CLI**: Centralized secrets management
 - **Wrangler CLI**: Cloudflare Workers deployment
-- **Terraform CLI**: Infrastructure as Code
 - **Neon CLI**: PostgreSQL database management  
 - **Confluent CLI**: Apache Kafka management
-- **AWS CLI**: AWS services integration
+- **GitHub CLI**: GitHub API and repository operations
 
-### Setup & Authentication Scripts
+### Utility Scripts
 
-- **`setup.sh`**: Main setup script (runs automatically)
+- **`setup-optimized.sh`**: Lightweight setup script (runs automatically)
 - **`inject-doppler-env.sh`**: Manual secret injection
 - **`verify-cli-auth.sh`**: Authentication verification
-- **`diagnose-host-env.sh`**: Host environment troubleshooting
+- **`validate-security.sh`**: Security scanning for credential leaks
 
 ### Documentation
 
-- **`HOST_ENVIRONMENT_SETUP.md`**: Host variable configuration guide
-- **`ENV_VARIABLE_SOLUTIONS.md`**: Environment troubleshooting guide
+- **`README.md`**: This file - dev container configuration guide
 
 ### VS Code Extensions
 
@@ -66,8 +74,8 @@ This directory contains the VS Code dev container configuration for the Portfoli
 3. **Post-Setup Commands** (run automatically):
 
    ```bash
-   # The setup.sh script installs all CLI tools
-   # and creates necessary directories
+   # The setup-optimized.sh script installs additional CLI tools
+   # and configures git settings
    ```
 
 4. **Verify Installation**:
@@ -122,11 +130,16 @@ See `.env.example` for required variables.
 # Manually inject Doppler secrets if needed
 source .devcontainer/inject-doppler-env.sh
 
-# Diagnose host environment issues (run on host machine)
-.devcontainer/diagnose-host-env.sh
+# Check for credential leaks before commits
+.devcontainer/validate-security.sh
 ```
 
-## 🗑️ Removed Components
+## 🗑️ Cleaned Up Components
+
+**Recently Removed**:
+
+- **Dockerfile**: No longer needed since using Universal image directly
+- **setup.sh**: Replaced by setup-optimized.sh for faster container startup
 
 **Previous Complex Setup** (backed up as *.backup):
 
