@@ -1,9 +1,15 @@
 {
 	"name": "Portfolio Platform - Event-Sourced Microservices",
-	"image": "mcr.microsoft.com/devcontainers/universal:2-linux",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": {
+			"BUILDKIT_INLINE_CACHE": "1",
+			"BUILD_DATE": "2025-09-22"
+		}
+	},
 	"features": {
 		"ghcr.io/devcontainers/features/java:1": {
-			"version": "latest",
+			"version": "24",
 			"jdkDistro": "ms"
 		},
 		"ghcr.io/devcontainers/features/python:1": {
@@ -163,7 +169,8 @@
 		8080,
 		9090
 	],
-	"postCreateCommand": "bash .devcontainer/setup.sh",
+	"postCreateCommand": "bash .devcontainer/setup-optimized.sh",
+	"onCreateCommand": "mkdir -p packages/{shared,ui-components,events,contracts} services/{accounts,admin,app-catalog,entitlements} apps/{app-bar,app-foo} contracts/{api,events,ui} tests/{unit,integration,e2e,contract} infra/{terraform,scripts}",
 	"workspaceFolder": "/workspaces",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces,type=bind",
 	"remoteUser": "codespace",
