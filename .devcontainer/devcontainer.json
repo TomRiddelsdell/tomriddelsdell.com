@@ -1,11 +1,7 @@
 {
 	"name": "Portfolio Platform - Event-Sourced Microservices",
 	"build": {
-		"dockerfile": "Dockerfile",
-		"args": {
-			"BUILDKIT_INLINE_CACHE": "1",
-			"BUILD_DATE": "2025-09-22"
-		}
+		"dockerfile": "Dockerfile"
 	},
 	"features": {
 		"ghcr.io/devcontainers/features/java:1": {
@@ -13,9 +9,6 @@
 			"jdkDistro": "ms"
 		},
 		"ghcr.io/devcontainers/features/python:1": {
-			"version": "latest"
-		},
-		"ghcr.io/devcontainers/features/node:1": {
 			"version": "latest"
 		},
 		"ghcr.io/devcontainers/features/aws-cli:1": {},
@@ -170,7 +163,7 @@
 		9090
 	],
 	"postCreateCommand": "bash .devcontainer/setup-optimized.sh",
-	"onCreateCommand": "mkdir -p packages/{shared,ui-components,events,contracts} services/{accounts,admin,app-catalog,entitlements} apps/{app-bar,app-foo} contracts/{api,events,ui} tests/{unit,integration,e2e,contract} infra/{terraform,scripts}",
+	"onCreateCommand": "mkdir -p /workspaces/packages/{shared,ui-components,events,contracts} /workspaces/services/{accounts,admin,app-catalog,entitlements} /workspaces/apps/{app-bar,app-foo} /workspaces/contracts/{api,events,ui} /workspaces/tests/{unit,integration,e2e,contract} /workspaces/infra/{terraform,scripts}",
 	"workspaceFolder": "/workspaces",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces,type=bind",
 	"remoteUser": "codespace",
