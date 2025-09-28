@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     neon = {
-      source  = "neondatabase/neon"
+      source  = "kislerdm/neon"
       version = "~> 0.6"
     }
   }
