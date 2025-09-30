@@ -83,7 +83,7 @@ const authFlow = {
   // 1. Generate PKCE parameters
   codeVerifier: generateCodeVerifier(),
   codeChallenge: generateCodeChallenge(codeVerifier),
-  
+
   // 2. Authorization request
   authorizationUrl: buildAuthUrl({
     clientId: '483n96q9sudb248kp2sgto7i47',
@@ -91,16 +91,16 @@ const authFlow = {
     scope: 'email openid profile',
     responseType: 'code',
     codeChallenge: codeChallenge,
-    codeChallengeMethod: 'S256'
+    codeChallengeMethod: 'S256',
   }),
-  
+
   // 3. Token exchange
   tokenExchange: {
     grantType: 'authorization_code',
     code: authorizationCode,
     codeVerifier: codeVerifier,
-    redirectUri: 'https://tomriddelsdell.com/auth/callback'
-  }
+    redirectUri: 'https://tomriddelsdell.com/auth/callback',
+  },
 };
 ```
 
@@ -167,4 +167,4 @@ const authFlow = {
 ---
 
 **Status**: Accepted  
-**Next Review**: 2025-12-12  
+**Next Review**: 2025-12-12

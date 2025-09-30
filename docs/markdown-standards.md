@@ -64,10 +64,9 @@ document:
 ```markdown
 # ATX style H1
 
-## Closed ATX style H2 ##
+## Closed ATX style H2
 
-Setext style H1
-===============
+# Setext style H1
 ```
 
 To fix the issue, use consistent heading styles throughout the document:
@@ -83,11 +82,9 @@ headings of level 3 or more in documents with setext-style headings (which only
 support level 1 and 2 headings):
 
 ```markdown
-Setext style H1
-===============
+# Setext style H1
 
-Setext style H2
----------------
+## Setext style H2
 
 ### ATX style H3
 ```
@@ -100,8 +97,7 @@ Note: The placement of a horizontal rule directly below a line of text can
 trigger this rule by turning that text into a level 2 setext-style heading:
 
 ```markdown
-A line of text followed by a horizontal rule becomes a heading
----
+## A line of text followed by a horizontal rule becomes a heading
 ```
 
 Rationale: Consistent formatting makes it easier to understand a document.
@@ -125,8 +121,10 @@ This rule is triggered when the symbols used in the document for unordered
 list items do not match the configured unordered list style:
 
 ```markdown
-* Item 1
-+ Item 2
+- Item 1
+
+* Item 2
+
 - Item 3
 ```
 
@@ -134,9 +132,9 @@ To fix this issue, use the configured style for list items throughout the
 document:
 
 ```markdown
-* Item 1
-* Item 2
-* Item 3
+- Item 1
+- Item 2
+- Item 3
 ```
 
 The configured list style can ensure all list styling is a specific symbol
@@ -149,12 +147,12 @@ outer-most indent uses asterisk, the middle indent uses plus, and the inner-most
 indent uses dash:
 
 ```markdown
-* Item 1
-  + Item 2
+- Item 1
+  - Item 2
     - Item 3
-  + Item 4
-* Item 4
-  + Item 5
+  - Item 4
+- Item 4
+  - Item 5
 ```
 
 Rationale: Consistent formatting makes it easier to understand a document.
@@ -173,31 +171,27 @@ This rule is triggered when list items are parsed as being at the same level,
 but don't have the same indentation:
 
 ```markdown
-* Item 1
-  * Nested Item 1
-  * Nested Item 2
-   * A misaligned item
+- Item 1
+  - Nested Item 1
+  - Nested Item 2
+  - A misaligned item
 ```
 
 Usually, this rule will be triggered because of a typo. Correct the indentation
 for the list to fix it:
 
 ```markdown
-* Item 1
-  * Nested Item 1
-  * Nested Item 2
-  * Nested Item 3
+- Item 1
+  - Nested Item 1
+  - Nested Item 2
+  - Nested Item 3
 ```
 
 Sequentially-ordered list markers are usually left-aligned such that all items
 have the same starting column:
 
 ```markdown
-...
-8. Item
-9. Item
-10. Item
-11. Item
+... 8. Item 9. Item 10. Item 11. Item
 ...
 ```
 
@@ -205,11 +199,7 @@ This rule also supports right-alignment of list markers such that all items have
 the same ending column:
 
 ```markdown
-...
- 8. Item
- 9. Item
-10. Item
-11. Item
+... 8. Item 9. Item 10. Item 11. Item
 ...
 ```
 
@@ -239,15 +229,15 @@ number of spaces (default: 2).
 Example:
 
 ```markdown
-* List item
-   * Nested list item indented by 3 spaces
+- List item
+  - Nested list item indented by 3 spaces
 ```
 
 Corrected Example:
 
 ```markdown
-* List item
-  * Nested list item indented by 2 spaces
+- List item
+  - Nested list item indented by 2 spaces
 ```
 
 Note: This rule applies to a sublist only if its parent lists are all also
@@ -352,7 +342,7 @@ Example:
 ```markdown
 Some text
 
-	* hard tab character used to indent the list item
+    * hard tab character used to indent the list item
 ```
 
 <!-- markdownlint-restore -->
@@ -435,7 +425,6 @@ document:
 
 ```markdown
 Some text here
-
 
 Some more text here
 ```
@@ -529,7 +518,7 @@ Aliases: `commands-show-output`
 Fixable: Some violations can be fixed by tooling
 
 This rule is triggered when there are code blocks showing shell commands to be
-typed, and *all* of the shell commands are preceded by dollar signs ($):
+typed, and _all_ of the shell commands are preceded by dollar signs ($):
 
 <!-- markdownlint-disable commands-show-output -->
 
@@ -561,7 +550,7 @@ $ cat bar
 baz
 ```
 
-Because some commands do not produce output, it is not a violation if *some*
+Because some commands do not produce output, it is not a violation if _some_
 commands do not have output:
 
 ```markdown
@@ -619,9 +608,9 @@ This rule is triggered when more than one space is used to separate the
 heading text from the hash characters in an atx style heading:
 
 ```markdown
-#  Heading 1
+# Heading 1
 
-##  Heading 2
+## Heading 2
 ```
 
 To fix this, separate the heading text from the hash character by a single
@@ -659,9 +648,9 @@ To fix this, separate the heading text from the hash character by a single
 space:
 
 ```markdown
-# Heading 1 #
+# Heading 1
 
-## Heading 2 ##
+## Heading 2
 ```
 
 Note: this rule will fire if either side of the heading is missing spaces.
@@ -682,18 +671,18 @@ This rule is triggered when more than one space is used to separate the
 heading text from the hash characters in a closed atx style heading:
 
 ```markdown
-#  Heading 1  #
+# Heading 1
 
-##  Heading 2  ##
+## Heading 2
 ```
 
 To fix this, separate the heading text from the hash character by a single
 space:
 
 ```markdown
-# Heading 1 #
+# Heading 1
 
-## Heading 2 ##
+## Heading 2
 ```
 
 Note: this rule will fire if either side of the heading contains multiple
@@ -722,9 +711,11 @@ followed by at least one blank line:
 
 ```markdown
 # Heading 1
+
 Some text
 
 Some more text
+
 ## Heading 2
 ```
 
@@ -750,7 +741,7 @@ individually, specify a `number[]` where values correspond to heading levels
 
 Notes: If `lines_above` or `lines_below` are configured to require more than one
 blank line, [MD012/no-multiple-blanks](md012.md) should also be customized. This
-rule checks for *at least* as many blank lines as specified; any extra blank
+rule checks for _at least_ as many blank lines as specified; any extra blank
 lines are ignored.
 
 Rationale: Aside from aesthetic reasons, some parsers, including `kramdown`,
@@ -772,7 +763,7 @@ This rule is triggered when a heading is indented by one or more spaces:
 ```markdown
 Some text
 
-  # Indented heading
+# Indented heading
 ```
 
 To fix this, ensure that all headings start at the beginning of the line:
@@ -953,8 +944,8 @@ This rule is triggered when blockquotes have more than one space after the
 blockquote (`>`) symbol:
 
 ```markdown
->  This is a blockquote with bad indentation
->  there should only be one.
+> This is a blockquote with bad indentation
+> there should only be one.
 ```
 
 To fix, remove any extraneous space:
@@ -1059,25 +1050,21 @@ Example valid list if the style is configured as 'zero':
 
 ```markdown
 0. Do this.
-0. Do that.
-0. Done.
+1. Do that.
+2. Done.
 ```
 
 Example invalid list for all styles:
 
 ```markdown
 1. Do this.
-3. Done.
+2. Done.
 ```
 
 This rule supports 0-prefixing ordered list items for uniform indentation:
 
 ```markdown
-...
-08. Item
-09. Item
-10. Item
-11. Item
+... 08. Item 09. Item 10. Item 11. Item
 ...
 ```
 
@@ -1087,7 +1074,7 @@ improperly-indented code block (or similar) appears between two list items and
 
 <!-- markdownlint-disable code-fence-style -->
 
-~~~markdown
+````markdown
 1. First list
 
 ```text
@@ -1095,12 +1082,12 @@ Code block
 ```
 
 1. Second list
-~~~
+````
 
 The fix is to indent the code block so it becomes part of the preceding list
 item as intended:
 
-~~~markdown
+````markdown
 1. First list
 
    ```text
@@ -1108,7 +1095,7 @@ item as intended:
    ```
 
 2. Still first list
-~~~
+````
 
 <!-- markdownlint-restore -->
 
@@ -1141,16 +1128,16 @@ The number of spaces checked for depends on the document style in use, but the
 default is 1 space after any list marker:
 
 ```markdown
-* Foo
-* Bar
-* Baz
+- Foo
+- Bar
+- Baz
 
 1. Foo
 1. Bar
 1. Baz
 
 1. Foo
-   * Bar
+   - Bar
 1. Baz
 ```
 
@@ -1167,19 +1154,19 @@ and unordered lists respectively) if there are multiple paragraphs of content
 inside the list:
 
 ```markdown
-* Foo
-* Bar
-* Baz
+- Foo
+- Bar
+- Baz
 ```
 
 vs.
 
 ```markdown
-*   Foo
+- Foo
 
-    Second paragraph
+  Second paragraph
 
-*   Bar
+- Bar
 ```
 
 or
@@ -1218,6 +1205,7 @@ followed by a blank line:
 
 ````markdown
 Some text
+
 ```
 Code block
 ```
@@ -1225,6 +1213,7 @@ Code block
 ```
 Another code block
 ```
+
 Some more text
 ````
 
@@ -1267,12 +1256,14 @@ followed by a blank line:
 
 ```markdown
 Some text
-* List item
-* List item
+
+- List item
+- List item
 
 1. List item
 2. List item
-***
+
+---
 ```
 
 In the first case above, text immediately precedes the unordered list. In the
@@ -1283,13 +1274,13 @@ after (except when the list is at the very beginning or end of the document):
 ```markdown
 Some text
 
-* List item
-* List item
+- List item
+- List item
 
 1. List item
 2. List item
 
-***
+---
 ```
 
 Note that the following case is **not** a violation of this rule:
@@ -1298,7 +1289,7 @@ Note that the following case is **not** a violation of this rule:
 1. List item
    More item 1
 2. List item
-More item 2
+   More item 2
 ```
 
 Although it is not indented, the text "More item 2" is referred to as a
@@ -1415,21 +1406,19 @@ in the document:
 
 ```markdown
 ---
+---
 
-- - -
+---
 
-***
+---
 
-* * *
-
-****
+---
 ```
 
 To fix this, use the same horizontal rule everywhere:
 
 ```markdown
 ---
-
 ---
 ```
 
@@ -1502,9 +1491,9 @@ have spaces between the markers and the text:
 ```markdown
 Here is some ** bold ** text.
 
-Here is some * italic * text.
+Here is some _ italic _ text.
 
-Here is some more __ bold __ text.
+Here is some more ** bold ** text.
 
 Here is some more _ italic _ text.
 ```
@@ -1514,9 +1503,9 @@ To fix this, remove the spaces around the emphasis markers:
 ```markdown
 Here is some **bold** text.
 
-Here is some *italic* text.
+Here is some _italic_ text.
 
-Here is some more __bold__ text.
+Here is some more **bold** text.
 
 Here is some more _italic_ text.
 ```
@@ -1553,7 +1542,7 @@ To fix this, remove the extra space characters from the beginning and ending:
 `some text`
 ```
 
-Note: A single leading *and* trailing space is allowed by the specification and
+Note: A single leading _and_ trailing space is allowed by the specification and
 trimmed by the parser to support code spans that begin or end with a backtick:
 
 ```markdown
@@ -1566,7 +1555,7 @@ Note: When single-space padding is present in the input, it will be preserved
 (even if unnecessary):
 
 ```markdown
-` code `
+`code`
 ```
 
 Note: Code spans containing only spaces are allowed by the specification and are
@@ -1653,6 +1642,7 @@ You can prevent extra data from being present in the info string of fenced code
 blocks. To do so, set the `language_only` parameter to `true`.
 
 <!-- markdownlint-disable-next-line no-space-in-code -->
+
 Info strings with leading/trailing whitespace (ex: `js `) or other content (ex:
 `ruby startline=3`) will trigger this rule.
 
@@ -1783,27 +1773,29 @@ To require exactly the following structure:
 
 ```markdown
 # Heading
+
 ## Item
+
 ### Detail
 ```
 
 Set the `headings` parameter to:
 
 ```json
-[
-    "# Heading",
-    "## Item",
-    "### Detail"
-]
+["# Heading", "## Item", "### Detail"]
 ```
 
 To allow optional headings as with the following structure:
 
 ```markdown
 # Heading
+
 ## Item
+
 ### Detail (optional)
+
 ## Foot
+
 ### Notes (optional)
 ```
 
@@ -1812,31 +1804,23 @@ special value `"+"` meaning "one or more unspecified headings" and set the
 `headings` parameter to:
 
 ```json
-[
-    "# Heading",
-    "## Item",
-    "*",
-    "## Foot",
-    "*"
-]
+["# Heading", "## Item", "*", "## Foot", "*"]
 ```
 
 To allow a single required heading to vary as with a project name:
 
 ```markdown
 # Project Name
+
 ## Description
+
 ## Examples
 ```
 
 Use the special value `"?"` meaning "exactly one unspecified heading":
 
 ```json
-[
-    "?",
-    "## Description",
-    "## Examples"
-]
+["?", "## Description", "## Examples"]
 ```
 
 When an error is detected, this rule outputs the line number of the first
@@ -1878,19 +1862,14 @@ enforce the proper capitalization, specify the desired letter case in the
 `names` array:
 
 ```json
-[
-    "JavaScript"
-]
+["JavaScript"]
 ```
 
 Sometimes a proper name is capitalized differently in certain contexts. In such
 cases, add both forms to the `names` array:
 
 ```json
-[
-    "GitHub",
-    "github.com"
-]
+["GitHub", "github.com"]
 ```
 
 Set the `code_blocks` parameter to `false` to disable this rule for code blocks
@@ -1924,7 +1903,7 @@ Or with reference syntax as:
 
 ...
 
-[ref]: image.jpg "Optional title"
+[ref]: image.jpg 'Optional title'
 ```
 
 Or with HTML as:
@@ -2052,9 +2031,9 @@ blocks do not match the configured code fence style:
 # Fenced code
 ```
 
-~~~ruby
+```ruby
 # Fenced code
-~~~
+```
 ````
 
 To fix this issue, use the configured code fence style throughout the
@@ -2095,15 +2074,15 @@ This rule is triggered when the symbols used in the document for emphasis do not
 match the configured emphasis style:
 
 ```markdown
-*Text*
+_Text_
 _Text_
 ```
 
 To fix this issue, use the configured emphasis style throughout the document:
 
 ```markdown
-*Text*
-*Text*
+_Text_
+_Text_
 ```
 
 The configured emphasis style can be a specific symbol to use (`asterisk`,
@@ -2135,7 +2114,7 @@ match the configured strong style:
 
 ```markdown
 **Text**
-__Text__
+**Text**
 ```
 
 To fix this issue, use the configured strong style throughout the document:
@@ -2149,7 +2128,7 @@ The configured strong style can be a specific symbol to use (`asterisk`,
 `underscore`) or can require all strong matches the first strong (`consistent`).
 
 Note: Emphasis within a word is restricted to `asterisk` in order to avoid
-unwanted emphasis for words containing internal underscores like__this__one.
+unwanted emphasis for words containing internal underscores like**this**one.
 
 Rationale: Consistent formatting makes it easier to understand a document.
 
@@ -2309,7 +2288,7 @@ not for "shortcut" syntax because it is ambiguous.
 The text `[example]` could be a shortcut link or the text "example" in brackets,
 so "shortcut" syntax is ignored by default. To include "shortcut" syntax, set
 the `include_shortcut` parameter to `true`. Note that doing so produces warnings
-for *all* text in the document that *could* be a shortcut. If bracketed text is
+for _all_ text in the document that _could_ be a shortcut. If bracketed text is
 intentional, brackets can be escaped with the `\` character: `\[example\]`.
 
 If there are link labels that are deliberately unreferenced, they can be ignored
@@ -2361,7 +2340,7 @@ to ignore. The default value of this parameter ignores the following convention
 for adding non-HTML comments to Markdown:
 
 ```markdown
-[//]: # (This behaves like a comment)
+[//]: # 'This behaves like a comment'
 ```
 
 <a name="md054"></a>
@@ -2443,7 +2422,7 @@ To fix violations of this rule, change the link or image to use an allowed
 style. This rule can automatically fix violations when a link or image can be
 converted to the `inline` style (preferred) or a link can be converted to the
 `autolink` style (which does not support images and must be an absolute URL).
-This rule does *not* fix scenarios that require converting a link or image to
+This rule does _not_ fix scenarios that require converting a link or image to
 the `full`, `collapsed`, or `shortcut` reference styles because that involves
 naming the reference and determining where to insert it in the document.
 
@@ -2495,8 +2474,8 @@ pipe:
 
 ```markdown
 | Header | Header |
-| ------ | ------
-  Cell   | Cell   |
+| ------ | ------ |
+| Cell   | Cell   |
 ```
 
 To fix these issues, make sure there is a pipe character at the beginning and
@@ -2516,6 +2495,7 @@ trigger this rule:
 | Header | Header |
 | ------ | ------ |
 | Cell   | Cell   |
+
 This text is part of the table
 ```
 
@@ -2541,10 +2521,10 @@ many cells:
 
 ```markdown
 | Header | Header |
-| ------ | ------ |
+| ------ | ------ | ---- |
 | Cell   | Cell   |
 | Cell   |
-| Cell   | Cell   | Cell   |
+| Cell   | Cell   | Cell |
 ```
 
 To fix these issues, ensure every row has the same number of cells:
@@ -2582,7 +2562,8 @@ blank line:
 Some text
 | Header | Header |
 | ------ | ------ |
-| Cell   | Cell   |
+| Cell | Cell |
+
 > Blockquote
 ```
 
@@ -2608,6 +2589,7 @@ trigger this rule:
 | Header | Header |
 | ------ | ------ |
 | Cell   | Cell   |
+
 This text is part of the table and the next line is blank
 
 Some text
@@ -2627,7 +2609,7 @@ Aliases: `descriptive-link-text`
 Parameters:
 
 - `prohibited_texts`: Prohibited link texts (`string[]`, default `["click
-  here","here","link","more"]`)
+here","here","link","more"]`)
 
 This rule is triggered when a link has generic text like `[click here](...)` or
 `[link](...)`.
@@ -2642,7 +2624,7 @@ To customize that list of words/phrases, set the `prohibited_texts` parameter to
 an `Array` of `string`s.
 
 Note: For languages other than English, use the `prohibited_texts` parameter to
-customize the list for that language. It is *not* a goal for this rule to have
+customize the list for that language. It is _not_ a goal for this rule to have
 translations for every language.
 
 Note: This rule checks Markdown links; HTML links are ignored.

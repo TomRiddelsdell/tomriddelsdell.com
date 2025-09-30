@@ -1,0 +1,20 @@
+name = "landing-page"
+compatibility_date = "2024-01-01"
+
+[env.development]
+name = "landing-page-dev"
+
+[env.production] 
+name = "landing-page-prod"
+
+# Build configuration for Cloudflare Pages with Next.js
+[build]
+command = "pnpm run build"
+output_dir = "out"
+
+# Next.js on Pages configuration
+[[pages_builds]]
+directory = ".next"
+
+# Environment variables will be managed via Doppler
+# No hardcoded secrets in this file

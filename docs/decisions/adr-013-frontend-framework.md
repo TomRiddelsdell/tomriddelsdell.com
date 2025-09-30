@@ -32,21 +32,21 @@ Shared UI: A **common React UI component library** (e.g. `@platform/ui-navbar`) 
 
 ## Rationale
 
-- **Single framework reduces complexity**: avoids maintaining both Next.js and Remix/Astro.  
-- **Flexibility**: Next.js supports all rendering modes (SSG, SSR, ISR, CSR), so we can choose per page.  
-- **Cloudflare compatibility**: `next-on-pages` makes Next.js a first-class citizen on Cloudflare.  
-- **Ecosystem**: Next.js has a very large community, many plugins, and robust TypeScript support.  
-- **Consistency**: All frontends (landing + apps) can share a common component library, dev workflow, and hosting/deployment pipeline.  
+- **Single framework reduces complexity**: avoids maintaining both Next.js and Remix/Astro.
+- **Flexibility**: Next.js supports all rendering modes (SSG, SSR, ISR, CSR), so we can choose per page.
+- **Cloudflare compatibility**: `next-on-pages` makes Next.js a first-class citizen on Cloudflare.
+- **Ecosystem**: Next.js has a very large community, many plugins, and robust TypeScript support.
+- **Consistency**: All frontends (landing + apps) can share a common component library, dev workflow, and hosting/deployment pipeline.
 
 ## Consequences
 
-- Developers need to learn and follow **Next.js idioms** (`getStaticProps`, `getServerSideProps`, ISR APIs).  
-- We do not get Remix's built-in route loader model, but can replicate SSR/CSR patterns easily with Next.js.  
-- All apps will align on React + Next.js, which slightly reduces flexibility for teams who may want Vue/Svelte in the future (though still possible as standalone apps).  
+- Developers need to learn and follow **Next.js idioms** (`getStaticProps`, `getServerSideProps`, ISR APIs).
+- We do not get Remix's built-in route loader model, but can replicate SSR/CSR patterns easily with Next.js.
+- All apps will align on React + Next.js, which slightly reduces flexibility for teams who may want Vue/Svelte in the future (though still possible as standalone apps).
 - This decision maximizes **short-term velocity** and **ecosystem leverage**, at the cost of potential long-term heterogeneity.
 
 ## Alternatives Considered
 
-- **Remix**: better edge-first and route loaders, but smaller ecosystem.  
-- **Astro**: excellent for landing pages but less suited for interactive apps.  
-- **Mixed approach** (Next.js for landing, Remix for apps): increases complexity without a clear short-term benefit.  
+- **Remix**: better edge-first and route loaders, but smaller ecosystem.
+- **Astro**: excellent for landing pages but less suited for interactive apps.
+- **Mixed approach** (Next.js for landing, Remix for apps): increases complexity without a clear short-term benefit.

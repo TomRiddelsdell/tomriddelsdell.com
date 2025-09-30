@@ -9,7 +9,9 @@ This package contains common domain types, value objects, and domain primitives 
 ## Contents
 
 ### 🆔 **Entity Identifiers**
+
 Strongly-typed IDs that prevent mixing different entity types:
+
 ```typescript
 // Exported types
 export class UserId extends EntityId<'User'> {}
@@ -18,38 +20,44 @@ export class ContactRequestId extends EntityId<'ContactRequest'> {}
 ```
 
 ### 💎 **Value Objects**
+
 Immutable value objects representing domain concepts:
+
 ```typescript
 // Email address with validation
 export class EmailAddress {
   private constructor(private readonly value: string) {}
-  static create(email: string): Result<EmailAddress, ValidationError>
+  static create(email: string): Result<EmailAddress, ValidationError>;
 }
 
 // Project visibility with business rules
 export enum ProjectVisibility {
   PRIVATE = 'PRIVATE',
-  PUBLIC = 'PUBLIC', 
-  SHARED = 'SHARED'
+  PUBLIC = 'PUBLIC',
+  SHARED = 'SHARED',
 }
 ```
 
 ### 📏 **Domain Primitives**
+
 Basic building blocks for domain modeling:
+
 ```typescript
 // Base classes for entities and value objects
 export abstract class Entity<TId> {
   protected constructor(public readonly id: TId) {}
-  equals(other: Entity<TId>): boolean
+  equals(other: Entity<TId>): boolean;
 }
 
 export abstract class ValueObject {
-  abstract equals(other: ValueObject): boolean
+  abstract equals(other: ValueObject): boolean;
 }
 ```
 
 ### 🔄 **Common Domain Events**
+
 Base event structure shared across all bounded contexts:
+
 ```typescript
 export interface DomainEvent {
   readonly eventId: string;
@@ -91,16 +99,19 @@ src/
 ## Design Principles
 
 ### 🎯 **Pure Domain Logic**
+
 - **No External Dependencies**: Only depends on TypeScript standard library
 - **Framework Agnostic**: Can be used in any TypeScript environment
 - **Infrastructure Free**: No database, HTTP, or other infrastructure concerns
 
 ### 🛡️ **Type Safety**
+
 - **Strongly Typed IDs**: Prevent mixing different entity identifiers
 - **Validation**: Value objects validate their invariants
 - **Immutability**: All value objects are immutable
 
 ### ⚖️ **Business Rule Enforcement**
+
 - **Domain Validation**: Value objects enforce business rules
 - **Fail Fast**: Invalid objects cannot be created
 - **Clear Error Messages**: Validation errors provide clear feedback
@@ -108,6 +119,7 @@ src/
 ## Usage Examples
 
 ### Creating Strongly-Typed Identifiers
+
 ```typescript
 import { UserId, ProjectId } from '@portfolio/shared-domain';
 
@@ -125,6 +137,7 @@ assignProject(projectId, userId); // ❌ TypeScript error
 ```
 
 ### Value Object Creation and Validation
+
 ```typescript
 import { EmailAddress } from '@portfolio/shared-domain';
 
@@ -140,6 +153,7 @@ if (emailResult.isSuccess) {
 ```
 
 ### Domain Event Structure
+
 ```typescript
 import { DomainEvent } from '@portfolio/shared-domain';
 
@@ -156,7 +170,9 @@ interface UserRegistered extends DomainEvent {
 ## Integration with Services
 
 ### Service Dependencies
+
 Services import domain types for business logic:
+
 ```typescript
 // services/accounts/domain/User.ts
 import { UserId, EmailAddress, UserRole } from '@portfolio/shared-domain';
@@ -173,21 +189,21 @@ export class User extends Entity<UserId> {
   static create(email: string, role: string): Result<User, ValidationError> {
     const emailResult = EmailAddress.create(email);
     const roleResult = UserRole.create(role);
-    
+
     if (emailResult.isFailure) return emailResult;
     if (roleResult.isFailure) return roleResult;
-    
-    return Result.ok(new User(
-      UserId.generate(),
-      emailResult.value,
-      roleResult.value
-    ));
+
+    return Result.ok(
+      new User(UserId.generate(), emailResult.value, roleResult.value)
+    );
   }
 }
 ```
 
 ### Event Contracts Integration
+
 Generated event types extend domain event structure:
+
 ```typescript
 // packages/event-contracts/src/accounts/UserRegistered.ts
 import { DomainEvent } from '@portfolio/shared-domain';
@@ -202,13 +218,14 @@ export interface UserRegistered extends DomainEvent {
 ## Testing Support
 
 ### Test Utilities
+
 ```typescript
 // Testing support included in package
 export class TestDataBuilder {
   static createUserId(): UserId {
     return UserId.generate();
   }
-  
+
   static createValidEmail(): EmailAddress {
     return EmailAddress.create('test@example.com').value!;
   }
@@ -218,12 +235,14 @@ export class TestDataBuilder {
 ## Quality Standards
 
 ### ✅ **Required Standards**
+
 - **100% Test Coverage**: All domain logic fully tested
 - **No Side Effects**: All functions are pure
 - **Immutable Data**: Value objects cannot be modified after creation
 - **Validation**: All inputs validated with clear error messages
 
 ### 🔒 **Security Considerations**
+
 - **Input Validation**: All value objects validate inputs
 - **No Secrets**: No sensitive data or configuration
 - **Safe Serialization**: All types can be safely serialized to JSON
@@ -231,11 +250,13 @@ export class TestDataBuilder {
 ## API Guidelines
 
 ### Public API
+
 - **Stable Interface**: Breaking changes require major version bump
 - **Clear Naming**: Names reflect ubiquitous language from domain model
 - **Consistent Patterns**: All similar operations follow same patterns
 
 ### Export Strategy
+
 ```typescript
 // index.ts - Clean public API
 export * from './entities/EntityId';
@@ -249,12 +270,14 @@ export * from './events/DomainEvent';
 ## Evolution Guidelines
 
 ### Adding New Types
+
 1. **Domain Justification**: Must represent true business concept
 2. **Cross-Context Usage**: Should be used by multiple bounded contexts
 3. **Pure Domain Logic**: No infrastructure dependencies
 4. **Comprehensive Tests**: Full test coverage required
 
 ### Deprecation Process
+
 1. **Mark as Deprecated**: Add `@deprecated` JSDoc comments
 2. **Provide Alternatives**: Document replacement patterns
 3. **Grace Period**: Support for 2 major versions
@@ -263,11 +286,13 @@ export * from './events/DomainEvent';
 ## Architecture Compliance
 
 ### DDD Alignment
+
 - **Ubiquitous Language**: All types use business terminology
 - **Domain Purity**: No infrastructure or application concerns
 - **Bounded Context Neutral**: Suitable for multiple contexts
 
 ### Event Sourcing Support
+
 - **Event Structure**: Base event interface for all domain events
 - **Immutability**: Event data structures are immutable
 - **Serialization**: Safe JSON serialization support
