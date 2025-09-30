@@ -1,9 +1,11 @@
 # ADR-010: Observability Requirements and Strategy
 
 ## Status
+
 Accepted
 
 ## Context
+
 We need to define our observability strategy including metrics collection, log management, distributed tracing, dashboards, and alerting. This strategy must provide visibility into our event-sourced, multi-service architecture while maintaining **portability across deployment platforms** and avoiding vendor lock-in.
 
 Given our relatively low traffic expectations and prioritization of development ease and debugging capabilities, we focus on practical, developer-friendly solutions over enterprise-scale complexity.
@@ -19,8 +21,9 @@ Given our relatively low traffic expectations and prioritization of development 
 Our observability strategy balances **practical development needs** with **platform portability**, using OpenTelemetry as the foundation for all instrumentation while prioritizing debugging capabilities over enterprise complexity.
 
 **Core Principle: Standards-Based Implementation with Developer Experience Focus**
+
 - Use **OpenTelemetry** as the universal foundation for all observability
-- Prioritize **debugging and development velocity** over comprehensive monitoring  
+- Prioritize **debugging and development velocity** over comprehensive monitoring
 - Implement **portable abstractions** that work across cloud providers
 - Ensure **easy migration between platforms** (Cloudflare, AWS, Vercel, etc.)
 - Maintain **vendor-agnostic configurations** to avoid lock-in
@@ -28,6 +31,7 @@ Our observability strategy balances **practical development needs** with **platf
 ### Unified Instrumentation Strategy
 
 **OpenTelemetry as Universal Standard:**
+
 ```typescript
 // src/observability/telemetry.ts - Consolidated from ADR-019
 import { NodeSDK } from '@opentelemetry/sdk-node';
@@ -44,7 +48,7 @@ interface ObservabilityAdapter {
 // Portable telemetry setup with consistent developer interface
 class PortableTelemetry {
   private sdk: NodeSDK;
-  
+
   constructor(private config: TelemetryConfig) {
     this.sdk = new NodeSDK({
       resource: new Resource({
@@ -57,7 +61,7 @@ class PortableTelemetry {
       logRecordProcessor: this.createLogProcessor(),
     });
   }
-  
+
   private createMetricReader() {
     // Can export to Prometheus, OTLP, or platform-specific endpoints
     switch (this.config.platform) {
@@ -82,7 +86,7 @@ export interface PlatformObservability {
     debug(message: string, context?: Record<string, any>): void;
     warn(message: string, context?: Record<string, any>): void;
   };
-  
+
   // Metrics with standard interface
   metrics: {
     counter: {
@@ -95,7 +99,7 @@ export interface PlatformObservability {
       set(name: string, value: number, tags?: Record<string, string>): void;
     };
   };
-  
+
   // Distributed tracing
   tracing: {
     startSpan(name: string, context?: SpanContext): Span;
@@ -109,6 +113,7 @@ export interface PlatformObservability {
 **Answer: Prioritize technical metrics for debugging, with essential business metrics for product insights.**
 
 **Technical Metrics (High Priority - Development Focus):**
+
 - Event processing latency and queue depth
 - Projection rebuild times and lag
 - Database connection pool utilization
@@ -117,6 +122,7 @@ export interface PlatformObservability {
 - Memory usage and garbage collection metrics
 
 **Business Metrics (Medium Priority - Product Insights):**
+
 - User registration and activation rates
 - Project creation frequency
 - Contact form submissions and response rates
@@ -124,6 +130,7 @@ export interface PlatformObservability {
 - Feature usage patterns
 
 **Implementation Priority:**
+
 ```typescript
 // High priority metrics for development
 const developmentMetrics = [
@@ -131,14 +138,14 @@ const developmentMetrics = [
   'projection.lag.seconds',
   'http.request.duration',
   'database.connection.pool.usage',
-  'error.rate.by.service'
+  'error.rate.by.service',
 ];
 
 // Medium priority business metrics
 const businessMetrics = [
   'user.registration.daily',
   'project.created.daily',
-  'contact.submitted.daily'
+  'contact.submitted.daily',
 ];
 ```
 
@@ -147,25 +154,27 @@ const businessMetrics = [
 **Answer: Simple, cost-effective retention with focus on debugging needs.**
 
 **Retention Policy:**
+
 ```yaml
 log_retention:
   local:
-    duration: "7 days"
-    level: "debug"
-    purpose: "Development debugging"
-    
+    duration: '7 days'
+    level: 'debug'
+    purpose: 'Development debugging'
+
   development:
-    duration: "30 days"
-    level: "info"
-    purpose: "Integration testing and feature validation"
-    
+    duration: '30 days'
+    level: 'info'
+    purpose: 'Integration testing and feature validation'
+
   production:
-    duration: "90 days"
-    level: "warn"
-    purpose: "Incident investigation and audit trail"
+    duration: '90 days'
+    level: 'warn'
+    purpose: 'Incident investigation and audit trail'
 ```
 
 **Rationale:**
+
 - **90 days production**: Sufficient for incident investigation without excessive cost
 - **No long-term compliance requirements** identified for personal portfolio platform
 - **Cost optimization**: Focus on recent data for debugging over historical analytics
@@ -176,6 +185,7 @@ log_retention:
 **Answer: Lightweight tracing focused on debugging cross-service interactions.**
 
 **Tracing Strategy:**
+
 - **OpenTelemetry** with Jaeger for standardization
 - **High sampling rate** in development (100%), lower in production (10%)
 - **Request-based correlation** using trace IDs in logs
@@ -185,11 +195,11 @@ log_retention:
 // Tracing configuration
 const tracingConfig = {
   development: {
-    samplingRate: 1.0,  // Trace everything for debugging
+    samplingRate: 1.0, // Trace everything for debugging
     exportInterval: 5000, // 5 seconds
   },
   production: {
-    samplingRate: 0.1,  // 10% sampling for cost control
+    samplingRate: 0.1, // 10% sampling for cost control
     exportInterval: 30000, // 30 seconds
   },
 };
@@ -200,7 +210,7 @@ const criticalSpans = [
   'projection.updated',
   'user.authentication',
   'database.query',
-  'external.api.call'
+  'external.api.call',
 ];
 ```
 
@@ -211,6 +221,7 @@ const criticalSpans = [
 **Dashboard Strategy:**
 
 **Developer Dashboard (Primary Focus):**
+
 - Real-time error rates and stack traces
 - Event processing pipeline health
 - Database query performance
@@ -218,12 +229,14 @@ const criticalSpans = [
 - Recent deployments and their impact
 
 **Operations Dashboard (Secondary):**
+
 - Infrastructure health (CPU, memory, connections)
 - Cost tracking and resource utilization
 - Security events and access patterns
 - Backup and recovery status
 
 **Business Dashboard (Minimal):**
+
 - User growth trends
 - Feature adoption rates
 - Contact conversion metrics
@@ -247,9 +260,9 @@ const dashboards: Dashboard[] = [
       'response-time-percentiles',
       'event-processing-lag',
       'recent-deployments',
-      'database-slow-queries'
+      'database-slow-queries',
     ],
-    refreshInterval: '30s'
+    refreshInterval: '30s',
   },
   {
     name: 'Infrastructure Overview',
@@ -258,10 +271,10 @@ const dashboards: Dashboard[] = [
       'resource-utilization',
       'cost-tracking',
       'security-events',
-      'backup-status'
+      'backup-status',
     ],
-    refreshInterval: '5m'
-  }
+    refreshInterval: '5m',
+  },
 ];
 ```
 
@@ -270,6 +283,7 @@ const dashboards: Dashboard[] = [
 **Answer: Centralized structured logging with correlation for easy debugging.**
 
 **Log Aggregation Strategy:**
+
 - **Grafana Loki** for cost-effective log aggregation
 - **Structured JSON logging** with consistent schema
 - **Correlation IDs** for tracing requests across services
@@ -307,7 +321,7 @@ const logAggregationConfig = {
       type: 'console',
       enabled: process.env.NODE_ENV === 'development',
       format: 'json',
-    }
+    },
   ],
   correlation: {
     generateTraceId: true,
@@ -318,13 +332,14 @@ const logAggregationConfig = {
     info: '30d',
     warn: '90d',
     error: '90d',
-  }
+  },
 };
 ```
 
 ### Portability-First Observability Strategy
 
 **Core Principle: Standards-Based Implementation**
+
 - Use **OpenTelemetry** as the foundation for all observability
 - Implement **portable abstractions** that work across cloud providers
 - Ensure easy migration between platforms (Cloudflare, AWS, Vercel, etc.)
@@ -333,6 +348,7 @@ const logAggregationConfig = {
 ### Primary Observability Architecture
 
 **OpenTelemetry as Universal Standard:**
+
 ```typescript
 // src/observability/telemetry.ts
 import { NodeSDK } from '@opentelemetry/sdk-node';
@@ -348,7 +364,7 @@ interface ObservabilityAdapter {
 // Platform-agnostic telemetry setup
 class PortableTelemetry {
   private sdk: NodeSDK;
-  
+
   constructor(private config: TelemetryConfig) {
     this.sdk = new NodeSDK({
       resource: new Resource({
@@ -361,7 +377,7 @@ class PortableTelemetry {
       logRecordProcessor: this.createLogProcessor(),
     });
   }
-  
+
   private createMetricReader() {
     // Can export to Prometheus, OTLP, or platform-specific endpoints
     switch (this.config.platform) {
@@ -381,6 +397,7 @@ class PortableTelemetry {
 ### Platform-Agnostic Adapters
 
 **Metrics Collection Strategy:**
+
 ```typescript
 // src/observability/adapters/metrics.ts
 interface MetricsAdapter {
@@ -414,7 +431,7 @@ class CloudWatchMetricsAdapter implements MetricsAdapter {
 class MetricsAdapterFactory {
   static create(): MetricsAdapter {
     const platform = process.env.DEPLOYMENT_PLATFORM || 'auto-detect';
-    
+
     switch (platform) {
       case 'cloudflare':
         return new CloudflareMetricsAdapter();
@@ -430,6 +447,7 @@ class MetricsAdapterFactory {
 ```
 
 **Structured Logging with Multiple Destinations:**
+
 ```typescript
 // src/observability/adapters/logging.ts
 interface LogAdapter {
@@ -438,12 +456,10 @@ interface LogAdapter {
 
 class MultiDestinationLogger implements LogAdapter {
   constructor(private adapters: LogAdapter[]) {}
-  
+
   async log(entry: LogEntry): Promise<void> {
     // Send to all configured destinations
-    await Promise.allSettled(
-      this.adapters.map(adapter => adapter.log(entry))
-    );
+    await Promise.allSettled(this.adapters.map(adapter => adapter.log(entry)));
   }
 }
 
@@ -470,11 +486,12 @@ class ElasticsearchLogsAdapter implements LogAdapter {
 ### Portable Configuration Strategy
 
 **Environment-Based Configuration:**
+
 ```yaml
 # config/observability.yml
 observability:
   platform: ${DEPLOYMENT_PLATFORM:-auto-detect}
-  
+
   metrics:
     exporters:
       - type: prometheus
@@ -485,7 +502,7 @@ observability:
         enabled: ${OTLP_ENABLED:-false}
       - type: platform-native
         enabled: ${PLATFORM_METRICS_ENABLED:-true}
-  
+
   logging:
     exporters:
       - type: console
@@ -496,7 +513,7 @@ observability:
       - type: elasticsearch
         endpoint: ${ELASTICSEARCH_ENDPOINT}
         enabled: ${ELASTICSEARCH_ENABLED:-false}
-  
+
   tracing:
     exporter: ${TRACE_EXPORTER:-jaeger}
     endpoint: ${TRACE_ENDPOINT}
@@ -506,21 +523,25 @@ observability:
 ### Recommended Portable Stack
 
 **Metrics: Prometheus + Grafana**
+
 - **Prometheus**: Industry standard, runs anywhere
 - **Grafana**: Universal dashboards, supports multiple data sources
 - **Deployment**: Can run on any platform, self-hosted or managed
 
 **Logging: Grafana Loki**
+
 - **Loki**: Prometheus-style logs, cost-effective
 - **Promtail**: Log collection agent works everywhere
 - **Deployment**: Self-hosted or Grafana Cloud
 
 **Tracing: Jaeger with OpenTelemetry**
+
 - **Jaeger**: CNCF graduated project, runs anywhere
 - **OpenTelemetry**: Vendor-neutral instrumentation
 - **Deployment**: Self-hosted or managed services
 
 **Alternative: All-in-One Grafana Cloud**
+
 - **Grafana Cloud**: Hosted metrics, logs, and traces
 - **Benefits**: Fully managed, works with any deployment platform
 - **Cost**: Pay-as-you-go, predictable pricing
@@ -580,6 +601,7 @@ class PlatformDetector {
 ### Deployment-Specific Configurations
 
 **Cloudflare Workers:**
+
 ```typescript
 // src/observability/platforms/cloudflare.ts
 export const cloudflareConfig: ObservabilityConfig = {
@@ -601,6 +623,7 @@ export const cloudflareConfig: ObservabilityConfig = {
 ```
 
 **AWS Lambda:**
+
 ```typescript
 // src/observability/platforms/aws.ts
 export const awsConfig: ObservabilityConfig = {
@@ -622,6 +645,7 @@ export const awsConfig: ObservabilityConfig = {
 ```
 
 **Generic/Self-Hosted:**
+
 ```typescript
 // src/observability/platforms/generic.ts
 export const genericConfig: ObservabilityConfig = {
@@ -645,18 +669,21 @@ export const genericConfig: ObservabilityConfig = {
 ### Alerting Strategy (Simplified for Low Traffic)
 
 **Critical Alerts (Immediate Response):**
+
 - Service completely down (> 2 minutes)
 - Database connection failures
 - Event processing stopped entirely
 - Security breach indicators
 
 **Warning Alerts (Within 1 Hour):**
+
 - Error rate > 5% for 10 minutes
 - Response time P95 > 5 seconds for 5 minutes
 - Projection lag > 10 minutes
 - Disk space > 80%
 
 **Info Alerts (Daily Summary):**
+
 - Performance trends
 - Cost summaries
 - Feature usage reports
@@ -669,28 +696,29 @@ const alertRules = [
     condition: 'up == 0',
     duration: '2m',
     severity: 'critical',
-    channels: ['slack', 'email']
+    channels: ['slack', 'email'],
   },
   {
     name: 'High Error Rate',
     condition: 'rate(http_requests_total{status=~"5.."}[5m]) > 0.05',
     duration: '10m',
     severity: 'warning',
-    channels: ['slack']
+    channels: ['slack'],
   },
   {
     name: 'Slow Response Time',
     condition: 'histogram_quantile(0.95, http_request_duration_seconds) > 5',
     duration: '5m',
     severity: 'warning',
-    channels: ['slack']
-  }
+    channels: ['slack'],
+  },
 ];
 ```
 
 ## Implementation Phases
 
 ### Phase 1: Basic Observability (MVP)
+
 - **OpenTelemetry instrumentation** with basic metrics
 - **Structured logging** to Loki or console
 - **Developer dashboard** in Grafana
@@ -698,12 +726,14 @@ const alertRules = [
 - **Simple tracing** for debugging
 
 ### Phase 2: Enhanced Monitoring (Growth)
+
 - **Business metrics** and trends
 - **Advanced alerting** with anomaly detection
 - **Performance optimization** based on real usage
 - **Cost tracking** and optimization
 
 ### Phase 3: Advanced Observability (Scale)
+
 - **Machine learning-based** alerting
 - **Advanced analytics** and forecasting
 - **Business intelligence** integration
@@ -712,17 +742,20 @@ const alertRules = [
 ## Platform Migration Benefits
 
 **Easy Migration Path:**
+
 1. **Change configuration** to point to new platform
 2. **Redeploy applications** with new environment variables
 3. **Observability data** continues flowing to same destinations
 4. **Dashboards and alerts** work unchanged
 
 **Cost Optimization:**
+
 - **Compare platforms** easily with same observability data
 - **Negotiate better rates** by avoiding vendor lock-in
 - **Mix platforms** for optimal cost/performance
 
 **Risk Mitigation:**
+
 - **No single point of failure** in tooling choices
 - **Maintain operational visibility** during migrations
 - **Preserve historical data** across platform changes
@@ -730,11 +763,13 @@ const alertRules = [
 ## Security and Compliance Considerations
 
 **Data Sovereignty:**
+
 - **Control data location** by choosing deployment regions
 - **Compliance alignment** with industry requirements
 - **Audit trail preservation** across platform migrations
 
 **Access Control:**
+
 - **Centralized authentication** via OIDC/SAML
 - **Role-based permissions** in Grafana
 - **API key management** for programmatic access
@@ -742,21 +777,24 @@ const alertRules = [
 ## Trade-offs Summary
 
 **Development Experience vs. Enterprise Features:**
+
 - Prioritizing debugging and development velocity over comprehensive monitoring
 - Simple, understandable dashboards over complex analytics
 
 **Cost vs. Insight:**
+
 - Optimizing for low-cost solutions suitable for personal/startup scale
 - Essential insights without premium enterprise tooling costs
 
 **Simplicity vs. Completeness:**
+
 - Focusing on actionable metrics and alerts
 - Avoiding alert fatigue with targeted, meaningful notifications
 
 ## Next Steps
 
 1. **Implement OpenTelemetry foundation** with platform adapters
-2. **Set up Grafana Cloud or self-hosted Grafana** for universal dashboards  
+2. **Set up Grafana Cloud or self-hosted Grafana** for universal dashboards
 3. **Configure Prometheus metrics collection** with essential metrics
 4. **Implement Loki logging** with 90-day retention
 5. **Create developer-focused dashboard** with key debugging metrics
@@ -769,13 +807,16 @@ const alertRules = [
 ## Related ADRs
 
 ### Supersedes
+
 - **ADR-019**: Observability and Centralized Logging - Content merged into this comprehensive ADR
 
-### Dependencies  
+### Dependencies
+
 - **Requires**: ADR-006 (Event Sourcing) - Observability must track event processing
 - **Requires**: ADR-011 (Message Bus) - Monitoring Kafka streaming and event flow
 
 ### Influences
+
 - **Influences**: ADR-008 (Infrastructure) - Deployment platform affects observability choices
 - **Influences**: ADR-025 (Error Handling) - Error handling strategy affects logging and alerting
 - **Influences**: ADR-024 (Performance) - Performance requirements define monitoring needs
@@ -783,9 +824,11 @@ const alertRules = [
 ## AI Agent Guidance
 
 ### Implementation Priority
+
 **High** - Essential for development debugging and production operations
 
 ### Code Generation Patterns
+
 ```typescript
 // Always use the shared observability wrapper
 import { observability } from '@platform/observability';
@@ -795,13 +838,13 @@ observability.log.info('User registered successfully', {
   userId,
   email: user.email,
   registrationSource,
-  correlationId: request.correlationId
+  correlationId: request.correlationId,
 });
 
 // Standard metrics collection
 observability.metrics.counter.inc('user.registration.total', 1, {
   source: registrationSource,
-  environment: process.env.NODE_ENV
+  environment: process.env.NODE_ENV,
 });
 
 // Distributed tracing
@@ -820,17 +863,20 @@ try {
 ```
 
 ### Common Integration Points
+
 - All services and apps must use shared `@platform/observability` library
 - Never import vendor SDKs directly (Datadog, New Relic, etc.)
 - Always include correlationId, tenantId, userId in log context
 - Use OpenTelemetry Protocol (OTLP) for telemetry export to collector
 
 ### Platform Migration Benefits
-- **Easy Migration**: Change configuration to point to new platform  
+
+- **Easy Migration**: Change configuration to point to new platform
 - **Cost Optimization**: Compare platforms with same observability data
 - **Risk Mitigation**: No single point of failure in tooling choices
 - **Preserve History**: Maintain operational visibility during migrations
 
 ---
-*Last Updated: September 15, 2025*
-*Consolidated with ADR-019 for comprehensive observability strategy*
+
+_Last Updated: September 15, 2025_
+_Consolidated with ADR-019 for comprehensive observability strategy_

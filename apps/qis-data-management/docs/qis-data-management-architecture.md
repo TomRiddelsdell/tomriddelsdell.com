@@ -64,7 +64,7 @@ graph TB
 
     Queries --> ReadModels
     ReadModels --> Cache
-    
+
     MessageBus --> StrategyDomain
     MessageBus --> RiskDomain
     MessageBus --> AnalyticsDomain
@@ -76,17 +76,19 @@ graph TB
 ### Core Aggregates
 
 #### 1. ReferenceData Aggregate
+
 - **Root Entity**: `ReferenceData`
 - **Purpose**: Central authority for a specific timeseries data reference
 - **Boundaries**: Complete lifecycle management from creation to publication
-- **Key Behaviors**: 
+- **Key Behaviors**:
   - Data ingestion from multiple sources
   - Reconciliation across sources
   - Quality validation
   - Publication approval
   - Restatement handling
 
-#### 2. DataSource Aggregate  
+#### 2. DataSource Aggregate
+
 - **Root Entity**: `DataSource`
 - **Purpose**: Manage external data provider configurations
 - **Boundaries**: Provider metadata and connection management
@@ -123,6 +125,7 @@ interface DataSource {
 ### Value Objects
 
 #### Core Value Objects
+
 - **`ReferenceDataId`**: Strongly typed identifier for data series
 - **`Snap`**: Event time with precision and timezone information
 - **`DataValue<T>`**: Generic container for typed data values
@@ -131,6 +134,7 @@ interface DataSource {
 - **`AuditEntry`**: Immutable audit trail record
 
 #### Financial Value Objects
+
 - **`Price`**: Currency-denominated value with precision
 - **`Volume`**: Trading volume with unit specifications
 - **`OptionsChain`**: Complete options universe snapshot
@@ -162,18 +166,21 @@ interface EventStream {
 ### Core Domain Events
 
 #### Data Lifecycle Events
+
 - **`DataIngested`**: Raw data received from source
 - **`DataValidated`**: Data passed quality validation
 - **`DataReconciled`**: Multi-source data reconciled
 - **`DataPublished`**: Official data value published
 - **`DataRestated`**: Published data corrected
 
-#### Quality Events  
+#### Quality Events
+
 - **`QualityIssueDetected`**: Data quality problem identified
 - **`QualityApproved`**: Manual quality approval
 - **`QualityMetricsCalculated`**: Automated quality assessment
 
 #### Administrative Events
+
 - **`SchemaEvolved`**: Data schema updated
 - **`SourceAdded`**: New data source configured
 - **`PublicationScheduled`**: Publication workflow initiated
@@ -266,7 +273,7 @@ sequenceDiagram
 graph LR
     subgraph "Ingestion Layer"
         WebSocket[WebSocket Feeds]
-        REST[REST API Polling]  
+        REST[REST API Polling]
         FileWatch[File Watchers]
     end
 
@@ -316,7 +323,7 @@ CREATE TABLE domain_events (
     user_id UUID
 );
 
-CREATE INDEX idx_domain_events_stream_version 
+CREATE INDEX idx_domain_events_stream_version
 ON domain_events(stream_id, event_version);
 ```
 
@@ -388,19 +395,19 @@ interface MessageBus {
 
 // Event Routing Configuration
 interface EventRoutingConfig {
-  'DataPublished': [
+  DataPublished: [
     'strategy-domain.data-updated',
     'risk-domain.data-refresh',
-    'analytics-domain.data-available'
+    'analytics-domain.data-available',
   ];
-  'QualityIssueDetected': [
+  QualityIssueDetected: [
     'ops-domain.quality-alert',
-    'notification-service.quality-issue'
+    'notification-service.quality-issue',
   ];
-  'DataRestated': [
+  DataRestated: [
     'strategy-domain.data-corrected',
     'risk-domain.recalculate',
-    'audit-service.restatement-log'
+    'audit-service.restatement-log',
   ];
 }
 ```
@@ -419,9 +426,9 @@ interface DataAccessPolicy {
 
 enum Permission {
   READ = 'read',
-  WRITE = 'write', 
+  WRITE = 'write',
   PUBLISH = 'publish',
-  ADMIN = 'admin'
+  ADMIN = 'admin',
 }
 
 interface AccessCondition {
@@ -459,22 +466,22 @@ interface AuditEntry {
 interface CacheStrategy {
   // L1: In-memory cache for hot data
   memoryCache: Map<string, CachedValue>;
-  
+
   // L2: Redis for cross-instance sharing
   distributedCache: DistributedCache;
-  
+
   // L3: Read replicas for query optimization
   readReplicas: ReadReplicaPool;
 }
 
 interface CacheConfiguration {
   ttl: {
-    realTimeData: 30, // seconds
-    historicalData: 3600, // 1 hour
-    qualityMetrics: 300, // 5 minutes
-    auditData: 86400 // 24 hours
+    realTimeData: 30; // seconds
+    historicalData: 3600; // 1 hour
+    qualityMetrics: 300; // 5 minutes
+    auditData: 86400; // 24 hours
   };
-  
+
   evictionPolicy: 'LRU' | 'LFU' | 'TTL';
   maxMemoryUsage: string; // e.g., '2GB'
 }
@@ -491,15 +498,15 @@ interface QueryOptimizer {
 
 interface IndexStrategy {
   primaryIndexes: {
-    'reference_data_id_snap': ['reference_data_id', 'snap'];
-    'publication_time': ['publication_time'];
-    'quality_score': ['quality_score'];
+    reference_data_id_snap: ['reference_data_id', 'snap'];
+    publication_time: ['publication_time'];
+    quality_score: ['quality_score'];
   };
-  
+
   secondaryIndexes: {
-    'data_type_snap': ['data_type', 'snap'];
-    'source_id_snap': ['source_id', 'snap'];
-    'user_id_timestamp': ['user_id', 'timestamp'];
+    data_type_snap: ['data_type', 'snap'];
+    source_id_snap: ['source_id', 'snap'];
+    user_id_timestamp: ['user_id', 'timestamp'];
   };
 }
 ```
@@ -516,14 +523,14 @@ interface MetricsCollector {
     publicationLatency: Histogram;
     qualityScoreDistribution: Histogram;
   };
-  
+
   technicalMetrics: {
     apiResponseTime: Histogram;
     databaseConnectionPool: Gauge;
     eventStoreWriteLatency: Histogram;
     cacheHitRate: Gauge;
   };
-  
+
   customMetrics: Map<string, Metric>;
 }
 ```
@@ -539,7 +546,7 @@ interface HealthCheckSystem {
     cacheConnectivity: HealthCheck;
     messageBusHealth: HealthCheck;
   };
-  
+
   aggregateHealth(): HealthStatus;
   generateHealthReport(): HealthReport;
 }

@@ -1,12 +1,15 @@
 # ADR-008: Snapshot Strategy for Event Sourcing
 
 ## Status
+
 Accepted
 
 ## Context
+
 The platform uses Event Sourcing with Neon Postgres as the canonical event store. Rebuilding aggregates by replaying their entire event stream can become slow when aggregates accumulate many events. We need an operationally simple, consistent snapshot strategy to improve aggregate rehydration performance while preserving correctness and replayability.
 
 ## Decision
+
 - **Snapshot frequency:** Create a snapshot **every 100 events per aggregate**.
 - **Storage location:** Store snapshots in the **same Postgres database** as the event store (Neon), in a dedicated `snapshots` table.
 - **Snapshot contents:** Each snapshot record will include:
@@ -31,18 +34,22 @@ The platform uses Event Sourcing with Neon Postgres as the canonical event store
   - Monitoring snapshot age and size, and metrics for snapshot hit/miss rate on aggregate loads.
 
 ## Rationale
+
 - Choosing **every 100 events** is a pragmatic default: it reduces replay cost significantly for high-activity aggregates while keeping snapshot storage modest. This threshold can be tuned per aggregate type if needed.
 - Storing snapshots in the **same DB** simplifies transactions and reduces operational complexity; it also ensures backups can capture both events and snapshots together.
 - Snapshot versioning and upgrade functions allow safe schema evolution while keeping domain logic isolated from infra concerns.
 
 ## Consequences
+
 - Developers must implement snapshot creation logic in the application/infrastructure layer; domain logic remains unaware of snapshot mechanics.
 - CI and testing must include snapshot migration tests to ensure upgrades succeed across snapshot versions.
 - Backups must include the snapshots table to ensure disaster recovery can use snapshots if desired.
 - Projections and other read-side components are unaffected; snapshots only impact aggregate rehydration on the write side.
 
 ## Implementation Notes
+
 - Recommended Postgres table schema (example):
+
 ```sql
 CREATE TABLE snapshots (
   aggregate_type TEXT NOT NULL,
@@ -55,7 +62,9 @@ CREATE TABLE snapshots (
   PRIMARY KEY (aggregate_type, aggregate_id)
 );
 ```
+
 - Example load flow (pseudocode):
+
 ```text
 function loadAggregate(aggregateType, aggregateId):
   snapshot = snapshots_repo.fetch_latest(aggregateType, aggregateId)
@@ -69,7 +78,9 @@ function loadAggregate(aggregateType, aggregateId):
     aggregate.apply(event)
   return aggregate
 ```
+
 - Example save flow (pseudocode):
+
 ```text
 function saveAggregate(aggregate):
   events = aggregate.getUncommittedEvents()
@@ -78,12 +89,14 @@ function saveAggregate(aggregate):
     snapshot = aggregate.serializeState()
     snapshots_repo.upsert(aggregate.type, aggregate.id, aggregate.version, snapshot)
 ```
+
 - `shouldSnapshot` default implementation:
   - Track `last_snapshot_version` per aggregate (from snapshots table).
   - If `aggregate.version - last_snapshot_version >= 100`, return true.
 
 ## Next Steps
-1. Add `snapshots` table schema to the infra Terraform/Postgres migrations.  
-2. Implement snapshot repository adapter (Postgres JSONB) in the infra layer for services that manage aggregates.  
-3. Add unit tests and integration tests that verify snapshot creation, loading, and migration paths.  
+
+1. Add `snapshots` table schema to the infra Terraform/Postgres migrations.
+2. Implement snapshot repository adapter (Postgres JSONB) in the infra layer for services that manage aggregates.
+3. Add unit tests and integration tests that verify snapshot creation, loading, and migration paths.
 4. Provide admin tooling to list, delete, and rebuild snapshots for maintenance.

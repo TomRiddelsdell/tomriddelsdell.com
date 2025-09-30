@@ -1,21 +1,26 @@
 # ADR-025: Error Handling and Exception Management Strategy
 
 ## Status
+
 Accepted
 
 ## Decision Drivers
+
 - Consistent error handling required across all system components
 - Event sourcing error recovery patterns needed (referenced by ADR-006)
 - Message bus error handling strategy required (referenced by ADR-011)
 - User experience depends on graceful error handling and recovery
 
 ## Context
+
 The system needs a comprehensive error handling strategy that works across domain services, event sourcing components, message bus integration, and user interfaces. Without standardized error handling, debugging becomes difficult and user experience suffers.
 
 ## Decision
+
 We will implement a layered error handling strategy with standardized patterns:
 
 ### 1. Error Classification
+
 ```typescript
 // Error hierarchy
 abstract class SystemError extends Error {
@@ -41,12 +46,14 @@ class EventProcessingError extends SystemError {
 ```
 
 ### 2. Domain Layer Error Handling
+
 - **Domain Exceptions**: Use Result<T, E> pattern for expected failures
 - **Invariant Violations**: Throw domain exceptions for business rule violations
 - **Aggregate Validation**: Return validation errors rather than throwing
 - **Event Application**: Handle event application failures with compensation
 
 ### 3. Event Sourcing Error Handling
+
 ```typescript
 interface EventStoreResult<T> {
   success: boolean;
@@ -70,12 +77,14 @@ class EventProcessingStrategy {
 ```
 
 ### 4. Message Bus Error Handling
+
 - **Retry Policy**: Exponential backoff with jitter (3 retries maximum)
 - **Dead Letter Queue**: Failed messages after retry exhaustion
 - **Circuit Breaker**: Temporary failure protection for downstream services
 - **Timeout Handling**: 30-second timeout with graceful degradation
 
 ### 5. API Layer Error Handling
+
 ```typescript
 interface APIErrorResponse {
   error: {
@@ -99,12 +108,14 @@ const ErrorMapping = {
 ```
 
 ### 6. Frontend Error Handling
+
 - **Error Boundaries**: React error boundaries for UI error containment
 - **User-Friendly Messages**: Technical errors translated to user language
 - **Offline Support**: Graceful degradation when backend unavailable
 - **Retry Mechanisms**: Automatic retry for transient failures
 
 ## Rationale
+
 This strategy provides:
 
 1. **Consistency**: Standardized error handling patterns across all layers
@@ -116,24 +127,28 @@ This strategy provides:
 ## Implementation Guidance
 
 ### Phase 1: Core Error Infrastructure
+
 1. Implement base error classes and Result<T, E> pattern
 2. Add structured logging for all error types
 3. Set up error tracking and alerting infrastructure
 4. Create error handling middleware for API layer
 
 ### Phase 2: Domain and Event Sourcing Integration
+
 1. Implement domain-specific error types
 2. Add event processing error recovery mechanisms
 3. Set up dead letter queue for failed events
 4. Add compensation patterns for failed transactions
 
 ### Phase 3: Resilience Patterns
+
 1. Implement circuit breaker pattern for external dependencies
 2. Add retry policies with exponential backoff
 3. Set up health checks and graceful degradation
 4. Add timeout handling for long-running operations
 
 ### Phase 4: User Experience
+
 1. Add user-friendly error messages to frontend
 2. Implement error boundaries and fallback UI
 3. Add offline support and connection status
@@ -142,6 +157,7 @@ This strategy provides:
 ## Consequences
 
 ### Positive
+
 - Consistent error handling across all system layers
 - Improved system resilience and recovery capabilities
 - Better observability and debugging capabilities
@@ -149,6 +165,7 @@ This strategy provides:
 - Reduced mean time to recovery (MTTR) for incidents
 
 ### Negative
+
 - Additional complexity in error handling code
 - Increased testing requirements for error scenarios
 - Performance overhead for error tracking and logging
@@ -157,18 +174,22 @@ This strategy provides:
 ## Alternatives Considered
 
 ### Alternative 1: Exception-Based Error Handling
+
 - **Approach**: Use traditional try/catch exceptions throughout
 - **Rejected**: Poor fit for functional domain modeling and event sourcing
 
 ### Alternative 2: Global Error Handler Only
+
 - **Approach**: Single global error handler for all errors
 - **Rejected**: Insufficient granularity for proper error recovery
 
 ### Alternative 3: Third-Party Error Service
+
 - **Approach**: Use external service for all error handling
 - **Rejected**: Adds external dependency and reduces control
 
 ## Related ADRs
+
 - **Depends on**: ADR-006 (Event Sourcing) - Event processing error handling
 - **Depends on**: ADR-011 (Message Bus Strategy) - Message bus error handling
 - **Supports**: ADR-010 (Observability Requirements) - Error monitoring and alerting
@@ -177,15 +198,18 @@ This strategy provides:
 ## AI Agent Guidance
 
 ### Implementation Priority
+
 **Medium** - Should be implemented after core domain and event sourcing infrastructure.
 
 ### Prerequisites
+
 - Domain model established (ADR-005)
 - Event sourcing infrastructure in place (ADR-006)
 - Message bus implementation started (ADR-011)
 - Logging infrastructure available
 
 ### Implementation Steps
+
 1. Create base error class hierarchy and Result<T, E> types
 2. Implement domain-specific error handling in aggregate roots
 3. Add event processing error recovery mechanisms
@@ -194,6 +218,7 @@ This strategy provides:
 6. Configure monitoring and alerting for error patterns
 
 ### Common Pitfalls
+
 - Catching and hiding errors instead of proper handling
 - Not providing sufficient context in error messages
 - Forgetting to handle compensation scenarios in event sourcing
@@ -201,6 +226,7 @@ This strategy provides:
 - Not testing error recovery paths adequately
 
 ### Success Criteria
+
 - All error types have consistent handling patterns
 - Error recovery mechanisms work correctly under load
 - Users receive helpful error messages without technical details
@@ -208,5 +234,6 @@ This strategy provides:
 - Mean time to recovery improved for common error scenarios
 
 ---
-*Created: September 15, 2025*
-*Status: Proposed - Pending implementation*
+
+_Created: September 15, 2025_
+_Status: Proposed - Pending implementation_

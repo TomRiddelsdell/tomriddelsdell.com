@@ -27,7 +27,7 @@ This directory contains the VS Code dev container configuration for the Portfoli
 
 - **Doppler CLI**: Centralized secrets management
 - **Wrangler CLI**: Cloudflare Workers deployment
-- **Neon CLI**: PostgreSQL database management  
+- **Neon CLI**: PostgreSQL database management
 - **Confluent CLI**: Apache Kafka management
 - **GitHub CLI**: GitHub API and repository operations
 
@@ -141,7 +141,7 @@ source .devcontainer/inject-doppler-env.sh
 - **Dockerfile**: No longer needed since using Universal image directly
 - **setup.sh**: Replaced by setup-optimized.sh for faster container startup
 
-**Previous Complex Setup** (backed up as *.backup):
+**Previous Complex Setup** (backed up as \*.backup):
 
 - Multi-container Docker Compose setup
 - Custom MCP server containers
@@ -161,7 +161,7 @@ source .devcontainer/inject-doppler-env.sh
 This configuration supports the implementation plan:
 
 - All required CLI tools
-- Proper MCP server integration  
+- Proper MCP server integration
 - Environment variable management
 - Infrastructure deployment tools
 - Database and message bus clients

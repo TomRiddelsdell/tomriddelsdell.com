@@ -9,18 +9,21 @@ This directory contains the API contract definitions for all HTTP APIs exposed b
 ## Design Principles
 
 ### 🎯 **Contract-First Development**
+
 - **Define Before Implement**: API contracts created before implementation
 - **Generate Documentation**: API docs auto-generated from contracts
 - **Validate Requests**: Runtime validation against contract schemas
 - **Mock Services**: Contracts enable API mocking for development
 
 ### 🔌 **Service Independence**
+
 - **Per-Service Contracts**: Each microservice defines its own API contracts
 - **Versioned APIs**: Multiple API versions supported simultaneously
 - **Backward Compatibility**: Older API versions maintained during transitions
 - **Clear Dependencies**: API contracts define service integration points
 
 ### 📋 **OpenAPI Standards**
+
 - **OpenAPI 3.0+**: Industry standard specification format
 - **JSON Schema**: Request/response validation schemas
 - **Security Definitions**: Authentication and authorization requirements
@@ -74,6 +77,7 @@ api/
 ## Contract Format
 
 ### OpenAPI Specification Structure
+
 ```yaml
 # accounts/v1/accounts.openapi.yml
 openapi: 3.0.3
@@ -86,11 +90,11 @@ info:
     email: platform@tomriddelsdell.com
   license:
     name: Private
-    
+
 servers:
   - url: https://api.tomriddelsdell.com/accounts/v1
     description: Production server
-  - url: https://staging-api.tomriddelsdell.com/accounts/v1  
+  - url: https://staging-api.tomriddelsdell.com/accounts/v1
     description: Staging server
 
 paths:
@@ -147,7 +151,7 @@ components:
       $ref: './schemas/CreateUserRequest.schema.json'
     UserListResponse:
       $ref: './schemas/UserListResponse.schema.json'
-      
+
   securitySchemes:
     BearerAuth:
       type: http
@@ -164,6 +168,7 @@ security:
 ```
 
 ### JSON Schema Structure
+
 ```json
 // accounts/v1/schemas/User.schema.json
 {
@@ -180,7 +185,7 @@ security:
     },
     "email": {
       "type": "string",
-      "format": "email", 
+      "format": "email",
       "description": "User's email address"
     },
     "profile": {
@@ -198,7 +203,7 @@ security:
       "description": "When the user account was created"
     },
     "updatedAt": {
-      "type": "string", 
+      "type": "string",
       "format": "date-time",
       "description": "When the user account was last updated"
     }
@@ -227,16 +232,18 @@ security:
 ## API Versioning Strategy
 
 ### Version Management
+
 - **Semantic Versioning**: API versions follow semver (v1.0.0, v1.1.0, v2.0.0)
 - **URL Versioning**: Version included in URL path (`/api/v1/users`)
 - **Multiple Versions**: Support multiple API versions simultaneously
 - **Deprecation Policy**: Older versions deprecated with 6-month notice
 
 ### Backward Compatibility Rules
+
 ```yaml
 # Backward compatible changes (minor version)
 - Add new optional request fields
-- Add new response fields  
+- Add new response fields
 - Add new endpoints
 - Add new enum values
 - Expand field validation (less restrictive)
@@ -253,43 +260,47 @@ security:
 ## Code Generation
 
 ### Client SDK Generation
+
 ```bash
 # Generate TypeScript client
-openapi-generator generate 
-  -i contracts/api/accounts/v1/accounts.openapi.yml 
-  -g typescript-axios 
+openapi-generator generate
+  -i contracts/api/accounts/v1/accounts.openapi.yml
+  -g typescript-axios
   -o packages/api-clients/accounts
 
 # Generate Python client
-openapi-generator generate 
-  -i contracts/api/accounts/v1/accounts.openapi.yml 
-  -g python 
+openapi-generator generate
+  -i contracts/api/accounts/v1/accounts.openapi.yml
+  -g python
   -o clients/python/accounts
 ```
 
 ### Server Code Generation
+
 ```bash
 # Generate TypeScript server stubs
-openapi-generator generate 
-  -i contracts/api/accounts/v1/accounts.openapi.yml 
-  -g nodejs-express-server 
+openapi-generator generate
+  -i contracts/api/accounts/v1/accounts.openapi.yml
+  -g nodejs-express-server
   -o services/accounts/generated
 
 # Generate validation middleware
-openapi-generator generate 
-  -i contracts/api/accounts/v1/accounts.openapi.yml 
-  -g typescript-express-middleware 
+openapi-generator generate
+  -i contracts/api/accounts/v1/accounts.openapi.yml
+  -g typescript-express-middleware
   -o services/accounts/middleware
 ```
 
 ## Integration with Services
 
 ### Request Validation
+
 ```typescript
 // Generated validation middleware
 import { validateRequest } from '@portfolio/api-contracts/accounts';
 
-app.post('/users', 
+app.post(
+  '/users',
   validateRequest('createUser'),
   async (req: CreateUserRequest, res: Response) => {
     // Request automatically validated against schema
@@ -300,6 +311,7 @@ app.post('/users',
 ```
 
 ### Response Validation
+
 ```typescript
 // Generated response types
 import { User, UserListResponse } from '@portfolio/api-contracts/accounts';
@@ -307,35 +319,37 @@ import { User, UserListResponse } from '@portfolio/api-contracts/accounts';
 export class UserController {
   async getUsers(req: Request): Promise<UserListResponse> {
     const users = await this.userService.findUsers(req.query);
-    
+
     // TypeScript ensures response matches contract
     return {
       data: users,
       pagination: {
         page: req.query.page || 1,
         limit: req.query.limit || 20,
-        total: users.length
-      }
+        total: users.length,
+      },
     };
   }
 }
 ```
 
 ### API Documentation
+
 ```bash
 # Generate interactive documentation
 redoc-cli serve contracts/api/accounts/v1/accounts.openapi.yml
 
 # Generate static documentation site
-swagger-codegen generate 
-  -i contracts/api/accounts/v1/accounts.openapi.yml 
-  -l html2 
+swagger-codegen generate
+  -i contracts/api/accounts/v1/accounts.openapi.yml
+  -l html2
   -o docs/api/accounts
 ```
 
 ## Testing Integration
 
 ### Contract Testing
+
 ```typescript
 // Contract validation tests
 import { validateContract } from '@portfolio/testing-utils';
@@ -345,10 +359,10 @@ describe('Accounts API Contract', () => {
     const request = {
       email: 'user@example.com',
       profile: {
-        displayName: 'Test User'
-      }
+        displayName: 'Test User',
+      },
     };
-    
+
     expect(request).toMatchOpenAPISchema(
       'accounts/v1/accounts.openapi.yml',
       '#/components/schemas/CreateUserRequest'
@@ -358,6 +372,7 @@ describe('Accounts API Contract', () => {
 ```
 
 ### API Mock Server
+
 ```javascript
 // Generate mock server for development
 const mockServer = require('@portfolio/api-mocks');
@@ -366,26 +381,29 @@ mockServer.start({
   port: 3001,
   contracts: [
     'contracts/api/accounts/v1/accounts.openapi.yml',
-    'contracts/api/projects/v1/projects.openapi.yml'
-  ]
+    'contracts/api/projects/v1/projects.openapi.yml',
+  ],
 });
 ```
 
 ## Quality Standards
 
 ### ✅ **Contract Quality Requirements**
+
 - **Complete Documentation**: All endpoints, parameters, and responses documented
 - **Example Data**: All schemas include realistic example data
 - **Error Handling**: All error cases defined with appropriate HTTP status codes
 - **Security Definition**: Authentication and authorization requirements specified
 
 ### 🔒 **Security Standards**
+
 - **Authentication**: All protected endpoints require authentication
 - **Authorization**: Role-based access control defined where applicable
 - **Input Validation**: All user inputs validated against strict schemas
 - **Rate Limiting**: API rate limits defined for all endpoints
 
 ### 📊 **Performance Standards**
+
 - **Response Times**: Expected response time ranges documented
 - **Payload Sizes**: Maximum request/response sizes defined
 - **Caching**: Cacheable responses identified with appropriate headers
@@ -394,6 +412,7 @@ mockServer.start({
 ## Deployment Integration
 
 ### API Gateway Configuration
+
 ```yaml
 # gateway/routes.yml
 routes:
@@ -402,15 +421,16 @@ routes:
     version: v1
     rate_limit: 100/minute
     auth_required: true
-  
+
   - path: /api/projects/v1/*
-    service: projects-service  
+    service: projects-service
     version: v1
     rate_limit: 200/minute
     auth_required: true
 ```
 
 ### Service Mesh Integration
+
 ```yaml
 # Service discovery and routing
 apiVersion: v1
@@ -418,8 +438,8 @@ kind: Service
 metadata:
   name: accounts-api
   annotations:
-    contract.version: "1.0.0"
-    contract.path: "/contracts/api/accounts/v1/accounts.openapi.yml"
+    contract.version: '1.0.0'
+    contract.path: '/contracts/api/accounts/v1/accounts.openapi.yml'
 spec:
   selector:
     app: accounts-service
@@ -431,18 +451,21 @@ spec:
 ## Architecture Compliance
 
 ### RESTful Design
+
 - **Resource-Oriented**: URLs represent resources, not actions
 - **HTTP Methods**: Proper use of GET, POST, PUT, DELETE, PATCH
 - **Status Codes**: Appropriate HTTP status codes for all responses
 - **Stateless**: No server-side session state required
 
 ### Microservices Integration
+
 - **Service Boundaries**: APIs respect bounded context boundaries
 - **Independent Deployment**: API versions allow independent service deployment
 - **Contract Testing**: Automated testing prevents breaking changes
 - **Service Discovery**: APIs support service mesh integration
 
 ### Domain-Driven Design
+
 - **Ubiquitous Language**: API terminology matches domain language
 - **Bounded Context Alignment**: APIs align with domain model boundaries
 - **Anti-Corruption Layer**: APIs provide clean interface to domain services

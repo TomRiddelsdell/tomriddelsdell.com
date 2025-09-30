@@ -27,12 +27,12 @@ graph TB
     subgraph "Amazon EKS Cluster"
         subgraph "Data Management Pods"
             INGEST[Data Ingestion Service]
-            QUERY[Query Service] 
+            QUERY[Query Service]
             RECONCILE[Reconciliation Service]
             PUBLISH[Publication Service]
             QUALITY[Quality Service]
         end
-        
+
         subgraph "Supporting Services"
             MONITOR[Monitoring Service]
             AUDIT[Audit Service]
@@ -113,6 +113,7 @@ graph TB
 **Service**: Amazon Elastic Kubernetes Service (EKS)
 
 **Configuration**:
+
 ```yaml
 # EKS Cluster Configuration
 apiVersion: eks.aws.com/v1alpha1
@@ -121,64 +122,65 @@ metadata:
   name: qis-data-management-cluster
   region: us-east-1
 spec:
-  version: "1.28"
-  
+  version: '1.28'
+
   nodeGroups:
-  - name: qis-data-compute
-    instanceType: m6i.2xlarge
-    amiType: AL2_x86_64
-    scalingConfig:
-      minSize: 3
-      maxSize: 20
-      desiredSize: 6
-    
-    subnets:
-    - subnet-12345678  # Private subnet AZ-a
-    - subnet-87654321  # Private subnet AZ-b
-    - subnet-11223344  # Private subnet AZ-c
-    
-    launchTemplate:
-      userData: |
-        #!/bin/bash
-        /etc/eks/bootstrap.sh qis-data-management-cluster
-        
-        # Install CloudWatch agent
-        wget https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm
-        rpm -U ./amazon-cloudwatch-agent.rpm
-        
-  - name: qis-data-memory-optimized
-    instanceType: r6i.xlarge
-    amiType: AL2_x86_64
-    scalingConfig:
-      minSize: 2
-      maxSize: 10
-      desiredSize: 4
-    
-    taints:
-    - key: workload-type
-      value: memory-intensive
-      effect: NoSchedule
+    - name: qis-data-compute
+      instanceType: m6i.2xlarge
+      amiType: AL2_x86_64
+      scalingConfig:
+        minSize: 3
+        maxSize: 20
+        desiredSize: 6
+
+      subnets:
+        - subnet-12345678 # Private subnet AZ-a
+        - subnet-87654321 # Private subnet AZ-b
+        - subnet-11223344 # Private subnet AZ-c
+
+      launchTemplate:
+        userData: |
+          #!/bin/bash
+          /etc/eks/bootstrap.sh qis-data-management-cluster
+
+          # Install CloudWatch agent
+          wget https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm
+          rpm -U ./amazon-cloudwatch-agent.rpm
+
+    - name: qis-data-memory-optimized
+      instanceType: r6i.xlarge
+      amiType: AL2_x86_64
+      scalingConfig:
+        minSize: 2
+        maxSize: 10
+        desiredSize: 4
+
+      taints:
+        - key: workload-type
+          value: memory-intensive
+          effect: NoSchedule
 
   addons:
-  - name: vpc-cni
-    version: v1.15.1-eksbuild.1
-  - name: coredns
-    version: v1.10.1-eksbuild.4
-  - name: kube-proxy
-    version: v1.28.2-eksbuild.2
-  - name: aws-ebs-csi-driver
-    version: v1.24.0-eksbuild.1
+    - name: vpc-cni
+      version: v1.15.1-eksbuild.1
+    - name: coredns
+      version: v1.10.1-eksbuild.4
+    - name: kube-proxy
+      version: v1.28.2-eksbuild.2
+    - name: aws-ebs-csi-driver
+      version: v1.24.0-eksbuild.1
 
   fargate:
     profiles:
-    - name: qis-serverless-workloads
-      selectors:
-      - namespace: qis-batch-processing
-        labels:
-          workload-type: batch
+      - name: qis-serverless-workloads
+        selectors:
+          - namespace: qis-batch-processing
+            labels:
+              workload-type: batch
 ```
 
 **Trade-offs**:
+
 - **Pros**: Full Kubernetes compatibility, managed control plane, AWS-native integrations, auto-scaling, spot instance support
 - **Cons**: Higher operational complexity than serverless options, requires Kubernetes expertise
 - **Alternative**: AWS Fargate for serverless containers (simpler but less control)
@@ -188,6 +190,7 @@ spec:
 #### Primary Event Store: Amazon Aurora PostgreSQL
 
 **Configuration**:
+
 ```yaml
 # Aurora PostgreSQL Cluster
 Resources:
@@ -195,30 +198,30 @@ Resources:
     Type: AWS::RDS::DBCluster
     Properties:
       Engine: aurora-postgresql
-      EngineVersion: "15.4"
+      EngineVersion: '15.4'
       DatabaseName: qis_event_store
       MasterUsername: qis_admin
       ManageMasterUserPassword: true
-      
+
       DBSubnetGroupName: !Ref QISDBSubnetGroup
       VpcSecurityGroupIds:
         - !Ref QISEventStoreSecurityGroup
-      
+
       # High Availability Configuration
       BackupRetentionPeriod: 30
-      PreferredBackupWindow: "03:00-04:00"
-      PreferredMaintenanceWindow: "sun:04:00-sun:05:00"
-      
+      PreferredBackupWindow: '03:00-04:00'
+      PreferredMaintenanceWindow: 'sun:04:00-sun:05:00'
+
       # Performance Configuration
       DBClusterParameterGroupName: !Ref QISEventStoreParameterGroup
       EnableCloudwatchLogsExports:
         - postgresql
-      
+
       # Security Configuration
       StorageEncrypted: true
       KmsKeyId: !Ref QISEncryptionKey
       DeletionProtection: true
-      
+
   QISEventStoreWriter:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -226,7 +229,7 @@ Resources:
       DBClusterIdentifier: !Ref QISEventStoreCluster
       Engine: aurora-postgresql
       PubliclyAccessible: false
-      
+
   QISEventStoreReader1:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -234,7 +237,7 @@ Resources:
       DBClusterIdentifier: !Ref QISEventStoreCluster
       Engine: aurora-postgresql
       PubliclyAccessible: false
-      
+
   QISEventStoreReader2:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -245,6 +248,7 @@ Resources:
 ```
 
 **Trade-offs**:
+
 - **Pros**: ACID compliance, point-in-time recovery, automatic backups, read replicas
 - **Cons**: Higher cost than managed NoSQL options, requires PostgreSQL expertise
 - **Alternative**: Amazon DynamoDB (cheaper, simpler, but eventual consistency)
@@ -252,6 +256,7 @@ Resources:
 #### Time Series Data: Amazon Timestream
 
 **Configuration**:
+
 ```typescript
 // Timestream Database Configuration
 interface TimestreamConfig {
@@ -291,6 +296,7 @@ interface TimestreamConfig {
 ```
 
 **Trade-offs**:
+
 - **Pros**: Purpose-built for time series, automatic scaling, cost-effective storage tiering
 - **Cons**: AWS-specific, limited query capabilities compared to PostgreSQL
 - **Alternative**: InfluxDB on EC2 (more flexible but requires management)
@@ -298,6 +304,7 @@ interface TimestreamConfig {
 #### Complex Data Types: Amazon DocumentDB
 
 **Configuration**:
+
 ```yaml
 # DocumentDB Cluster for Complex Data Types
 Resources:
@@ -306,24 +313,24 @@ Resources:
     Properties:
       DBClusterIdentifier: qis-complex-data
       Engine: docdb
-      EngineVersion: "5.0.0"
+      EngineVersion: '5.0.0'
       MasterUsername: qis_docdb_admin
       ManageMasterUserPassword: true
-      
+
       # Performance Configuration
       DBClusterParameterGroupName: !Ref QISDocDBParameterGroup
-      
+
       # Security Configuration
       VpcSecurityGroupIds:
         - !Ref QISDocumentDBSecurityGroup
       DBSubnetGroupName: !Ref QISDocDBSubnetGroup
       StorageEncrypted: true
       KmsKeyId: !Ref QISEncryptionKey
-      
+
       # Backup Configuration
       BackupRetentionPeriod: 7
-      PreferredBackupWindow: "02:00-03:00"
-      
+      PreferredBackupWindow: '02:00-03:00'
+
   QISDocumentDBInstance1:
     Type: AWS::DocDB::DBInstance
     Properties:
@@ -333,6 +340,7 @@ Resources:
 ```
 
 **Trade-offs**:
+
 - **Pros**: MongoDB compatibility, managed service, JSON document storage
 - **Cons**: Not as feature-rich as MongoDB, additional service complexity
 - **Alternative**: MongoDB Atlas (more features but higher cost)
@@ -342,6 +350,7 @@ Resources:
 #### Apache Kafka: Amazon MSK
 
 **Configuration**:
+
 ```yaml
 # MSK Cluster Configuration
 Resources:
@@ -349,9 +358,9 @@ Resources:
     Type: AWS::MSK::Cluster
     Properties:
       ClusterName: qis-data-management-cluster
-      KafkaVersion: "2.8.1"
+      KafkaVersion: '2.8.1'
       NumberOfBrokerNodes: 6
-      
+
       BrokerNodeGroupInfo:
         InstanceType: kafka.m5.2xlarge
         ClientSubnets:
@@ -362,8 +371,8 @@ Resources:
           - !Ref QISMSKSecurityGroup
         StorageInfo:
           EBSStorageInfo:
-            VolumeSize: 1000  # 1TB per broker
-            
+            VolumeSize: 1000 # 1TB per broker
+
       # Security Configuration
       EncryptionInfo:
         EncryptionInTransit:
@@ -371,7 +380,7 @@ Resources:
           InCluster: true
         EncryptionAtRest:
           DataVolumeKMSKeyId: !Ref QISEncryptionKey
-          
+
       ClientAuthentication:
         Sasl:
           Scram:
@@ -380,7 +389,7 @@ Resources:
           Enabled: true
           CertificateAuthorityArnList:
             - !Ref QISCertificateAuthority
-            
+
       # Monitoring
       EnhancedMonitoring: PER_TOPIC_PER_PARTITION
       LoggingInfo:
@@ -395,6 +404,7 @@ Resources:
 ```
 
 **Trade-offs**:
+
 - **Pros**: Fully managed Kafka, high throughput, exactly-once semantics
 - **Cons**: More expensive than SQS, requires Kafka expertise
 - **Alternative**: Amazon SQS/SNS (simpler and cheaper but lower throughput)
@@ -402,6 +412,7 @@ Resources:
 #### Real-time Streaming: Amazon Kinesis
 
 **Configuration**:
+
 ```typescript
 // Kinesis Data Streams Configuration
 interface KinesisConfig {
@@ -423,7 +434,7 @@ interface KinesisConfig {
       retentionPeriod: 24; // hours
       consumerApplications: [
         'qis-quality-processor',
-        'qis-notification-service'
+        'qis-notification-service',
       ];
     };
 
@@ -431,10 +442,12 @@ interface KinesisConfig {
       name: 'qis-audit-trail-stream';
       shardCount: 5;
       retentionPeriod: 168; // 7 days
-      consumers: [{
-        applicationName: 'qis-audit-processor';
-        processingGuarantee: 'EXACTLY_ONCE';
-      }];
+      consumers: [
+        {
+          applicationName: 'qis-audit-processor';
+          processingGuarantee: 'EXACTLY_ONCE';
+        },
+      ];
     };
   };
 
@@ -446,12 +459,12 @@ interface KinesisConfig {
          SELECT reference_data_id, snap, quality_score
          FROM SOURCE_SQL_STREAM_001
          WHERE quality_score < 0.95;`,
-        
+
         `CREATE STREAM ingestion_rate_monitoring AS
          SELECT ROWTIME_TO_TIMESTAMP(ROWTIME) as event_time,
                 COUNT(*) as ingestion_count
          FROM SOURCE_SQL_STREAM_001
-         WINDOW TUMBLING (INTERVAL '1' MINUTE);`
+         WINDOW TUMBLING (INTERVAL '1' MINUTE);`,
       ];
     };
   };
@@ -459,6 +472,7 @@ interface KinesisConfig {
 ```
 
 **Trade-offs**:
+
 - **Pros**: Real-time processing, automatic scaling, integrated with AWS analytics
 - **Cons**: More complex than batch processing, higher cost for high-volume streams
 - **Alternative**: Apache Spark on EMR (more flexible but requires management)
@@ -466,22 +480,23 @@ interface KinesisConfig {
 ### Caching Strategy: Amazon ElastiCache
 
 **Configuration**:
+
 ```yaml
 # ElastiCache Redis Cluster
 Resources:
   QISRedisCluster:
     Type: AWS::ElastiCache::ReplicationGroup
     Properties:
-      ReplicationGroupDescription: "QIS Data Management Cache"
-      NumCacheClusters: 6  # 1 primary + 5 replicas
+      ReplicationGroupDescription: 'QIS Data Management Cache'
+      NumCacheClusters: 6 # 1 primary + 5 replicas
       Engine: redis
-      EngineVersion: "7.0"
+      EngineVersion: '7.0'
       CacheNodeType: cache.r6g.2xlarge
-      
+
       # High Availability
       MultiAZEnabled: true
       AutomaticFailoverEnabled: true
-      
+
       # Security
       AtRestEncryptionEnabled: true
       TransitEncryptionEnabled: true
@@ -489,20 +504,21 @@ Resources:
       SecurityGroupIds:
         - !Ref QISRedisSecurityGroup
       SubnetGroupName: !Ref QISRedisSubnetGroup
-      
+
       # Backup
       SnapshotRetentionLimit: 7
-      SnapshotWindow: "01:00-02:00"
-      
+      SnapshotWindow: '01:00-02:00'
+
       # Performance
       Port: 6379
       ParameterGroupName: !Ref QISRedisParameterGroup
-      
+
       # Monitoring
       NotificationTopicArn: !Ref QISRedisNotificationTopic
 ```
 
 **Cache Architecture**:
+
 ```typescript
 // Multi-layer caching strategy
 interface ElastiCacheArchitecture {
@@ -555,6 +571,7 @@ interface ElastiCacheArchitecture {
 ```
 
 **Trade-offs**:
+
 - **Pros**: Fully managed Redis, automatic failover, backup/restore
 - **Cons**: Higher cost than self-managed Redis, limited configuration options
 - **Alternative**: Redis on EC2 (more control but requires management)
@@ -564,6 +581,7 @@ interface ElastiCacheArchitecture {
 ### Object Storage: Amazon S3
 
 **Configuration**:
+
 ```yaml
 # S3 Buckets for Different Data Types
 Resources:
@@ -571,40 +589,40 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: qis-data-lake-prod
-      
+
       # Lifecycle Management
       LifecycleConfiguration:
         Rules:
-        - Id: DataArchiving
-          Status: Enabled
-          Transitions:
-          - TransitionInDays: 30
-            StorageClass: STANDARD_IA
-          - TransitionInDays: 90
-            StorageClass: GLACIER
-          - TransitionInDays: 2555  # 7 years
-            StorageClass: DEEP_ARCHIVE
-            
-        - Id: IncompleteMultipartUploads
-          Status: Enabled
-          AbortIncompleteMultipartUpload:
-            DaysAfterInitiation: 1
-            
+          - Id: DataArchiving
+            Status: Enabled
+            Transitions:
+              - TransitionInDays: 30
+                StorageClass: STANDARD_IA
+              - TransitionInDays: 90
+                StorageClass: GLACIER
+              - TransitionInDays: 2555 # 7 years
+                StorageClass: DEEP_ARCHIVE
+
+          - Id: IncompleteMultipartUploads
+            Status: Enabled
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 1
+
       # Security
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
-        
+
       # Encryption
       BucketEncryption:
         ServerSideEncryptionConfiguration:
-        - ServerSideEncryptionByDefault:
-            SSEAlgorithm: aws:kms
-            KMSMasterKeyID: !Ref QISEncryptionKey
-          BucketKeyEnabled: true
-          
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref QISEncryptionKey
+            BucketKeyEnabled: true
+
       # Versioning and Protection
       VersioningConfiguration:
         Status: Enabled
@@ -615,7 +633,7 @@ Resources:
           DefaultRetention:
             Mode: GOVERNANCE
             Years: 7
-            
+
   QISBackupBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -624,16 +642,17 @@ Resources:
       ReplicationConfiguration:
         Role: !GetAtt QISReplicationRole.Arn
         Rules:
-        - Id: ReplicateToSecondaryRegion
-          Status: Enabled
-          Priority: 1
-          Prefix: database-backups/
-          Destination:
-            Bucket: !Sub "arn:aws:s3:::qis-database-backups-${AWS::Region}-dr"
-            StorageClass: STANDARD_IA
+          - Id: ReplicateToSecondaryRegion
+            Status: Enabled
+            Priority: 1
+            Prefix: database-backups/
+            Destination:
+              Bucket: !Sub 'arn:aws:s3:::qis-database-backups-${AWS::Region}-dr'
+              StorageClass: STANDARD_IA
 ```
 
 **Storage Strategy**:
+
 ```typescript
 interface S3StorageStrategy {
   buckets: {
@@ -677,7 +696,7 @@ interface S3StorageStrategy {
       chunkSize: '10MB';
       parallelism: 5;
     };
-    
+
     s3Transfer: {
       acceleration: true; // For global access
       intelligentTiering: true; // Automatic cost optimization
@@ -692,6 +711,7 @@ interface S3StorageStrategy {
 ```
 
 **Trade-offs**:
+
 - **Pros**: Virtually unlimited storage, multiple storage classes, strong consistency
 - **Cons**: Higher latency than EBS, pay-per-request pricing can be expensive
 - **Alternative**: Amazon EFS for shared file storage (higher cost but better for concurrent access)
@@ -701,6 +721,7 @@ interface S3StorageStrategy {
 ### Identity and Access Management
 
 **Configuration**:
+
 ```yaml
 # IAM Roles and Policies
 Resources:
@@ -711,81 +732,82 @@ Resources:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
-        - Effect: Allow
-          Principal:
-            Service: 
-            - eks.amazonaws.com
-            - ec2.amazonaws.com
-          Action: sts:AssumeRole
-          
-        - Effect: Allow
-          Principal:
-            AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
-          Action: sts:AssumeRole
-          Condition:
-            StringEquals:
-              'aws:RequestedRegion': !Ref AWS::Region
-              
+          - Effect: Allow
+            Principal:
+              Service:
+                - eks.amazonaws.com
+                - ec2.amazonaws.com
+            Action: sts:AssumeRole
+
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                'aws:RequestedRegion': !Ref AWS::Region
+
       ManagedPolicyArns:
-      - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
-      - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
-      
+        - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+
       Policies:
-      - PolicyName: QISDataManagementPolicy
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          # Aurora access
-          - Effect: Allow
-            Action:
-            - rds:DescribeDBClusters
-            - rds:DescribeDBInstances
-            - rds:CreateDBSnapshot
-            Resource: !Sub 'arn:aws:rds:${AWS::Region}:${AWS::AccountId}:cluster:qis-*'
-            
-          # MSK access
-          - Effect: Allow
-            Action:
-            - kafka:DescribeCluster
-            - kafka:GetBootstrapBrokers
-            - kafka:ListClusters
-            Resource: !Sub 'arn:aws:kafka:${AWS::Region}:${AWS::AccountId}:cluster/qis-*'
-            
-          # ElastiCache access
-          - Effect: Allow
-            Action:
-            - elasticache:DescribeReplicationGroups
-            - elasticache:DescribeCacheClusters
-            Resource: !Sub 'arn:aws:elasticache:${AWS::Region}:${AWS::AccountId}:replicationgroup:qis-*'
-            
-          # S3 access
-          - Effect: Allow
-            Action:
-            - s3:GetObject
-            - s3:PutObject
-            - s3:DeleteObject
-            Resource: 
-            - !Sub '${QISDataLakeBucket}/*'
-            - !Sub '${QISBackupBucket}/*'
-            
-          # Secrets Manager access
-          - Effect: Allow
-            Action:
-            - secretsmanager:GetSecretValue
-            - secretsmanager:DescribeSecret
-            Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:qis/*'
-            
-          # KMS access
-          - Effect: Allow
-            Action:
-            - kms:Decrypt
-            - kms:DescribeKey
-            Resource: !Ref QISEncryptionKey
+        - PolicyName: QISDataManagementPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # Aurora access
+              - Effect: Allow
+                Action:
+                  - rds:DescribeDBClusters
+                  - rds:DescribeDBInstances
+                  - rds:CreateDBSnapshot
+                Resource: !Sub 'arn:aws:rds:${AWS::Region}:${AWS::AccountId}:cluster:qis-*'
+
+              # MSK access
+              - Effect: Allow
+                Action:
+                  - kafka:DescribeCluster
+                  - kafka:GetBootstrapBrokers
+                  - kafka:ListClusters
+                Resource: !Sub 'arn:aws:kafka:${AWS::Region}:${AWS::AccountId}:cluster/qis-*'
+
+              # ElastiCache access
+              - Effect: Allow
+                Action:
+                  - elasticache:DescribeReplicationGroups
+                  - elasticache:DescribeCacheClusters
+                Resource: !Sub 'arn:aws:elasticache:${AWS::Region}:${AWS::AccountId}:replicationgroup:qis-*'
+
+              # S3 access
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  - !Sub '${QISDataLakeBucket}/*'
+                  - !Sub '${QISBackupBucket}/*'
+
+              # Secrets Manager access
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - secretsmanager:DescribeSecret
+                Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:qis/*'
+
+              # KMS access
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:DescribeKey
+                Resource: !Ref QISEncryptionKey
 ```
 
 ### Encryption Strategy
 
 **Configuration**:
+
 ```typescript
 interface AWSEncryptionStrategy {
   kms: {
@@ -798,7 +820,7 @@ interface AWSEncryptionStrategy {
           keyAdministrators: ['arn:aws:iam::123456789012:role/QIS-Admin'];
           keyUsers: [
             'arn:aws:iam::123456789012:role/QIS-DataManagement-ServiceRole',
-            'arn:aws:iam::123456789012:role/QIS-Lambda-ExecutionRole'
+            'arn:aws:iam::123456789012:role/QIS-Lambda-ExecutionRole',
           ];
         };
         rotation: {
@@ -817,7 +839,7 @@ interface AWSEncryptionStrategy {
       usage: [
         'S3 default encryption (for cost optimization)',
         'CloudWatch Logs (for managed service integration)',
-        'Lambda environment variables'
+        'Lambda environment variables',
       ];
     };
   };
@@ -884,6 +906,7 @@ interface AWSEncryptionStrategy {
 ### CloudWatch Configuration
 
 **Configuration**:
+
 ```yaml
 # CloudWatch Dashboards and Alarms
 Resources:
@@ -921,23 +944,23 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: QIS-HighIngestionLatency
-      AlarmDescription: "Data ingestion latency is above threshold"
+      AlarmDescription: 'Data ingestion latency is above threshold'
       MetricName: IngestionLatencyP95
       Namespace: Custom/QIS
       Statistic: Average
       Period: 300
       EvaluationPeriods: 2
-      Threshold: 200  # milliseconds
+      Threshold: 200 # milliseconds
       ComparisonOperator: GreaterThanThreshold
       AlarmActions:
-      - !Ref QISCriticalAlarmsTopic
+        - !Ref QISCriticalAlarmsTopic
       TreatMissingData: breaching
 
   QISLowDataQualityAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: QIS-LowDataQuality
-      AlarmDescription: "Data quality score has dropped below acceptable threshold"
+      AlarmDescription: 'Data quality score has dropped below acceptable threshold'
       MetricName: QualityScoreAverage
       Namespace: Custom/QIS
       Statistic: Average
@@ -946,13 +969,14 @@ Resources:
       Threshold: 0.95
       ComparisonOperator: LessThanThreshold
       AlarmActions:
-      - !Ref QISCriticalAlarmsTopic
+        - !Ref QISCriticalAlarmsTopic
       TreatMissingData: breaching
 ```
 
 ### X-Ray Tracing Configuration
 
 **Configuration**:
+
 ```typescript
 // X-Ray tracing setup for distributed tracing
 interface XRayConfiguration {
@@ -963,7 +987,7 @@ interface XRayConfiguration {
         'qis-data-ingestion-service',
         'qis-aurora-cluster',
         'qis-msk-cluster',
-        'qis-reconciliation-service'
+        'qis-reconciliation-service',
       ];
       traceRetention: '30 days';
       samplingRate: 0.1; // 10% of requests
@@ -974,7 +998,7 @@ interface XRayConfiguration {
         'qis-api-gateway',
         'qis-query-service',
         'qis-elasticache-cluster',
-        'qis-aurora-read-replica'
+        'qis-aurora-read-replica',
       ];
       traceRetention: '7 days';
       samplingRate: 0.05; // 5% of requests
@@ -1027,6 +1051,7 @@ interface XRayConfiguration {
 ### Reserved Instances and Savings Plans
 
 **Configuration**:
+
 ```typescript
 interface CostOptimizationStrategy {
   reservedInstances: {
@@ -1044,7 +1069,7 @@ interface CostOptimizationStrategy {
           term: '1-year';
           paymentOption: 'Partial Upfront';
           expectedSavings: '40%';
-        }
+        },
       ];
     };
 
@@ -1056,7 +1081,7 @@ interface CostOptimizationStrategy {
           term: '1-year';
           paymentOption: 'No Upfront';
           expectedSavings: '30%';
-        }
+        },
       ];
     };
   };
@@ -1074,11 +1099,7 @@ interface CostOptimizationStrategy {
   spotInstances: {
     eksNodeGroups: {
       spotAllocation: '50%'; // Mix with on-demand
-      instanceTypes: [
-        'm6i.2xlarge',
-        'm5.2xlarge',
-        'm5a.2xlarge'
-      ]; // Diversify for availability
+      instanceTypes: ['m6i.2xlarge', 'm5.2xlarge', 'm5a.2xlarge']; // Diversify for availability
       maxPrice: '$0.20/hour'; // 30% of on-demand price
     };
 
@@ -1121,6 +1142,7 @@ interface CostOptimizationStrategy {
 ### Monitoring and Cost Alerts
 
 **Configuration**:
+
 ```yaml
 # Cost monitoring and budgets
 Resources:
@@ -1130,17 +1152,17 @@ Resources:
       Budget:
         BudgetName: QIS-DataManagement-Monthly-Budget
         BudgetLimit:
-          Amount: 5000  # $5,000 per month
+          Amount: 5000 # $5,000 per month
           Unit: USD
         TimeUnit: MONTHLY
         BudgetType: COST
-        
+
         CostFilters:
           TagKey:
-          - Project
+            - Project
           TagValue:
-          - QIS-DataManagement
-          
+            - QIS-DataManagement
+
         PlannedBudgetLimits:
           # Quarterly review points
           '2025-03-01':
@@ -1152,24 +1174,24 @@ Resources:
           '2025-09-01':
             Amount: 3500
             Unit: USD
-            
+
       NotificationsWithSubscribers:
-      - Notification:
-          NotificationType: ACTUAL
-          ComparisonOperator: GREATER_THAN
-          Threshold: 80  # 80% of budget
-        Subscribers:
-        - SubscriptionType: EMAIL
-          Address: qis-ops@company.com
-      - Notification:
-          NotificationType: FORECASTED
-          ComparisonOperator: GREATER_THAN
-          Threshold: 100  # Forecasted to exceed budget
-        Subscribers:
-        - SubscriptionType: EMAIL
-          Address: qis-ops@company.com
-        - SubscriptionType: SNS
-          Address: !Ref QISCostAlertsTopic
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80 # 80% of budget
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: qis-ops@company.com
+        - Notification:
+            NotificationType: FORECASTED
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100 # Forecasted to exceed budget
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: qis-ops@company.com
+            - SubscriptionType: SNS
+              Address: !Ref QISCostAlertsTopic
 
   QISCostAnomalyDetector:
     Type: AWS::CE::AnomalyDetector
@@ -1177,23 +1199,23 @@ Resources:
       AnomalyDetectorName: QIS-DataManagement-Cost-Anomaly
       MonitorType: DIMENSIONAL
       ResourceTags:
-      - Key: Project
-        Value: QIS-DataManagement
-      - Key: Environment
-        Value: Production
-        
+        - Key: Project
+          Value: QIS-DataManagement
+        - Key: Environment
+          Value: Production
+
   QISCostAnomalySubscription:
     Type: AWS::CE::AnomalySubscription
     Properties:
       SubscriptionName: QIS-Cost-Anomaly-Alerts
       MonitorArnList:
-      - !GetAtt QISCostAnomalyDetector.AnomalyDetectorArn
+        - !GetAtt QISCostAnomalyDetector.AnomalyDetectorArn
       Subscribers:
-      - Type: EMAIL
-        Address: qis-finance@company.com
-      - Type: EMAIL
-        Address: qis-ops@company.com
-      Threshold: 100  # Alert on any anomaly over $100
+        - Type: EMAIL
+          Address: qis-finance@company.com
+        - Type: EMAIL
+          Address: qis-ops@company.com
+      Threshold: 100 # Alert on any anomaly over $100
       Frequency: IMMEDIATE
 ```
 
@@ -1202,6 +1224,7 @@ Resources:
 ### Multi-Region Setup
 
 **Configuration**:
+
 ```yaml
 # Primary Region: us-east-1
 # Secondary Region: us-west-2
@@ -1214,9 +1237,9 @@ Resources:
     Properties:
       GlobalClusterIdentifier: qis-global-cluster
       Engine: aurora-postgresql
-      EngineVersion: "15.4"
+      EngineVersion: '15.4'
       DatabaseName: qis_event_store
-      
+
   # Primary Region Cluster
   QISPrimaryCluster:
     Type: AWS::RDS::DBCluster
@@ -1234,7 +1257,7 @@ Resources:
       GlobalClusterIdentifier: !Ref QISGlobalCluster
       DBSubnetGroupName: !Ref QISSecondaryDBSubnetGroup
       # Read-only initially, can be promoted to read-write
-      
+
   # S3 Cross-Region Replication
   QISDataLakeReplication:
     Type: AWS::S3::Bucket
@@ -1243,28 +1266,29 @@ Resources:
       ReplicationConfiguration:
         Role: !GetAtt QISReplicationRole.Arn
         Rules:
-        - Id: ReplicateEverything
-          Status: Enabled
-          Priority: 1
-          DeleteMarkerReplication:
+          - Id: ReplicateEverything
             Status: Enabled
-          Filter:
-            Prefix: ""
-          Destination:
-            Bucket: !Sub "arn:aws:s3:::qis-data-lake-us-west-2-replica"
-            ReplicationTime:
+            Priority: 1
+            DeleteMarkerReplication:
               Status: Enabled
-              Time:
-                Minutes: 15
-            Metrics:
-              Status: Enabled
-              EventThreshold:
-                Minutes: 15
+            Filter:
+              Prefix: ''
+            Destination:
+              Bucket: !Sub 'arn:aws:s3:::qis-data-lake-us-west-2-replica'
+              ReplicationTime:
+                Status: Enabled
+                Time:
+                  Minutes: 15
+              Metrics:
+                Status: Enabled
+                EventThreshold:
+                  Minutes: 15
 ```
 
 ### Backup Strategy
 
 **Configuration**:
+
 ```typescript
 interface BackupStrategy {
   rds: {
@@ -1333,16 +1357,19 @@ interface BackupStrategy {
 ## Trade-offs Summary
 
 ### Cost vs. Performance
+
 - **Aurora vs. DynamoDB**: Aurora provides ACID compliance and complex queries but costs 3-5x more
 - **MSK vs. SQS**: MSK offers higher throughput and exactly-once semantics but costs 10x more than SQS
 - **EKS vs. Fargate**: EKS provides more control and cost efficiency at scale but requires operational expertise
 
 ### Complexity vs. Management
+
 - **Managed services vs. Self-hosted**: AWS managed services reduce operational burden but may have limitations
 - **Multi-service architecture**: Better separation of concerns but increased complexity in service mesh management
 - **Cross-region replication**: Better disaster recovery but higher data transfer costs and complexity
 
 ### Vendor Lock-in vs. Optimization
+
 - **AWS-native services**: Better integration and optimization but harder to migrate to other clouds
 - **Open-source alternatives**: More portable but require more operational overhead
 - **Proprietary features**: Services like Timestream offer unique capabilities but create dependencies

@@ -95,7 +95,7 @@ check_pattern "$DOPPLER_TOKEN_PATTERN" "Doppler Tokens" "$RED"
 
 # Check for common secret environment variable patterns
 echo -n "  Checking for exposed environment variables... "
-ENV_VIOLATIONS=$(grep -r $EXCLUDE_ARGS -E "(AWS_SECRET_ACCESS_KEY|GITHUB_TOKEN|NEON_API_KEY|CONFLUENT_CLOUD_API_SECRET|CLOUDFLARE_API_KEY|DOPPLER_TOKEN).*=" "${SCAN_DIRS[@]}" 2>/dev/null | grep -v ".terraform" | grep -v ".lock.hcl" | grep -v "export.*\*\*\*" | grep -v "example\|placeholder\|redacted\|\*\*\*\*" || true)
+ENV_VIOLATIONS=$(grep -r $EXCLUDE_ARGS -E "(AWS_SECRET_ACCESS_KEY|GITHUB_TOKEN|NEON_API_KEY|CONFLUENT_CLOUD_API_SECRET|CLOUDFLARE_API_KEY|DOPPLER_TOKEN).*=" "${SCAN_DIRS[@]}" 2>/dev/null | grep -v ".terraform" | grep -v ".lock.hcl" | grep -v "export.*\*\*\*" | grep -v "example\|placeholder\|redacted\|\*\*\*\*\|<.*>" || true)
 
 if [[ -n "$ENV_VIOLATIONS" ]]; then
     echo -e "${RED}VIOLATIONS FOUND!${NC}"

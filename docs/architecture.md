@@ -94,7 +94,7 @@ flowchart TB
 ### 2. Authentication (Auth)
 
 - **Provider**: OAuth 2.0 + OpenID Connect per ADR-003 and ADR-018
-- **Implementation**: Single-tenant architecture with centralized user management (ADR-002)  
+- **Implementation**: Single-tenant architecture with centralized user management (ADR-002)
 - **Tokens**: JWT with short-lived access tokens and secure refresh patterns
 - **Integration**: Cloudflare Workers validate tokens at edge; services use JWKS validation
 - **Authorization**: RBAC via domain events and projection-based entitlements (ADR-005, ADR-012)
@@ -186,20 +186,20 @@ flowchart TB
 
 ### Observability & Centralized Logging
 
-All services, apps, and the landing page must use a **consistent observability interface** for logs, metrics, and traces.  
+All services, apps, and the landing page must use a **consistent observability interface** for logs, metrics, and traces.
 
 - **OpenTelemetry**: Instrument services with OTEL for traces, metrics, and logs.
 - **Health & readiness**: Each service exposes health endpoints and projection lag metrics.
 - **Monitoring**: Track projection lag, consumer offsets, DB replication lag, p95/p99 latencies, error rates, and SLOs.
 - **Auditing**: All admin/security sensitive actions emit `AuditEvent`s to an immutable audit stream (and optionally archive to R2).
-- **Instrumentation**: Use **OpenTelemetry (OTel)** APIs as the standard interface across TypeScript, Java, and Python codebases.  
+- **Instrumentation**: Use **OpenTelemetry (OTel)** APIs as the standard interface across TypeScript, Java, and Python codebases.
 - **Wrapper Library**: A thin internal package (`@platform/observability`) wraps OTel APIs to provide:
   - Structured JSON logging (`timestamp`, `service`, `env`, `correlation_id`, `tenant_id`, `actor`, `event_id`).
   - Metrics (`counter`, `histogram`).
   - Distributed tracing (`span.start`, `span.end`).
-- **Export/Collection**: All telemetry is exported using the **OpenTelemetry Protocol (OTLP)** to an **OTel Collector**.  
+- **Export/Collection**: All telemetry is exported using the **OpenTelemetry Protocol (OTLP)** to an **OTel Collector**.
 - **Aggregation/Visualization**: Initially **Grafana Cloud (free tier)** with Loki (logs), Tempo (traces), and Prometheus (metrics).  
-  The backend can be replaced without code changes by reconfiguring the Collector.  
+  The backend can be replaced without code changes by reconfiguring the Collector.
 - **Best Practices**:
   - Always use structured logs (JSON, not plain text).
   - Propagate correlation IDs and trace IDs across service calls and Kafka events.
@@ -245,10 +245,10 @@ This ensures a **vendor-neutral, portable observability strategy** that enforces
 ## Repository Layout (established via ADR-016)
 
 ```text
-/ 
+/
 ├── services/               # Domain services (ADR-005, ADR-006)
 │   ├── accounts/           # User aggregate and auth
-│   ├── app-catalog/        # Project aggregate management  
+│   ├── app-catalog/        # Project aggregate management
 │   ├── entitlements/       # Access control and RBAC
 │   └── admin/              # Contact aggregate and admin ops
 ├── contracts/              # API and event schemas (ADR-020, ADR-007)
