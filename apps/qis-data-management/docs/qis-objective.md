@@ -11,16 +11,18 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 ### Primary Objectives
 
 #### Core Functionality Goals
+
 - **Modular Strategy Framework**: Create a component-based system where strategies are built from reusable, well-defined modules that can be combined in various configurations
 - **Data Management**: Implement comprehensive market data handling with real-time ingestion, quality validation, reconciliation, and audit trails
 - **Real-Time Strategy Execution**: Enable live strategy execution with sub-second latency for market data processing and order generation
-- **Strategy Documentation**: Each Module component of a Strategy implementation should be documentable. An independent party should be able to reproduce the Strategy Official Levels from the automatically generated docs. 
+- **Strategy Documentation**: Each Module component of a Strategy implementation should be documentable. An independent party should be able to reproduce the Strategy Official Levels from the automatically generated docs.
 - **Comprehensive Risk Management**: Provide continuous monitoring of risk metrics, portfolio constraints, and automated limit enforcement
 - **Research and Analytics Platform**: Integrate backtesting, paper trading, performance attribution, and factor research capabilities
 - **Regulatory Compliance**: Maintain complete audit trails, regulatory reporting, and operational transparency
 
 #### Business Value Goals
-- **Plugable Design Concepts**: The architecture should allow for simple switching between strategy design concepts. 
+
+- **Plugable Design Concepts**: The architecture should allow for simple switching between strategy design concepts.
 - **Operational Excellence**: Automate manual processes while maintaining strict oversight and control
 - **Real-time Monitoring**: The behaviour (past and future) of each strategy should be easiably observable in the UI
 - **Scalability**: Support growth from single strategies to complex multi-asset, multi-strategy portfolios
@@ -31,6 +33,7 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 ### Key Capabilities
 
 #### Strategy Construction
+
 - **Modular Architecture**: Component-based strategy building with reusable signal generators, weight calculators, and risk overlays
 - **Visual Strategy Builder**: Intuitive UI for combining modules without coding requirements
 - **Strategy Dependencies**: Support for strategies that trade other strategies with clear dependency tracking
@@ -38,6 +41,7 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 - **Documentation Integration**: Automatic generation of strategy documentation and methodology descriptions
 
 #### Data Management Excellence
+
 - **Multi-Source Integration**: Aggregate and reconcile data from multiple market data providers
 - **Real-Time Processing**: Sub-second data ingestion with quality validation and normalization
 - **Historical Data Management**: Efficient storage and retrieval of time-series data with point-in-time accuracy
@@ -45,6 +49,7 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 - **Data Lineage Tracking**: Complete visibility into data transformations and dependencies
 
 #### Risk Management Framework
+
 - **Real-Time Monitoring**: Continuous calculation of VaR, tracking error, drawdown, and custom risk metrics
 - **Dynamic Limit Enforcement**: Automated position sizing and constraint enforcement based on risk budgets
 - **Stress Testing**: Scenario analysis and stress testing capabilities with historical and hypothetical scenarios
@@ -52,6 +57,7 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 - **Regulatory Risk Reporting**: Automated generation of regulatory risk reports and disclosures
 
 #### Performance Analytics
+
 - **Attribution Analysis**: Detailed performance attribution to factors, sectors, and individual positions
 - **Benchmark Analysis**: Comprehensive comparison against custom and standard benchmarks
 - **Risk-Adjusted Metrics**: Calculation of Sharpe ratios, information ratios, and other risk-adjusted performance measures
@@ -61,6 +67,7 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 ### Technical Excellence Standards
 
 #### Architecture Requirements
+
 - **Domain Driven Design**: Pure DDD implementation with strict bounded contexts and ubiquitous language
 - **Event Sourcing**: Complete audit trail of all decisions, trades, and data changes through event streams
 - **CQRS Pattern**: Separation of command (trading) and query (reporting/research) responsibilities
@@ -68,6 +75,7 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 - **High Availability**: 99.9% uptime with automated failover and disaster recovery capabilities
 
 #### Code Quality Standards
+
 - **TypeScript Throughout**: Strict typing with no `any` types, comprehensive interface definitions
 - **Test-Driven Development**: Minimum 90% code coverage with unit, integration, and end-to-end tests
 - **Security First**: Input validation, authentication, authorization, and audit logging on all operations
@@ -75,6 +83,7 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 - **Documentation Standards**: Comprehensive API documentation, architecture diagrams, and operational runbooks
 
 #### Development Workflow Standards
+
 - **Always Ask Before Changes**: Never implement code modifications without explicit user confirmation
 - **Change Presentation Format**: Problem → Solution → Files Affected → Steps → Confirmation Request
 - **Break Down Complex Changes**: Split multi-file modifications into reviewable, logical chunks
@@ -84,6 +93,7 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 ### Integration Requirements
 
 #### External System Interfaces
+
 - **Market Data Providers**: Bloomberg, Refinitiv, IEX, Polygon, Alpha Vantage integration
 - **Order Management Systems**: FIX protocol integration with institutional trading platforms
 - **Risk Management Systems**: Integration with third-party risk platforms for validation
@@ -91,6 +101,7 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 - **Research Platforms**: Jupyter notebook integration and Python/R analytical tool support
 
 #### Technology Stack Requirements
+
 - **Backend Framework**: TypeScript with Express.js for API services
 - **Database System**: PostgreSQL with Drizzle ORM for type-safe database operations
 - **Frontend Framework**: React with Vite and Shadcn/ui for modern, responsive interfaces
@@ -104,7 +115,7 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 
 **Reference Data**: Timeseries data that which we may consume in a QIS Strategy. It may have one or more Data Sources which will produce Data Values for each Snap. Once all sources are reconciled for a given Snap we refer to the Data Value as an Official Data Value.
 
-**Reference Data ID**: A uniquely name for some timeseries data. 
+**Reference Data ID**: A uniquely name for some timeseries data.
 
 **Data Source**: A provider of data producing a stream of Data Values at different Snaps
 
@@ -129,6 +140,7 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 **Market Data Snapshot**: A complete set of market data captured at a specific point in time
 
 ### Strategy Framework
+
 **Signal**: A piece of market data that may be used to determine Target Weights
 
 **Target Weights**: The percentage allocation in the Strategy's Constituents using valuations as of the Observation Snap (there may be a lag between the Observation Snap and the Target Weight Generation Time to facilitate looking forward to upcoming rebalances to enable hedging)
@@ -172,6 +184,7 @@ The QIS system represents the ultimate goal of creating a comprehensive platform
 **Trading Module**: Specific module types for which the Module Output is sets of Orders
 
 ### Strategy Lifecycle
+
 **Live Period**: The set of snaps after and including the Strategy Inception
 
 **Strategy Inception**: The first Snap at which the Strategy starts evolving

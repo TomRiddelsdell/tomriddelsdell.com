@@ -127,6 +127,7 @@ graph TB
 ### 1. Synchronous Communication Patterns
 
 #### HTTP REST APIs (External Interface)
+
 ```typescript
 // External API Gateway Routes
 interface ExternalAPIRoutes {
@@ -164,6 +165,7 @@ interface ExternalAPIRoutes {
 ```
 
 #### Internal gRPC Services (High Performance)
+
 ```protobuf
 // Internal service definitions for high-performance communication
 service DataReconciliationService {
@@ -218,6 +220,7 @@ message QualityRequest {
 ```
 
 #### Database Connection Pooling
+
 ```typescript
 // High-performance database connections with pooling
 interface DatabaseConnectionConfig {
@@ -256,16 +259,17 @@ interface DatabaseConnectionConfig {
 ### 2. Asynchronous Communication Patterns
 
 #### Event-Driven Architecture with Message Routing
+
 ```typescript
 // Comprehensive event routing configuration
 interface EventRoutingConfiguration {
   eventTypes: {
-    'DataIngested': {
+    DataIngested: {
       destinations: [
         'quality-assessment.data-received',
         'reconciliation.data-available',
         'audit.data-ingested',
-        'monitoring.ingestion-metrics'
+        'monitoring.ingestion-metrics',
       ];
       deliveryMode: 'at-least-once';
       partitioning: {
@@ -279,11 +283,11 @@ interface EventRoutingConfiguration {
       };
     };
 
-    'DataReconciled': {
+    DataReconciled: {
       destinations: [
         'publication.reconciliation-complete',
         'quality-assessment.reconciliation-available',
-        'audit.reconciliation-completed'
+        'audit.reconciliation-completed',
       ];
       deliveryMode: 'exactly-once';
       ordering: {
@@ -297,12 +301,12 @@ interface EventRoutingConfiguration {
       };
     };
 
-    'DataPublished': {
+    DataPublished: {
       destinations: [
         'strategy-domain.data-updated',
         'risk-domain.data-refresh',
         'analytics-domain.data-available',
-        'external-subscribers.notification'
+        'external-subscribers.notification',
       ];
       deliveryMode: 'at-least-once';
       broadcast: true;
@@ -312,11 +316,11 @@ interface EventRoutingConfiguration {
       };
     };
 
-    'QualityIssueDetected': {
+    QualityIssueDetected: {
       destinations: [
         'operations.quality-alert',
         'notification-service.send-alert',
-        'audit.quality-issue-logged'
+        'audit.quality-issue-logged',
       ];
       deliveryMode: 'at-least-once';
       urgency: 'immediate';
@@ -330,6 +334,7 @@ interface EventRoutingConfiguration {
 ```
 
 #### Message Bus Implementation
+
 ```typescript
 // Redis Streams-based message bus for high throughput
 class RedisStreamMessageBus implements MessageBus {
@@ -343,16 +348,20 @@ class RedisStreamMessageBus implements MessageBus {
     await this.redis.xadd(
       streamKey,
       '*', // Auto-generate ID
-      'eventType', event.eventType,
-      'eventData', eventData,
-      'timestamp', Date.now(),
-      'correlationId', event.correlationId
+      'eventType',
+      event.eventType,
+      'eventData',
+      eventData,
+      'timestamp',
+      Date.now(),
+      'correlationId',
+      event.correlationId
     );
 
     // Update metrics
     await this.metricsCollector.increment('events_published', {
       eventType: event.eventType,
-      stream: streamKey
+      stream: streamKey,
     });
   }
 
@@ -362,18 +371,30 @@ class RedisStreamMessageBus implements MessageBus {
     handler: EventHandler<T>
   ): Promise<void> {
     const streamKey = this.getStreamKey(eventType);
-    
+
     // Create consumer group if not exists
-    await this.redis.xgroup('CREATE', streamKey, consumerGroup, '$', 'MKSTREAM');
+    await this.redis.xgroup(
+      'CREATE',
+      streamKey,
+      consumerGroup,
+      '$',
+      'MKSTREAM'
+    );
 
     // Start consuming
     while (this.isRunning) {
       try {
         const messages = await this.redis.xreadgroup(
-          'GROUP', consumerGroup, this.consumerName,
-          'COUNT', 10,
-          'BLOCK', 1000,
-          'STREAMS', streamKey, '>'
+          'GROUP',
+          consumerGroup,
+          this.consumerName,
+          'COUNT',
+          10,
+          'BLOCK',
+          1000,
+          'STREAMS',
+          streamKey,
+          '>'
         );
 
         for (const message of messages) {
@@ -391,6 +412,7 @@ class RedisStreamMessageBus implements MessageBus {
 ### 3. Stream Processing Architecture
 
 #### Real-Time Data Processing Pipeline
+
 ```typescript
 // High-throughput stream processing for real-time data
 class DataStreamProcessor {
@@ -399,19 +421,25 @@ class DataStreamProcessor {
 
   async initializeStreams(): Promise<void> {
     // Input streams from external data providers
-    this.processors.set('bloomberg-stream', new BloombergStreamProcessor({
-      throughput: 10000, // messages per second
-      bufferSize: 1000,
-      batchTimeout: 100, // milliseconds
-      parallelism: 4
-    }));
+    this.processors.set(
+      'bloomberg-stream',
+      new BloombergStreamProcessor({
+        throughput: 10000, // messages per second
+        bufferSize: 1000,
+        batchTimeout: 100, // milliseconds
+        parallelism: 4,
+      })
+    );
 
-    this.processors.set('coingecko-stream', new CoinGeckoStreamProcessor({
-      throughput: 5000,
-      bufferSize: 500,
-      batchTimeout: 200,
-      parallelism: 2
-    }));
+    this.processors.set(
+      'coingecko-stream',
+      new CoinGeckoStreamProcessor({
+        throughput: 5000,
+        bufferSize: 500,
+        batchTimeout: 200,
+        parallelism: 2,
+      })
+    );
 
     // Processing stages
     await this.setupProcessingPipeline();
@@ -422,43 +450,43 @@ class DataStreamProcessor {
     const validationStage = new ValidationStage({
       concurrency: 8,
       timeout: 50, // milliseconds
-      retryPolicy: { maxRetries: 2 }
+      retryPolicy: { maxRetries: 2 },
     });
 
     // Stage 2: Data enrichment and transformation
     const enrichmentStage = new EnrichmentStage({
       concurrency: 4,
       timeout: 100,
-      cacheEnabled: true
+      cacheEnabled: true,
     });
 
     // Stage 3: Reconciliation trigger
     const reconciliationStage = new ReconciliationTriggerStage({
       concurrency: 2,
       batchSize: 100,
-      timeout: 200
+      timeout: 200,
     });
 
     // Connect pipeline stages
     await this.connectPipeline([
       validationStage,
       enrichmentStage,
-      reconciliationStage
+      reconciliationStage,
     ]);
   }
 
   async processIncomingData(): Promise<void> {
     const inputStream = this.createInputStream();
-    
+
     await inputStream
       .pipe(new ValidationTransform())
       .pipe(new EnrichmentTransform())
       .pipe(new ReconciliationTransform())
       .pipe(new OutputTransform())
-      .on('data', async (processedData) => {
+      .on('data', async processedData => {
         await this.publishProcessedData(processedData);
       })
-      .on('error', async (error) => {
+      .on('error', async error => {
         await this.handleStreamError(error);
       });
   }
@@ -470,6 +498,7 @@ class DataStreamProcessor {
 ### Kubernetes Deployment Configuration
 
 #### Service Deployments
+
 ```yaml
 # Data Ingestion Service
 apiVersion: apps/v1
@@ -498,57 +527,57 @@ spec:
         version: v1.0.0
     spec:
       containers:
-      - name: data-ingestion
-        image: qis/data-ingestion:1.0.0
-        ports:
-        - containerPort: 8080
-          name: http
-        - containerPort: 9090
-          name: grpc
-        env:
-        - name: NODE_ENV
-          value: "production"
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: database-credentials
-              key: event-store-url
-        - name: REDIS_URL
-          valueFrom:
-            secretKeyRef:
-              name: redis-credentials
-              key: url
-        - name: LOG_LEVEL
-          value: "info"
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "1Gi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        volumeMounts:
-        - name: config-volume
-          mountPath: /app/config
-          readOnly: true
+        - name: data-ingestion
+          image: qis/data-ingestion:1.0.0
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 9090
+              name: grpc
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: event-store-url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: redis-credentials
+                  key: url
+            - name: LOG_LEVEL
+              value: 'info'
+          resources:
+            requests:
+              memory: '512Mi'
+              cpu: '250m'
+            limits:
+              memory: '1Gi'
+              cpu: '500m'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config
+              readOnly: true
       volumes:
-      - name: config-volume
-        configMap:
-          name: qis-data-ingestion-config
+        - name: config-volume
+          configMap:
+            name: qis-data-ingestion-config
       imagePullSecrets:
-      - name: qis-registry-secret
+        - name: qis-registry-secret
 ---
 apiVersion: v1
 kind: Service
@@ -559,14 +588,14 @@ spec:
   selector:
     app: qis-data-ingestion
   ports:
-  - name: http
-    protocol: TCP
-    port: 80
-    targetPort: 8080
-  - name: grpc
-    protocol: TCP
-    port: 9090
-    targetPort: 9090
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+    - name: grpc
+      protocol: TCP
+      port: 9090
+      targetPort: 9090
   type: ClusterIP
 ---
 # Horizontal Pod Autoscaler
@@ -583,28 +612,29 @@ spec:
   minReplicas: 2
   maxReplicas: 10
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80
-  - type: Pods
-    pods:
-      metric:
-        name: ingestion_queue_depth
-      target:
-        type: AverageValue
-        averageValue: "100"
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Pods
+      pods:
+        metric:
+          name: ingestion_queue_depth
+        target:
+          type: AverageValue
+          averageValue: '100'
 ```
 
 #### Service Mesh Configuration (Istio)
+
 ```yaml
 # Virtual Service for traffic routing
 apiVersion: networking.istio.io/v1alpha3
@@ -614,48 +644,48 @@ metadata:
   namespace: qis-data-management
 spec:
   hosts:
-  - qis-data-api.internal
+    - qis-data-api.internal
   gateways:
-  - qis-data-gateway
+    - qis-data-gateway
   http:
-  # Route ingestion requests to ingestion service
-  - match:
-    - uri:
-        prefix: "/api/v1/data/ingest"
-    route:
-    - destination:
-        host: qis-data-ingestion-service
-        port:
-          number: 80
-      weight: 100
-    timeout: 30s
-    retries:
-      attempts: 3
-      perTryTimeout: 10s
-  
-  # Route query requests to query service with load balancing
-  - match:
-    - uri:
-        prefix: "/api/v1/data/query"
-    route:
-    - destination:
-        host: qis-data-query-service
-        port:
-          number: 80
-      weight: 100
-    timeout: 15s
-    
-  # Route real-time requests to WebSocket service
-  - match:
-    - uri:
-        prefix: "/api/v1/data/realtime"
-    route:
-    - destination:
-        host: qis-data-realtime-service
-        port:
-          number: 80
-      weight: 100
-    websocketUpgrade: true
+    # Route ingestion requests to ingestion service
+    - match:
+        - uri:
+            prefix: '/api/v1/data/ingest'
+      route:
+        - destination:
+            host: qis-data-ingestion-service
+            port:
+              number: 80
+          weight: 100
+      timeout: 30s
+      retries:
+        attempts: 3
+        perTryTimeout: 10s
+
+    # Route query requests to query service with load balancing
+    - match:
+        - uri:
+            prefix: '/api/v1/data/query'
+      route:
+        - destination:
+            host: qis-data-query-service
+            port:
+              number: 80
+          weight: 100
+      timeout: 15s
+
+    # Route real-time requests to WebSocket service
+    - match:
+        - uri:
+            prefix: '/api/v1/data/realtime'
+      route:
+        - destination:
+            host: qis-data-realtime-service
+            port:
+              number: 80
+          weight: 100
+      websocketUpgrade: true
 ---
 # Destination Rule for circuit breaking
 apiVersion: networking.istio.io/v1alpha3
@@ -664,7 +694,7 @@ metadata:
   name: qis-data-management-circuit-breaker
   namespace: qis-data-management
 spec:
-  host: "*.qis-data-management.svc.cluster.local"
+  host: '*.qis-data-management.svc.cluster.local'
   trafficPolicy:
     connectionPool:
       tcp:
@@ -691,43 +721,44 @@ spec:
     matchLabels:
       component: qis-data-management
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          name: qis-api-gateway
-    - namespaceSelector:
-        matchLabels:
-          name: qis-strategy
-    - namespaceSelector:
-        matchLabels:
-          name: qis-risk-management
-    ports:
-    - protocol: TCP
-      port: 8080
-    - protocol: TCP
-      port: 9090
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: qis-api-gateway
+        - namespaceSelector:
+            matchLabels:
+              name: qis-strategy
+        - namespaceSelector:
+            matchLabels:
+              name: qis-risk-management
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 9090
   egress:
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          name: qis-infrastructure
-    ports:
-    - protocol: TCP
-      port: 5432  # PostgreSQL
-    - protocol: TCP
-      port: 6379  # Redis
-  - to: []  # External data providers
-    ports:
-    - protocol: TCP
-      port: 443  # HTTPS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: qis-infrastructure
+      ports:
+        - protocol: TCP
+          port: 5432 # PostgreSQL
+        - protocol: TCP
+          port: 6379 # Redis
+    - to: [] # External data providers
+      ports:
+        - protocol: TCP
+          port: 443 # HTTPS
 ```
 
 ## Database and Storage Architecture
 
 ### Event Store Configuration
+
 ```sql
 -- Event Store Partitioning Strategy
 CREATE TABLE domain_events (
@@ -751,13 +782,13 @@ CREATE TABLE domain_events_2025_02 PARTITION OF domain_events
 -- ... continue for all months
 
 -- Indexes for optimal query performance
-CREATE INDEX CONCURRENTLY idx_domain_events_stream_version 
+CREATE INDEX CONCURRENTLY idx_domain_events_stream_version
     ON domain_events(stream_id, event_version);
-CREATE INDEX CONCURRENTLY idx_domain_events_type_timestamp 
+CREATE INDEX CONCURRENTLY idx_domain_events_type_timestamp
     ON domain_events(event_type, event_timestamp);
-CREATE INDEX CONCURRENTLY idx_domain_events_aggregate_type 
+CREATE INDEX CONCURRENTLY idx_domain_events_aggregate_type
     ON domain_events(aggregate_type, event_timestamp);
-CREATE INDEX CONCURRENTLY idx_domain_events_correlation 
+CREATE INDEX CONCURRENTLY idx_domain_events_correlation
     ON domain_events(correlation_id);
 
 -- Read Model Tables with optimized structure
@@ -788,6 +819,7 @@ END $$;
 ```
 
 ### Caching Strategy
+
 ```typescript
 // Multi-layer caching configuration
 interface CachingStrategy {
@@ -851,6 +883,7 @@ interface CachingStrategy {
 ## Performance and Monitoring
 
 ### Performance Targets and SLAs
+
 ```typescript
 interface PerformanceSLAs {
   dataIngestion: {
@@ -888,6 +921,7 @@ interface PerformanceSLAs {
 ```
 
 ### Monitoring and Observability
+
 ```typescript
 // Comprehensive monitoring configuration
 interface MonitoringStack {
@@ -904,7 +938,7 @@ interface MonitoringStack {
         'quality_score_distribution',
         'publication_latency',
         'cache_hit_rate',
-        'error_rate_by_source'
+        'error_rate_by_source',
       ];
     };
 
@@ -927,7 +961,7 @@ interface MonitoringStack {
           condition: 'reconciliation_error_rate > 1% for 5m';
           severity: 'critical';
           channels: ['pagerduty', 'sms'];
-        }
+        },
       ];
     };
   };
@@ -938,7 +972,7 @@ interface MonitoringStack {
       retention: '90d';
       indexStrategy: 'daily';
     };
-    
+
     logLevels: {
       production: 'info';
       staging: 'debug';
@@ -956,7 +990,7 @@ interface MonitoringStack {
         'userId',
         'correlationId',
         'message',
-        'metadata'
+        'metadata',
       ];
     };
   };
@@ -982,6 +1016,7 @@ interface MonitoringStack {
 ## Security and Compliance
 
 ### Security Architecture
+
 ```typescript
 interface SecurityConfiguration {
   authentication: {
@@ -991,7 +1026,7 @@ interface SecurityConfiguration {
       refreshTokenExpiration: '30d';
       issuer: 'qis-auth-service';
     };
-    
+
     cognito: {
       userPool: 'qis-user-pool';
       clientId: 'qis-data-management-client';
@@ -1001,17 +1036,16 @@ interface SecurityConfiguration {
 
   authorization: {
     rbac: {
-      roles: [
-        'data-reader',
-        'data-writer', 
-        'data-publisher',
-        'data-admin'
-      ];
-      
+      roles: ['data-reader', 'data-writer', 'data-publisher', 'data-admin'];
+
       permissions: {
         'data-reader': ['read:official-data', 'read:quality-metrics'];
         'data-writer': ['read:official-data', 'write:data-ingestion'];
-        'data-publisher': ['read:official-data', 'write:data-ingestion', 'publish:data'];
+        'data-publisher': [
+          'read:official-data',
+          'write:data-ingestion',
+          'publish:data',
+        ];
         'data-admin': ['*'];
       };
     };
@@ -1029,11 +1063,11 @@ interface SecurityConfiguration {
       keyManagement: 'AWS-KMS';
       rotationPeriod: '90d';
     };
-    
+
     inTransit: {
       tls: 'TLS-1.3';
       cipherSuites: ['TLS_AES_256_GCM_SHA384', 'TLS_CHACHA20_POLY1305_SHA256'];
-      certificateManagement: 'Let\'s Encrypt + cert-manager';
+      certificateManagement: "Let's Encrypt + cert-manager";
     };
   };
 
@@ -1043,9 +1077,9 @@ interface SecurityConfiguration {
       'data-modification',
       'permission-changes',
       'authentication-events',
-      'system-administration'
+      'system-administration',
     ];
-    
+
     retention: '7y'; // 7 years for compliance
     immutability: true;
     exportFormat: 'SIEM-compatible';
@@ -1056,6 +1090,7 @@ interface SecurityConfiguration {
 ## Disaster Recovery and Business Continuity
 
 ### Backup and Recovery Strategy
+
 ```typescript
 interface DisasterRecoveryPlan {
   backups: {
@@ -1064,7 +1099,7 @@ interface DisasterRecoveryPlan {
       retention: '1y';
       encryption: true;
       offSiteReplication: true;
-      
+
       pointInTimeRecovery: {
         enabled: true;
         granularity: '1s';

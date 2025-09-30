@@ -41,7 +41,7 @@ We propose the following domain model:
 
 ##### 2. Project Aggregate
 
-- **Root Entity**: Project  
+- **Root Entity**: Project
 - **Value Objects**: ProjectId, ProjectMetadata, ProjectContent, AccessGrant
 - **Responsibilities**:
   - Project lifecycle management (create, update, archive)
@@ -152,7 +152,7 @@ interface EventSchemaRegistry {
       [version: string]: AvroSchema;
     };
   };
-  
+
   // Runtime validation and serialization
   validator: {
     validateEvent(event: DomainEvent): ValidationResult;
@@ -178,7 +178,7 @@ interface EventSchemaRegistry {
       "doc": "Unique identifier for this event occurrence"
     },
     {
-      "name": "aggregateId", 
+      "name": "aggregateId",
       "type": "string",
       "doc": "ProjectId that this event relates to"
     },
@@ -207,8 +207,8 @@ interface EventSchemaRegistry {
           { "name": "ownerId", "type": "string" },
           { "name": "title", "type": "string" },
           { "name": "description", "type": "string" },
-          { 
-            "name": "initialVisibility", 
+          {
+            "name": "initialVisibility",
             "type": {
               "type": "enum",
               "name": "ProjectVisibility",
@@ -243,7 +243,7 @@ interface EventSchemaRegistry {
 Projects are considered "live" or "published" when they have public access grants. No explicit publication events are needed - visibility is determined by the presence of access grants:
 
 - **Private**: No access grants exist (only owner can view)
-- **Public**: Public access grant exists (anyone can view)  
+- **Public**: Public access grant exists (anyone can view)
 - **Shared**: Specific user access grants exist (selected users can view)
 
 ## Rationale
@@ -311,7 +311,7 @@ interface ContactWorkflowService {
 
 - Clear ownership and responsibility boundaries
 - Event-driven communication enables loose coupling
-- Each aggregate can evolve independently  
+- Each aggregate can evolve independently
 - Rich audit trail through domain events
 - Supports event sourcing and CQRS patterns
 - Access-based visibility provides business flexibility
@@ -358,7 +358,7 @@ interface ContactWorkflowService {
 - **Requires**: ADR-001 (Business Domain) - Defines the portfolio platform scope
 - **Requires**: ADR-002 (Tenant Architecture) - Single tenant model affects User aggregate
 
-### Influences  
+### Influences
 
 - **Influences**: ADR-006 (Event Sourcing) - Domain events must be serializable and replayable
 - **Influences**: ADR-007 (Event Versioning) - Event schemas need evolution strategy
@@ -376,17 +376,17 @@ interface ContactWorkflowService {
 // Avro-Enhanced Aggregate Root Pattern
 abstract class AggregateRoot<TId> {
   private uncommittedEvents: DomainEvent[] = [];
-  
+
   protected addEvent(event: DomainEvent): void {
     // Validate against Avro schema before adding
     this.eventSchemaValidator.validate(event);
     this.uncommittedEvents.push(event);
   }
-  
+
   getUncommittedEvents(): DomainEvent[] {
     return [...this.uncommittedEvents];
   }
-  
+
   markEventsAsCommitted(): void {
     this.uncommittedEvents = [];
   }
@@ -402,9 +402,9 @@ class EventFactory {
       aggregateVersion: data.version,
       occurredAt: new Date().getTime(),
       causedBy: data.ownerId,
-      projectData: data
+      projectData: data,
     };
-    
+
     // Validate against Avro schema
     SchemaRegistry.validate('ProjectCreated', event);
     return event;
@@ -440,7 +440,7 @@ interface EventSerializer {
 ### Common Pitfalls
 
 - **Cross-aggregate transactions**: Never modify multiple aggregates in single transaction
-- **Anemic domain model**: Ensure business logic stays in aggregates, not services  
+- **Anemic domain model**: Ensure business logic stays in aggregates, not services
 - **Large aggregates**: Keep aggregates focused on single business concept
 - **Event coupling**: Don't couple events to specific projection needs
 
@@ -462,7 +462,7 @@ interface EventSerializer {
 
 - **Testing Complexity**: Event-driven testing is more complex than simple unit tests
 - **Avro Schema Management**: Need tooling for schema registry, validation, and code generation
-- **Event Schema Evolution**: Must maintain backward compatibility across schema versions  
+- **Event Schema Evolution**: Must maintain backward compatibility across schema versions
 - **Projection Synchronization**: Must maintain consistency between aggregates and projections
 - **Schema Registry Dependency**: Additional infrastructure component for schema management
 

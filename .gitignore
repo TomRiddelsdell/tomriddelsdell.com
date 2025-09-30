@@ -1,27 +1,156 @@
-node_modules
-dist
+# === Core Node.js Exclusions ===
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+
+# === Package Manager Files ===
+.pnpm-store/
+**/pnpm-lock.yaml
+**/yarn.lock
+**/package-lock.json
+
+# === Build Artifacts ===
+dist/
+**/dist/
+build/
+**/build/
+out/
+**/out/
+.cache/
+**/.cache/
+*.tgz
+.next/
+**/.next/
+.nuxt/
+**/.nuxt/
+.output/
+**/.output/
+.vite/
+**/.vite/
+
+# === Testing & Coverage ===
+coverage/
+**/coverage/
+.nyc_output/
+**/.nyc_output/
+junit.xml
+**/test-results/
+**/playwright-report/
+**/test-output/
+
+# === Development Tools ===
 .DS_Store
-server/public
-vite.config.ts.*
-*.tar.gz
-.devcontainer
-.amplify
-**/archive*
-
-# Development assets and temporary files
-attached_assets/
-build_output.log
-**/temp/
-**/changes/
-**/.prompts/
-
-# IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
+.project
+.classpath
+.settings/
 
-# DevContainer - Include configuration but exclude sensitive data
+# === Logs ===
+*.log
+logs/
+**/logs/
+build_output.log
+
+# === Environment Files ===
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.host-example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+doppler.env
+**/doppler.env
+
+# === Documentation & Changes ===
+changes/
+
+# === Security & Credentials ===
+# AWS
+.aws/credentials
+credentials.json
+**/aws-credentials*
+**/mcp-credentials*
+
+# SSH Keys & Certificates
+*.pem
+*.key
+*.p12
+id_rsa*
+id_ed25519*
+*.crt
+*.cert
+
+# API Keys & Tokens
+**/secrets/
+**/*secret*
+**/*password*
+**/*token*
+**/*credential*
+**/doppler.json
+
+# MCP Server Security
+.devcontainer/mcp-config/**/*key*
+.devcontainer/mcp-config/**/*token*
+.devcontainer/mcp-config/**/*endpoint*
+.devcontainer/mcp-config/**/*.pem
+.devcontainer/mcp-config/**/*.p12
+.devcontainer/mcp-config/**/runtime-config.json
+.devcontainer/mcp-config/**/active-sessions.json
+
+# === Terraform ===
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+terraform.tfvars.json
+**/terraform.tfplan
+**/terraform.tfplan.json
+
+# === Docker ===
+.dockerignore
+**/Dockerfile.local
+**/.docker/
+
+# === Cloud Platform Artifacts ===
+# Cloudflare
+.wrangler/
+**/.wrangler/
+wrangler.toml.backup
+
+# AWS
+.amplify/
+**/.amplify/
+.serverless/
+**/.serverless/
+
+# === Temporary Files ===
+temp/
+**/temp/
+tmp/
+**/tmp/
+*.tmp
+*.temp
+attached_assets/
+**/archive*
+
+# === Documentation Build ===
+**/site/
+docs/_build/
+docs/.vuepress/dist/
+
+# === DevContainer Configuration ===
 # Include: Base configuration files
 !.devcontainer/
 !.devcontainer/devcontainer.json
@@ -33,6 +162,7 @@ build_output.log
 !.devcontainer/validate-security.sh
 !.devcontainer/pre-commit-hook
 !.devcontainer/SECURITY.md
+!.devcontainer/README.md
 
 # Exclude: Sensitive or generated devcontainer files
 .devcontainer/**/*.secure
@@ -44,48 +174,43 @@ build_output.log
 .devcontainer/**/session-*
 .devcontainer/**/.env*
 
-# Environment and secrets
-.env
-.env.*
-!.env.template
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-doppler.env
-**/doppler.env
+# === Project Specific ===
+# Changes directory (keep for documentation)
+# Note: changes/ directory is intentionally tracked for documentation
+# **/changes/ - Commented out as per AGENT.md requirements
 
-# AWS credentials
-.aws/credentials
-credentials.json
-**/aws-credentials*
-**/mcp-credentials*
+# Prompts (development artifacts)
+**/.prompts/
 
-# MCP Server security exclusions
-.devcontainer/mcp-config/**/*key*
-.devcontainer/mcp-config/**/*token*
-.devcontainer/mcp-config/**/*endpoint*
-.devcontainer/mcp-config/**/*.pem
-.devcontainer/mcp-config/**/*.p12
-.devcontainer/mcp-config/**/runtime-config.json
-.devcontainer/mcp-config/**/active-sessions.json
+# QIS Data Management specific
+**/data-cache/
+**/market-data/
+**/backtest-results/
+**/*.parquet
+**/*.h5
+**/*.hdf5
 
-# SSH keys and certificates
-*.pem
-*.key
-id_rsa*
-id_ed25519*
+# Generated Types
+**/generated/
+**/@types/generated/
 
-# Temporary sensitive files
-**/secrets/
-**/*secret*
-**/*password*
-**/*token*
-**/*credential*
-**/*.log
+# Source Maps (exclude from production)
+*.map
+**/*.map
 
-# Build artifacts
-*.tgz
-.cache/
+# Editor specific
+.history/
+**/.history/
+.vscode/settings.json
 
-temp/
+# OS specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Runtime
+.pid
+*.pid
+*.seed
+*.pid.lock

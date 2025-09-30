@@ -3,7 +3,7 @@
 **Status**: Accepted  
 **Date**: 2025-09-10  
 **Authors**: AI Agent  
-**Reviewers**: ***please check*** - needs review assignment  
+**Reviewers**: **_please check_** - needs review assignment
 
 ## Context
 
@@ -114,7 +114,7 @@ This high-level strategy is implemented through multiple focused ADRs:
 #### Integration Layer (Future ADRs)
 
 - Event routing and filtering strategies
-- Dead letter queue handling  
+- Dead letter queue handling
 - Batch processing and performance optimization
 - Cross-service transaction patterns
 
@@ -171,7 +171,7 @@ This high-level strategy is implemented through multiple focused ADRs:
 - **ADR-022**: Message Bus Architecture - Infrastructure implementation details
 - **ADR-023**: Contract Management - Schema management and multi-language support
 
-### Integration ADRs  
+### Integration ADRs
 
 - **ADR-006**: Event Sourcing Implementation - Source of domain events
 - **ADR-012**: Projection Strategy - Consumer of integration events
@@ -255,7 +255,7 @@ This high-level strategy is implemented through multiple focused ADRs:
 // Publishing integration events
 await this.outboxPublisher.publishIntegrationEvent(domainEvent);
 
-// Consuming integration events  
+// Consuming integration events
 await this.messageBus.subscribe('EventType', this.handleEvent.bind(this));
 
 // Contract validation
@@ -308,7 +308,7 @@ class EventStoreMessageBusIntegration {
     }, 5000); // Every 5 seconds
 
     // Set up event store change notification
-    this.eventStore.onEventsAppended(async (events) => {
+    this.eventStore.onEventsAppended(async events => {
       // Immediate attempt to publish for low latency
       await this.outboxProcessor.publishEvents(events);
     });
@@ -325,9 +325,9 @@ describe('MessageBus Contract Tests', () => {
   const adapters = [
     new KafkaMessageBusAdapter(kafkaConfig),
     new RedisMessageBusAdapter(redisConfig),
-    new InMemoryMessageBusAdapter() // For testing
+    new InMemoryMessageBusAdapter(), // For testing
   ];
-  
+
   adapters.forEach(adapter => {
     describe(`${adapter.constructor.name}`, () => {
       it('should publish and consume events correctly', async () => {
@@ -441,12 +441,7 @@ describe('MessageBus Contract Tests', () => {
 
 ---
 
-**This approach ensures the message bus strategy is fully aligned with our event sourcing implementation while maintaining vendor independence and DDD principles.**
-3. **Create event contracts** for core domain events
-4. **Generate multi-language bindings** for TypeScript and C#
-5. **Implement event handlers** for each bounded context
-6. **Set up monitoring and alerting** for message bus health
-7. **Document event schemas** and handler patterns
+**This approach ensures the message bus strategy is fully aligned with our event sourcing implementation while maintaining vendor independence and DDD principles.** 3. **Create event contracts** for core domain events 4. **Generate multi-language bindings** for TypeScript and C# 5. **Implement event handlers** for each bounded context 6. **Set up monitoring and alerting** for message bus health 7. **Document event schemas** and handler patterns
 
 ---
 
