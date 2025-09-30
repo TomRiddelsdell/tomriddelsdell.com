@@ -9,65 +9,69 @@ This package provides common testing utilities, patterns, and infrastructure for
 ## Contents
 
 ### 🧪 **Test Doubles & Mocks**
+
 In-memory implementations and test doubles for infrastructure dependencies:
 
 ```typescript
 // Event Store test double
 export class InMemoryEventStore implements EventStore {
-  getStoredEvents(streamId: string): DomainEvent[]
-  clear(): void
-  getEventsByType<T>(eventType: string): T[]
+  getStoredEvents(streamId: string): DomainEvent[];
+  clear(): void;
+  getEventsByType<T>(eventType: string): T[];
 }
 
-// Message Bus test double  
+// Message Bus test double
 export class TestMessageBus implements MessageBus {
-  getPublishedEvents(): IntegrationEvent[]
-  clearPublishedEvents(): void
-  simulateEventDelivery(event: IntegrationEvent): void
+  getPublishedEvents(): IntegrationEvent[];
+  clearPublishedEvents(): void;
+  simulateEventDelivery(event: IntegrationEvent): void;
 }
 ```
 
 ### 🏗️ **Test Data Builders**
+
 Fluent builders for creating test data with sensible defaults:
 
 ```typescript
 // Domain entity builders
 export class UserTestBuilder {
-  withId(id: string): this
-  withEmail(email: string): this
-  withRole(role: UserRole): this
-  build(): User
+  withId(id: string): this;
+  withEmail(email: string): this;
+  withRole(role: UserRole): this;
+  build(): User;
 }
 
 // Event builders
 export class UserRegisteredEventBuilder {
-  withUserId(userId: string): this
-  withEmail(email: string): this
-  occurringAt(timestamp: Date): this
-  build(): UserRegistered
+  withUserId(userId: string): this;
+  withEmail(email: string): this;
+  occurringAt(timestamp: Date): this;
+  build(): UserRegistered;
 }
 ```
 
 ### 📋 **Test Scenarios**
+
 Common test scenarios and patterns for event-sourced systems:
 
 ```typescript
 // Aggregate testing patterns
 export class AggregateTestHarness<T extends AggregateRoot> {
-  given(events: DomainEvent[]): this
-  when(command: any): this
-  then(): AggregateAssertions<T>
+  given(events: DomainEvent[]): this;
+  when(command: any): this;
+  then(): AggregateAssertions<T>;
 }
 
 // Event sourcing test patterns
 export class EventStoreTestHarness {
-  givenEvents(streamId: string, events: DomainEvent[]): this
-  whenLoading(streamId: string): this
-  thenEventsShouldBe(expectedEvents: DomainEvent[]): void
+  givenEvents(streamId: string, events: DomainEvent[]): this;
+  whenLoading(streamId: string): this;
+  thenEventsShouldBe(expectedEvents: DomainEvent[]): void;
 }
 ```
 
 ### 🎭 **Test Fixtures**
+
 Predefined test data and scenarios for common use cases:
 
 ```typescript
@@ -75,12 +79,14 @@ Predefined test data and scenarios for common use cases:
 export const TestFixtures = {
   users: {
     validUser: () => UserTestBuilder.default().build(),
-    adminUser: () => UserTestBuilder.withRole(UserRole.ADMIN).build()
+    adminUser: () => UserTestBuilder.withRole(UserRole.ADMIN).build(),
   },
   projects: {
-    publicProject: () => ProjectTestBuilder.withVisibility(ProjectVisibility.PUBLIC).build(),
-    privateProject: () => ProjectTestBuilder.withVisibility(ProjectVisibility.PRIVATE).build()
-  }
+    publicProject: () =>
+      ProjectTestBuilder.withVisibility(ProjectVisibility.PUBLIC).build(),
+    privateProject: () =>
+      ProjectTestBuilder.withVisibility(ProjectVisibility.PRIVATE).build(),
+  },
 };
 ```
 
@@ -134,6 +140,7 @@ src/
 ## Test Double Implementations
 
 ### 🗄️ **In-Memory Event Store**
+
 Full-featured event store for testing without database dependencies:
 
 ```typescript
@@ -152,7 +159,10 @@ export class InMemoryEventStore implements EventStore {
     return this.events.get(streamId) || [];
   }
 
-  async loadFromVersion(streamId: string, version: number): Promise<DomainEvent[]> {
+  async loadFromVersion(
+    streamId: string,
+    version: number
+  ): Promise<DomainEvent[]> {
     const events = this.events.get(streamId) || [];
     return events.filter(e => e.version >= version);
   }
@@ -178,6 +188,7 @@ export class InMemoryEventStore implements EventStore {
 ```
 
 ### 📨 **Test Message Bus**
+
 Synchronous message bus for testing integration patterns:
 
 ```typescript
@@ -187,7 +198,7 @@ export class TestMessageBus implements MessageBus {
 
   async publish<T extends IntegrationEvent>(event: T): Promise<void> {
     this.publishedEvents.push(event);
-    
+
     // Synchronously deliver to subscribers (for testing)
     const handlers = this.subscriptions.get(event.eventType) || [];
     for (const handler of handlers) {
@@ -196,7 +207,7 @@ export class TestMessageBus implements MessageBus {
   }
 
   async subscribe<T extends IntegrationEvent>(
-    eventType: string, 
+    eventType: string,
     handler: EventHandler<T>
   ): Promise<void> {
     const handlers = this.subscriptions.get(eventType) || [];
@@ -226,6 +237,7 @@ export class TestMessageBus implements MessageBus {
 ## Test Data Builders
 
 ### 👤 **User Test Builder**
+
 Fluent builder for creating user test data:
 
 ```typescript
@@ -235,7 +247,7 @@ export class UserTestBuilder {
   private role: UserRole = UserRole.USER;
   private profile: UserProfile = {
     displayName: 'Test User',
-    preferences: { theme: 'light', notifications: true }
+    preferences: { theme: 'light', notifications: true },
   };
 
   static default(): UserTestBuilder {
@@ -263,17 +275,13 @@ export class UserTestBuilder {
   }
 
   build(): User {
-    return User.create(
-      this.userId,
-      this.email,
-      this.role,
-      this.profile
-    ).value!;
+    return User.create(this.userId, this.email, this.role, this.profile).value!;
   }
 }
 ```
 
 ### 📝 **Event Builders**
+
 Builders for creating domain events:
 
 ```typescript
@@ -318,8 +326,8 @@ export class UserRegisteredEventBuilder {
       timestamp: this.occurredAt,
       data: {
         userId: this.userId,
-        email: this.email
-      }
+        email: this.email,
+      },
     };
   }
 }
@@ -328,6 +336,7 @@ export class UserRegisteredEventBuilder {
 ## Test Harnesses
 
 ### 🎯 **Aggregate Test Harness**
+
 BDD-style testing for aggregates using Given-When-Then:
 
 ```typescript
@@ -346,14 +355,14 @@ export class AggregateTestHarness<T extends AggregateRoot> {
   when(action: (aggregate: T) => void): this {
     try {
       this.aggregate = this.createAggregate();
-      
+
       // Apply given events to get aggregate to initial state
       for (const event of this.givenEvents) {
         this.aggregate.applyEvent(event);
       }
-      
+
       this.aggregate.markEventsAsCommitted();
-      
+
       // Execute the action
       action(this.aggregate);
     } catch (error) {
@@ -379,7 +388,7 @@ export class AggregateAssertions<T extends AggregateRoot> {
   ) {}
 
   shouldEmitEvent<TEvent extends DomainEvent>(
-    eventType: string, 
+    eventType: string,
     eventMatcher?: (event: TEvent) => boolean
   ): this {
     if (!this.aggregate) {
@@ -390,7 +399,7 @@ export class AggregateAssertions<T extends AggregateRoot> {
     const matchingEvents = newEvents.filter(e => e.eventType === eventType);
 
     expect(matchingEvents.length).toBeGreaterThan(0);
-    
+
     if (eventMatcher) {
       const matchingEvent = matchingEvents.find(eventMatcher);
       expect(matchingEvent).toBeDefined();
@@ -411,7 +420,7 @@ export class AggregateAssertions<T extends AggregateRoot> {
 
   shouldThrow(expectedError?: string | RegExp): this {
     expect(this.thrownError).toBeTruthy();
-    
+
     if (expectedError) {
       if (typeof expectedError === 'string') {
         expect(this.thrownError!.message).toContain(expectedError);
@@ -428,6 +437,7 @@ export class AggregateAssertions<T extends AggregateRoot> {
 ## Custom Jest Matchers
 
 ### 🔍 **Event Matchers**
+
 Custom Jest matchers for event-specific assertions:
 
 ```typescript
@@ -448,27 +458,34 @@ export const eventMatchers = {
     const pass = matchingEvents.length > 0;
 
     return {
-      message: () => pass
-        ? `Expected events not to contain ${eventType}`
-        : `Expected events to contain ${eventType}`,
-      pass
+      message: () =>
+        pass
+          ? `Expected events not to contain ${eventType}`
+          : `Expected events to contain ${eventType}`,
+      pass,
     };
   },
 
-  toContainEventWithData(received: DomainEvent[], eventType: string, expectedData: any) {
-    const matchingEvents = received.filter(e => 
-      e.eventType === eventType && 
-      JSON.stringify(e.data) === JSON.stringify(expectedData)
+  toContainEventWithData(
+    received: DomainEvent[],
+    eventType: string,
+    expectedData: any
+  ) {
+    const matchingEvents = received.filter(
+      e =>
+        e.eventType === eventType &&
+        JSON.stringify(e.data) === JSON.stringify(expectedData)
     );
     const pass = matchingEvents.length > 0;
 
     return {
-      message: () => pass
-        ? `Expected events not to contain ${eventType} with specific data`
-        : `Expected events to contain ${eventType} with data ${JSON.stringify(expectedData)}`,
-      pass
+      message: () =>
+        pass
+          ? `Expected events not to contain ${eventType} with specific data`
+          : `Expected events to contain ${eventType} with data ${JSON.stringify(expectedData)}`,
+      pass,
     };
-  }
+  },
 };
 
 // Register matchers
@@ -478,11 +495,12 @@ expect.extend(eventMatchers);
 ## Usage Examples
 
 ### Unit Testing Aggregates
+
 ```typescript
-import { 
-  AggregateTestHarness, 
-  UserTestBuilder, 
-  UserRegisteredEventBuilder 
+import {
+  AggregateTestHarness,
+  UserTestBuilder,
+  UserRegisteredEventBuilder,
 } from '@portfolio/testing-utils';
 
 describe('User Aggregate', () => {
@@ -493,9 +511,10 @@ describe('User Aggregate', () => {
       .given([])
       .when(user => user.register('test@example.com', 'Test User'))
       .then()
-        .shouldEmitEvent('UserRegistered', event => 
-          event.data.email === 'test@example.com'
-        );
+      .shouldEmitEvent(
+        'UserRegistered',
+        event => event.data.email === 'test@example.com'
+      );
   });
 
   it('should not allow duplicate registration', () => {
@@ -507,17 +526,18 @@ describe('User Aggregate', () => {
       .given([existingUser])
       .when(user => user.register('test@example.com', 'Test User'))
       .then()
-        .shouldThrow('User already registered');
+      .shouldThrow('User already registered');
   });
 });
 ```
 
 ### Integration Testing with Test Doubles
+
 ```typescript
-import { 
-  InMemoryEventStore, 
-  TestMessageBus, 
-  UserTestBuilder 
+import {
+  InMemoryEventStore,
+  TestMessageBus,
+  UserTestBuilder,
 } from '@portfolio/testing-utils';
 
 describe('User Registration Service Integration', () => {
@@ -549,13 +569,14 @@ describe('User Registration Service Integration', () => {
 ```
 
 ### Contract Testing
+
 ```typescript
 import { TestFixtures, contractMatchers } from '@portfolio/testing-utils';
 
 describe('Event Contracts', () => {
   it('should validate UserRegistered event structure', () => {
     const event = TestFixtures.events.userRegistered();
-    
+
     expect(event).toMatchContract('UserRegistered', '1.0.0');
     expect(event).toBeValidAvroEvent();
   });
@@ -565,12 +586,14 @@ describe('Event Contracts', () => {
 ## Quality Standards
 
 ### ✅ **Testing Standards**
+
 - **100% Test Coverage**: All testing utilities have comprehensive tests
 - **Type Safety**: All builders and doubles are fully typed
 - **Fast Execution**: In-memory implementations for speed
 - **Isolated Tests**: Test doubles prevent external dependencies
 
 ### 🔄 **Consistency Standards**
+
 - **Uniform API**: All builders follow same fluent interface pattern
 - **Sensible Defaults**: All builders provide reasonable default values
 - **Clear Naming**: Test utilities have descriptive, intention-revealing names
@@ -578,16 +601,19 @@ describe('Event Contracts', () => {
 ## Architecture Integration
 
 ### Event Sourcing Support
+
 - **Aggregate Testing**: Harnesses for testing event-sourced aggregates
 - **Event Store Doubles**: In-memory event store for isolation
 - **Event Assertions**: Custom matchers for event-specific testing
 
 ### CQRS Testing
+
 - **Command Testing**: Builders for commands and command handlers
 - **Query Testing**: Utilities for testing read models and projections
 - **Integration Testing**: End-to-end testing across command and query sides
 
 ### Domain-Driven Design
+
 - **Domain Testing**: Builders for domain entities and value objects
 - **Bounded Context Testing**: Isolation between different domain contexts
 - **Ubiquitous Language**: Test naming follows domain terminology

@@ -1,9 +1,11 @@
 # ADR-021: Testing Strategy for Event-Sourced DDD Architecture
 
 ## Status
+
 Proposed
 
 ## Decision Drivers
+
 - Event sourcing and CQRS architecture complexity from ADR-006
 - Domain-driven design patterns from ADR-005
 - Multiple bounded contexts and aggregates
@@ -12,7 +14,9 @@ Proposed
 - API testing requirements from ADR-020
 
 ## Context
+
 The personal portfolio platform uses event sourcing, CQRS, and DDD patterns which require specialized testing approaches. Traditional testing strategies don't adequately address:
+
 - Event stream consistency and replay behavior
 - Aggregate boundary enforcement and invariants
 - Projection accuracy and eventual consistency
@@ -31,7 +35,7 @@ We need a comprehensive testing strategy that validates both business logic and 
               │ Business Scenarios  │
               │ User Journeys      │
               └─────────────────────┘
-           
+
          Integration Tests (20%)
     ┌─────────────────────────────────┐
     │ Event Store Integration         │
@@ -53,6 +57,7 @@ We need a comprehensive testing strategy that validates both business logic and 
 ### Unit Testing Strategy
 
 #### Domain Aggregate Testing
+
 ```typescript
 // Test pattern for domain aggregates
 describe('Project Aggregate', () => {
@@ -61,19 +66,24 @@ describe('Project Aggregate', () => {
       // Arrange
       const projectId = ProjectId.generate();
       const ownerId = UserId.generate();
-      const command = new CreateProjectCommand(projectId, ownerId, 'Test Project', 'Description');
-      
+      const command = new CreateProjectCommand(
+        projectId,
+        ownerId,
+        'Test Project',
+        'Description'
+      );
+
       // Act
       const project = Project.create(command);
       const events = project.getUncommittedEvents();
-      
+
       // Assert
       expect(events).toHaveLength(1);
       expect(events[0]).toBeInstanceOf(ProjectCreatedEvent);
       expect(events[0].projectId).toEqual(projectId);
       expect(events[0].ownerId).toEqual(ownerId);
     });
-    
+
     it('should enforce business invariants', () => {
       // Test domain rules and constraints
       const invalidCommand = new CreateProjectCommand(
@@ -82,23 +92,28 @@ describe('Project Aggregate', () => {
         '', // Invalid title
         'Description'
       );
-      
-      expect(() => Project.create(invalidCommand))
-        .toThrow(DomainValidationError);
+
+      expect(() => Project.create(invalidCommand)).toThrow(
+        DomainValidationError
+      );
     });
   });
-  
+
   describe('when replaying events', () => {
     it('should restore aggregate state correctly', () => {
       // Test event sourcing replay
       const events = [
         new ProjectCreatedEvent(projectId, ownerId, 'Title', 'Description'),
         new ProjectUpdatedEvent(projectId, { title: 'New Title' }),
-        new ProjectAccessGrantedEvent(projectId, UserId.generate(), AccessLevel.VIEW)
+        new ProjectAccessGrantedEvent(
+          projectId,
+          UserId.generate(),
+          AccessLevel.VIEW
+        ),
       ];
-      
+
       const project = Project.fromEvents(events);
-      
+
       expect(project.title).toBe('New Title');
       expect(project.accessGrants).toHaveLength(1);
     });
@@ -107,29 +122,33 @@ describe('Project Aggregate', () => {
 ```
 
 #### Command Handler Testing
+
 ```typescript
 describe('CreateProjectCommandHandler', () => {
   let handler: CreateProjectCommandHandler;
   let projectRepository: Mock<ProjectRepository>;
   let eventPublisher: Mock<EventPublisher>;
-  
+
   beforeEach(() => {
     projectRepository = createMock<ProjectRepository>();
     eventPublisher = createMock<EventPublisher>();
-    handler = new CreateProjectCommandHandler(projectRepository, eventPublisher);
+    handler = new CreateProjectCommandHandler(
+      projectRepository,
+      eventPublisher
+    );
   });
-  
+
   it('should create project and publish events', async () => {
     const command = new CreateProjectCommand(/* ... */);
-    
+
     await handler.handle(command);
-    
+
     expect(projectRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({ id: command.projectId })
     );
     expect(eventPublisher.publishAll).toHaveBeenCalledWith(
       expect.arrayContaining([
-        expect.objectContaining({ eventType: 'ProjectCreated' })
+        expect.objectContaining({ eventType: 'ProjectCreated' }),
       ])
     );
   });
@@ -137,20 +156,21 @@ describe('CreateProjectCommandHandler', () => {
 ```
 
 #### Event Handler Testing
+
 ```typescript
 describe('ProjectCreatedEventHandler', () => {
   it('should update projection when project is created', async () => {
     const event = new ProjectCreatedEvent(/* ... */);
     const projectionStore = createMock<ProjectionStore>();
     const handler = new ProjectCreatedEventHandler(projectionStore);
-    
+
     await handler.handle(event);
-    
+
     expect(projectionStore.upsert).toHaveBeenCalledWith(
       'project-catalog',
       expect.objectContaining({
         projectId: event.projectId,
-        title: event.title
+        title: event.title,
       })
     );
   });
@@ -160,41 +180,42 @@ describe('ProjectCreatedEventHandler', () => {
 ### Integration Testing Strategy
 
 #### Event Store Integration Tests
+
 ```typescript
 describe('Event Store Integration', () => {
   let eventStore: EventStore;
   let database: TestDatabase;
-  
+
   beforeEach(async () => {
     database = await TestDatabase.create();
     eventStore = new PostgresEventStore(database.connection);
   });
-  
+
   afterEach(async () => {
     await database.cleanup();
   });
-  
+
   it('should save and load events correctly', async () => {
     const aggregateId = ProjectId.generate();
     const events = [
       new ProjectCreatedEvent(/* ... */),
-      new ProjectUpdatedEvent(/* ... */)
+      new ProjectUpdatedEvent(/* ... */),
     ];
-    
+
     await eventStore.saveEvents(aggregateId.toString(), events, 0);
     const loadedEvents = await eventStore.loadEvents(aggregateId.toString());
-    
+
     expect(loadedEvents).toHaveLength(2);
     expect(loadedEvents[0].eventType).toBe('ProjectCreated');
   });
-  
+
   it('should handle optimistic concurrency conflicts', async () => {
     const aggregateId = ProjectId.generate();
     const event1 = new ProjectCreatedEvent(/* ... */);
     const event2 = new ProjectUpdatedEvent(/* ... */);
-    
+
     await eventStore.saveEvents(aggregateId.toString(), [event1], 0);
-    
+
     // Attempt to save with wrong expected version
     await expect(
       eventStore.saveEvents(aggregateId.toString(), [event2], 0)
@@ -204,27 +225,28 @@ describe('Event Store Integration', () => {
 ```
 
 #### Projection Worker Integration Tests
+
 ```typescript
 describe('Projection Worker Integration', () => {
   let worker: ProjectionWorker;
   let eventStore: EventStore;
   let projectionStore: ProjectionStore;
-  
+
   it('should rebuild projections from event history', async () => {
     // Arrange: Save events to event store
     const events = [
       new ProjectCreatedEvent(/* ... */),
       new UserRegisteredEvent(/* ... */),
-      new ProjectAccessGrantedEvent(/* ... */)
+      new ProjectAccessGrantedEvent(/* ... */),
     ];
-    
+
     for (const event of events) {
       await eventStore.saveEvents(event.aggregateId, [event], 0);
     }
-    
+
     // Act: Rebuild projection
     await worker.rebuildProjection('project-catalog');
-    
+
     // Assert: Verify projection state
     const projection = await projectionStore.get('project-catalog');
     expect(projection.projects).toHaveLength(1);
@@ -234,33 +256,36 @@ describe('Projection Worker Integration', () => {
 ```
 
 #### Message Bus Integration Tests
+
 ```typescript
 describe('Message Bus Integration', () => {
   let messageBus: MessageBus;
   let testContainer: TestContainer;
-  
+
   beforeEach(async () => {
     testContainer = await TestContainer.start(['kafka', 'zookeeper']);
-    messageBus = new KafkaMessageBus(testContainer.getConnectionString('kafka'));
+    messageBus = new KafkaMessageBus(
+      testContainer.getConnectionString('kafka')
+    );
   });
-  
+
   afterEach(async () => {
     await testContainer.stop();
   });
-  
+
   it('should publish and consume events correctly', async () => {
     const receivedEvents: DomainEvent[] = [];
-    
-    await messageBus.subscribe('ProjectCreated', (event) => {
+
+    await messageBus.subscribe('ProjectCreated', event => {
       receivedEvents.push(event);
     });
-    
+
     const event = new ProjectCreatedEvent(/* ... */);
     await messageBus.publish(event);
-    
+
     // Wait for message processing
     await waitFor(() => receivedEvents.length > 0);
-    
+
     expect(receivedEvents[0]).toEqual(event);
   });
 });
@@ -269,62 +294,67 @@ describe('Message Bus Integration', () => {
 ### End-to-End Testing Strategy
 
 #### Business Scenario Testing
+
 ```typescript
 describe('Project Management User Journey', () => {
   let app: TestApplication;
   let apiClient: APIClient;
-  
+
   beforeEach(async () => {
     app = await TestApplication.start();
     apiClient = new APIClient(app.baseUrl);
   });
-  
+
   it('should complete full project lifecycle', async () => {
     // User registration
     const registerResponse = await apiClient.commands.registerUser({
       email: 'test@example.com',
-      name: 'Test User'
+      name: 'Test User',
     });
     expect(registerResponse.status).toBe('accepted');
-    
+
     // Login
-    const authToken = await apiClient.auth.login('test@example.com', 'password');
+    const authToken = await apiClient.auth.login(
+      'test@example.com',
+      'password'
+    );
     apiClient.setAuth(authToken);
-    
+
     // Create project
     const createProjectResponse = await apiClient.commands.createProject({
       title: 'My Test Project',
-      description: 'A test project for E2E testing'
+      description: 'A test project for E2E testing',
     });
     expect(createProjectResponse.status).toBe('accepted');
     const projectId = createProjectResponse.aggregateId;
-    
+
     // Wait for projection update (eventual consistency)
     await waitFor(async () => {
       const projects = await apiClient.queries.getProjects();
       return projects.data.projects.length > 0;
     });
-    
+
     // Verify project appears in listing
     const projectsResponse = await apiClient.queries.getProjects();
     expect(projectsResponse.data.projects).toContainEqual(
       expect.objectContaining({
         id: projectId,
-        title: 'My Test Project'
+        title: 'My Test Project',
       })
     );
-    
+
     // Grant public access
     const grantAccessResponse = await apiClient.commands.grantProjectAccess({
       projectId,
       grantTo: 'PUBLIC',
-      accessLevel: 'VIEW'
+      accessLevel: 'VIEW',
     });
     expect(grantAccessResponse.status).toBe('accepted');
-    
+
     // Verify public access works (no auth)
     const publicClient = new APIClient(app.baseUrl);
-    const publicProjectResponse = await publicClient.queries.getProject(projectId);
+    const publicProjectResponse =
+      await publicClient.queries.getProject(projectId);
     expect(publicProjectResponse.data.project.title).toBe('My Test Project');
   });
 });
@@ -333,29 +363,44 @@ describe('Project Management User Journey', () => {
 ### Contract Testing Strategy
 
 #### API Contract Tests
+
 ```typescript
 describe('API Contracts', () => {
   it('should match OpenAPI specification', async () => {
     const spec = await loadOpenAPISpec('./api/openapi.yaml');
     const validator = new OpenAPIValidator(spec);
-    
+
     // Test all command endpoints
     const createProjectRequest = {
       title: 'Test Project',
-      description: 'Test description'
+      description: 'Test description',
     };
-    
-    const response = await apiClient.post('/api/v1/commands/projects/create', createProjectRequest);
-    
-    expect(validator.validateRequest('POST', '/api/v1/commands/projects/create', createProjectRequest))
-      .toBe(true);
-    expect(validator.validateResponse('POST', '/api/v1/commands/projects/create', response))
-      .toBe(true);
+
+    const response = await apiClient.post(
+      '/api/v1/commands/projects/create',
+      createProjectRequest
+    );
+
+    expect(
+      validator.validateRequest(
+        'POST',
+        '/api/v1/commands/projects/create',
+        createProjectRequest
+      )
+    ).toBe(true);
+    expect(
+      validator.validateResponse(
+        'POST',
+        '/api/v1/commands/projects/create',
+        response
+      )
+    ).toBe(true);
   });
 });
 ```
 
 #### Event Contract Tests
+
 ```typescript
 describe('Event Contracts', () => {
   it('should validate event schemas', () => {
@@ -365,24 +410,26 @@ describe('Event Contracts', () => {
       'Test Project',
       'Description'
     );
-    
+
     const schema = EventSchemaRegistry.getSchema('ProjectCreated', '1.0.0');
     const isValid = schema.validate(event);
-    
+
     expect(isValid).toBe(true);
   });
-  
+
   it('should handle event versioning correctly', () => {
     // Test event upcasting from ADR-007
     const oldEvent = {
       eventType: 'ProjectCreated',
       schemaVersion: '1.0.0',
-      data: { /* old format */ }
+      data: {
+        /* old format */
+      },
     };
-    
+
     const upcaster = new ProjectCreatedUpcaster();
     const newEvent = upcaster.upcast(oldEvent, '2.0.0');
-    
+
     expect(newEvent.schemaVersion).toBe('2.0.0');
     expect(newEvent.data).toMatchSchema(ProjectCreatedV2Schema);
   });
@@ -392,38 +439,38 @@ describe('Event Contracts', () => {
 ### Test Data Management
 
 #### Test Data Builders
+
 ```typescript
 class ProjectTestDataBuilder {
   private project: Partial<Project> = {};
-  
+
   withTitle(title: string): ProjectTestDataBuilder {
     this.project.title = title;
     return this;
   }
-  
+
   withOwner(owner: User): ProjectTestDataBuilder {
     this.project.owner = owner;
     return this;
   }
-  
+
   build(): Project {
     return new Project({
       id: ProjectId.generate(),
       title: 'Default Title',
       description: 'Default Description',
       owner: UserTestDataBuilder.default().build(),
-      ...this.project
+      ...this.project,
     });
   }
-  
+
   static default(): ProjectTestDataBuilder {
     return new ProjectTestDataBuilder();
   }
 }
 
 // Usage in tests
-const project = ProjectTestDataBuilder
-  .default()
+const project = ProjectTestDataBuilder.default()
   .withTitle('Custom Title')
   .withOwner(someUser)
   .build();
@@ -432,19 +479,21 @@ const project = ProjectTestDataBuilder
 ### Performance Testing
 
 #### Load Testing for Event Processing
+
 ```typescript
 describe('Event Processing Performance', () => {
   it('should handle high event throughput', async () => {
-    const events = Array.from({ length: 1000 }, () => 
-      new ProjectCreatedEvent(/* generate test data */)
+    const events = Array.from(
+      { length: 1000 },
+      () => new ProjectCreatedEvent(/* generate test data */)
     );
-    
+
     const startTime = Date.now();
-    
+
     await Promise.all(
       events.map(event => eventStore.saveEvents(event.aggregateId, [event], 0))
     );
-    
+
     const duration = Date.now() - startTime;
     expect(duration).toBeLessThan(5000); // 5 second max for 1000 events
   });
@@ -454,16 +503,19 @@ describe('Event Processing Performance', () => {
 ## Rationale
 
 ### Event Sourcing Testing Focus
+
 - **Event-first testing**: Validate behavior through events rather than state
 - **Replay testing**: Ensure aggregates can be rebuilt from events
 - **Eventual consistency**: Test async projection updates
 
 ### DDD Testing Patterns
+
 - **Aggregate boundaries**: Test invariants and business rules within aggregates
 - **Domain events**: Verify events capture business intent correctly
 - **Ubiquitous language**: Test names and concepts match domain language
 
 ### Testing Pyramid Adaptation
+
 - **Unit tests dominate**: Complex domain logic needs thorough unit testing
 - **Integration focus**: Event sourcing integration points are critical
 - **Minimal E2E**: Expensive but necessary for user journey validation
@@ -471,11 +523,13 @@ describe('Event Processing Performance', () => {
 ## Implementation Guidance
 
 ### Prerequisites
+
 - All ADRs that define architecture must be implemented first
 - Test infrastructure (test databases, message brokers) must be available
 - Development team must understand event sourcing and DDD patterns
 
 ### Implementation Steps
+
 1. **Set up test infrastructure**: Test databases, containers, fixtures
 2. **Implement domain unit tests**: Start with aggregate testing patterns
 3. **Add integration tests**: Event store, projection, message bus integration
@@ -484,6 +538,7 @@ describe('Event Processing Performance', () => {
 6. **Add performance tests**: Event processing and projection performance
 
 ### Testing Tools and Frameworks
+
 ```typescript
 // Recommended testing stack
 const testingStack = {
@@ -492,11 +547,12 @@ const testingStack = {
   integration: 'Testcontainers + Docker',
   e2e: 'Playwright or Cypress',
   performance: 'k6 or Artillery',
-  contracts: 'Pact or OpenAPI validators'
+  contracts: 'Pact or OpenAPI validators',
 };
 ```
 
 ### Validation Criteria
+
 - All domain aggregates have comprehensive unit tests
 - Integration tests cover all event sourcing components
 - E2E tests cover critical business scenarios
@@ -506,6 +562,7 @@ const testingStack = {
 ## Consequences
 
 ### Positive
+
 - High confidence in domain logic correctness
 - Early detection of architectural pattern violations
 - Comprehensive regression testing for event sourcing
@@ -513,30 +570,35 @@ const testingStack = {
 - Support for safe refactoring and evolution
 
 ### Negative
+
 - Higher initial investment in test infrastructure
 - Complexity of testing event-driven systems
 - Learning curve for event sourcing testing patterns
 - Additional maintenance overhead for test data and scenarios
 
 ### Neutral
+
 - More test code to maintain alongside production code
 - Need for specialized testing knowledge in the team
 
 ## Alternatives Considered
 
 ### Alternative 1: Traditional Testing Approach
+
 - **Description**: Standard unit/integration/E2E without event sourcing focus
 - **Pros**: Familiar patterns, existing tooling, simpler setup
 - **Cons**: Doesn't validate event sourcing patterns, misses critical failure modes
 - **Why rejected**: Inadequate for event-sourced architecture
 
 ### Alternative 2: Behavior-Driven Development (BDD)
+
 - **Description**: Gherkin scenarios for all testing levels
 - **Pros**: Business-readable tests, clear scenario documentation
 - **Cons**: Overhead for technical unit tests, tool complexity
 - **Why rejected**: Better suited as addition to, not replacement for, technical tests
 
 ### Alternative 3: Property-Based Testing Focus
+
 - **Description**: Heavy use of property-based/fuzzing testing
 - **Pros**: Excellent for finding edge cases, mathematical correctness
 - **Cons**: Complex to set up, harder to debug failures
@@ -545,6 +607,7 @@ const testingStack = {
 ## Related ADRs
 
 ### Dependencies
+
 - **Requires**: ADR-005 (Domain Model) - Defines aggregates to test
 - **Requires**: ADR-006 (Event Sourcing) - Testing patterns for event store
 - **Requires**: ADR-007 (Event Versioning) - Testing event evolution
@@ -553,17 +616,21 @@ const testingStack = {
 - **Requires**: ADR-020 (API Design) - API contract testing
 
 ### Influences
+
 - **Influences**: All implementation ADRs - Testing validates implementation
 
 ### Conflicts
+
 - **None identified** - Testing strategy supports all other ADRs
 
 ## AI Agent Guidance
 
 ### Implementation Priority
+
 **High** - Critical for maintaining system quality and confidence
 
 ### Code Generation Patterns
+
 ```typescript
 // Always generate test builders for domain objects
 class EntityTestBuilder<T> {
@@ -580,26 +647,31 @@ const aggregate = AggregateType.fromEvents(testEvents);
 ```
 
 ### Common Pitfalls
+
 - **Testing implementation details**: Focus on behavior, not internal state
 - **Ignoring eventual consistency**: Use waitFor patterns for async operations
 - **Inadequate test data**: Use builders for complex domain objects
 - **Missing edge cases**: Test domain invariants and error conditions
 
 ### Integration Points
+
 - Tests must validate all ADR-defined patterns
 - Event tests must use schemas from ADR-007
 - API tests must validate contracts from ADR-020
 - Performance tests must align with ADR-010 observability
 
 ## Technical Debt Introduced
+
 - **Test maintenance overhead**: Complex test scenarios require ongoing maintenance
 - **Test data management**: Need strategy for managing test databases and fixtures
 - **Test execution time**: Comprehensive test suite may become slow
 
 ## Evolution Path
+
 - **Review trigger**: When test execution becomes too slow or maintenance burden high
 - **Planned evolution**: Add mutation testing, improve performance testing
 - **Migration strategy**: Gradual improvement of test quality and coverage
 
 ---
-*Last Updated: September 10, 2025*
+
+_Last Updated: September 10, 2025_

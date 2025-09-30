@@ -3,13 +3,14 @@
 **Status**: Proposed  
 **Date**: 2025-09-10  
 **Authors**: AI Agent  
-**Reviewers**: ***please check*** - needs review assignment  
+**Reviewers**: **_please check_** - needs review assignment
 
 ## Context
 
 Our event-driven architecture requires robust contract management to ensure reliable communication between services, especially as we expand into multi-language microservices. With ADR-022 handling the message bus infrastructure, we need dedicated patterns for contract definition, validation, and evolution across different programming languages and service boundaries.
 
 ### Current State
+
 - Event schemas defined in TypeScript interfaces within individual services
 - No centralized contract registry or validation
 - Manual contract synchronization between producers and consumers
@@ -17,6 +18,7 @@ Our event-driven architecture requires robust contract management to ensure reli
 - Limited support for non-TypeScript services (planned Java, Python services)
 
 ### Problems to Solve
+
 1. **Contract Drift**: Producers and consumers can have mismatched schema expectations
 2. **Multi-Language Support**: TypeScript interfaces don't translate well to other languages
 3. **Breaking Changes**: No systematic way to handle contract evolution
@@ -31,6 +33,7 @@ We will implement a comprehensive contract management system using **JSON Schema
 ### Core Components
 
 #### 1. Centralized Contract Registry
+
 ```typescript
 // contracts/registry/ContractRegistry.ts
 export interface ContractRegistry {
@@ -41,15 +44,15 @@ export interface ContractRegistry {
 }
 
 export interface ContractDefinition {
-  name: string;           // e.g., "UserRegistered"
-  version: string;        // Semantic version: "1.2.0"
-  schema: JSONSchema7;    // JSON Schema definition
-  producer: string;       // Service that publishes this event
-  consumers: string[];    // Services that consume this event
+  name: string; // e.g., "UserRegistered"
+  version: string; // Semantic version: "1.2.0"
+  schema: JSONSchema7; // JSON Schema definition
+  producer: string; // Service that publishes this event
+  consumers: string[]; // Services that consume this event
   description: string;
-  examples: unknown[];    // Sample payloads
-  deprecatedIn?: string;  // Version when deprecation started
-  removedIn?: string;     // Version when contract will be removed
+  examples: unknown[]; // Sample payloads
+  deprecatedIn?: string; // Version when deprecation started
+  removedIn?: string; // Version when contract will be removed
 }
 
 export interface ValidationResult {
@@ -60,6 +63,7 @@ export interface ValidationResult {
 ```
 
 #### 2. Contract Definition Format
+
 We use JSON Schema with extensions for event-specific metadata:
 
 ```json
@@ -129,6 +133,7 @@ We use JSON Schema with extensions for event-specific metadata:
 ```
 
 #### 3. Code Generation Pipeline
+
 ```typescript
 // contracts/codegen/CodeGenerator.ts
 export interface CodeGenerator {
@@ -153,13 +158,13 @@ export interface GeneratedFile {
 export class ContractCodeGen {
   async generateAllLanguages(): Promise<void> {
     const contracts = await this.registry.listContracts();
-    
+
     const tsCode = await this.generator.generateTypeScript(contracts);
     await this.writeFiles('generated/typescript', tsCode.files);
-    
+
     const javaCode = await this.generator.generateJava(contracts);
     await this.writeFiles('generated/java', javaCode.files);
-    
+
     // Add to package.json / pom.xml / requirements.txt
     await this.updateDependencies(tsCode.dependencies, javaCode.dependencies);
   }
@@ -167,43 +172,54 @@ export class ContractCodeGen {
 ```
 
 #### 4. Runtime Validation
+
 ```typescript
 // contracts/validation/ContractValidator.ts
 export class ContractValidator {
   private ajv: Ajv;
-  
+
   constructor(private registry: ContractRegistry) {
-    this.ajv = new Ajv({ 
-      allErrors: true, 
-      formats: { 
-        'uuid': uuidFormat,
-        'date-time': dateTimeFormat 
-      }
+    this.ajv = new Ajv({
+      allErrors: true,
+      formats: {
+        uuid: uuidFormat,
+        'date-time': dateTimeFormat,
+      },
     });
   }
-  
-  async validateEvent(eventName: string, payload: unknown): Promise<ValidationResult> {
+
+  async validateEvent(
+    eventName: string,
+    payload: unknown
+  ): Promise<ValidationResult> {
     const contract = await this.registry.getContract(eventName, 'latest');
     const validate = this.ajv.compile(contract.schema);
-    
+
     const valid = validate(payload);
     return {
       valid,
-      errors: validate.errors?.map(err => `${err.instancePath}: ${err.message}`) || [],
-      warnings: this.checkDeprecations(contract, payload)
+      errors:
+        validate.errors?.map(err => `${err.instancePath}: ${err.message}`) ||
+        [],
+      warnings: this.checkDeprecations(contract, payload),
     };
   }
-  
-  private checkDeprecations(contract: ContractDefinition, payload: unknown): string[] {
+
+  private checkDeprecations(
+    contract: ContractDefinition,
+    payload: unknown
+  ): string[] {
     const warnings: string[] = [];
-    
+
     if (contract.deprecatedIn) {
-      warnings.push(`Contract ${contract.name} is deprecated since version ${contract.deprecatedIn}`);
+      warnings.push(
+        `Contract ${contract.name} is deprecated since version ${contract.deprecatedIn}`
+      );
     }
-    
+
     // Check for deprecated fields in payload
     // Implementation depends on schema annotations
-    
+
     return warnings;
   }
 }
@@ -212,14 +228,19 @@ export class ContractValidator {
 ### Contract Evolution Strategy
 
 #### Semantic Versioning for Contracts
+
 - **Major Version (2.0.0)**: Breaking changes that require consumer updates
 - **Minor Version (1.1.0)**: Backward-compatible additions (new optional fields)
 - **Patch Version (1.0.1)**: Non-functional changes (documentation, examples)
 
 #### Backward Compatibility Rules
+
 ```typescript
 export interface CompatibilityChecker {
-  checkCompatibility(oldContract: ContractDefinition, newContract: ContractDefinition): CompatibilityResult;
+  checkCompatibility(
+    oldContract: ContractDefinition,
+    newContract: ContractDefinition
+  ): CompatibilityResult;
 }
 
 export interface CompatibilityResult {
@@ -238,6 +259,7 @@ export interface BreakingChange {
 ```
 
 #### Contract Lifecycle
+
 1. **Draft**: Contract is being developed, not yet published
 2. **Active**: Contract is published and in use
 3. **Deprecated**: Contract is marked for future removal, consumers should migrate
@@ -246,6 +268,7 @@ export interface BreakingChange {
 ### Multi-Language Support
 
 #### TypeScript Generation
+
 ```typescript
 // Generated file: contracts/typescript/events/UserRegistered.ts
 export interface UserRegistered {
@@ -268,33 +291,35 @@ export const UserRegisteredSchema = {
 ```
 
 #### Java Generation
+
 ```java
 // Generated file: contracts/java/events/UserRegistered.java
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserRegistered {
     @NotNull
     private UUID eventId;
-    
+
     @NotNull
     private UUID aggregateId;
-    
+
     @NotNull
     private UUID userId;
-    
+
     @Email
     private String email;
-    
+
     @NotNull
     private UserProfile profile;
-    
+
     @NotNull
     private Instant occurredAt;
-    
+
     // Constructors, getters, setters, equals, hashCode
 }
 ```
 
 #### Python Generation
+
 ```python
 # Generated file: contracts/python/events/user_registered.py
 from dataclasses import dataclass
@@ -310,7 +335,7 @@ class UserRegistered:
     email: str
     profile: 'UserProfile'
     occurred_at: datetime
-    
+
     def validate(self) -> ValidationResult:
         # Use jsonschema library for validation
         pass
@@ -319,6 +344,7 @@ class UserRegistered:
 ### Integration with Message Bus
 
 #### Publisher Integration
+
 ```typescript
 // services/accounts/app/handlers/UserRegistrationHandler.ts
 export class UserRegistrationHandler {
@@ -326,46 +352,53 @@ export class UserRegistrationHandler {
     private messageBus: MessageBus,
     private contractValidator: ContractValidator
   ) {}
-  
+
   async handle(command: RegisterUserCommand): Promise<void> {
     // Business logic...
-    
+
     const event: UserRegistered = {
       eventId: generateId(),
       aggregateId: user.id,
       userId: user.id,
       email: user.email,
       profile: user.profile,
-      occurredAt: new Date().toISOString()
+      occurredAt: new Date().toISOString(),
     };
-    
+
     // Validate against contract before publishing
-    const validation = await this.contractValidator.validateEvent('UserRegistered', event);
+    const validation = await this.contractValidator.validateEvent(
+      'UserRegistered',
+      event
+    );
     if (!validation.valid) {
       throw new ContractValidationError(validation.errors);
     }
-    
+
     await this.messageBus.publish('user.registered', event);
   }
 }
 ```
 
 #### Consumer Integration
+
 ```typescript
 // services/entitlements/app/handlers/UserRegisteredHandler.ts
 export class UserRegisteredHandler {
   constructor(private contractValidator: ContractValidator) {}
-  
+
   async handle(message: IntegrationMessage): Promise<void> {
     // Validate incoming message against contract
-    const validation = await this.contractValidator.validateEvent('UserRegistered', message.payload);
+    const validation = await this.contractValidator.validateEvent(
+      'UserRegistered',
+      message.payload
+    );
     if (!validation.valid) {
       throw new ContractValidationError(validation.errors);
     }
-    
+
     // Type-safe payload access using generated types
     const event = message.payload as UserRegistered;
-    
+
     // Business logic...
     await this.entitlementService.createDefaultEntitlements(event.userId);
   }
@@ -375,6 +408,7 @@ export class UserRegisteredHandler {
 ### Build Integration
 
 #### Contract-First Development
+
 ```json
 {
   "scripts": {
@@ -388,6 +422,7 @@ export class UserRegisteredHandler {
 ```
 
 #### CI/CD Pipeline Integration
+
 ```yaml
 # .github/workflows/contracts.yml
 name: Contract Validation
@@ -400,13 +435,13 @@ jobs:
       - uses: actions/checkout@v2
       - name: Validate Contract Schemas
         run: npm run contracts:validate
-      
+
       - name: Check Breaking Changes
         run: npm run contracts:check-compatibility
-        
+
       - name: Generate Code
         run: npm run contracts:generate
-        
+
       - name: Run Tests with Generated Code
         run: npm test
 ```
@@ -414,6 +449,7 @@ jobs:
 ## Consequences
 
 ### Positive
+
 - **Type Safety**: Generated types ensure compile-time contract compliance
 - **Multi-Language Support**: Single source of truth works across different languages
 - **Automated Validation**: Runtime validation catches contract violations
@@ -422,12 +458,14 @@ jobs:
 - **Breaking Change Detection**: Automated detection prevents accidental breaking changes
 
 ### Negative
+
 - **Build Complexity**: Additional build steps for code generation
 - **Tool Chain**: Need to maintain code generators for multiple languages
 - **Learning Curve**: Teams need to understand JSON Schema
 - **Performance**: Runtime validation adds overhead (can be disabled in production)
 
 ### Risks
+
 - **Generator Bugs**: Faulty code generation could introduce bugs
 - **Schema Complexity**: Very complex schemas might be hard to maintain
 - **Tooling Dependency**: Heavy dependency on custom tooling
@@ -435,24 +473,28 @@ jobs:
 ## Implementation Plan
 
 ### Phase 1: Foundation (2-3 weeks)
+
 1. Set up contract registry infrastructure
 2. Create JSON Schema definitions for existing events
 3. Implement TypeScript code generator
 4. Add validation to existing message publishers
 
 ### Phase 2: Multi-Language Support (2-3 weeks)
+
 1. Implement Java code generator
 2. Implement Python code generator
 3. Create contract validation CLI tools
 4. Add CI/CD integration
 
 ### Phase 3: Advanced Features (2-3 weeks)
+
 1. Contract compatibility checking
 2. Contract lifecycle management
 3. Breaking change detection
 4. Performance optimization
 
 ### Phase 4: Production Hardening (1-2 weeks)
+
 1. Production monitoring
 2. Error handling and fallback strategies
 3. Performance tuning
@@ -461,18 +503,22 @@ jobs:
 ## Alternatives Considered
 
 ### Apache Avro
+
 - **Pros**: Mature, efficient binary serialization, good schema evolution
 - **Cons**: Limited JSON support, complex tooling, less human-readable
 
 ### Protocol Buffers
+
 - **Pros**: Efficient, mature, good multi-language support
 - **Cons**: Binary format, complex schema evolution, less flexible than JSON
 
 ### OpenAPI/AsyncAPI
+
 - **Pros**: Industry standard, good tooling
 - **Cons**: Focused on API contracts, not event contracts, limited code generation
 
 ### GraphQL Schema
+
 - **Pros**: Strong typing, good tooling
 - **Cons**: Query-focused, not event-focused, complex for simple events
 
@@ -487,6 +533,7 @@ jobs:
 ## AI Agent Guidance
 
 ### For Code Generation
+
 ```typescript
 // When implementing contract validation:
 const validator = new ContractValidator(contractRegistry);
@@ -498,6 +545,7 @@ if (!result.valid) {
 ```
 
 ### For Adding New Contracts
+
 1. Define JSON Schema in `/contracts/schemas/events/`
 2. Add examples and documentation
 3. Run `npm run contracts:validate` to check syntax
@@ -506,6 +554,7 @@ if (!result.valid) {
 6. Test with contract validation enabled
 
 ### Common Pitfalls to Avoid
+
 - Don't modify existing contracts without version bumping
 - Always validate backward compatibility before publishing
 - Include comprehensive examples in contract definitions
@@ -513,6 +562,7 @@ if (!result.valid) {
 - Consider optional vs required fields carefully
 
 ### Integration Points
+
 - Message bus publishers must validate contracts before sending
 - Message bus consumers should validate contracts on receive
 - Generated types should be imported, not manually defined
@@ -522,4 +572,4 @@ if (!result.valid) {
 
 **Status**: Proposed  
 **Next Review**: 2025-09-17  
-**Implementation Owner**: ***please check*** - needs assignment
+**Implementation Owner**: **_please check_** - needs assignment

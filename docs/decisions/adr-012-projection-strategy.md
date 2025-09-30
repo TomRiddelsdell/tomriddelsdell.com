@@ -1,14 +1,17 @@
 # ADR-012: Projection Strategy and Read Model Design
 
 ## Status
+
 Proposed
 
 ## Context
+
 We need to define our projection strategy for building read models from event streams, including which projections we need initially, how to handle failures, monitoring approaches, and caching strategies. This complements our event sourcing implementation (ADR-006) by defining the read side of our CQRS architecture.
 
 ## Decision
 
 ### Initial Read Models
+
 We will implement the following read models for MVP:
 
 1. **User Profile Projection**
@@ -34,16 +37,19 @@ We will implement the following read models for MVP:
 ### Projection Failure Handling
 
 **Retry Strategy:**
+
 - **Transient failures**: Exponential backoff with jitter (1s, 2s, 4s, 8s)
 - **Maximum retries**: 3 attempts before moving to dead letter queue
 - **Poison message detection**: Events that consistently fail across multiple projection instances
 
 **Dead Letter Queue Processing:**
+
 - Manual review and correction of problematic events
 - Alerting for dead letter queue accumulation
 - Batch reprocessing capability after fixes
 
 **Projection Recovery:**
+
 - **Checkpoint management**: Track last processed event per projection
 - **Graceful degradation**: Serve stale data during projection rebuilds
 - **Rebuild triggers**: Manual triggers for full projection rebuilds from event history
@@ -51,18 +57,21 @@ We will implement the following read models for MVP:
 ### Projection Monitoring
 
 **Key Metrics:**
+
 - **Lag metrics**: Time difference between event timestamp and projection timestamp
 - **Throughput metrics**: Events processed per second per projection
 - **Error rates**: Failed events vs successful events over time windows
 - **Checkpoint positions**: Current event position vs latest event position
 
 **Alerting Thresholds:**
+
 - **Critical lag**: > 5 minutes behind latest events
 - **High error rate**: > 5% failure rate over 10-minute window
 - **Dead letter accumulation**: > 10 events in dead letter queue
 - **Projection offline**: No progress for > 30 seconds
 
 **Health Checks:**
+
 - Per-projection health endpoints exposing lag and error metrics
 - Automated health reporting to monitoring dashboard
 - Integration with infrastructure alerting (Cloudflare Workers monitoring)
@@ -77,17 +86,20 @@ We will implement the following read models for MVP:
    - Direct reads from projection tables with optimized indexes
 
 **Cache Evolution Path:**
+
 - **Phase 1 (MVP)**: No application caching - direct database reads
 - **Phase 2 (Growth)**: Add Workers KV for frequently accessed data
 - **Phase 3 (Scale)**: Add edge caching layer when traffic increases
 
 **Benefits of Simplified Approach:**
+
 - **Faster development**: No cache invalidation logic to implement
 - **Fewer moving parts**: Reduced complexity and debugging surface
 - **PostgreSQL optimization**: Leverage Neon's built-in caching and performance features
 - **Easy monitoring**: Single data source eliminates cache consistency issues
 
 **Performance Considerations:**
+
 - For low traffic (< 1000 requests/day), database reads are sufficient
 - PostgreSQL indexes on common query patterns provide fast lookups
 - Neon connection pooling handles concurrent access efficiently
@@ -96,6 +108,7 @@ We will implement the following read models for MVP:
 ## Implementation Details
 
 ### Projection Worker Architecture
+
 ```typescript
 interface ProjectionWorker {
   projectionName: string;
@@ -115,19 +128,26 @@ interface ProjectionStore {
 ```
 
 ### Deployment Configuration
+
 ```yaml
 projections:
   user-profile:
-    events: ["UserRegistered", "UserProfileUpdated"]
-    store: "postgresql"
-    cache_enabled: false  # Start without caching
-    critical_lag_threshold: "5m"
-  
+    events: ['UserRegistered', 'UserProfileUpdated']
+    store: 'postgresql'
+    cache_enabled: false # Start without caching
+    critical_lag_threshold: '5m'
+
   project-catalog:
-    events: ["ProjectCreated", "ProjectUpdated", "ProjectAccessGranted", "ProjectAccessRevoked"]
-    store: "postgresql"
-    cache_enabled: false  # Start without caching
-    critical_lag_threshold: "2m"
+    events:
+      [
+        'ProjectCreated',
+        'ProjectUpdated',
+        'ProjectAccessGranted',
+        'ProjectAccessRevoked',
+      ]
+    store: 'postgresql'
+    cache_enabled: false # Start without caching
+    critical_lag_threshold: '2m'
 ```
 
 ## Alternatives Considered
@@ -140,6 +160,7 @@ projections:
 ## Consequences
 
 **Benefits:**
+
 - Clear separation between write and read concerns
 - Optimized read models for specific UI needs
 - Robust failure handling and recovery mechanisms
@@ -147,6 +168,7 @@ projections:
 - Fast initial development without cache complexity
 
 **Drawbacks:**
+
 - Additional complexity in managing multiple projections
 - Eventual consistency requires careful UX design
 - Direct database reads may become bottleneck at scale
@@ -155,31 +177,37 @@ projections:
 ## Trade-offs
 
 **Simplicity vs Performance:**
+
 - Prioritizing development speed over read performance optimization
 - Accepting higher database load for reduced complexity
 
 **Present vs Future:**
+
 - Optimizing for current low-traffic needs
 - Deferring caching complexity until metrics justify the investment
 
 **Storage vs Speed:**
+
 - Denormalized projections use more storage but enable faster queries
 - Single projection store reduces operational complexity
 
 ## Migration Strategy
 
 **Phase 1: MVP (No Caching)**
+
 - Implement User Profile and Project Catalog projections
 - Direct PostgreSQL reads with optimized indexes
 - Basic monitoring and alerting
 - Performance baseline establishment
 
 **Phase 2: Selective Caching**
+
 - Add Workers KV caching for frequently accessed endpoints only
 - Monitor cache hit rates and performance improvements
 - Event-driven cache invalidation
 
 **Phase 3: Edge Optimization**
+
 - Add Cloudflare edge caching for public content
 - Advanced monitoring dashboards
 - Performance tuning based on real usage patterns
