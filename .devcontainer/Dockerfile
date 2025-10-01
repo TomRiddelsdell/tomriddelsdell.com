@@ -40,7 +40,7 @@ RUN echo "🔧 Installing CLI tools for Portfolio Platform..." && \
     mv bin/confluent /usr/local/bin/confluent && \
     # Install npm-based CLI tools using configured global prefix (runs as root but installs to shared location)
     echo "☁️ Installing npm-based CLI tools globally..." && \
-    npm install -g wrangler@latest neonctl@latest && \
+    npm install -g pnpm@latest wrangler@latest neonctl@latest && \
     # Install additional development tools
     echo "🛠️ Installing additional development utilities..." && \
     npm install -g @playwright/test eslint prettier typescript ts-node nodemon turbo@latest && \
