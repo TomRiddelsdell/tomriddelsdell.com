@@ -6,10 +6,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // Configure for Cloudflare Pages deployment
-  experimental: {
-    runtime: 'edge',
-  },
 }
 
-module.exports = nextConfig
+export default nextConfig
