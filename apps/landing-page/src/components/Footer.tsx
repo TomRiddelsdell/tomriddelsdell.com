@@ -8,7 +8,7 @@ export function Footer() {
           <div>
             <h3 className="text-xl font-bold mb-4">Tom Riddelsdell</h3>
             <p className="text-gray-300 mb-4">
-              Building sophisticated portfolio platforms with modern architecture patterns. 
+              Building platforms with modern architecture patterns. 
               Bridging quantitative finance and software engineering.
             </p>
           </div>
@@ -22,16 +22,6 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#about" className="text-gray-300 hover:text-white transition-colors">
-                  About
-                </a>
-              </li>
-              <li>
-                <a href="#projects" className="text-gray-300 hover:text-white transition-colors">
-                  Projects
-                </a>
-              </li>
-              <li>
                 <a href="#contact" className="text-gray-300 hover:text-white transition-colors">
                   Contact
                 </a>
@@ -42,17 +32,8 @@ export function Footer() {
           <div>
             <h4 className="text-lg font-semibold mb-4">Connect</h4>
             <div className="flex space-x-4">
-              <a 
-                href="mailto:tom@riddelsdell.com"
-                className="text-gray-300 hover:text-white transition-colors"
-                aria-label="Email"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.05a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </a>
-              <a 
-                href="https://linkedin.com/in/tomriddelsdell"
+          <a 
+                href="https://www.linkedin.com/in/thomas-riddelsdell-1140bb16/"
                 className="text-gray-300 hover:text-white transition-colors"
                 aria-label="LinkedIn"
                 target="_blank"
@@ -68,7 +49,7 @@ export function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <p className="text-gray-300 text-sm">
-            © {currentYear} Tom Riddelsdell. Built with Next.js & Tailwind CSS • Deployed on Cloudflare Pages
+            © {currentYear} Tom Riddelsdell. All rights reserved.
           </p>
         </div>
       </div>
