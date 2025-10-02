@@ -3,25 +3,25 @@ import Image from 'next/image'
 export function ProjectsSection() {
   const projects = [
     {
-      title: 'Portfolio Platform',
-      description: 'Event-sourced portfolio management system built with domain-driven design principles.',
+      title: 'Quantitative Finance Platform',
+      description: 'Advanced financial modeling platform with risk management capabilities, portfolio optimization, and real-time market data integration.',
       image: '/impliedvol.jpeg',
-      technologies: ['Next.js', 'TypeScript', 'Event Sourcing', 'PostgreSQL'],
-      status: 'In Development'
-    },
-    {
-      title: 'Quantitative Models',
-      description: 'Collection of quantitative finance models for options pricing and portfolio optimization.',
-      image: '/background.jpg',
-      technologies: ['Python', 'NumPy', 'SciPy', 'FastAPI'],
+      technologies: ['Python', 'NumPy', 'Pandas', 'FastAPI', 'PostgreSQL'],
       status: 'Active Development'
     },
     {
-      title: 'Microservices Architecture',
-      description: 'Hybrid deployment architecture supporting both monolithic and microservice patterns.',
-      image: '/me.jpg',
-      technologies: ['Docker', 'Terraform', 'AWS', 'Cloudflare'],
+      title: 'Risk Management System',
+      description: 'Comprehensive risk assessment and monitoring system for investment portfolios with advanced mathematical modeling and scenario analysis.',
+      image: '/background.jpg',
+      technologies: ['Python', 'SciPy', 'Plotly', 'React', 'TypeScript'],
       status: 'Production Ready'
+    },
+    {
+      title: 'Event-Sourced Portfolio Service',
+      description: 'Modern portfolio management system built with domain-driven design principles and event sourcing architecture for audit and compliance.',
+      image: '/me.jpg',
+      technologies: ['Next.js', 'TypeScript', 'Event Sourcing', 'PostgreSQL'],
+      status: 'In Development'
     }
   ]
 
