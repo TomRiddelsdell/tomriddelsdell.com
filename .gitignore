@@ -75,7 +75,17 @@ doppler.env
 # === Documentation & Changes ===
 changes/
 
+# Documentation Archives & Security Incidents (not for version control)
+docs/archive/
+docs/security-incidents/
+
 # === Security & Credentials ===
+# Security Incident Reports (contain sensitive information)
+SECURITY-*.md
+**/SECURITY-INCIDENT-*.md
+**/SECURITY-ALERT-*.md
+**/SECURITY-GIT-*.md
+
 # AWS
 .aws/credentials
 credentials.json
@@ -213,4 +223,9 @@ $RECYCLE.BIN/
 .pid
 *.pid
 *.seed
+
+# === Project Documentation (Local Only) ===
+# Changes directory for local development notes
+changes/
+**/changes/
 *.pid.lock

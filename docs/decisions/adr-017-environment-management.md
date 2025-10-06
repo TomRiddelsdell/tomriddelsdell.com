@@ -12,11 +12,12 @@ We need to define our environment management strategy including the number of en
 
 ### Environment Strategy
 
-**Two-Environment Approach (Initial):**
+**Three-Environment Approach:**
 
+- **Local Development**: Individual developer environments running locally
+- **CI/CD Environment**: Automated testing environment for GitHub Actions
 - **Development Environment**: Shared development environment for integration testing
 - **Production Environment**: Live production environment serving real users
-- **Local Development**: Individual developer environments running locally
 
 **Environment Characteristics:**
 
@@ -24,25 +25,39 @@ We need to define our environment management strategy including the number of en
 environments:
   local:
     purpose: 'Individual developer testing and rapid iteration'
-    database: 'Local PostgreSQL or Neon dev branch per developer'
+    database: 'Neon dev branch per developer (e.g., dev-john)'
     workers: 'Local Cloudflare Workers development server'
-    event_store: 'Local event store instance'
+    event_store: 'Local event store on Neon dev branch'
     projections: 'Local projection databases'
+    secrets: 'Doppler (dev_personal config)'
+
+  ci:
+    purpose: 'Automated testing in GitHub Actions'
+    database: 'Neon ci-test branch'
+    workers: 'Not deployed (tests only)'
+    event_store: 'CI test event store on Neon ci-test branch'
+    projections: 'Ephemeral test databases'
+    secrets: 'Doppler (ci_tests config) via DOPPLER_TOKEN_CI'
+    key_feature: 'Tests against production-like Neon infrastructure'
 
   development:
     purpose: 'Shared integration testing and feature validation'
-    database: 'neon-dev'
+    database: 'Neon dev branch'
     workers: 'dev.tomriddelsdell.com'
     event_store: 'Shared development event store'
     projections: 'Shared development projection databases'
+    secrets: 'Doppler (dev config)'
 
   production:
     purpose: 'Live production environment'
-    database: 'neon-prod'
+    database: 'Neon production branch'
     workers: 'tomriddelsdell.com'
     event_store: 'Production event store with backups'
     projections: 'Production projection databases with monitoring'
+    secrets: 'Doppler (prd config)'
 ```
+
+**Key Principle**: All environments use Neon (serverless Postgres) to ensure consistency and test production-like behavior.
 
 ### Development Workflow
 
@@ -272,9 +287,40 @@ volumes:
 **Local Testing:**
 
 - **Unit tests**: Jest with domain-focused test suites
-- **Integration tests**: Test against local database and services
+- **Integration tests**: Test against local Neon dev branch
 - **Contract tests**: Validate event schemas and API contracts
 - **E2E tests**: Playwright against local application
+
+**CI/CD Testing (GitHub Actions):**
+
+- **Unit tests**: Run in parallel for fast feedback
+- **Integration tests**: Test against dedicated Neon ci-test branch
+- **Contract tests**: Validate all API and event contracts
+- **Coverage reporting**: Upload to Codecov for tracking
+
+**CI/CD Configuration:**
+
+```yaml
+# .github/workflows/test.yml
+integration-tests:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+    - uses: dopplerhq/cli-action@v3
+    
+    - name: Run integration tests
+      run: doppler run -- npm run test:integration
+      env:
+        DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_CI }}
+        # DATABASE_URL automatically injected (Neon ci-test branch)
+```
+
+**Key Decisions**:
+- ❌ **Do NOT use PostgreSQL containers** in CI (architectural drift)
+- ✅ **Use Neon test branches** to match production infrastructure
+- ✅ **Centralize secrets in Doppler** (single source of truth)
+- ✅ **Minimal GitHub Secrets** (only DOPPLER_TOKEN_CI needed)
 
 **Development Environment Testing:**
 
@@ -304,6 +350,10 @@ const testConfigs = {
   local: {
     database: { resetBetweenTests: true },
     fixtures: { loadTestData: true, userCount: 10, projectCount: 50 },
+  },
+  ci: {
+    database: { resetBetweenTests: true }, // Neon ci-test branch
+    fixtures: { loadTestData: true, userCount: 10, projectCount: 20 },
   },
   development: {
     database: { resetBetweenTests: false },
@@ -491,3 +541,11 @@ jobs:
 - **Configuration validation**: Runtime checks for required security settings
 - **Default security**: Secure defaults with explicit opt-out for less secure options
 - **Secret rotation automation**: Doppler supports automated rotation workflows
+
+---
+
+**Last Updated**: October 6, 2025
+
+**Change History**:
+- October 6, 2025: Added CI/CD environment configuration with Neon test branches
+- September 10, 2025: Initial version
