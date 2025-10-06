@@ -27,6 +27,18 @@ All secrets must be stored in Doppler under the `tomriddelsdell-infra` project.
 | `GITHUB_REPO_NAME` | GitHub repository name | `tomriddelsdell.com` | prd/stg/dev |
 | `GIT_REPOSITORY_URL` | Full repository URL | `https://github.com/TomRiddelsdell/tomriddelsdell.com` | prd/stg/dev |
 
+### Cloudflare Access (Staging Protection) 🔒
+
+**Required for staging environment protection with GitHub OAuth**
+
+| Secret Name | Description | Example Value | Environment |
+|-------------|-------------|---------------|-------------|
+| `GITHUB_OAUTH_CLIENT_ID` | GitHub OAuth App Client ID | `Ov23liAbC123...` | stg |
+| `GITHUB_OAUTH_CLIENT_SECRET` | GitHub OAuth App Client Secret | `ghp_abc123...` | stg |
+| `GITHUB_ORGANIZATION_NAME` | GitHub organization name for team access | `TomRiddelsdell` | stg |
+
+**How to obtain**: Follow the [Cloudflare Access Setup Guide](./ACCESS_SETUP.md) to create a GitHub OAuth application.
+
 ## Setting Up Secrets
 
 ### 1. Install Doppler CLI
@@ -55,6 +67,11 @@ doppler secrets set DOMAIN_NAME="tomriddelsdell.com" --project tomriddelsdell-in
 doppler secrets set GITHUB_OWNER="TomRiddelsdell" --project tomriddelsdell-infra --config prd
 doppler secrets set GITHUB_REPO_NAME="tomriddelsdell.com" --project tomriddelsdell-infra --config prd
 doppler secrets set GIT_REPOSITORY_URL="https://github.com/TomRiddelsdell/tomriddelsdell.com" --project tomriddelsdell-infra --config prd
+
+# Set Cloudflare Access secrets (staging only)
+doppler secrets set GITHUB_OAUTH_CLIENT_ID="your_oauth_client_id" --project tomriddelsdell-infra --config stg
+doppler secrets set GITHUB_OAUTH_CLIENT_SECRET="your_oauth_client_secret" --project tomriddelsdell-infra --config stg
+doppler secrets set GITHUB_ORGANIZATION_NAME="TomRiddelsdell" --project tomriddelsdell-infra --config stg
 ```
 
 ## Deployment Usage
@@ -97,6 +114,7 @@ The Cloudflare API token requires the following permissions:
 - **Zone:Zone Settings:Edit** - Modify zone settings
 - **Zone:DNS:Edit** - Manage DNS records
 - **Account:Cloudflare Pages:Edit** - Manage Pages projects
+- **Account:Access: Applications and Policies:Edit** - Manage Cloudflare Access (for staging protection)
 
 ## Environment Separation
 
