@@ -12,10 +12,12 @@ Welcome to the tomriddelsdell.com platform documentation. This repository follow
 
 Essential guides for development, deployment, and operations:
 
+- **[Environment Strategy](./operations/environment-strategy.md)** - ⭐ **NEW** Local/Staging/Production environment definitions
 - **[Doppler Setup](./operations/doppler-setup.md)** - Secret management configuration and environments
 - **[Doppler GitHub Integration](./operations/doppler-github-integration.md)** - CI/CD secret management patterns
 - **[CI/CD Database Architecture](./operations/ci-cd-database-architecture.md)** - Testing infrastructure with Neon
 - **[Neon CI Setup](./operations/neon-ci-setup.md)** - Database branch configuration for automated testing
+- **[DNSSEC Configuration](./operations/dnssec-configuration.md)** - DNS security setup for Cloudflare/GoDaddy
 
 ## Documentation by Topic
 
@@ -62,19 +64,21 @@ Essential guides for development, deployment, and operations:
 
 ### For New Developers
 
-1. **Read**: [Architecture Overview](./architecture.md) - Understand system design
-2. **Review**: [ADR-001: Business Domain](./decisions/adr-001-business-domain.md) - Learn the domain
-3. **Review**: [ADR-016: Application Standards](./decisions/adr-016-application-architecture-standards.md) - Coding conventions
-4. **Setup**: [Doppler Setup Guide](./operations/doppler-setup.md) - Configure local environment
-5. **Reference**: [Markdown Standards](./markdown-standards.md) - Documentation guidelines
+1. **Read**: [Environment Strategy](./operations/environment-strategy.md) - **START HERE** - Understand Local/Staging/Production
+2. **Read**: [Architecture Overview](./architecture.md) - Understand system design
+3. **Review**: [ADR-001: Business Domain](./decisions/adr-001-business-domain.md) - Learn the domain
+4. **Review**: [ADR-016: Application Standards](./decisions/adr-016-application-architecture-standards.md) - Coding conventions
+5. **Setup**: [Doppler Setup Guide](./operations/doppler-setup.md) - Configure local environment
+6. **Reference**: [Markdown Standards](./markdown-standards.md) - Documentation guidelines
 
 ### For Operations/DevOps
 
-1. **Start**: [Operations Directory](./operations/) - All operational guides
-2. **Secrets**: [Doppler Setup](./operations/doppler-setup.md) - Secret management
-3. **CI/CD**: [Doppler GitHub Integration](./operations/doppler-github-integration.md) - Pipeline configuration
-4. **Database**: [Neon CI Setup](./operations/neon-ci-setup.md) - Test database configuration
-5. **Reference**: [ADR-014: Infrastructure](./decisions/adr-014-infrastructure-and-deployment.md) - Infrastructure strategy
+1. **Start**: [Environment Strategy](./operations/environment-strategy.md) - **CRITICAL** - Understand deployment environments
+2. **Review**: [Operations Directory](./operations/) - All operational guides
+3. **Secrets**: [Doppler Setup](./operations/doppler-setup.md) - Secret management
+4. **CI/CD**: [Doppler GitHub Integration](./operations/doppler-github-integration.md) - Pipeline configuration
+5. **Database**: [Neon CI Setup](./operations/neon-ci-setup.md) - Test database configuration
+6. **Reference**: [ADR-014: Infrastructure](./decisions/adr-014-infrastructure-and-deployment.md) - Infrastructure strategy
 
 ### For Architects
 
