@@ -4,8 +4,9 @@
 
 ### AI Agent Rules
 
-- **_Instructions Files_** Never modify or delete .github/copilot-instructions.md or AGENT.md. These files contain critical instructions for AI agents and must remain unchanged.
-- **Creating Files** - Avoid creating file in the root directory. Use appropriate subdirectories following the established DDD structure.
+- **Credentials** - Never put credentials, tokens, or sensitive information in the codebase, config, logs or documentation files that will be committed to version control.
+- ** Instructions Files ** Never modify or delete .github/copilot-instructions.md or AGENT.md. These files contain critical instructions for AI agents and must remain unchanged.
+- **Creating Files** - Avoid creating file in the root directory. Use appropriate subdirectories following the established DDD structure. Archtecture related documentation should be integrated into architecture.md or docs/decisions. Temporary files and status updates should be placed in temp/.
 - **Record Bugs in docs/Bugs.md** - Document any bugs or issues encountered, with reproduction unit test and resolution status
   **Document work done in changes/yyyy-mm-dd-short-description.md** - Summarize changes made regularly, particularly after each commit, including any relevant context or decisions. Updates should be appended at the top of the file with a timestamp. Previous timestamps should not be modified.
 - **Changes** Never delete the 'changes' directory or any of its files. Only modify the file matching today's date in an append-only manner.

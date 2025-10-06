@@ -3,7 +3,7 @@
 
 # App configuration
 APP_NAME := landing-page
-APP_TYPE := nodejs
+APP_TYPE := nextjs
 DEPLOYMENT_TARGET := cloudflare-pages
 
 # Include shared deployment functions
@@ -88,7 +88,13 @@ clean: ## Clean build artifacts
 
 test: ## Run tests
 	@echo "$(YELLOW)🧪 Running tests for $(APP_NAME)...$(NC)"
-ifeq ($(APP_TYPE),nodejs)
+ifeq ($(APP_TYPE),nextjs)
+	@if [ -f "package.json" ] && [ -n "$$(jq -r '.scripts.test // empty' package.json)" ]; then \
+		pnpm test; \
+	else \
+		echo "$(YELLOW)⚠️  No test script found$(NC)"; \
+	fi
+else ifeq ($(APP_TYPE),nodejs)
 	@if [ -f "package.json" ] && [ -n "$$(jq -r '.scripts.test // empty' package.json)" ]; then \
 		npm test; \
 	else \
@@ -169,9 +175,9 @@ deploy: build ## Deploy the application
 	@echo "$(YELLOW)🚀 Deploying $(APP_NAME) to $(DEPLOYMENT_TARGET)...$(NC)"
 	$(call pre-deploy-checks)
 ifeq ($(DEPLOYMENT_TARGET),cloudflare-worker)
-	$(call deploy-cloudflare-worker,$(APP_NAME))
+	$(call deploy-cloudflare-worker)
 else ifeq ($(DEPLOYMENT_TARGET),cloudflare-pages)
-	$(call deploy-cloudflare-pages,$(APP_NAME))
+	$(call deploy-cloudflare-pages)
 else ifeq ($(DEPLOYMENT_TARGET),aws-lambda)
 	$(call deploy-to-lambda,$(APP_NAME))
 else ifeq ($(DEPLOYMENT_TARGET),aws-ecs)
@@ -188,9 +194,9 @@ endif
 health-check: ## Check application health
 	@echo "$(YELLOW)🏥 Health checking $(APP_NAME)...$(NC)"
 ifeq ($(DEPLOYMENT_TARGET),cloudflare-worker)
-	$(call health-check-cloudflare-worker,$(APP_NAME))
+	$(call health-check-worker)
 else ifeq ($(DEPLOYMENT_TARGET),cloudflare-pages)
-	$(call health-check-cloudflare-pages,$(APP_NAME))
+	$(call health-check-pages)
 else ifeq ($(DEPLOYMENT_TARGET),aws-lambda)
 	$(call health-check-lambda,$(APP_NAME))
 else ifeq ($(DEPLOYMENT_TARGET),aws-ecs)
