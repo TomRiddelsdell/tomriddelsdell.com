@@ -1,4 +1,12 @@
-# Documentation Index
+# Document### Operational Guides
+
+- **[Environment Strategy](./operations/environment-strategy.md)** ⭐ **NEW** - Comprehensive guide to Local/Staging/Production environments
+- **[Staging Environment Protection](./operations/staging-environment-protection.md)** ⭐ **NEW** - Security strategies for staging environment
+- [Doppler Setup](./operations/doppler-setup.md) - Secret management and CLI configuration
+- [Doppler GitHub Integration](./operations/doppler-github-integration.md) - CI/CD secrets injection
+- [CI/CD Database Architecture](./operations/ci-cd-database-architecture.md) - Test database strategy
+- [Neon CI Setup](./operations/neon-ci-setup.md) - Neon test branch configuration
+- [DNSSEC Configuration](./operations/dnssec-configuration.md) - Domain security setupx
 
 Welcome to the tomriddelsdell.com platform documentation. This repository follows Domain-Driven Design (DDD) with Event Sourcing and CQRS patterns.
 

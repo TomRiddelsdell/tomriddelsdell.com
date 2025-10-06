@@ -9,6 +9,13 @@ The infrastructure manages:
 - DNS records for custom domain routing to Cloudflare Pages
 - Zone configuration for the primary domain
 - Environment-specific subdomain routing (staging/production)
+- **Cloudflare Access**: Staging environment protection with GitHub OAuth authentication
+
+## Quick Links
+
+- **[Cloudflare Access Setup Guide](./ACCESS_SETUP.md)** - ⭐ Configure staging environment protection
+- **[Secrets Documentation](./SECRETS.md)** - Required Doppler secrets
+- **[Deployment Script](./deploy.sh)** - Automated deployment with Doppler
 
 ## Current State
 
@@ -27,14 +34,24 @@ The following components were created manually and are **not** managed by this T
    - `develop.tomriddelsdell.com` → `landing-page-8t9.pages.dev`
    - `tomriddelsdell.com` → `landing-page-8t9.pages.dev`
 
+2. **Cloudflare Access** (Staging Protection):
+   - Access Application for `staging.tomriddelsdell.com`
+   - GitHub OAuth Identity Provider
+   - Access Policies (Organization members, specific users, service tokens)
+   - Service Token for CI/CD automation
+   - Development Team access group
+
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `main.tf` | Primary Terraform configuration |
+| `access.tf` | **NEW** Cloudflare Access configuration for staging protection |
+| `access-variables.tf` | **NEW** Variables for GitHub OAuth and access policies |
 | `main-simplified.tf` | Simplified version focusing on DNS records only |
 | `terraform.tfvars.template` | Template for environment variables |
 | `deploy.sh` | Deployment script with Doppler integration |
+| `ACCESS_SETUP.md` | **NEW** Step-by-step guide for configuring Cloudflare Access |
 | `SECRETS.md` | Documentation for required secrets |
 | `README.md` | This file |
 
