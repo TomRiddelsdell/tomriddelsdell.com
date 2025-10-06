@@ -60,20 +60,6 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -84,14 +70,17 @@ jobs:
           node-version: ${{ inputs.node-version }}
           cache: "npm"
 
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v3
+
       - name: Install dependencies
         run: npm ci
 
       - name: Run integration tests
-        run: npm run test:integration
+        run: doppler run -- npm run test:integration
         env:
           CI: true
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_CI }}
 
   contract-tests:
     name: Contract Tests

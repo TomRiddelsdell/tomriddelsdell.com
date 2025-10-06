@@ -4,8 +4,8 @@ compatibility_date = "2024-01-01"
 # Pages configuration
 pages_build_output_dir = "out"
 
-[env.development]
-name = "landing-page-dev"
+[env.preview]
+name = "landing-page-preview"
 
 [env.production] 
 name = "landing-page-prod"

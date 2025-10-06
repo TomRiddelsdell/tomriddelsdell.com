@@ -43,11 +43,15 @@ define deploy-cloudflare-pages
 	$(call check-wrangler)
 	$(call validate-build)
 	$(call validate-doppler)
-	@BUILD_OUTPUT_DIR=$$(if [ -d "out" ]; then echo "out"; elif [ -d "dist" ]; then echo "dist"; elif [ -d ".next" ]; then echo ".next"; else echo "build"; fi); \
+	@if [ -d "out" ]; then BUILD_OUTPUT_DIR="out"; \
+	elif [ -d "dist" ]; then BUILD_OUTPUT_DIR="dist"; \
+	elif [ -d ".next" ]; then BUILD_OUTPUT_DIR=".next"; \
+	else BUILD_OUTPUT_DIR="build"; fi; \
+	echo "$(YELLOW)🔐 Running with Doppler secrets ($(DOPPLER_CONFIG))...$(NC)"; \
 	if [ "$(ENV)" = "production" ]; then \
-		$(call doppler-exec,wrangler pages deploy ./$$BUILD_OUTPUT_DIR --project-name=$(shell basename $(CURDIR)) --env production); \
+		doppler run --project $(DOPPLER_PROJECT) --config $(DOPPLER_CONFIG) -- wrangler pages deploy ./$$BUILD_OUTPUT_DIR --project-name=$(shell basename $(CURDIR)) --branch main; \
 	else \
-		$(call doppler-exec,wrangler pages deploy ./$$BUILD_OUTPUT_DIR --project-name=$(shell basename $(CURDIR)) --env development); \
+		doppler run --project $(DOPPLER_PROJECT) --config $(DOPPLER_CONFIG) -- wrangler pages deploy ./$$BUILD_OUTPUT_DIR --project-name=$(shell basename $(CURDIR)) --branch develop; \
 	fi
 	@echo "$(GREEN)✅ Cloudflare Pages deployed$(NC)"
 endef
@@ -76,11 +80,11 @@ endef
 # Cloudflare Pages health check
 define health-check-pages
 	@echo "$(YELLOW)🏥 Health checking Cloudflare Pages...$(NC)"
-	@PAGES_URL=$$($(call doppler-run,$(DOPPLER_CONFIG)) wrangler pages deployment list --project-name=$(shell basename $(CURDIR)) --format json 2>/dev/null | jq -r '.[0].url // empty' 2>/dev/null || echo ""); \
-	if [ -n "$$PAGES_URL" ]; then \
-		$(call health-check-url,$$PAGES_URL); \
+	@echo "$(YELLOW)💡 Checking deployment at: https://develop.$(shell basename $(CURDIR))-8t9.pages.dev$(NC)"
+	@if curl -f -s "https://develop.$(shell basename $(CURDIR))-8t9.pages.dev" > /dev/null; then \
+		echo "$(GREEN)✅ Cloudflare Pages is healthy$(NC)"; \
 	else \
-		echo "$(YELLOW)⚠️  Could not determine Pages URL$(NC)"; \
+		echo "$(RED)❌ Cloudflare Pages is not responding$(NC)"; \
 	fi
 endef
 
