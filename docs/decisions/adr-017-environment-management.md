@@ -14,10 +14,10 @@ We need to define our environment management strategy including the number of en
 
 **Three-Environment Approach:**
 
-- **Local Development**: Individual developer environments running locally
-- **CI/CD Environment**: Automated testing environment for GitHub Actions
-- **Development Environment**: Shared development environment for integration testing
-- **Production Environment**: Live production environment serving real users
+- **Local (Dev)**: Individual developer environments running locally (not deployed)
+- **CI/CD Environment**: Automated testing environment for GitHub Actions (not deployed)
+- **Staging Environment**: Shared pre-production environment for integration testing (deployed from `develop` branch)
+- **Production Environment**: Live production environment serving real users (deployed from `main` branch)
 
 **Environment Characteristics:**
 
@@ -26,10 +26,12 @@ environments:
   local:
     purpose: 'Individual developer testing and rapid iteration'
     database: 'Neon dev branch per developer (e.g., dev-john)'
-    workers: 'Local Cloudflare Workers development server'
+    workers: 'Local Cloudflare Workers development server (wrangler dev)'
     event_store: 'Local event store on Neon dev branch'
     projections: 'Local projection databases'
     secrets: 'Doppler (dev_personal config)'
+    deployed: false
+    url: 'http://localhost:3000'
 
   ci:
     purpose: 'Automated testing in GitHub Actions'
@@ -39,14 +41,18 @@ environments:
     projections: 'Ephemeral test databases'
     secrets: 'Doppler (ci_tests config) via DOPPLER_TOKEN_CI'
     key_feature: 'Tests against production-like Neon infrastructure'
+    deployed: false
 
-  development:
-    purpose: 'Shared integration testing and feature validation'
-    database: 'Neon dev branch'
-    workers: 'dev.tomriddelsdell.com'
-    event_store: 'Shared development event store'
-    projections: 'Shared development projection databases'
-    secrets: 'Doppler (dev config)'
+  staging:
+    purpose: 'Shared pre-production environment for integration testing and feature validation'
+    database: 'Neon staging branch'
+    workers: 'staging.tomriddelsdell.com'
+    event_store: 'Shared staging event store'
+    projections: 'Shared staging projection databases'
+    secrets: 'Doppler (stg config)'
+    deployed: true
+    branch: 'develop'
+    url: 'https://staging.tomriddelsdell.com'
 
   production:
     purpose: 'Live production environment'
@@ -55,6 +61,9 @@ environments:
     event_store: 'Production event store with backups'
     projections: 'Production projection databases with monitoring'
     secrets: 'Doppler (prd config)'
+    deployed: true
+    branch: 'main'
+    url: 'https://tomriddelsdell.com'
 ```
 
 **Key Principle**: All environments use Neon (serverless Postgres) to ensure consistency and test production-like behavior.
@@ -63,18 +72,18 @@ environments:
 
 **Feature Development Process:**
 
-1. **Local Development**: Developer works on feature branch locally
+1. **Local Development**: Developer works on feature branch locally with `npm run dev`
 2. **Local Testing**: Run unit and integration tests locally
-3. **Development Deployment**: Merge to `develop` branch triggers deployment to dev environment
-4. **Integration Testing**: Validate feature works in shared environment
-5. **Production Deployment**: Merge to `main` branch triggers production deployment
+3. **Staging Deployment**: Merge to `develop` branch triggers automatic deployment to staging environment
+4. **Integration Testing**: Validate feature works in shared staging environment
+5. **Production Deployment**: Merge to `main` branch triggers automatic deployment to production environment
 
 **Branch Strategy:**
 
-- **Feature branches**: Developed and tested locally
-- **Develop branch**: Continuous deployment to development environment
-- **Main branch**: Continuous deployment to production environment
-- **No staging environment**: Development environment serves as staging
+- **Feature branches**: Developed and tested locally (not deployed)
+- **Develop branch**: Continuous deployment to staging environment (`staging.tomriddelsdell.com`)
+- **Main branch**: Continuous deployment to production environment (`tomriddelsdell.com`)
+- **No separate dev environment**: Local development only, no deployed dev environment
 
 ### Environment-Specific Configuration
 
@@ -90,7 +99,7 @@ environments:
 ```typescript
 // src/config/environment.ts
 interface EnvironmentConfig {
-  environment: 'local' | 'development' | 'production';
+  environment: 'local' | 'staging' | 'production';
   database: {
     url: string;
     maxConnections: number;
@@ -116,7 +125,7 @@ const configs = {
     database: { maxConnections: 5, ssl: false },
     monitoring: { enabled: false, logLevel: 'debug' },
   },
-  development: {
+  staging: {
     database: { maxConnections: 10, ssl: true },
     monitoring: { enabled: true, logLevel: 'info' },
   },
@@ -151,14 +160,14 @@ project: tomriddelsdell-platform
 environments:
   local:
     configs:
-      - dev_personal # Individual developer configs
-  development:
+      - dev_personal # Individual developer configs (local only, not deployed)
+  staging:
     configs:
-      - dev_shared # Shared development environment
+      - stg # Staging environment (deployed from develop branch)
   production:
     configs:
-      - prod # Production environment
-      - prod_backup # Backup/disaster recovery configs
+      - prd # Production environment (deployed from main branch)
+      - prd_backup # Backup/disaster recovery configs
 ```
 
 **Secret Rotation:**
