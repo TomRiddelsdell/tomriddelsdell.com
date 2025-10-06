@@ -179,6 +179,38 @@ describe('ProjectCreatedEventHandler', () => {
 
 ### Integration Testing Strategy
 
+#### Test Database Configuration
+
+**Local Development**: Developers use local Neon dev branches or in-memory event stores for fast iteration.
+
+**CI/CD Pipeline**: Integration tests use dedicated Neon test branches (not generic PostgreSQL containers) to ensure:
+- Tests validate against production-like infrastructure (Neon serverless)
+- Serverless connection patterns are tested (connection pooling, cold starts)
+- No architectural drift between test and production environments
+- Neon-specific features are validated (branching, point-in-time recovery)
+
+**Configuration**:
+```yaml
+# GitHub Actions - .github/workflows/test.yml
+integration-tests:
+  steps:
+    - name: Install Doppler CLI
+      uses: dopplerhq/cli-action@v3
+    
+    - name: Run integration tests
+      run: doppler run -- npm run test:integration
+      env:
+        DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_CI }}
+        # DATABASE_URL automatically injected from Doppler (Neon test branch)
+```
+
+**Benefits**:
+- ✅ Tests against actual Neon serverless Postgres
+- ✅ Validates production connection patterns
+- ✅ No mock databases or service containers
+- ✅ Centralized secret management via Doppler
+- ✅ Environment parity across dev/staging/CI/production
+
 #### Event Store Integration Tests
 
 ```typescript
@@ -187,8 +219,9 @@ describe('Event Store Integration', () => {
   let database: TestDatabase;
 
   beforeEach(async () => {
+    // Uses DATABASE_URL from environment (Neon test branch in CI)
     database = await TestDatabase.create();
-    eventStore = new PostgresEventStore(database.connection);
+    eventStore = new NeonEventStore(database.connection);
   });
 
   afterEach(async () => {
@@ -525,17 +558,51 @@ describe('Event Processing Performance', () => {
 ### Prerequisites
 
 - All ADRs that define architecture must be implemented first
-- Test infrastructure (test databases, message brokers) must be available
+- Test infrastructure must align with production infrastructure (Neon branches for databases)
+- Centralized secrets management (Doppler) must be configured
 - Development team must understand event sourcing and DDD patterns
+
+### Test Infrastructure Setup
+
+#### Local Development
+
+```bash
+# Create personal Neon dev branch
+neonctl branches create dev-$(whoami) --project-id <project-id>
+
+# Configure local environment
+doppler setup --project tomriddelsdell-infra --config dev_personal
+```
+
+#### CI/CD Environment
+
+```bash
+# Create dedicated CI test branch
+neonctl branches create ci-test --project-id <project-id>
+
+# Add to Doppler CI config
+doppler secrets set DATABASE_URL "<neon-ci-connection-string>" \
+  --project tomriddelsdell-infra --config ci_tests
+
+# Create service token for GitHub Actions
+doppler configs tokens create "GitHub Actions CI" \
+  --config ci_tests --project tomriddelsdell-infra --plain
+
+# Add token to GitHub repository
+gh secret set DOPPLER_TOKEN_CI --body "<service-token>"
+```
+
+**Important**: Do NOT use generic PostgreSQL containers in CI. Use Neon test branches to ensure environment parity with production.
 
 ### Implementation Steps
 
-1. **Set up test infrastructure**: Test databases, containers, fixtures
-2. **Implement domain unit tests**: Start with aggregate testing patterns
-3. **Add integration tests**: Event store, projection, message bus integration
-4. **Create contract tests**: API and event schema validation
-5. **Build E2E test suite**: Critical user journeys and business scenarios
-6. **Add performance tests**: Event processing and projection performance
+1. **Set up test infrastructure**: Neon test branches, Doppler configs, service tokens
+2. **Configure CI/CD pipeline**: GitHub Actions with Doppler integration
+3. **Implement domain unit tests**: Start with aggregate testing patterns
+4. **Add integration tests**: Event store, projection, message bus integration (using Neon)
+6. **Create contract tests**: API and event schema validation
+7. **Build E2E test suite**: Critical user journeys and business scenarios
+8. **Add performance tests**: Event processing and projection performance
 
 ### Testing Tools and Frameworks
 
@@ -674,4 +741,9 @@ const aggregate = AggregateType.fromEvents(testEvents);
 
 ---
 
-_Last Updated: September 10, 2025_
+**Last Updated**: October 6, 2025
+
+**Change History**:
+- October 6, 2025: Added CI/CD database configuration guidance (Neon test branches)
+- September 10, 2025: Initial version
+
