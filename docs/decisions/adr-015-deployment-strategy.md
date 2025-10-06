@@ -122,8 +122,8 @@ make test-app APP=services/accounts # Test specific app
 - **Code duplication**: Maximum 3% duplication allowed
 
 **Environment Promotion:**
-- **Feature branches**: Deploy to ephemeral environments for testing
-- **Develop branch**: Auto-deploy to staging environment
+- **Feature branches**: Developed and tested locally (not deployed)
+- **Develop branch**: Auto-deploy to staging environment (pre-production validation)
 - **Main branch**: Automatic production deployment after successful quality gates
 - **Rollback capability**: Previous versions tagged and available for quick rollback
 
