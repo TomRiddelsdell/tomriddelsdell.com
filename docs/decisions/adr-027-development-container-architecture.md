@@ -1,4 +1,4 @@
-# ADR-025: Development Container Architecture
+# ADR-027: Development Container Architecture
 
 ## Status
 
