@@ -3,9 +3,14 @@
  *
  * NODE_ENV - Controls build optimization (always 'production' for builds)
  * NEXT_PUBLIC_ENV - Controls runtime environment behavior
+ *
+ * Environments:
+ * - local: Local development (not deployed, runs on localhost)
+ * - staging: Pre-production environment (deployed from develop branch)
+ * - production: Live production environment (deployed from main branch)
  */
 
-export type Environment = 'development' | 'staging' | 'production'
+export type Environment = 'local' | 'staging' | 'production'
 
 export const config = {
   // Build-time environment (from NEXT_PUBLIC_ENV)
@@ -23,15 +28,15 @@ export const config = {
   // Feature flags per environment
   features: {
     analytics: process.env.NEXT_PUBLIC_ENV === 'production',
-    debugMode: process.env.NEXT_PUBLIC_ENV === 'development',
+    debugMode: process.env.NEXT_PUBLIC_ENV === 'local',
     staging: process.env.NEXT_PUBLIC_ENV === 'staging',
   },
 } as const
 
 function getApiBaseUrl(): string {
   switch (process.env.NEXT_PUBLIC_ENV) {
-    case 'development':
-      return 'https://dev-api.tomriddelsdell.com'
+    case 'local':
+      return 'http://localhost:8787' // Local Cloudflare Worker
     case 'staging':
       return 'https://staging-api.tomriddelsdell.com'
     case 'production':

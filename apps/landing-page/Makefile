@@ -18,8 +18,8 @@ BUILD_DIR := out
 SOURCE_DIR := src
 
 # Environment-specific overrides
-ifeq ($(ENV),development)
-DOPPLER_CONFIG := dev
+ifeq ($(ENV),local)
+DOPPLER_CONFIG := dev_personal
 endif
 ifeq ($(ENV),staging)
 DOPPLER_CONFIG := stg
