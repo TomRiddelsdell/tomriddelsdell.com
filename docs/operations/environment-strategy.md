@@ -41,6 +41,7 @@ doppler run --config dev_personal -- npm run dev
 **Characteristics**:
 - **Deployed automatically** when pushing to `develop` branch
 - Accessed via `https://staging.tomriddelsdell.com`
+- **Protected from public access** - requires authentication (see [Staging Environment Protection](./staging-environment-protection.md))
 - Shared Neon staging branch
 - Doppler config: `stg`
 - Integration testing with production-like infrastructure
@@ -247,6 +248,7 @@ make deploy ENV=production     # Manual deployment (emergency only)
 
 - [ADR-017: Environment Management Strategy](../decisions/adr-017-environment-management.md)
 - [ADR-015: Deployment Strategy](../decisions/adr-015-deployment-strategy.md)
+- [Staging Environment Protection](./staging-environment-protection.md) - **Important**: How to secure staging from public access
 - [Doppler Setup Guide](./doppler-setup.md)
 - [CI/CD Database Architecture](./ci-cd-database-architecture.md)
 
