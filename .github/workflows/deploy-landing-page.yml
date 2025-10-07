@@ -111,16 +111,16 @@ jobs:
 
       - name: Build for staging
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_DEV }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_STG }}
         run: |
-          doppler run --project tomriddelsdell-infra --config dev -- pnpm run build:staging
+          doppler run --project tomriddelsdell-infra --config stg -- pnpm run build:staging
 
       - name: Deploy to Cloudflare Pages (Staging)
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_DEV }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_STG }}
         run: |
           echo "🚀 Deploying to Cloudflare Pages (staging)..."
-          doppler run --project tomriddelsdell-infra --config dev -- \
+          doppler run --project tomriddelsdell-infra --config stg -- \
             pnpm exec wrangler pages deploy out \
               --project-name=landing-page-8t9 \
               --branch=develop \
