@@ -11,7 +11,20 @@ const compat = new FlatCompat({
   recommendedConfig: js.configs.recommended,
 })
 
-export default [
+const config = [
+  {
+    ignores: [
+      '**/node_modules/**',
+      '**/.next/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/out/**',
+      '**/.cache/**',
+      '**/coverage/**',
+      '**/*.config.ts',
+      '**/public/**',
+    ],
+  },
   ...compat.extends('next/core-web-vitals'),
   {
     files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
@@ -40,3 +53,5 @@ export default [
     },
   },
 ]
+
+export default config
