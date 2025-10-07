@@ -111,20 +111,20 @@ jobs:
 
       - name: Build for staging
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_STG }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_DEV }}
         run: |
           doppler run --project tomriddelsdell-infra --config stg -- pnpm run build:staging
 
       - name: Deploy to Cloudflare Pages (Staging)
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_DEV }}
         run: |
           echo "🚀 Deploying to Cloudflare Pages (staging)..."
-          npx wrangler pages deploy out \
-            --project-name=landing-page-8t9 \
-            --branch=develop \
-            --commit-dirty=true
+          doppler run --project tomriddelsdell-infra --config stg -- \
+            npx wrangler pages deploy out \
+              --project-name=landing-page-8t9 \
+              --branch=develop \
+              --commit-dirty=true
 
       - name: Wait for DNS propagation
         run: |
@@ -215,20 +215,20 @@ jobs:
 
       - name: Build for production
         env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PROD }}
         run: |
           doppler run --project tomriddelsdell-infra --config prd -- pnpm run build:production
 
       - name: Deploy to Cloudflare Pages (Production)
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PROD }}
         run: |
           echo "🚀 Deploying to Cloudflare Pages (production)..."
-          npx wrangler pages deploy out \
-            --project-name=landing-page-8t9 \
-            --branch=main \
-            --commit-dirty=true
+          doppler run --project tomriddelsdell-infra --config prd -- \
+            npx wrangler pages deploy out \
+              --project-name=landing-page-8t9 \
+              --branch=main \
+              --commit-dirty=true
 
       - name: Wait for DNS propagation
         run: |
