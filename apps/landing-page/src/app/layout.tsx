@@ -3,7 +3,8 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Tom Riddelsdell - Portfolio Platform',
-  description: 'Personal portfolio and project showcase platform - Built with Next.js and Cloudflare Pages',
+  description:
+    'Personal portfolio and project showcase platform - Built with Next.js and Cloudflare Pages',
 }
 
 export default function RootLayout({

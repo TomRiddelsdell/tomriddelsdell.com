@@ -7,7 +7,7 @@ import Page from '../page'
 describe('Landing Page', () => {
   it('renders the main heading', () => {
     render(<Page />)
-    
+
     // This test will pass if any heading exists
     const headings = screen.getAllByRole('heading')
     expect(headings.length).toBeGreaterThan(0)
