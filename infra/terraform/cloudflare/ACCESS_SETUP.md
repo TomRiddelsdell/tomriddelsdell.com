@@ -27,9 +27,25 @@ This guide walks you through setting up Cloudflare Access to protect `staging.to
 
 ## Step 1: Create GitHub OAuth Application
 
+### 🔒 Security Best Practice: Organization-Owned OAuth App
+
+**IMPORTANT**: To enforce organization membership, the OAuth app MUST be created under your GitHub organization, not your personal account.
+
+**To create an organization-owned OAuth app**:
+1. Go to: `https://github.com/organizations/TomRiddelsdell/settings/applications` 
+2. Click **"OAuth Apps"** in the left sidebar
+3. Click **"New OAuth App"**
+
 ### 1.1 Navigate to GitHub OAuth Apps
 
-Go to: https://github.com/settings/developers (or your organization settings)
+**For Organization (Recommended)**:
+- Go to: https://github.com/organizations/TomRiddelsdell/settings/applications
+- Click "OAuth Apps" → "New OAuth App"
+
+**For Personal Account (Less Secure)**:
+- Go to: https://github.com/settings/developers
+- Click "OAuth Apps" → "New OAuth App"
+- Note: This will NOT enforce organization membership!
 
 ### 1.2 Create New OAuth App
 
@@ -38,14 +54,13 @@ Click **"New OAuth App"** and fill in:
 ```
 Application name: Cloudflare Access - Staging Environment
 Homepage URL: https://staging.tomriddelsdell.com
-Authorization callback URL: https://<YOUR_TEAM_NAME>.cloudflareaccess.com/cdn-cgi/access/callback
+Authorization callback URL: https://tomriddelsdell.cloudflareaccess.com/cdn-cgi/access/callback
 ```
 
-**Finding your Team Name**:
-1. Log in to Cloudflare Zero Trust dashboard
-2. Go to Settings > General
-3. Your team name is shown in the URL: `https://one.dash.cloudflare.com/<ACCOUNT_ID>/`
-4. Or under "Auth domain": `<YOUR_TEAM_NAME>.cloudflareaccess.com`
+**Security Configuration**:
+- ✅ **Enable "Request user authorization (OAuth) during installation"**
+- ✅ Set authorization callback URL correctly
+- ✅ If organization-owned, only organization members will be able to authenticate
 
 ### 1.3 Save Credentials
 

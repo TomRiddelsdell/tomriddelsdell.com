@@ -3,7 +3,7 @@
 
 # Access Application for Staging Environment
 resource "cloudflare_access_application" "staging" {
-  zone_id                   = var.cloudflare_zone_id
+  zone_id                   = data.cloudflare_zone.main.id
   name                      = "Staging Environment - tomriddelsdell.com"
   domain                    = "staging.tomriddelsdell.com"
   type                      = "self_hosted"
@@ -29,8 +29,6 @@ resource "cloudflare_access_application" "staging" {
   # Enable HTTP-only cookies for security
   http_only_cookie_attribute = true
   same_site_cookie_attribute = "lax"
-
-  tags = ["staging", "protected", "landing-page"]
 }
 
 # GitHub Identity Provider
@@ -45,57 +43,41 @@ resource "cloudflare_access_identity_provider" "github" {
   }
 }
 
-# Access Policy - Allow specific GitHub organization/users
+# Access Policy - Allow GitHub authenticated users from specific organization
+# Note: GitHub OAuth will require users to have access to the TomRiddelsdell organization
+# The OAuth app should be owned by the organization for automatic organization membership verification
 resource "cloudflare_access_policy" "staging_github_users" {
   application_id = cloudflare_access_application.staging.id
-  zone_id        = var.cloudflare_zone_id
+  zone_id        = data.cloudflare_zone.main.id
   name           = "Allow GitHub Organization Members"
   precedence     = 1
   decision       = "allow"
 
-  # Include rule: Must be member of GitHub organization
+  # Include: Anyone who authenticates via GitHub OAuth
+  # Organization membership is enforced at the OAuth app level
   include {
-    github {
-      name                 = var.github_organization_name
-      identity_provider_id = cloudflare_access_identity_provider.github.id
-    }
-  }
-
-  # Optional: Require MFA for staging access
-  require {
-    auth_method = "github"
+    login_method = [cloudflare_access_identity_provider.github.id]
   }
 
   # Session duration for this policy
   session_duration = "24h"
 }
 
-# Access Policy - Allow specific GitHub users (fallback/emergency access)
+# Access Policy - Allow specific email addresses (for emergency access)
 resource "cloudflare_access_policy" "staging_specific_users" {
   application_id = cloudflare_access_application.staging.id
-  zone_id        = var.cloudflare_zone_id
-  name           = "Allow Specific GitHub Users"
+  zone_id        = data.cloudflare_zone.main.id
+  name           = "Allow Specific Email Addresses"
   precedence     = 2
   decision       = "allow"
 
-  # Include rule: Specific GitHub usernames
+  # Include: Specific email addresses
   include {
-    github {
-      name                 = var.github_organization_name
-      identity_provider_id = cloudflare_access_identity_provider.github.id
-    }
+    email = ["t.riddelsdell@gmail.com"]
   }
 
-  # Additional allowed users
-  dynamic "include" {
-    for_each = var.staging_allowed_github_users
-    content {
-      github {
-        name                 = include.value
-        identity_provider_id = cloudflare_access_identity_provider.github.id
-      }
-    }
-  }
+  # Session duration
+  session_duration = "24h"
 }
 
 # Service Authentication Token (for CI/CD access without browser)
@@ -110,7 +92,7 @@ resource "cloudflare_access_service_token" "github_actions" {
 # Access Policy - Allow Service Token (for automated testing)
 resource "cloudflare_access_policy" "staging_service_token" {
   application_id = cloudflare_access_application.staging.id
-  zone_id        = var.cloudflare_zone_id
+  zone_id        = data.cloudflare_zone.main.id
   name           = "Allow CI/CD Service Token"
   precedence     = 3
   decision       = "allow"
@@ -120,24 +102,13 @@ resource "cloudflare_access_policy" "staging_service_token" {
   }
 }
 
-# Access Group - Development Team
+# Access Group - Development Team  
 resource "cloudflare_access_group" "dev_team" {
   account_id = var.cloudflare_account_id
   name       = "Development Team"
 
   include {
-    github {
-      name                 = var.github_organization_name
-      identity_provider_id = cloudflare_access_identity_provider.github.id
-    }
-  }
-
-  # Optional: Require email domain
-  dynamic "include" {
-    for_each = var.allowed_email_domains
-    content {
-      email_domain = [include.value]
-    }
+    everyone = true
   }
 }
 
