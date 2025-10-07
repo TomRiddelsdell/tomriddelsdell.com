@@ -23,7 +23,7 @@ Successfully configured CI/CD pipeline to use Neon test branch via Doppler, elim
 
 **Connection String**:
 ```
-postgresql://neondb_owner:***REDACTED***@ep-lively-cherry-ab7qgjwf.eu-west-2.aws.neon.tech/neondb?sslmode=require
+postgresql://<username>:<password>@instance.aws.neon.tech/neondb?sslmode=require
 ```
 
 > ⚠️ **Security Note**: Actual credentials stored in Doppler and never committed to version control.
@@ -41,7 +41,7 @@ postgresql://neondb_owner:***REDACTED***@ep-lively-cherry-ab7qgjwf.eu-west-2.aws
 ### 3. Doppler Service Token
 
 **Token Name**: `GitHub Actions CI Backup`  
-**Token**: `dp.st.ci_tests.***REDACTED***`  
+**Token**: `dp.st.ci_tests.XXXXXXXXXX`  
 **Access**: Read-only  
 **Scope**: `ci_tests` config only  
 **Created**: October 6, 2025
@@ -79,11 +79,11 @@ GitHub Actions Workflow
 
 ```bash
 # Set token (use your actual token from Doppler dashboard)
-export DOPPLER_TOKEN=dp.st.ci_tests.***REDACTED***
+export DOPPLER_TOKEN=dp.st.ci_tests.XXXXXXXXXXXX
 
 # Test fetching secrets
 doppler secrets get DATABASE_URL --plain
-# Should output: postgresql://neondb_owner:***REDACTED***@...
+# Should output: postgresql://neondb_owner:XXXXXXXXXXXX@...
 
 # Test running a command with injected secrets
 doppler run -- env | grep DATABASE_URL
@@ -97,7 +97,7 @@ doppler run -- env | grep DATABASE_URL
 doppler run -- psql "$DATABASE_URL" -c "SELECT version();"
 
 # Or with connection string from Doppler:
-# psql "postgresql://neondb_owner:***REDACTED***@ep-lively-cherry-ab7qgjwf.eu-west-2.aws.neon.tech/neondb?sslmode=require" -c "SELECT version();"
+# psql "postgresql://neondb_owner:XXXXXXXXXXXX@ep-lively-cherry-ab7qgjwf.eu-west-2.aws.neon.tech/neondb?sslmode=require" -c "SELECT version();"
 ```
 
 ---
@@ -145,7 +145,7 @@ integration-tests:
 
 ### Token Management
 
-**Service Token**: `dp.st.ci_tests.***REDACTED***` (stored in GitHub Secrets as DOPPLER_TOKEN_CI)
+**Service Token**: `dp.st.ci_tests.XXXXXXXXXXXX` (stored in GitHub Secrets as DOPPLER_TOKEN_CI)
 
 - ⚠️ **Read-only** access to ci_tests config
 - ⚠️ Stored in GitHub Secrets (encrypted)
@@ -157,7 +157,7 @@ integration-tests:
 **Neon Connection**: Embedded in DATABASE_URL
 
 - ⚠️ Username: `neondb_owner`
-- ⚠️ Password: `***REDACTED***` (retrieve from Doppler if needed)
+- ⚠️ Password: `XXXXXXXXXXXX` (retrieve from Doppler if needed)
 - ⚠️ These credentials are stored in Doppler (encrypted)
 - ⚠️ Only accessible via service token
 - ⚠️ Can be rotated by recreating Neon branch
