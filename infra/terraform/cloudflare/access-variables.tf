@@ -1,6 +1,12 @@
 # Cloudflare Access Variables
 # Variables for staging environment protection with GitHub OAuth
 
+variable "cloudflare_zone_id" {
+  description = "Cloudflare Zone ID for the domain (can be retrieved from data source)"
+  type        = string
+  default     = ""  # Will be populated from data source if not provided
+}
+
 variable "github_oauth_client_id" {
   description = "GitHub OAuth App Client ID for Cloudflare Access"
   type        = string
