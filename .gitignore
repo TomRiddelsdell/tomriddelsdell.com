@@ -130,7 +130,7 @@ terraform.tfvars.json
 **/terraform.tfplan.json
 **/*.tfplan
 **/*.tfplan.json
-
+**/tfplan
 # === Docker ===
 .dockerignore
 **/Dockerfile.local
