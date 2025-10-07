@@ -33,6 +33,10 @@ out/
 .vite/
 **/.vite/
 
+# TypeScript build cache
+*.tsbuildinfo
+**/*.tsbuildinfo
+
 # === Testing & Coverage ===
 coverage/
 **/coverage/
