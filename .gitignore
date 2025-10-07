@@ -9,9 +9,10 @@ lerna-debug.log*
 
 # === Package Manager Files ===
 .pnpm-store/
-**/pnpm-lock.yaml
-**/yarn.lock
-**/package-lock.json
+# Note: Lockfiles should be committed for reproducible builds
+# **/pnpm-lock.yaml - Removed to allow lockfile commits
+# **/yarn.lock - Removed to allow lockfile commits
+# **/package-lock.json - Removed to allow lockfile commits
 
 # === Build Artifacts ===
 dist/
@@ -127,6 +128,8 @@ terraform.tfvars
 terraform.tfvars.json
 **/terraform.tfplan
 **/terraform.tfplan.json
+**/*.tfplan
+**/*.tfplan.json
 
 # === Docker ===
 .dockerignore
