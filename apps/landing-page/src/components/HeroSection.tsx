@@ -21,7 +21,9 @@ export function HeroSection() {
               Tom Riddelsdell
             </h1>
             <h2 className="text-2xl lg:text-3xl mb-6 text-blue-800">
-              Strategist & Software Engineer with expertise in financial modeling, automated investment strategies, risk management, and full-stack development.
+              Strategist & Software Engineer with expertise in financial
+              modeling, automated investment strategies, risk management, and
+              full-stack development.
             </h2>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <a
@@ -48,8 +50,18 @@ export function HeroSection() {
       </div>
 
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-gray-900 animate-bounce">
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 14l-7 7m0 0l-7-7m7 7V3"
+          />
         </svg>
       </div>
     </section>
