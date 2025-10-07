@@ -121,7 +121,7 @@ jobs:
         run: |
           echo "🚀 Deploying to Cloudflare Pages (staging)..."
           doppler run --project tomriddelsdell-infra --config dev -- \
-            npx wrangler pages deploy out \
+            pnpm exec wrangler pages deploy out \
               --project-name=landing-page-8t9 \
               --branch=develop \
               --commit-dirty=true
@@ -225,7 +225,7 @@ jobs:
         run: |
           echo "🚀 Deploying to Cloudflare Pages (production)..."
           doppler run --project tomriddelsdell-infra --config prd -- \
-            npx wrangler pages deploy out \
+            pnpm exec wrangler pages deploy out \
               --project-name=landing-page-8t9 \
               --branch=main \
               --commit-dirty=true
