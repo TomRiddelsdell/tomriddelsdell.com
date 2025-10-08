@@ -1,10 +1,13 @@
 # ADR-003: Authentication Strategy - AWS Cognito
 
 ## Status
+
 Accepted
 
 ## Context
+
 We need to establish an authentication and authorization strategy for the personal portfolio platform that will:
+
 - Handle user authentication for Tom Riddelsdell and potential collaborators
 - Support OAuth flows for secure authentication
 - Provide session management capabilities
@@ -23,6 +26,7 @@ We will use the **Authorization Code flow with PKCE (Proof Key for Code Exchange
 - **PKCE Implementation**: SHA256 code challenge method for enhanced security
 
 **OAuth Flow Configuration:**
+
 ```typescript
 // OAuth flow configuration
 interface OAuthConfig {
@@ -38,6 +42,7 @@ interface OAuthConfig {
 ```
 
 **Why Authorization Code with PKCE:**
+
 - **Security**: PKCE protects against authorization code interception attacks
 - **Single Page Apps**: Suitable for modern web applications without backend secrets
 - **Mobile Ready**: Can be extended to mobile applications in the future
@@ -59,6 +64,7 @@ We will continue using **AWS Cognito User Pool** as our primary authentication p
   - Auth Session Validity: 3 minutes
 
 ## Rationale
+
 - **Existing Investment**: Already configured and operational with 2 users
 - **Cost-Effective**: Cognito pricing aligns with personal portfolio scale
 - **AWS Integration**: Seamless integration with other AWS services if needed
@@ -70,13 +76,14 @@ We will continue using **AWS Cognito User Pool** as our primary authentication p
 ## Implementation Details
 
 **OAuth Flow Implementation:**
+
 ```typescript
 // OAuth flow steps
 const authFlow = {
   // 1. Generate PKCE parameters
   codeVerifier: generateCodeVerifier(),
   codeChallenge: generateCodeChallenge(codeVerifier),
-  
+
   // 2. Authorization request
   authorizationUrl: buildAuthUrl({
     clientId: '483n96q9sudb248kp2sgto7i47',
@@ -84,20 +91,21 @@ const authFlow = {
     scope: 'email openid profile',
     responseType: 'code',
     codeChallenge: codeChallenge,
-    codeChallengeMethod: 'S256'
+    codeChallengeMethod: 'S256',
   }),
-  
+
   // 3. Token exchange
   tokenExchange: {
     grantType: 'authorization_code',
     code: authorizationCode,
     codeVerifier: codeVerifier,
-    redirectUri: 'https://tomriddelsdell.com/auth/callback'
-  }
+    redirectUri: 'https://tomriddelsdell.com/auth/callback',
+  },
 };
 ```
 
 **Token Management:**
+
 - **Access Token**: JWT with 60-minute validity for API authorization
 - **ID Token**: JWT with user claims for client-side user information
 - **Refresh Token**: Opaque token with 5-day validity for token renewal
@@ -111,6 +119,7 @@ const authFlow = {
 - **Email Verification**: Automatic email verification enabled
 
 ## Consequences
+
 - **Vendor Lock-in**: Tied to AWS ecosystem for authentication
 - **Regional Dependency**: Authentication service tied to eu-west-2 region
 - **Feature Limitations**: Limited to Cognito's feature set and customization options
@@ -121,6 +130,7 @@ const authFlow = {
 ## Security Considerations
 
 **OAuth Security Best Practices:**
+
 - **PKCE**: Protects against authorization code interception
 - **State Parameter**: CSRF protection during authorization flow
 - **Secure Redirect**: HTTPS-only redirect URIs
@@ -136,12 +146,14 @@ const authFlow = {
 ## Alternatives Considered
 
 **Other OAuth Flows Considered:**
+
 - **Implicit Flow**: Deprecated due to security concerns, tokens exposed in URL
 - **Client Credentials**: Not suitable for user authentication (service-to-service only)
 - **Resource Owner Password Credentials**: Requires handling user passwords directly
 - **Device Authorization Grant**: Not needed for web application use case
 
 **Why Not Other Flows:**
+
 - **Implicit Flow**: Security vulnerabilities, no refresh token support
 - **Client Credentials**: For machine-to-machine authentication only
 - **Password Grant**: Anti-pattern for third-party authentication
@@ -152,8 +164,7 @@ const authFlow = {
 - **Supabase Auth**: Modern approach but less mature than Cognito
 - **NextAuth.js**: Library-based solution but requires more infrastructure management
 
-
 ---
 
 **Status**: Accepted  
-**Next Review**: 2025-12-12  
+**Next Review**: 2025-12-12
