@@ -141,7 +141,8 @@ jobs:
             echo "Attempt $ATTEMPT of $MAX_ATTEMPTS..."
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://staging.tomriddelsdell.com || echo "000")
             
-            if [ "$HTTP_CODE" = "200" ]; then
+            # Accept 200 (OK) or 302 (Redirect to Cloudflare Access)
+            if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
               echo "✅ Staging site is healthy (HTTP $HTTP_CODE)"
               exit 0
             elif [ "$HTTP_CODE" = "000" ]; then
@@ -245,7 +246,8 @@ jobs:
             echo "Attempt $ATTEMPT of $MAX_ATTEMPTS..."
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://tomriddelsdell.com || echo "000")
             
-            if [ "$HTTP_CODE" = "200" ]; then
+            # Accept 200 (OK) or 302 (Redirect to Cloudflare Access)
+            if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
               echo "✅ Production site is healthy (HTTP $HTTP_CODE)"
               exit 0
             elif [ "$HTTP_CODE" = "000" ]; then
