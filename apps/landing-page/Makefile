@@ -193,17 +193,58 @@ endif
 
 health-check: ## Check application health
 	@echo "$(YELLOW)🏥 Health checking $(APP_NAME)...$(NC)"
-ifeq ($(DEPLOYMENT_TARGET),cloudflare-worker)
-	$(call health-check-worker)
-else ifeq ($(DEPLOYMENT_TARGET),cloudflare-pages)
-	$(call health-check-pages)
-else ifeq ($(DEPLOYMENT_TARGET),aws-lambda)
-	$(call health-check-lambda,$(APP_NAME))
-else ifeq ($(DEPLOYMENT_TARGET),aws-ecs)
-	$(call health-check-ecs-service,$(AWS_ECS_CLUSTER),$(APP_NAME))
-else
-	@echo "$(YELLOW)⚠️  Health check not implemented for $(DEPLOYMENT_TARGET)$(NC)"
-endif
+	@if [ -f "scripts/health-check.sh" ]; then \
+		./scripts/health-check.sh $(HEALTH_CHECK_URL); \
+	else \
+		echo "$(RED)❌ Health check script not found$(NC)"; \
+		exit 1; \
+	fi
+
+health-check-staging: ## Check staging deployment health
+	@echo "$(YELLOW)🏥 Health checking staging deployment...$(NC)"
+	@HEALTH_CHECK_URL=https://staging.tomriddelsdell.com $(MAKE) health-check
+
+health-check-production: ## Check production deployment health
+	@echo "$(YELLOW)🏥 Health checking production deployment...$(NC)"
+	@HEALTH_CHECK_URL=https://tomriddelsdell.com $(MAKE) health-check
+
+performance-check: ## Run performance monitoring
+	@echo "$(YELLOW)⚡ Running performance check...$(NC)"
+	@if [ -f "scripts/performance-check.sh" ]; then \
+		./scripts/performance-check.sh $(HEALTH_CHECK_URL); \
+	else \
+		echo "$(RED)❌ Performance check script not found$(NC)"; \
+		exit 1; \
+	fi
+
+performance-check-production: ## Run performance check on production
+	@HEALTH_CHECK_URL=https://tomriddelsdell.com $(MAKE) performance-check
+
+performance-check-staging: ## Run performance check on staging
+	@HEALTH_CHECK_URL=https://staging.tomriddelsdell.com $(MAKE) performance-check
+
+uptime-monitor: ## Start uptime monitoring (runs continuously)
+	@echo "$(YELLOW)📊 Starting uptime monitor...$(NC)"
+	@if [ -f "scripts/uptime-monitor.sh" ]; then \
+		./scripts/uptime-monitor.sh $(HEALTH_CHECK_URL) 300; \
+	else \
+		echo "$(RED)❌ Uptime monitor script not found$(NC)"; \
+		exit 1; \
+	fi
+
+verify-deployment: ## Verify deployment succeeded
+	@echo "$(YELLOW)✓ Verifying deployment...$(NC)"
+	@echo "Running comprehensive deployment verification..."
+	@sleep 5  # Wait for DNS propagation
+	@$(MAKE) health-check
+	@$(MAKE) performance-check
+	@echo "$(GREEN)✅ Deployment verification complete$(NC)"
+
+verify-deployment-staging: ## Verify staging deployment
+	@HEALTH_CHECK_URL=https://staging.tomriddelsdell.com $(MAKE) verify-deployment
+
+verify-deployment-production: ## Verify production deployment
+	@HEALTH_CHECK_URL=https://tomriddelsdell.com $(MAKE) verify-deployment
 
 # Development helpers
 .PHONY: logs status config
