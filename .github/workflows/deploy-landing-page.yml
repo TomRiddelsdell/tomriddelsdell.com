@@ -317,6 +317,8 @@ jobs:
 
       - name: Make scripts executable
         run: |
+          # Install bc for performance calculations
+          sudo apt-get update && sudo apt-get install -y bc
           chmod +x apps/landing-page/scripts/*.sh
 
       - name: Comprehensive staging health check
