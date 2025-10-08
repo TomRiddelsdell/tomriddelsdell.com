@@ -1,0 +1,15 @@
+# Terraform Variables Template
+# Copy this file to terraform.tfvars and populate with Doppler secrets
+# DO NOT commit terraform.tfvars to version control
+
+# Cloudflare Configuration
+cloudflare_api_token   = ""  # From Doppler: CLOUDFLARE_API_TOKEN
+cloudflare_account_id  = ""  # From Doppler: CLOUDFLARE_ACCOUNT_ID
+
+# Domain Configuration
+domain_name = ""  # From Doppler: DOMAIN_NAME
+
+# GitHub Configuration
+github_owner     = ""  # From Doppler: GITHUB_OWNER
+github_repo_name = ""  # From Doppler: GITHUB_REPO_NAME
+git_repository_url = ""  # From Doppler: GIT_REPOSITORY_URL

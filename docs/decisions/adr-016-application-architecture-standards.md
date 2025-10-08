@@ -17,15 +17,72 @@ We need to establish coding standards, app structure conventions, technology cho
 - **Package Management**: pnpm with workspace support
 
 ### Application Structure
-```
+
+**Decentralized App-Centric Architecture:**
+
+```text
 apps/
-├── portfolio-web/          # Main portfolio website
-├── admin-dashboard/        # Admin interface
-├── analytics-service/      # Analytics Worker
-└── shared/
-    ├── ui-components/      # Reusable React components
-    ├── domain-types/       # TypeScript domain types
-    └── auth-utils/         # Authentication utilities
+├── landing-page/               # Next.js + Cloudflare Pages
+│   ├── Makefile               # Deployment automation
+│   ├── package.json           # Node.js dependencies
+│   ├── wrangler.toml          # Cloudflare configuration
+│   └── src/                   # Application source code
+├── qis-data-management/        # Python + AWS deployment
+│   ├── Makefile               # Deployment automation
+│   ├── requirements.txt       # Python dependencies
+│   ├── Dockerfile             # Container configuration
+│   └── deploy/
+│       ├── aws.mk             # AWS-specific deployment
+│       └── terraform/         # Infrastructure as code
+└── admin-dashboard/            # React + Cloudflare Workers
+    ├── Makefile               # Deployment automation
+    ├── package.json           # Node.js dependencies
+    └── wrangler.toml          # Cloudflare configuration
+
+services/
+├── accounts/                   # User management service
+│   ├── Makefile               # Deployment automation
+│   ├── package.json           # Node.js dependencies
+│   └── wrangler.toml          # Cloudflare Worker config
+├── admin/                     # Admin operations service
+│   ├── Makefile
+│   ├── package.json
+│   └── wrangler.toml
+└── app-catalog/               # Project portfolio service
+    ├── Makefile
+    ├── package.json
+    └── wrangler.toml
+
+packages/
+├── shared-domain/             # Domain models and types
+├── ui-components/             # Reusable React components
+├── event-contracts/           # Event schemas (Avro)
+└── testing-utils/             # Testing utilities
+
+deploy/
+├── shared.mk                  # Common deployment functions
+├── cloudflare.mk              # Cloudflare deployment logic
+├── aws.mk                     # AWS deployment logic
+└── doppler.mk                 # Secret management integration
+```
+
+### Deployment Architecture
+
+**Universal Makefile Interface:**
+
+- **Consistent Commands**: All apps support `make deploy`, `make test`, `make build`
+- **Environment Aware**: `make deploy ENV=development|production`
+- **Technology Agnostic**: Each app chooses its tech stack and deployment target
+- **Platform Integration**: Makefiles integrate with Cloudflare, AWS, or other platforms
+
+**Root Orchestration:**
+
+```makefile
+# Root Makefile provides global commands
+make deploy-all ENV=development     # Deploy all applications
+make deploy-app APP=apps/landing-page ENV=production  # Deploy specific app
+make test-all                       # Test all applications
+make health-check-all               # Validate all deployments
 ```
 
 ### Coding Standards

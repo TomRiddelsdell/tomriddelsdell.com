@@ -1,14 +1,17 @@
 # ADR-006: Event Sourcing Implementation Strategy
 
 ## Status
+
 Accepted
 
 ## Context
+
 We need to define our event sourcing implementation including event store design, ordering strategy, projection handling, and failure recovery mechanisms. We must ensure our projection workers remain portable across serverless providers.
 
 ## Decision
 
 ### Event Store Design
+
 - **PostgreSQL-based event store** using Neon database
 - **Single events table** with columns: event_id, aggregate_id, aggregate_type, event_type, event_data, metadata, version, timestamp
 - **Optimistic concurrency control** using aggregate version numbers
@@ -16,17 +19,20 @@ We need to define our event sourcing implementation including event store design
 - **Event encryption** for sensitive data to ensure compliance and protect user privacy
 
 ### Event Schema Evolution
+
 - **Eager upcasting** for initial implementation to minimize complexity
 - Transform and replace events in store during schema migrations
 - Consider migrating to lazy or additive upcasting as data volume grows and data loss risk increases
 - Implement migration scripts with careful validation and rollback capabilities
 
 ### Event Ordering Strategy
+
 - **Per-aggregate ordering** with version numbers
 - **Global timestamp ordering** for cross-aggregate reads
 - **Partition by aggregate_id** for performance
 
 ### Projection Strategy
+
 - **Eventual consistency** tolerance: up to a few minutes during high load (considerable lag acceptable)
 - **Provider-agnostic projection workers** with adapter pattern
 - **Projection state tracking** table to monitor lag and failures
@@ -35,6 +41,7 @@ We need to define our event sourcing implementation including event store design
 ### Provider-Agnostic Projection Architecture
 
 **Core Projection Interface:**
+
 ```typescript
 interface ProjectionHandler {
   handle(event: DomainEvent): Promise<ProjectionResult>;
@@ -50,34 +57,39 @@ interface ProjectionAdapter {
 ```
 
 **Initial Provider Implementation:**
+
 - **CloudflareWorkerAdapter**: Primary serverless provider for MVP
 - **LocalAdapter**: For development and testing
 - **Future providers**: AWS Lambda and Vercel adapters to be added based on demand
 
 **Deployment Configuration:**
+
 ```yaml
 projections:
   user-profile:
-    handler: "./src/projections/user-profile"
-    provider: "cloudflare" # configurable
+    handler: './src/projections/user-profile'
+    provider: 'cloudflare' # configurable
     config:
-      memory: "128MB"
-      timeout: "30s"
+      memory: '128MB'
+      timeout: '30s'
       concurrency: 10
 ```
 
 ### Error Handling
+
 - **Dead letter queue** for failed events using provider-agnostic message queue interface
 - **Exponential backoff retry** policy (3 retries max)
 - **Manual intervention alerts** for persistent failures
 
 ### Security Implementation
+
 - **Event encryption** for sensitive data fields using envelope encryption
 - **Field-level encryption** for PII and sensitive domain data
 - **Key rotation** support for long-term security maintenance
 - **Audit logging** for all encryption/decryption operations
 
 ## Alternatives Considered
+
 1. **EventStore DB**: More complex deployment, overkill for our scale
 2. **Apache Kafka as primary store**: Good for streaming, but complex for queries
 3. **MongoDB event store**: Less ACID guarantees than PostgreSQL
@@ -88,18 +100,21 @@ projections:
 ## Provider Independence Strategy
 
 **Shared Infrastructure Contracts:**
+
 - Event streaming interface (Kafka, SQS, PubSub adapters)
 - Database connection interface (connection pooling, transactions)
 - Monitoring interface (metrics, logging, tracing)
 - Secret management interface (provider credential systems)
 
 **Testing Strategy:**
+
 - **Unit tests**: Provider-agnostic projection logic
 - **Integration tests**: Test each provider adapter
 - **Contract tests**: Ensure adapters fulfill interfaces
 - **Local development**: Use LocalAdapter for fast iteration
 
 **Migration Path:**
+
 1. Implement new provider adapter
 2. Deploy projection to new provider
 3. Run parallel processing with lag monitoring
@@ -109,6 +124,7 @@ projections:
 ## Implementation Details
 
 **Event Store Schema:**
+
 ```sql
 CREATE TABLE events (
     event_id UUID PRIMARY KEY,
@@ -132,6 +148,7 @@ CREATE INDEX idx_events_type_timestamp ON events(event_type, timestamp);
 ```
 
 ## Consequences
+
 - All state changes captured as immutable events with encryption for sensitive data
 - Full audit trail and temporal queries capability
 - Provider independence through adapter pattern with initial focus on Cloudflare Workers
@@ -141,7 +158,9 @@ CREATE INDEX idx_events_type_timestamp ON events(event_type, timestamp);
 - Eager upcasting provides simple evolution path with planned migration to safer strategies
 
 ## Trade-offs
+
 **Benefits:**
+
 - Complete audit trail with privacy protection
 - Time-travel queries
 - Provider independence and migration flexibility
@@ -151,6 +170,7 @@ CREATE INDEX idx_events_type_timestamp ON events(event_type, timestamp);
 - Simple schema evolution initially
 
 **Drawbacks:**
+
 - Learning curve for development team
 - Eventual consistency complexity
 - Additional abstraction layer complexity
