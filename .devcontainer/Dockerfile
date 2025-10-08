@@ -1,103 +1,80 @@
-FROM amazoncorretto:24-jdk
+# Portfolio Platform Development Container
+# Optimized for event-sourced microservices development
+FROM mcr.microsoft.com/devcontainers/universal:2-linux
 
-# Install system dependencies
-RUN yum update -y && \
-    yum install -y \
-        git \
-        wget \
-        unzip \
-        tar \
-        gzip \
-        which \
-        sudo \
-        jq \
-        vim \
-        nano \
-        htop \
-        tree \
-        findutils \
-        grep \
-        sed \
-        gawk \
-        util-linux \
-        procps-ng \
-        net-tools \
-        lsof \
-        psmisc \
-        file \
-        diffutils \
-        patch \
-        rsync \
-        openssh-clients \
-        bind-utils \
-        zip \
-        unzip \
-        tar \
-    && yum clean all
+# Set environment variables for build
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Create a non-root user
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+# Configure npm global directory following Node.js Docker best practices
+# This avoids permission issues by using a shared location accessible to both root and codespace users
+ENV NPM_CONFIG_PREFIX=/usr/local/share/npm-global
+ENV PATH=/usr/local/share/npm-global/bin:$PATH
 
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
+# Update package lists and install essential system tools (cached layer)
+RUN apt-get update -y && apt-get install -y \
+    curl \
+    wget \
+    unzip \
+    jq \
+    git \
+    build-essential \
+    gnupg \
+    lsb-release \
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Maven and Gradle (using wget)
-RUN wget https://archive.apache.org/dist/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz \
-    && tar -xzf apache-maven-3.9.6-bin.tar.gz -C /opt \
-    && ln -s /opt/apache-maven-3.9.6 /opt/maven \
-    && ln -s /opt/maven/bin/mvn /usr/local/bin/mvn \
-    && rm apache-maven-3.9.6-bin.tar.gz
+# Set up npm global directory with proper permissions
+RUN mkdir -p /usr/local/share/npm-global \
+    && chown codespace:nvm /usr/local/share/npm-global \
+    && chmod 755 /usr/local/share/npm-global
 
-RUN wget https://services.gradle.org/distributions/gradle-8.5-bin.zip -O gradle.zip \
-    && unzip gradle.zip -d /opt \
-    && ln -s /opt/gradle-8.5 /opt/gradle \
-    && ln -s /opt/gradle/bin/gradle /usr/local/bin/gradle \
-    && rm gradle.zip
+# Install CLI tools following official best practices
+RUN echo "🔧 Installing CLI tools for Portfolio Platform..." && \
+    # Install Doppler CLI (Secrets Management)
+    echo "🔐 Installing Doppler CLI..." && \
+    curl -Ls --tlsv1.2 --proto "=https" --retry 3 https://cli.doppler.com/install.sh | sh && \
+    # Install Confluent CLI (Kafka Management) 
+    echo "📊 Installing Confluent CLI..." && \
+    cd /tmp && \
+    curl -L --http1.1 https://cnfl.io/cli | sh -s -- latest && \
+    mv bin/confluent /usr/local/bin/confluent && \
+    # Install npm-based CLI tools using configured global prefix (runs as root but installs to shared location)
+    echo "☁️ Installing npm-based CLI tools globally..." && \
+    npm install -g pnpm@latest wrangler@latest neonctl@latest && \
+    # Install additional development tools
+    echo "🛠️ Installing additional development utilities..." && \
+    npm install -g @playwright/test eslint prettier typescript ts-node nodemon turbo@latest && \
+    # Install Avro tools for event schema management
+    echo "📋 Installing Avro tools for event sourcing..." && \
+    npm install -g avro-typescript avro-js @kafkajs/confluent-schema-registry
 
-# Install Node.js LTS (using wget)
-RUN wget -qO- https://rpm.nodesource.com/setup_lts.x | bash - \
-    && yum install -y nodejs
+# Reset to interactive mode
+ENV DEBIAN_FRONTEND=
 
-# Install AWS CLI v2 (using wget instead of curl)
-RUN wget "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -O "awscliv2.zip" \
-    && unzip awscliv2.zip \
-    && ./aws/install \
-    && rm -rf aws awscliv2.zip
+# Verification layer (will show in build output and help debug issues)
+RUN echo "✅ Installation verification:" && \
+    echo "  • Node.js: $(node --version)" && \
+    echo "  • npm: $(npm --version)" && \
+    echo "  • pnpm: $(pnpm --version)" && \
+    echo "  • Doppler: $(doppler --version 2>/dev/null || echo 'MISSING')" && \
+    echo "  • Confluent CLI: $(confluent version 2>/dev/null | head -n1 || echo 'MISSING')" && \
+    echo "  • Terraform: $(terraform --version 2>/dev/null | head -n1 || echo 'from features')" && \
+    echo "  • AWS CLI: $(aws --version 2>/dev/null | head -n1 || echo 'from features')" && \
+    echo "  • GitHub CLI: $(gh --version 2>/dev/null | head -n1 || echo 'from base image')" && \
+    echo "  • Git: $(git --version)" && \
+    # Check npm packages using global prefix
+    echo "  • Wrangler: $(wrangler --version 2>/dev/null || echo 'MISSING')" && \
+    echo "  • Neon CLI: $(neonctl --version 2>/dev/null || echo 'MISSING')" && \
+    echo "  • ESLint: $(eslint --version 2>/dev/null || echo 'MISSING')" && \
+    echo "  • TypeScript: $(tsc --version 2>/dev/null || echo 'MISSING')" && \
+    # Fail the build if critical tools are missing
+    echo "🔍 Verifying critical CLI tools are accessible..." && \
+    doppler --version > /dev/null && echo "  ✅ Doppler OK" && \
+    wrangler --version > /dev/null && echo "  ✅ Wrangler OK" && \
+    neonctl --version > /dev/null && echo "  ✅ Neon CLI OK" && \
+    confluent version > /dev/null && echo "  ✅ Confluent CLI OK" && \
+    eslint --version > /dev/null && echo "  ✅ ESLint OK" && \
+    tsc --version > /dev/null && echo "  ✅ TypeScript OK"
 
-# Install AWS CDK
-RUN npm install -g aws-cdk
-
-# Install AWS Amplify CLI
-RUN npm install -g @aws-amplify/cli
-
-# Install GitHub CLI
-RUN wget https://github.com/cli/cli/releases/download/v2.32.1/gh_2.32.1_linux_amd64.tar.gz -O gh.tar.gz \
-    && tar -xzf gh.tar.gz \
-    && cp gh_2.32.1_linux_amd64/bin/gh /usr/local/bin/ \
-    && rm -rf gh_2.32.1_linux_amd64 gh.tar.gz
-
-# Install additional CLI tools for development
-RUN npm install -g \
-    dotenv-cli \
-    typescript \
-    tsx \
-    nodemon \
-    @types/node \
-    rimraf \
-    cross-env
-
-# Set environment variables
-ENV JAVA_HOME=/usr/lib/jvm/java-24-amazon-corretto
-ENV MAVEN_HOME=/opt/maven
-ENV GRADLE_HOME=/opt/gradle
-ENV PATH=$PATH:$MAVEN_HOME/bin:$GRADLE_HOME/bin
-
-# Switch to non-root user
-USER $USERNAME
-
-# Set working directory
-WORKDIR /workspaces
+# Switch back to codespace user for runtime
+USER codespace

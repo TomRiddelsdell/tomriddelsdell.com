@@ -1,0 +1,53 @@
+{
+  "amazonQ.mcp.servers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "neon": {
+      "command": "npx",
+      "args": ["-y", "@neondatabase/mcp-server-neon"],
+      "env": {
+        "NEON_API_KEY": "${NEON_API_KEY}",
+        "NEON_PROJECT_ID": "${NEON_PROJECT_ID}"
+      }
+    },
+    "aws-cli": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-aws-cli"],
+      "env": {
+        "AWS_DEFAULT_REGION": "eu-west-2",
+        "AWS_ACCESS_KEY_ID": "${AWS_ACCESS_KEY_ID}",
+        "AWS_SECRET_ACCESS_KEY": "${AWS_SECRET_ACCESS_KEY}"
+      }
+    }
+  },
+  "cSpell.words": [
+    "amazoncognito",
+    "Appender",
+    "behaviour",
+    "cicd",
+    "frontends",
+    "Minimise",
+    "Minimising",
+    "modelcontextprotocol",
+    "neonctl",
+    "neondatabase",
+    "pousr",
+    "rebuildable",
+    "replit",
+    "sgto",
+    "stabilise",
+    "stdlib",
+    "sudb",
+    "Supabase",
+    "tlsv",
+    "tomriddelsdell",
+    "xiwn"
+  ],
+  "doppler.autocomplete.enable": true,
+  "doppler.hover.enable": true
+}

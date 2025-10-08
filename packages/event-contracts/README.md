@@ -31,7 +31,7 @@ src/                           # Generated source code
 │   ├── UserRegisteredValidator.ts # Runtime validation
 │   ├── UserProfileUpdated.ts      # Profile update event
 │   └── index.ts                   # Barrel export
-├── projects/                  # Project-related events  
+├── projects/                  # Project-related events
 │   ├── ProjectCreated.ts          # Project creation event
 │   ├── ProjectCreatedValidator.ts # Runtime validation
 │   ├── ProjectVisibilityChanged.ts # Visibility change event
@@ -55,6 +55,7 @@ src/                           # Generated source code
 ## Generated Content Types
 
 ### 🎯 **TypeScript Interfaces**
+
 Type-safe interfaces for each event:
 
 ```typescript
@@ -79,6 +80,7 @@ export interface UserProfile {
 ```
 
 ### 🔍 **Runtime Validators**
+
 Generated validation functions for type checking:
 
 ```typescript
@@ -88,7 +90,7 @@ export class UserRegisteredValidator {
     // Generated validation logic based on Avro schema
     return this.schema.isValid(data);
   }
-  
+
   static validateOrThrow(data: unknown): UserRegistered {
     if (!this.validate(data)) {
       throw new EventValidationError('Invalid UserRegistered event structure');
@@ -99,6 +101,7 @@ export class UserRegisteredValidator {
 ```
 
 ### 🏭 **Event Factories**
+
 Type-safe event creation with auto-generated fields:
 
 ```typescript
@@ -111,10 +114,10 @@ export class UserRegisteredFactory {
       aggregateVersion: data.version,
       occurredAt: new Date(),
       causedBy: data.causedBy,
-      userData: data.userData
+      userData: data.userData,
     };
   }
-  
+
   static createAndValidate(data: UserRegisteredData): UserRegistered {
     const event = this.create(data);
     return UserRegisteredValidator.validateOrThrow(event);
@@ -123,6 +126,7 @@ export class UserRegisteredFactory {
 ```
 
 ### 📊 **Schema Registry**
+
 Centralized schema management and validation:
 
 ```typescript
@@ -131,13 +135,13 @@ export class EventSchemaRegistry {
   private static schemas = new Map<string, AvroSchema>([
     ['UserRegistered', UserRegisteredSchema],
     ['ProjectCreated', ProjectCreatedSchema],
-    ['ContactRequestSubmitted', ContactRequestSubmittedSchema]
+    ['ContactRequestSubmitted', ContactRequestSubmittedSchema],
   ]);
-  
+
   static getSchema(eventType: string): AvroSchema | undefined {
     return this.schemas.get(eventType);
   }
-  
+
   static validate(eventType: string, data: unknown): boolean {
     const schema = this.getSchema(eventType);
     return schema ? schema.isValid(data) : false;
@@ -148,8 +152,12 @@ export class EventSchemaRegistry {
 ## Usage in Services
 
 ### Basic Event Creation
+
 ```typescript
-import { UserRegistered, UserRegisteredFactory } from '@portfolio/event-contracts';
+import {
+  UserRegistered,
+  UserRegisteredFactory,
+} from '@portfolio/event-contracts';
 
 // In a service command handler
 export class UserRegistrationHandler {
@@ -163,11 +171,11 @@ export class UserRegistrationHandler {
         userId: command.userId,
         email: command.email,
         profile: {
-          displayName: command.displayName
-        }
-      }
+          displayName: command.displayName,
+        },
+      },
     });
-    
+
     // Event is fully typed and validated
     await this.eventStore.append(command.userId, [event]);
   }
@@ -175,12 +183,13 @@ export class UserRegistrationHandler {
 ```
 
 ### Event Consumption with Validation
+
 ```typescript
-import { 
-  UserRegistered, 
+import {
+  UserRegistered,
   UserRegisteredValidator,
   ProjectCreated,
-  ProjectCreatedValidator 
+  ProjectCreatedValidator,
 } from '@portfolio/event-contracts';
 
 // In an event handler
@@ -190,11 +199,11 @@ export class ProjectionUpdater {
     if (!UserRegisteredValidator.validate(rawEvent)) {
       throw new Error('Invalid UserRegistered event structure');
     }
-    
+
     // rawEvent is now typed as UserRegistered
     await this.updateUserProjection(rawEvent);
   }
-  
+
   async handleProjectCreated(rawEvent: unknown): Promise<void> {
     const event = ProjectCreatedValidator.validateOrThrow(rawEvent);
     await this.updateProjectProjection(event);
@@ -203,6 +212,7 @@ export class ProjectionUpdater {
 ```
 
 ### Schema Registry Integration
+
 ```typescript
 import { EventSchemaRegistry } from '@portfolio/event-contracts';
 
@@ -216,7 +226,7 @@ export class EventStore {
         );
       }
     }
-    
+
     // Safe to persist - all events are valid
     await this.persistEvents(streamId, events);
   }
@@ -226,6 +236,7 @@ export class EventStore {
 ## Serialization Support
 
 ### JSON Serialization (Default)
+
 ```typescript
 import { JsonSerializer } from '@portfolio/event-contracts';
 
@@ -236,19 +247,20 @@ const jsonString = JsonSerializer.serialize(event);
 
 // Deserialize from event store
 const deserializedEvent = JsonSerializer.deserialize<UserRegistered>(
-  jsonString, 
+  jsonString,
   'UserRegistered'
 );
 ```
 
 ### Avro Binary Serialization (Performance)
+
 ```typescript
 import { AvroSerializer } from '@portfolio/event-contracts';
 
 // Binary serialization for high-performance scenarios
 const binaryData = AvroSerializer.serialize(event, 'UserRegistered');
 const deserializedEvent = AvroSerializer.deserialize<UserRegistered>(
-  binaryData, 
+  binaryData,
   'UserRegistered'
 );
 ```
@@ -256,12 +268,13 @@ const deserializedEvent = AvroSerializer.deserialize<UserRegistered>(
 ## Version Management
 
 ### Event Version Evolution
+
 ```typescript
 // Support for multiple event versions
-import { 
+import {
   UserRegisteredV1_0_0,
   UserRegisteredV1_1_0,
-  EventVersionManager 
+  EventVersionManager,
 } from '@portfolio/event-contracts';
 
 export class EventUpcaster {
@@ -273,20 +286,22 @@ export class EventUpcaster {
 ```
 
 ### Schema Compatibility
+
 ```typescript
 import { SchemaCompatibility } from '@portfolio/event-contracts';
 
 // Check if event can be processed by consumer
 const canProcess = SchemaCompatibility.isCompatible(
-  'UserRegistered', 
-  '1.0.0',  // Producer version
-  '1.1.0'   // Consumer version
+  'UserRegistered',
+  '1.0.0', // Producer version
+  '1.1.0' // Consumer version
 );
 ```
 
 ## Build Integration
 
 ### Package.json Configuration
+
 ```json
 {
   "name": "@portfolio/event-contracts",
@@ -299,9 +314,7 @@ const canProcess = SchemaCompatibility.isCompatible(
     "build": "tsc",
     "validate": "npm run generate && npm run build && npm test"
   },
-  "files": [
-    "dist/"
-  ],
+  "files": ["dist/"],
   "dependencies": {
     "@portfolio/shared-domain": "^1.0.0"
   }
@@ -309,6 +322,7 @@ const canProcess = SchemaCompatibility.isCompatible(
 ```
 
 ### Generation Script
+
 ```bash
 #!/bin/bash
 # scripts/generate-event-contracts.sh
@@ -331,21 +345,22 @@ echo "Event contracts generated successfully"
 ## Testing Integration
 
 ### Generated Test Utilities
+
 ```typescript
 // Generated test data builders
 export class UserRegisteredTestBuilder {
   private data: Partial<UserRegisteredData> = {};
-  
+
   withUserId(userId: string): this {
     this.data.userId = userId;
     return this;
   }
-  
+
   withEmail(email: string): this {
     this.data.email = email;
     return this;
   }
-  
+
   build(): UserRegistered {
     return UserRegisteredFactory.create({
       userId: this.data.userId || 'test-user-id',
@@ -357,6 +372,7 @@ export class UserRegisteredTestBuilder {
 ```
 
 ### Validation Testing
+
 ```typescript
 // Generated validation tests
 describe('UserRegisteredValidator', () => {
@@ -364,7 +380,7 @@ describe('UserRegisteredValidator', () => {
     const validEvent = new UserRegisteredTestBuilder().build();
     expect(UserRegisteredValidator.validate(validEvent)).toBe(true);
   });
-  
+
   it('should reject invalid event structure', () => {
     const invalidEvent = { eventType: 'UserRegistered' }; // Missing required fields
     expect(UserRegisteredValidator.validate(invalidEvent)).toBe(false);
@@ -375,12 +391,14 @@ describe('UserRegisteredValidator', () => {
 ## Quality Assurance
 
 ### ✅ **Generated Code Standards**
+
 - **100% Schema Coverage**: All Avro schemas generate corresponding TypeScript types
 - **Runtime Validation**: All events can be validated at runtime
 - **Type Safety**: Generated types prevent schema violations at compile time
 - **Serialization Support**: JSON and binary serialization for all events
 
 ### 🔄 **Continuous Integration**
+
 - **Schema Validation**: All schemas validated before code generation
 - **Generation Testing**: Generated code must compile without errors
 - **Contract Testing**: Generated types tested against schema examples
@@ -391,6 +409,7 @@ describe('UserRegisteredValidator', () => {
 ### Common Issues
 
 #### Generation Failures
+
 ```bash
 # If generation fails, check schema validity
 avro-tools validate contracts/events/**/*.avsc
@@ -400,6 +419,7 @@ avro-tools compatibility-check old.avsc new.avsc
 ```
 
 #### Type Errors
+
 ```typescript
 // If TypeScript errors occur, check event structure
 const event = UserRegisteredFactory.create(data);
@@ -407,6 +427,7 @@ UserRegisteredValidator.validateOrThrow(event); // Will show specific validation
 ```
 
 #### Version Conflicts
+
 ```bash
 # Check for version compatibility
 npm run validate:schemas
@@ -416,11 +437,13 @@ npm run check:breaking-changes
 ## Architecture Integration
 
 ### Event Sourcing Compliance
+
 - **Event Store Integration**: Generated types work seamlessly with event store
 - **Event Replay**: Historical events can be deserialized with version support
 - **Projection Updates**: Type-safe event handling in projection builders
 
 ### CQRS Support
+
 - **Command Side**: Type-safe event creation in command handlers
 - **Query Side**: Validated event consumption in projection updates
 - **Integration Events**: Cross-context communication with contract validation
