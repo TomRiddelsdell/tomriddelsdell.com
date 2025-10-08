@@ -67,14 +67,14 @@ check_response_time() {
     log_info "Checking response time for $description..."
     
     local response_time=$(curl -s -o /dev/null -w "%{time_total}" --max-time "$TIMEOUT" "$url" || echo "0")
-    local response_time_ms=$(echo "$response_time * 1000" | bc)
-    local response_time_int=${response_time_ms%.*}
+    # Convert to milliseconds using awk instead of bc
+    local response_time_ms=$(awk "BEGIN {printf \"%.0f\", $response_time * 1000}")
     
-    if [ "$response_time_int" -lt "$MAX_RESPONSE_TIME" ]; then
-        log_success "$description - Response time: ${response_time_int}ms"
+    if [ "$response_time_ms" -lt "$MAX_RESPONSE_TIME" ]; then
+        log_success "$description - Response time: ${response_time_ms}ms"
         return 0
     else
-        log_warning "$description - Slow response: ${response_time_int}ms (threshold: ${MAX_RESPONSE_TIME}ms)"
+        log_warning "$description - Slow response: ${response_time_ms}ms (threshold: ${MAX_RESPONSE_TIME}ms)"
         return 0  # Warning, not failure
     fi
 }
