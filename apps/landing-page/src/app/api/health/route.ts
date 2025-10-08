@@ -14,6 +14,11 @@ import { NextResponse } from 'next/server'
  * - Cloudflare health checks
  * - Manual health verification
  */
+
+// Configure for static export
+export const dynamic = 'force-static'
+export const revalidate = 0
+
 export async function GET() {
   const health = {
     status: 'healthy',
