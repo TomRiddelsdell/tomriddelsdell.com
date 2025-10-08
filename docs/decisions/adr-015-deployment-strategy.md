@@ -8,26 +8,113 @@ We need to define our deployment strategy including CI/CD pipeline design, datab
 
 ## Decision
 
+### Deployment Architecture Strategy
+
+**Hybrid Deployment Architecture Implemented:**
+
+- **Decentralized App-Centric Deployment**: Each application/service owns its deployment configuration and process
+- **Technology Agnostic**: Apps can use different tech stacks (Node.js, Python, Docker, static sites)
+- **Universal Makefile Interface**: Root Makefile provides consistent deployment commands across all apps
+- **Platform-Specific Logic**: Apps deploy to their target platforms (Cloudflare Workers/Pages, AWS ECS/Lambda/S3)
+- **Shared Deployment Functions**: Common deployment patterns abstracted into reusable functions
+
+**Implemented Directory Structure:**
+
+```text
+/workspaces/
+├── Makefile                      # Universal deployment orchestration (IMPLEMENTED)
+├── deploy/                       # Shared deployment functions (IMPLEMENTED)
+│   ├── shared.mk                 # Common deployment patterns
+│   ├── doppler.mk               # Centralized secret management
+│   ├── cloudflare.mk            # Cloudflare Workers/Pages deployment
+│   ├── aws.mk                   # AWS ECS/Lambda/S3 deployment
+│   └── app-template.mk          # Template for individual app Makefiles
+├── apps/
+│   ├── landing-page/
+│   │   ├── Makefile              # Technology: nodejs, Target: cloudflare-pages
+│   │   ├── package.json          # Node.js dependencies
+│   │   └── wrangler.toml         # Cloudflare Pages config
+│   └── qis-data-management/
+│       ├── Makefile              # Technology: python, Target: aws-ecs
+│       ├── requirements.txt      # Python dependencies
+│       └── deploy/
+│           ├── Dockerfile        # Container configuration
+│           └── ecs-task-definition.json
+├── services/
+│   ├── accounts/
+│   │   ├── Makefile              # Technology: nodejs, Target: cloudflare-worker
+│   │   └── wrangler.toml         # Cloudflare Worker config
+│   └── admin/
+│       ├── Makefile              # Technology: docker, Target: aws-ecs
+│       ├── Dockerfile
+│       └── deploy/
+│           └── ecs-task-definition.json
+└── .github/
+    └── workflows/
+        ├── deploy.yml            # Main deployment pipeline (IMPLEMENTED)
+        ├── test.yml              # Testing pipeline (IMPLEMENTED)
+        ├── security.yml          # Security scanning (IMPLEMENTED)
+        └── quality.yml           # Code quality checks (IMPLEMENTED)
+```
+
+**Universal Deployment Commands (IMPLEMENTED):**
+
+```bash
+# Deploy all applications and services
+make deploy-all ENV=development
+
+# Deploy specific application with change detection
+make deploy-app APP=landing-page ENV=production
+
+# Deploy specific service
+make deploy-service SERVICE=accounts ENV=development
+
+# Test all components
+make test-all
+
+# Health check all deployed services
+make health-check-all ENV=production
+
+# Setup development environment
+make setup-env
+
+# List available components
+make list-apps
+make list-services
+```
+
 ### CI/CD Pipeline Design
 
 **GitHub Actions as Primary CI/CD:**
-- **Trigger strategy**: Push to `develop` for continuous deployment to staging, PR merges to `main` for automatic production deployment
-- **Branch protection**: Require PR reviews for `main`, automated checks for `develop`
-- **Artifact management**: Container images stored in GitHub Container Registry
-- **Deployment approval**: Automatic deployment to production after successful PR merge and quality gates
+
+- **Change Detection**: Path-based triggers deploy only modified applications
+- **Parallel Deployment**: Independent apps deploy simultaneously when possible
+- **Platform-Aware**: Different deployment strategies per target platform
+- **Universal Commands**: CI/CD uses same Makefile interface as local development
 
 **Pipeline Stages:**
+
 ```yaml
-# .github/workflows/deploy.yml structure
+# .github/workflows/orchestrate-deploy.yml structure
 stages:
-  - code-quality:    # Linting, formatting, SonarQube analysis, security scanning
-  - test:           # Unit, integration, contract tests
-  - build:          # Container images, static assets
-  - deploy-staging: # Automatic deployment to staging
-  - deploy-prod:    # Automatic deployment after PR merge and quality gates
+  - detect-changes:   # Identify modified apps using dorny/paths-filter
+  - quality-gates:    # Run tests only for changed apps + dependencies
+  - deploy-apps:      # Deploy each changed app using its Makefile
+  - validate-deploy:  # Health checks for deployed services
+```
+
+**Deployment Orchestration:**
+
+```makefile
+# Root Makefile interface
+make deploy-all ENV=development     # Deploy all apps to development
+make deploy-app APP=apps/landing-page ENV=production  # Deploy specific app
+make test-all                       # Test all apps
+make test-app APP=services/accounts # Test specific app
 ```
 
 **Code Quality Gates:**
+
 - **SonarQube integration**: Quality gate must pass before deployment
 - **Coverage threshold**: Minimum 80% test coverage for new code
 - **Security scanning**: SAST/DAST scans must pass
@@ -35,8 +122,8 @@ stages:
 - **Code duplication**: Maximum 3% duplication allowed
 
 **Environment Promotion:**
-- **Feature branches**: Deploy to ephemeral environments for testing
-- **Develop branch**: Auto-deploy to staging environment
+- **Feature branches**: Developed and tested locally (not deployed)
+- **Develop branch**: Auto-deploy to staging environment (pre-production validation)
 - **Main branch**: Automatic production deployment after successful quality gates
 - **Rollback capability**: Previous versions tagged and available for quick rollback
 
