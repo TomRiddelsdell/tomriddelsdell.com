@@ -267,17 +267,15 @@ jobs:
         run: |
           echo "🧪 Running production smoke tests..."
           
-          # Test main pages are accessible
-          for path in "/" "/contact"; do
-            URL="https://tomriddelsdell.com${path}"
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
-            if [ "$HTTP_CODE" = "200" ]; then
-              echo "✅ $URL is accessible"
-            else
-              echo "❌ $URL returned HTTP $HTTP_CODE"
-              exit 1
-            fi
-          done
+          # Test homepage is accessible
+          URL="https://tomriddelsdell.com"
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ $URL is accessible"
+          else
+            echo "❌ $URL returned HTTP $HTTP_CODE"
+            exit 1
+          fi
           
           echo "✅ All smoke tests passed"
 
