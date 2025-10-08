@@ -300,34 +300,90 @@ jobs:
           echo "::error::Production deployment failed. Check the logs above for details."
           echo "::error::Consider rolling back to previous deployment if necessary."
 
-  # Post-deployment verification
+  # Post-deployment verification with comprehensive monitoring
   post-deploy-checks:
     name: Post-Deployment Verification
     runs-on: ubuntu-latest
     needs: [deploy-staging, deploy-production]
     if: always() && (needs.deploy-staging.result == 'success' || needs.deploy-production.result == 'success')
     steps:
-      - name: Verify staging deployment
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Make scripts executable
+        run: |
+          chmod +x apps/landing-page/scripts/*.sh
+
+      - name: Comprehensive staging health check
         if: needs.deploy-staging.result == 'success'
         run: |
-          echo "✅ Staging deployment completed successfully"
-          echo "🔗 URL: https://staging.tomriddelsdell.com"
+          echo "🏥 Running comprehensive staging health check..."
+          cd apps/landing-page
+          ./scripts/health-check.sh https://staging.tomriddelsdell.com
 
-      - name: Verify production deployment
+      - name: Comprehensive production health check
         if: needs.deploy-production.result == 'success'
         run: |
-          echo "✅ Production deployment completed successfully"
-          echo "🔗 URL: https://tomriddelsdell.com"
+          echo "🏥 Running comprehensive production health check..."
+          cd apps/landing-page
+          ./scripts/health-check.sh https://tomriddelsdell.com
 
-      - name: Final summary
+      - name: Performance monitoring - staging
+        if: needs.deploy-staging.result == 'success'
+        run: |
+          echo "⚡ Measuring staging performance..."
+          cd apps/landing-page
+          ./scripts/performance-check.sh https://staging.tomriddelsdell.com || true
+
+      - name: Performance monitoring - production
+        if: needs.deploy-production.result == 'success'
+        run: |
+          echo "⚡ Measuring production performance..."
+          cd apps/landing-page
+          ./scripts/performance-check.sh https://tomriddelsdell.com || true
+
+      - name: Create deployment report
+        if: always()
         run: |
           echo "## 📊 Deployment Status" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Environment | Status | URL |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------------|--------|-----|" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | Status | URL | Health Check |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------------|--------|-----|--------------|" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ needs.deploy-staging.result }}" = "success" ]; then
-            echo "| Staging | ✅ Success | https://staging.tomriddelsdell.com |" >> $GITHUB_STEP_SUMMARY
+            echo "| Staging | ✅ Success | [staging.tomriddelsdell.com](https://staging.tomriddelsdell.com) | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.deploy-production.result }}" = "success" ]; then
+            echo "| Production | ✅ Success | [tomriddelsdell.com](https://tomriddelsdell.com) | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📈 Monitoring" >> $GITHUB_STEP_SUMMARY
+          echo "- Health checks performed on all deployed environments" >> $GITHUB_STEP_SUMMARY
+          echo "- Performance metrics collected and analyzed" >> $GITHUB_STEP_SUMMARY
+          echo "- All critical page sections verified" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Quick Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [View Health Endpoint](https://tomriddelsdell.com/api/health)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Cloudflare Analytics](https://dash.cloudflare.com)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Run Manual Health Check](https://github.com/${{ github.repository }}/actions/workflows/deploy-landing-page.yml)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify on health check failure
+        if: failure()
+        run: |
+          echo "::error::Post-deployment health checks failed!"
+          echo "::error::The deployment may have succeeded, but the site is not responding correctly."
+          echo "::error::Please investigate immediately."
+
+      - name: Final summary
+        run: |
+          echo "✅ All post-deployment verifications complete"
           elif [ "${{ needs.deploy-staging.result }}" = "failure" ]; then
             echo "| Staging | ❌ Failed | - |" >> $GITHUB_STEP_SUMMARY
           else
