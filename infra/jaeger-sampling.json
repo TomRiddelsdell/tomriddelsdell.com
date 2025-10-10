@@ -1,0 +1,25 @@
+{
+  "service_strategies": [
+    {
+      "service": "landing-page",
+      "type": "probabilistic",
+      "param": 1.0,
+      "operation_strategies": [
+        {
+          "operation": "/api/health",
+          "type": "probabilistic",
+          "param": 0.1
+        }
+      ]
+    },
+    {
+      "service": "portfolio-service",
+      "type": "probabilistic",
+      "param": 1.0
+    }
+  ],
+  "default_strategy": {
+    "type": "probabilistic",
+    "param": 0.1
+  }
+}
