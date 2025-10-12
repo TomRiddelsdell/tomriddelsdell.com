@@ -70,7 +70,8 @@
 				"formulahendry.auto-close-tag",
 				"ms-vsliveshare.vsliveshare",
 				"github.vscode-github-actions",
-				"doppler.doppler-vscode"
+				"doppler.doppler-vscode",
+				"anthropic.claude-code"
 			],
 			"settings": {
 				"terminal.integrated.defaultProfile.linux": "bash",

@@ -1,7 +1,7 @@
 # Portfolio Platform Development Container
 # Optimized for event-sourced microservices development
-# Using Ubuntu 22.04 base for modern glibc (2.35+) and better tool compatibility
-FROM mcr.microsoft.com/devcontainers/typescript-node:22-bookworm
+# Using Universal Dev Container 4.x with Ubuntu 24.04 (Noble) for modern glibc 2.39 and comprehensive tooling
+FROM mcr.microsoft.com/devcontainers/universal:4-linux
 
 # Set environment variables for build
 ENV DEBIAN_FRONTEND=noninteractive

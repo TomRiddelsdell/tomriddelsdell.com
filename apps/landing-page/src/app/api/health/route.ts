@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server'
-import { logger } from '@/lib/observability'
-import { createSpan } from '@/lib/tracing'
+import {
+  logger,
+  tracing,
+  generateCorrelationId,
+} from '@/lib/observability-setup'
 
 /**
  * Health check endpoint with distributed tracing
+ *
+ * Now using @platform/observability with CloudflareEdgeAdapter
+ * to maintain consistent observability across the Platform Monolith.
  *
  * Returns comprehensive health information including:
  * - Service status
@@ -18,31 +24,28 @@ import { createSpan } from '@/lib/tracing'
  * - Manual health verification
  */
 
-// Configure for edge runtime with static export
+// Configure for edge runtime
 export const runtime = 'edge'
-export const dynamic = 'force-static'
 
 export async function GET() {
-  // Create trace context for this request
-  const traceId = crypto.randomUUID()
-  const correlationId = crypto.randomUUID()
+  // Create trace context using @platform/observability
+  const correlationId = generateCorrelationId()
   const startTime = Date.now()
 
   // Create span for health check operation
-  const span = createSpan('health-check', {
-    traceId,
-    spanId: crypto.randomUUID(),
-    correlationId,
-    startTime,
-  })
-  span.setAttribute('service.name', 'landing-page')
+  const span = tracing.startSpan('health.check')
+  const spanContext = span.spanContext()
+
+  span.setAttribute('service.name', 'platform-modular-monolith')
+  span.setAttribute('bounded.context', 'landing-page')
   span.setAttribute('endpoint', '/api/health')
 
   try {
     // Structured logging with trace context
     logger.info('Health check requested', {
       correlationId,
-      traceId,
+      traceId: spanContext.traceId,
+      spanId: spanContext.spanId,
       endpoint: '/api/health',
       method: 'GET',
     })
@@ -54,11 +57,12 @@ export async function GET() {
     const health = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      service: 'landing-page',
+      service: 'platform-modular-monolith',
+      boundedContext: 'landing-page',
       environment: process.env.NODE_ENV || 'unknown',
       version: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
       correlationId,
-      traceId,
+      traceId: spanContext.traceId,
       checks: {
         application: applicationHealthy ? 'ok' : 'degraded',
         // Add more checks as needed (database, external services, etc.)
@@ -77,7 +81,7 @@ export async function GET() {
         'Cache-Control': 'no-store, max-age=0',
         'Content-Type': 'application/json',
         'X-Correlation-Id': correlationId,
-        'X-Trace-Id': traceId,
+        'X-Trace-Id': spanContext.traceId,
       },
     })
   } catch (error) {
@@ -92,7 +96,7 @@ export async function GET() {
       error instanceof Error ? error : new Error(String(error)),
       {
         correlationId,
-        traceId,
+        traceId: spanContext.traceId,
       }
     )
 

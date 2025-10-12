@@ -821,6 +821,103 @@ const alertRules = [
 - **Influences**: ADR-025 (Error Handling) - Error handling strategy affects logging and alerting
 - **Influences**: ADR-024 (Performance) - Performance requirements define monitoring needs
 
+## Edge Runtime Compatibility
+
+### Challenge: OpenTelemetry NodeSDK Incompatibility
+
+The OpenTelemetry NodeSDK requires Node.js-specific APIs (zlib, net, tls) that are not available in edge runtimes:
+- Next.js Edge Runtime (Vercel Edge, Cloudflare Pages)
+- Cloudflare Workers
+- Deno Deploy
+- Other V8 isolate-based runtimes
+
+### Solution: Platform-Specific Packages with Shared Contracts
+
+To maintain DDD bounded context consistency while addressing runtime constraints, we use separate packages with identical TypeScript interfaces:
+
+**@platform/observability** - Full OpenTelemetry implementation
+- Node.js runtime services (ECS, Lambda, traditional servers)
+- Full distributed tracing with OpenTelemetry SDK
+- Jaeger/OTLP trace export
+
+**@platform/observability-edge** - Edge-compatible implementation
+- Next.js Edge Runtime, Cloudflare Workers
+- Structured logging with correlation IDs
+- Degraded tracing (spans logged as JSON)
+- Zero Node.js dependencies
+
+### DDD Alignment
+
+**Bounded Context Consistency:**
+The Platform Monolith bounded context (Landing Page, Identity, Notifications, Service Discovery) maintains consistent observability contracts across all services, regardless of runtime environment.
+
+```typescript
+// Same interface in both packages
+export interface PlatformObservability {
+  log: Logger;
+  metrics: Metrics;
+  tracing: Tracing;
+}
+
+// Landing page (edge runtime)
+import { createEdgeObservability } from '@platform/observability-edge';
+const observability = createEdgeObservability(config);
+
+// Identity service (Node.js runtime)
+import { createObservability } from '@platform/observability';
+const observability = createObservability(config);
+```
+
+**Why This Maintains DDD Principles:**
+
+1. **Domain Boundaries Unchanged**: All services in Platform Monolith share the same observability domain model
+2. **Consistent Contracts**: Identical TypeScript interfaces ensure predictable behavior
+3. **Trace Context Propagation**: Correlation IDs flow across service boundaries
+4. **Deployment Transparency**: Domain logic doesn't know or care about runtime differences
+
+**Trade-offs:**
+
+- **Degraded Capabilities**: Edge runtime uses correlation IDs instead of full distributed tracing spans
+- **Package Duplication**: Two packages instead of one, but only at the infrastructure layer
+- **Acceptable for DDD**: Technical implementation details don't violate domain boundaries
+
+### Implementation Details
+
+**@platform/observability-edge** provides:
+- `EdgeStructuredLogger` - JSON console logging with trace context
+- `EdgeMetricsCollector` - In-memory metrics with Prometheus format
+- `EdgeTracingManager` - Correlation ID generation and span logging
+- `CloudflareEdgeAdapter` - Adapter implementation for edge runtimes
+
+**Configuration Example:**
+
+```typescript
+// apps/landing-page/src/lib/observability-setup.ts
+import { createEdgeObservability } from '@platform/observability-edge';
+
+export const observability = createEdgeObservability({
+  serviceName: 'platform-modular-monolith',
+  version: '1.0.0',
+  environment: process.env.NODE_ENV || 'development',
+  platform: 'cloudflare',
+  samplingRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+});
+```
+
+### Migration Path
+
+When services move from edge runtime to Node.js runtime (or vice versa), simply change the import:
+
+```diff
+- import { createEdgeObservability } from '@platform/observability-edge';
++ import { createObservability } from '@platform/observability';
+
+- const observability = createEdgeObservability(config);
++ const observability = createObservability(config);
+```
+
+All usage code remains unchanged due to shared TypeScript interfaces.
+
 ## AI Agent Guidance
 
 ### Implementation Priority
@@ -830,10 +927,13 @@ const alertRules = [
 ### Code Generation Patterns
 
 ```typescript
-// Always use the shared observability wrapper
+// Node.js runtime services (ECS, Lambda)
 import { observability } from '@platform/observability';
 
-// Consistent structured logging
+// Edge runtime services (Cloudflare Workers, Next.js Edge)
+import { observability } from '@platform/observability-edge';
+
+// Consistent structured logging (same API across both packages)
 observability.log.info('User registered successfully', {
   userId,
   email: user.email,
@@ -841,13 +941,13 @@ observability.log.info('User registered successfully', {
   correlationId: request.correlationId,
 });
 
-// Standard metrics collection
+// Standard metrics collection (same API across both packages)
 observability.metrics.counter.inc('user.registration.total', 1, {
   source: registrationSource,
   environment: process.env.NODE_ENV,
 });
 
-// Distributed tracing
+// Distributed tracing (same API across both packages)
 const span = observability.tracing.startSpan('user.registration.process');
 try {
   // Business logic
@@ -864,10 +964,12 @@ try {
 
 ### Common Integration Points
 
-- All services and apps must use shared `@platform/observability` library
+- Node.js services must use `@platform/observability` (full OpenTelemetry)
+- Edge runtime services must use `@platform/observability-edge` (zero Node.js dependencies)
 - Never import vendor SDKs directly (Datadog, New Relic, etc.)
 - Always include correlationId, tenantId, userId in log context
-- Use OpenTelemetry Protocol (OTLP) for telemetry export to collector
+- Use OpenTelemetry Protocol (OTLP) for telemetry export from Node.js services
+- Edge services log structured JSON with correlation IDs for manual correlation
 
 ### Platform Migration Benefits
 

@@ -65,6 +65,7 @@
     "wrangler": "latest"
   },
   "dependencies": {
+    "@platform/observability-edge": "file:../../packages/observability-edge",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",

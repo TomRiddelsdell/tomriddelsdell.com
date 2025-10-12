@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  distDir: 'out',
+  // Changed from 'export' to support API routes for observability
+  // Cloudflare Pages supports Next.js API routes via Functions
+  distDir: '.next',
   trailingSlash: true,
   images: {
     unoptimized: true,
