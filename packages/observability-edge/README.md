@@ -198,6 +198,53 @@ This package maintains **bounded context consistency**:
 
 The technical limitation (edge runtime constraints) does not change the domain architecture. The landing page, identity service, notifications, and service discovery all belong to the same bounded context and use the same observability contracts.
 
+## Independent Deployment Strategy
+
+This package is designed for **decentralized, app-centric deployment** without monorepo coupling (per ADR-015):
+
+### For Applications Using This Package
+
+Add to your `package.json`:
+
+```json
+{
+  "dependencies": {
+    "@platform/observability-edge": "file:../../packages/observability-edge"
+  },
+  "scripts": {
+    "prebuild": "cd ../../packages/observability-edge && npm install && npm run build"
+  }
+}
+```
+
+The `prebuild` hook ensures this package is built before your application builds.
+
+### Why This Approach?
+
+1. **No Monorepo Workspace** - No pnpm/yarn workspace required at root level
+2. **Independent CI/CD** - Each app can deploy independently using Makefiles
+3. **Technology Agnostic** - Works with language-agnostic deployment orchestration
+4. **Minimal Coupling** - Applications remain independently deployable
+
+### Alternative: Publish to Registry
+
+For production deployments, consider publishing to npm:
+
+```bash
+cd packages/observability-edge
+npm publish --access public
+```
+
+Then reference as a normal npm dependency:
+
+```json
+{
+  "dependencies": {
+    "@platform/observability-edge": "^1.0.0"
+  }
+}
+```
+
 ## Testing
 
 ```bash
