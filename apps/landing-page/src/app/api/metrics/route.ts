@@ -2,15 +2,18 @@
  * Prometheus metrics endpoint with distributed tracing
  *
  * Exposes application metrics in Prometheus text format for scraping
+ * Now using @platform/observability with CloudflareEdgeAdapter
  */
 
 import { NextResponse } from 'next/server'
-import { logger } from '@/lib/observability'
-import { createSpan } from '@/lib/tracing'
+import {
+  logger,
+  tracing,
+  generateCorrelationId,
+} from '@/lib/observability-setup'
 
 // Configure for edge runtime
 export const runtime = 'edge'
-export const dynamic = 'force-static'
 
 // Metrics storage (in-memory for demo)
 const metrics = new Map<string, { value: number; type: string; help: string }>()
@@ -58,26 +61,23 @@ function formatPrometheusMetrics(): string {
 }
 
 export async function GET() {
-  // Create trace context for this request
-  const traceId = crypto.randomUUID()
-  const correlationId = crypto.randomUUID()
-  const startTime = Date.now()
+  // Create trace context for this request using @platform/observability
+  const correlationId = generateCorrelationId()
 
   // Create span for metrics collection
-  const span = createSpan('metrics-collection', {
-    traceId,
-    spanId: crypto.randomUUID(),
-    correlationId,
-    startTime,
-  })
-  span.setAttribute('service.name', 'landing-page')
+  const span = tracing.startSpan('metrics.collection')
+  const spanContext = span.spanContext()
+
+  span.setAttribute('service.name', 'platform-modular-monolith')
+  span.setAttribute('bounded.context', 'landing-page')
   span.setAttribute('endpoint', '/api/metrics')
   span.setAttribute('metrics.format', 'prometheus')
 
   try {
     logger.info('Metrics requested', {
       correlationId,
-      traceId,
+      traceId: spanContext.traceId,
+      spanId: spanContext.spanId,
       endpoint: '/api/metrics',
       method: 'GET',
     })
@@ -86,10 +86,7 @@ export async function GET() {
 
     span.setAttribute('http.status_code', 200)
     span.setAttribute('metrics.lines_count', metricsText.split('\n').length)
-    span.setAttribute(
-      'metrics.size_bytes',
-      Buffer.byteLength(metricsText, 'utf8')
-    )
+    span.setAttribute('metrics.size_bytes', metricsText.length)
 
     return new Response(metricsText, {
       status: 200,
@@ -97,7 +94,7 @@ export async function GET() {
         'Content-Type': 'text/plain; version=0.0.4; charset=utf-8',
         'Cache-Control': 'no-store, max-age=0',
         'X-Correlation-Id': correlationId,
-        'X-Trace-Id': traceId,
+        'X-Trace-Id': spanContext.traceId,
       },
     })
   } catch (error) {
@@ -112,7 +109,7 @@ export async function GET() {
       error instanceof Error ? error : new Error(String(error)),
       {
         correlationId,
-        traceId,
+        traceId: spanContext.traceId,
       }
     )
 

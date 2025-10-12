@@ -107,10 +107,12 @@ tail -f /tmp/landing-page-uptime/uptime-$(date +%Y-%m-%d).log
 ### Issue 1: Deployment Failed
 
 **Symptoms:**
+
 - GitHub Actions workflow shows red X
 - Build or deployment step failed
 
 **Diagnosis:**
+
 ```bash
 # Check latest workflow run
 gh run list --workflow=deploy-landing-page.yml --limit 1
@@ -122,27 +124,29 @@ gh run view <run-id> --log-failed
 **Solutions:**
 
 1. **Build Failure:**
+
    ```bash
    # Test build locally
    cd apps/landing-page
    pnpm install
    pnpm run build
-   
+
    # Check for TypeScript errors
    pnpm run type-check
-   
+
    # Check for linting issues
    pnpm run lint
    ```
 
 2. **Deployment Failure:**
+
    ```bash
    # Verify Wrangler authentication
    wrangler whoami
-   
+
    # Check Doppler secrets
    doppler secrets --project tomriddelsdell-infra --config prd
-   
+
    # Verify Cloudflare project exists
    wrangler pages project list
    ```
@@ -155,10 +159,12 @@ gh run view <run-id> --log-failed
 ### Issue 2: Health Check Failed
 
 **Symptoms:**
+
 - Deployment succeeded but health check fails
 - Site returns 4xx or 5xx errors
 
 **Diagnosis:**
+
 ```bash
 # Test health endpoint
 curl -I https://tomriddelsdell.com/api/health
@@ -171,48 +177,54 @@ cd apps/landing-page
 **Solutions:**
 
 1. **502/503 Errors (Site Down):**
+
    ```bash
    # Check Cloudflare status
    # Visit https://www.cloudflarestatus.com
-   
+
    # Verify DNS resolution
    nslookup tomriddelsdell.com
    dig tomriddelsdell.com
-   
+
    # Check if Cloudflare Pages is up
    curl -I https://landing-page-8t9.pages.dev
    ```
 
 2. **404 Errors (Routes Not Found):**
+
    ```bash
    # Verify deployment completed
    wrangler pages deployment list --project-name=landing-page
-   
+
    # Check if files were uploaded
    # Look for "✨ Success! Uploaded X files" in deployment logs
    ```
 
 3. **Slow Response Times:**
+
    ```bash
    # Run performance check
    cd apps/landing-page
    ./scripts/performance-check.sh https://tomriddelsdell.com
-   
+
    # Check Cloudflare Analytics for bottlenecks
    ```
 
 ### Issue 3: Cloudflare Access Redirect (302)
 
 **Symptoms:**
+
 - Health check receives HTTP 302 instead of 200
 - Redirects to Cloudflare Access login
 
 **This is Expected Behavior:**
+
 - Staging environment has Cloudflare Access authentication enabled
 - Health checks are configured to accept 302 as valid status
 - Production should return 200 (publicly accessible)
 
 **Verification:**
+
 ```bash
 # Check staging (should return 302)
 curl -s -o /dev/null -w "%{http_code}" https://staging.tomriddelsdell.com
@@ -226,11 +238,13 @@ curl -s -o /dev/null -w "%{http_code}" https://tomriddelsdell.com
 ### Issue 4: Performance Degradation
 
 **Symptoms:**
+
 - Slow page load times
 - High Time to First Byte (TTFB)
 - Poor performance scores
 
 **Diagnosis:**
+
 ```bash
 # Run performance check
 cd apps/landing-page
@@ -243,6 +257,7 @@ curl -w "@curl-format.txt" -o /dev/null -s https://tomriddelsdell.com
 **Solutions:**
 
 1. **Optimize Images:**
+
    ```bash
    # Use Next.js Image optimization
    # Ensure images are properly sized
@@ -265,12 +280,14 @@ curl -w "@curl-format.txt" -o /dev/null -s https://tomriddelsdell.com
 ### Issue 5: Contact Form Not Working
 
 **Symptoms:**
+
 - Contact form submissions fail
 - No validation errors shown
 
 **Note:** Contact form currently does not send emails (display only).
 
 **Future Implementation:**
+
 - Backend API endpoint needed
 - Email service integration required (SendGrid, AWS SES, etc.)
 - Form validation already in place
@@ -322,6 +339,7 @@ make verify-deployment-production
 ### GitHub Actions Notifications
 
 Deployment status is automatically reported in:
+
 - GitHub Actions workflow summary
 - Commit status checks
 - Pull request checks (if applicable)
@@ -342,12 +360,14 @@ gh run view --log
 ### Setting Up External Monitoring
 
 **Recommended Tools:**
+
 - **Uptime Robot:** https://uptimerobot.com
 - **Pingdom:** https://www.pingdom.com
 - **Better Uptime:** https://betteruptime.com
 - **Cloudflare Analytics:** Built-in
 
 **Monitoring Endpoints:**
+
 ```
 Primary: https://tomriddelsdell.com/api/health
 Backup: https://tomriddelsdell.com
@@ -371,6 +391,7 @@ Backup: https://tomriddelsdell.com
 ### Zero-Downtime Deployments
 
 Cloudflare Pages provides zero-downtime deployments automatically:
+
 - New deployment builds in parallel
 - Traffic switches atomically when ready
 - Previous deployment remains accessible if rollback needed

@@ -394,6 +394,44 @@ npm run build
 └── dist/                     # Compiled JavaScript + types
 ```
 
+## Architectural Decisions
+
+### Edge Runtime Services Use @platform/observability-edge
+
+Services running on edge runtimes (Next.js Edge, Cloudflare Workers) use **@platform/observability-edge** instead of this package:
+
+**Why Separate Packages:**
+
+1. **Node.js API Incompatibility** - OpenTelemetry NodeSDK requires APIs unavailable in edge runtimes (zlib, net, tls)
+2. **Zero Dependencies** - Edge package has no Node.js dependencies, enabling V8 isolate deployment
+3. **Same TypeScript Contracts** - Both packages implement identical `PlatformObservability` interfaces
+4. **DDD Consistency** - Maintains bounded context consistency across Platform Monolith services
+
+**Which Package to Use:**
+
+| Runtime Environment | Package | Tracing Implementation |
+|---------------------|---------|------------------------|
+| Node.js (ECS, Lambda, servers) | `@platform/observability` | Full OpenTelemetry SDK with Jaeger/OTLP |
+| Next.js Edge Runtime | `@platform/observability-edge` | Correlation IDs with structured logging |
+| Cloudflare Workers | `@platform/observability-edge` | Correlation IDs with structured logging |
+| Cloudflare Pages | `@platform/observability-edge` | Correlation IDs with structured logging |
+| Vercel Edge Functions | `@platform/observability-edge` | Correlation IDs with structured logging |
+
+**Implementation**: See [@platform/observability-edge](../observability-edge/README.md) for edge runtime usage.
+
+### Platform-Specific Adapters
+
+Different platforms have different observability primitives:
+
+| Platform | Logging | Metrics | Tracing |
+|----------|---------|---------|---------|
+| **Node.js** | Console + OTel | Prometheus | Jaeger (OTLP) |
+| **Cloudflare Workers** | Console | Analytics Engine | Logs only |
+| **AWS Lambda** | CloudWatch Logs | CloudWatch EMF | X-Ray |
+| **Next.js Edge** | Console (lightweight) | Cloudflare Analytics | Correlation IDs |
+
+This design follows **ADR-010's platform portability principle** while respecting each platform's constraints.
+
 ## ADR Compliance
 
 This package implements **ADR-010: Observability Requirements**:

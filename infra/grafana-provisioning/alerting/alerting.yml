@@ -1,0 +1,78 @@
+# Grafana Alerting Configuration
+# Contact points and notification policies
+
+apiVersion: 1
+
+# Contact points - where alerts are sent
+contactPoints:
+  - orgId: 1
+    name: 'grafana-default-email'
+    receivers:
+      - uid: default-email
+        type: email
+        settings:
+          addresses: 'alerts@tomriddelsdell.com'
+          singleEmail: false
+        disableResolveMessage: false
+
+  # Slack notifications (configure webhook URL in Doppler)
+  # - orgId: 1
+  #   name: 'slack-critical'
+  #   receivers:
+  #     - uid: slack-critical
+  #       type: slack
+  #       settings:
+  #         url: '${SLACK_WEBHOOK_URL}'
+  #         recipient: '#alerts-critical'
+  #         title: '{{ .GroupLabels.alertname }}'
+  #         text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+  #       disableResolveMessage: false
+
+  # PagerDuty (for production critical alerts)
+  # - orgId: 1
+  #   name: 'pagerduty-oncall'
+  #   receivers:
+  #     - uid: pagerduty-oncall
+  #       type: pagerduty
+  #       settings:
+  #         integrationKey: '${PAGERDUTY_INTEGRATION_KEY}'
+  #         severity: 'critical'
+  #       disableResolveMessage: false
+
+# Notification policies - routing rules for alerts
+policies:
+  - orgId: 1
+    receiver: grafana-default-email
+    group_by: ['alertname', 'grafana_folder']
+    group_wait: 10s
+    group_interval: 5m
+    repeat_interval: 4h
+    routes:
+      # Critical alerts go to multiple channels
+      - receiver: grafana-default-email
+        object_matchers:
+          - ['severity', '=', 'critical']
+        group_wait: 0s
+        repeat_interval: 1h
+        continue: false
+
+      # Warning alerts with longer intervals
+      - receiver: grafana-default-email
+        object_matchers:
+          - ['severity', '=', 'warning']
+        group_wait: 30s
+        group_interval: 10m
+        repeat_interval: 12h
+        continue: false
+
+# Mute timings (maintenance windows)
+muteTimes:
+  - orgId: 1
+    name: 'maintenance-window'
+    time_intervals:
+      - times:
+          - start_time: '00:00'
+            end_time: '02:00'
+        weekdays: ['sunday']
+        months: []
+        years: []
