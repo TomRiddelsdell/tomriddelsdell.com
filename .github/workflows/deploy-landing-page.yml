@@ -56,6 +56,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build shared dependencies
+        run: |
+          echo "Building @platform/observability-edge package..."
+          cd ../../packages/observability-edge
+          pnpm install
+          pnpm run build
+
       - name: Type check
         run: pnpm run type-check
 
@@ -108,6 +115,13 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared dependencies
+        run: |
+          echo "Building @platform/observability-edge package..."
+          cd ../../packages/observability-edge
+          pnpm install
+          pnpm run build
 
       - name: Build for staging
         env:
@@ -213,6 +227,13 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared dependencies
+        run: |
+          echo "Building @platform/observability-edge package..."
+          cd ../../packages/observability-edge
+          pnpm install
+          pnpm run build
 
       - name: Build for production
         env:
