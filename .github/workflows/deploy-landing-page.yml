@@ -137,6 +137,9 @@ jobs:
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_STG }}
         run: |
+          echo "🧹 Removing cache directory to meet Cloudflare Pages 25 MiB file size limit..."
+          rm -rf .next/cache
+          
           echo "🚀 Deploying to Cloudflare Pages (staging)..."
           doppler run --project tomriddelsdell-infra --config stg -- \
             pnpm exec wrangler pages deploy .next \
@@ -250,6 +253,9 @@ jobs:
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PROD }}
         run: |
+          echo "🧹 Removing cache directory to meet Cloudflare Pages 25 MiB file size limit..."
+          rm -rf .next/cache
+          
           echo "🚀 Deploying to Cloudflare Pages (production)..."
           doppler run --project tomriddelsdell-infra --config prd -- \
             pnpm exec wrangler pages deploy .next \
