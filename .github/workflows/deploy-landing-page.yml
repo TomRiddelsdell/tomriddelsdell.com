@@ -418,16 +418,3 @@ jobs:
       - name: Final summary
         run: |
           echo "✅ All post-deployment verifications complete"
-          elif [ "${{ needs.deploy-staging.result }}" = "failure" ]; then
-            echo "| Staging | ❌ Failed | - |" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "| Staging | ⏭️ Skipped | - |" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          if [ "${{ needs.deploy-production.result }}" = "success" ]; then
-            echo "| Production | ✅ Success | https://tomriddelsdell.com |" >> $GITHUB_STEP_SUMMARY
-          elif [ "${{ needs.deploy-production.result }}" = "failure" ]; then
-            echo "| Production | ❌ Failed | - |" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "| Production | ⏭️ Skipped | - |" >> $GITHUB_STEP_SUMMARY
-          fi
