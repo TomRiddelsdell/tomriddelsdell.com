@@ -18,8 +18,8 @@
  * trace context propagation and consistent logging across the monolith.
  */
 
-import { createEdgeObservability } from '@platform/observability-edge'
-import type { PlatformObservability } from '@platform/observability-edge'
+import { createEdgeObservability } from './observability-edge/index'
+import type { PlatformObservability } from './observability-edge/types'
 
 /**
  * Global observability instance for the landing page

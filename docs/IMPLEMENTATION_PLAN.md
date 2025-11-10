@@ -26,16 +26,24 @@ This document outlines the implementation roadmap for DDD-compliant observabilit
 ### ✅ Completed
 
 **Phase 1: Infrastructure Baseline** (ADR-023 Phase 1)
-- ✅ **Landing Page Deployed**: Next.js 14.2.18 on Cloudflare Workers via OpenNext (staging + production operational)
-  - **Adapter**: `@opennextjs/cloudflare` 1.11.0
+- ✅ **Landing Page Deployed**: Next.js 16.0.1 on Cloudflare Workers via OpenNext (staging + production operational)
+  - **Adapter**: `@opennextjs/cloudflare` 1.11.1
   - **Staging URL**: `https://landing-page-preview.t-riddelsdell.workers.dev`
   - **Production URL**: `https://landing-page-prod.t-riddelsdell.workers.dev`
   - **R2 Storage**: `landing-page-cache` bucket for ISR/caching
+  - **Architecture**: Fully independent deployment (own node_modules, pnpm-lock.yaml)
 - ✅ **OpenTelemetry Instrumented**: Full SDK in landing-page with OTLP export
 - ✅ **Grafana Cloud Integration**: Traces flowing to Grafana Cloud from staging
 - ✅ **Local Development**: Docker Compose with OTel Collector + Jaeger UI
 - ✅ **CI/CD Pipeline**: GitHub Actions with Doppler secrets management and automated deployment
 - ✅ **Environment Variables**: Staging configured with OTLP endpoint + auth
+
+**Independent App Architecture** (ADR-024 - November 10, 2025)
+- ✅ **Removed Monorepo Coupling**: Eliminated shared pnpm workspace, .npmrc, and lockfile
+- ✅ **Per-App Dependencies**: Landing-page has own node_modules and pnpm-lock.yaml
+- ✅ **Build Independence**: No file: references or prebuild scripts crossing boundaries
+- ✅ **Code Isolation**: Inlined observability-edge (718 lines) into landing-page
+- ✅ **DDD Compliance**: True bounded context independence - apps can use different Next.js versions
 
 **Documentation Updates** (October 20, 2025)
 - ✅ **ADR-023 Enhanced**: DDD-compliant architecture documented (~900 lines added)
