@@ -1,9 +1,0 @@
-packages:
-  - 'packages/*'
-  - 'apps/*'
-  - 'services/*'
-
-ignoredBuiltDependencies:
-  - '@tailwindcss/oxide'
-  - esbuild
-  - sharp
