@@ -2,7 +2,14 @@
 
 ## Status
 
-Proposed
+Accepted and Implemented
+
+## Implementation Notes
+- **First Production Deployment**: Landing page deployed to Cloudflare Workers (November 2024)
+- **Secrets Management**: Doppler implemented for centralized secrets management
+- **CI/CD**: GitHub Actions workflows operational with automated quality gates
+- **Infrastructure**: Terraform modules in development for Neon, Cloudflare, and Kafka Cloud
+- **Security Scanning**: Pre-commit hooks and GitHub Actions integration planned
 
 ## Context
 
@@ -33,43 +40,59 @@ We need to define our CI/CD pipeline, environment management, deployment strateg
 
 ### Infrastructure Components
 
-- **Cloudflare Workers** for compute
-- **Neon PostgreSQL** for primary database
-- **Cloudflare R2** for static assets
-- **Kafka Cloud** for event streaming
-- **Redis Cloud** for caching
+**Compute & Hosting:**
+- **Cloudflare Workers**: Serverless compute for Next.js applications (via OpenNext), APIs, and microservices
+- **Deployment Adapter**: `@opennextjs/cloudflare` for Next.js → Workers deployment
 
-## Questions for Confirmation
+**Data Storage:**
+- **Neon PostgreSQL**: Event store and read model databases with branching capability
+- **Cloudflare R2**: Static assets and Next.js ISR/caching storage
 
-**Deployment Pipeline:**
+**Messaging & Events:**
+- **Kafka Cloud (Confluent)**: Event bus for domain events and integration events
+- **Event Sourcing**: All state changes captured as events in PostgreSQL
+
+**Caching & Session:**
+- **Redis Cloud**: Planned for session management and read model caching
+
+**Secrets Management:**
+- **Doppler**: Centralized secrets management across all environments (dev, staging, production)
+
+### Deployment Pipeline
+
+**Implemented GitHub Actions Workflows:**
 
 ```yaml
-# .github/workflows/deploy.yml
-name: Deploy
+# .github/workflows/deploy-landing-page.yml (IMPLEMENTED)
+name: Deploy Landing Page
 on:
   push:
     branches: [main, develop]
   pull_request:
 
 jobs:
-  test:
-    # Unit tests, integration tests, contract tests
-
+  quality-gates:
+    # Type checking, linting, testing, coverage checks
+    # Runs for all branches and PRs
+    
   deploy-staging:
-    if: branch == 'develop'
-    # Deploy to staging environment
-
-  deploy-prod:
-    if: branch == 'main'
-    # Blue/green deployment to production
+    if: github.ref == 'refs/heads/develop'
+    # Automated deployment to staging environment
+    # URL: https://landing-page-preview.t-riddelsdell.workers.dev
+    
+  deploy-production:
+    if: github.ref == 'refs/heads/main'
+    # Automated deployment to production
+    # URL: https://landing-page-prod.t-riddelsdell.workers.dev
+    # Includes smoke tests and health checks
 ```
 
-**Questions for you:**
-
-1. Should we implement automated security scanning in the pipeline?
-2. What's your preference for secret management? (GitHub secrets, Vault, cloud provider?)
-3. Should we set up automatic dependency updates with Dependabot?
-4. Do you want infrastructure cost monitoring and alerting?
+**Implemented Security & Quality:**
+1. ✅ **Security Scanning**: Pre-commit secret detection, .gitignore verification
+2. ✅ **Secret Management**: Doppler for all environment variables and API tokens
+3. 🔄 **Dependency Updates**: Planned with Dependabot (not yet configured)
+4. 🔄 **Cost Monitoring**: Planned via Cloudflare analytics (not yet configured)
+5. ✅ **Quality Gates**: Type checking, linting, test coverage enforced in CI/CD
 
 ## Database Migration Strategy
 
