@@ -1,0 +1,74 @@
+# OpenTelemetry Collector + Jaeger for Local Development
+# 
+# This stack provides:
+# 1. OTel Collector - Receives OTLP telemetry from your apps
+# 2. Jaeger UI - Local trace visualization (http://localhost:16686)
+# 3. Grafana Cloud forwarding - Unified view across all environments
+#
+# Usage:
+#   doppler run --project tomriddelsdell-infra --config dev -- docker compose -f infra/docker-compose.otel.yml up -d
+#
+# Environment variables required (via Doppler):
+#   - GRAFANA_CLOUD_OTLP_ENDPOINT
+#   - GRAFANA_CLOUD_API_KEY
+
+services:
+  # OpenTelemetry Collector
+  # Receives telemetry from your applications and forwards to Jaeger + Grafana Cloud
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.91.0
+    container_name: otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "8888:8888"   # Collector metrics endpoint
+    environment:
+      - GRAFANA_CLOUD_OTLP_ENDPOINT=${GRAFANA_CLOUD_OTLP_ENDPOINT}
+      - GRAFANA_CLOUD_INSTANCE_ID=${GRAFANA_CLOUD_INSTANCE_ID}
+      - GRAFANA_CLOUD_API_KEY=${GRAFANA_CLOUD_API_KEY}
+    depends_on:
+      - jaeger
+    networks:
+      - observability
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:13133/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Jaeger All-in-One
+  # Local trace storage and UI for development
+  jaeger:
+    image: jaegertracing/all-in-one:1.52
+    container_name: jaeger
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "14250:14250"  # Jaeger gRPC (legacy)
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - SPAN_STORAGE_TYPE=memory
+      - METRICS_STORAGE_TYPE=prometheus
+    networks:
+      - observability
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:16686/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+networks:
+  observability:
+    driver: bridge
+    name: observability
+
+# Volume for persistent storage (optional, uncomment if needed)
+# volumes:
+#   jaeger-data:
+#     driver: local
