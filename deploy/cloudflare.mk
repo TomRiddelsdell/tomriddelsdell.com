@@ -37,19 +37,39 @@ define deploy-cloudflare-worker
 	@echo "$(GREEN)✅ Cloudflare Worker deployed$(NC)"
 endef
 
+# Deploy OpenNext Cloudflare (Next.js as Worker)
+define deploy-opennext-cloudflare
+	@echo "$(YELLOW)☁️  Deploying OpenNext Cloudflare to $(ENV)...$(NC)"
+	$(call check-wrangler)
+	$(call validate-doppler)
+	@echo "$(YELLOW)🔐 Running with Doppler secrets ($(DOPPLER_CONFIG))...$(NC)"; \
+	if [ "$(ENV)" = "production" ]; then \
+		doppler run --project $(DOPPLER_PROJECT) --config $(DOPPLER_CONFIG) -- pnpm opennextjs-cloudflare deploy --env production; \
+	else \
+		doppler run --project $(DOPPLER_PROJECT) --config $(DOPPLER_CONFIG) -- pnpm opennextjs-cloudflare deploy --env preview; \
+	fi
+	@echo "$(GREEN)✅ OpenNext Cloudflare deployed$(NC)"
+endef
+
 # Deploy Cloudflare Pages
 define deploy-cloudflare-pages
 	@echo "$(YELLOW)☁️  Deploying Cloudflare Pages to $(ENV)...$(NC)"
 	$(call check-wrangler)
 	$(call validate-build)
 	$(call validate-doppler)
-	@if [ -d "out" ]; then BUILD_OUTPUT_DIR="out"; \
+	@if [ -d ".open-next" ]; then BUILD_OUTPUT_DIR=".open-next"; \
+	elif [ -d "out" ]; then BUILD_OUTPUT_DIR="out"; \
 	elif [ -d "dist" ]; then BUILD_OUTPUT_DIR="dist"; \
 	elif [ -d ".next" ]; then BUILD_OUTPUT_DIR=".next"; \
 	else BUILD_OUTPUT_DIR="build"; fi; \
+	echo "$(YELLOW)📦 Using build output: $$BUILD_OUTPUT_DIR$(NC)"; \
+	echo "$(YELLOW)🧹 Removing cache directory to meet Cloudflare Pages 25 MiB file size limit...$(NC)"; \
+	rm -rf .next/cache .open-next/cache; \
 	echo "$(YELLOW)🔐 Running with Doppler secrets ($(DOPPLER_CONFIG))...$(NC)"; \
 	if [ "$(ENV)" = "production" ]; then \
 		doppler run --project $(DOPPLER_PROJECT) --config $(DOPPLER_CONFIG) -- wrangler pages deploy ./$$BUILD_OUTPUT_DIR --project-name=$(shell basename $(CURDIR)) --branch main; \
+	elif [ "$(ENV)" = "staging" ]; then \
+		doppler run --project $(DOPPLER_PROJECT) --config $(DOPPLER_CONFIG) -- wrangler pages deploy ./$$BUILD_OUTPUT_DIR --project-name=$(shell basename $(CURDIR)) --branch develop; \
 	else \
 		doppler run --project $(DOPPLER_PROJECT) --config $(DOPPLER_CONFIG) -- wrangler pages deploy ./$$BUILD_OUTPUT_DIR --project-name=$(shell basename $(CURDIR)) --branch develop; \
 	fi

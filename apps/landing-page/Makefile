@@ -4,7 +4,7 @@
 # App configuration
 APP_NAME := landing-page
 APP_TYPE := nextjs
-DEPLOYMENT_TARGET := cloudflare-pages
+DEPLOYMENT_TARGET := opennext-cloudflare
 
 # Include shared deployment functions
 include ../../deploy/shared.mk
@@ -16,17 +16,6 @@ NODE_VERSION := 18
 PYTHON_VERSION := 3.11
 BUILD_DIR := out
 SOURCE_DIR := src
-
-# Environment-specific overrides
-ifeq ($(ENV),local)
-DOPPLER_CONFIG := dev_personal
-endif
-ifeq ($(ENV),staging)
-DOPPLER_CONFIG := stg
-endif
-ifeq ($(ENV),production)
-DOPPLER_CONFIG := prd
-endif
 
 # Default target
 .DEFAULT_GOAL := help
@@ -58,7 +47,15 @@ endif
 
 build: install ## Build the application
 	@echo "$(YELLOW)🔨 Building $(APP_NAME)...$(NC)"
-ifeq ($(APP_TYPE),nodejs)
+ifeq ($(APP_TYPE),nextjs)
+	@if [ "$(DEPLOYMENT_TARGET)" = "cloudflare-pages" ] && [ -f "package.json" ] && pnpm run --if-present build:cloudflare --help >/dev/null 2>&1; then \
+		pnpm run build:cloudflare; \
+	elif [ -f "package.json" ] && [ -n "$$(jq -r '.scripts.build // empty' package.json)" ]; then \
+		pnpm run build; \
+	else \
+		echo "$(YELLOW)⚠️  No build script found, skipping build$(NC)"; \
+	fi
+else ifeq ($(APP_TYPE),nodejs)
 	@if [ -f "package.json" ] && [ -n "$$(jq -r '.scripts.build // empty' package.json)" ]; then \
 		pnpm run build; \
 	else \
@@ -175,7 +172,9 @@ deploy: build ## Deploy the application
 	@echo "$(YELLOW)🚀 Deploying $(APP_NAME) to $(DEPLOYMENT_TARGET)...$(NC)"
 	$(call pre-deploy-checks)
 ifeq ($(DEPLOYMENT_TARGET),cloudflare-worker)
-	$(call deploy-cloudflare-worker)
+	$(call deploy-opennext-cloudflare)
+else ifeq ($(DEPLOYMENT_TARGET),cloudflare-pages)
+	$(call deploy-opennext-cloudflare)
 else ifeq ($(DEPLOYMENT_TARGET),cloudflare-pages)
 	$(call deploy-cloudflare-pages)
 else ifeq ($(DEPLOYMENT_TARGET),aws-lambda)
