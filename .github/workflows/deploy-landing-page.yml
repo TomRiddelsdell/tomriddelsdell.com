@@ -63,22 +63,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Type check
-        run: pnpm run type-check
-
-      - name: Lint
-        run: pnpm run lint
-
-      - name: Unit tests
-        run: pnpm run test:unit
-        env:
-          CI: true
-
-      - name: Build test
-        run: pnpm run build:cloudflare
-        env:
-          NODE_ENV: production
-          NEXT_PUBLIC_ENV: staging
+      - name: Run quality gates
+        run: bash ../../scripts/quality-gates.sh .
 
   # Deploy to staging environment
   deploy-staging:
