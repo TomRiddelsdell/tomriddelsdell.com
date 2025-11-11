@@ -13,7 +13,7 @@ import type { PlatformObservability } from './observability-edge'
 
 /**
  * Create and export observability singleton
- * 
+ *
  * This provides the same interface that will be used when we migrate to
  * @platform/shared-infra, making the transition seamless.
  */
