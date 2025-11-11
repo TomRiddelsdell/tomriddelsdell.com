@@ -2,11 +2,11 @@
  * Application Tracing Utilities
  *
  * DDD-compliant tracing utilities using domain-friendly observability interface.
- * All OpenTelemetry SDK complexity is hidden behind @platform/shared-infra ACL.
+ * All OpenTelemetry SDK complexity is hidden behind the observability edge adapter.
  *
  * Benefits of this approach:
  * - No vendor lock-in (can swap observability backend without code changes)
- * - Domain language (trace, addMetadata vs span.setAttribute)
+ * - Domain language (simplified span management)
  * - Easy to test (mock observability interface)
  * - Follows ADR-023 Observability Standards
  *
@@ -14,22 +14,21 @@
  * ```ts
  * import { withSpan } from './lib/otel-instrumentation'
  *
- * const result = await withSpan('fetchUserData', async (context) => {
- *   context.addMetadata('user.id', userId)
+ * const result = await withSpan('fetchUserData', async (span) => {
+ *   span.setAttribute('user.id', userId)
  *   const data = await fetch('/api/user')
- *   context.setSuccess()
  *   return data
  * })
  * ```
  */
 
 import { observability } from './observability'
-import type { TraceContext } from '@platform/shared-infra'
+import type { Span } from './observability-edge'
 
 /**
  * Execute a function within a distributed trace span
  *
- * This is a convenience wrapper around observability.tracing.trace() that provides
+ * This is a convenience wrapper around observability.tracing.startSpan() that provides
  * a simpler API for common tracing scenarios.
  *
  * @param name - Operation name (e.g., 'fetchUserData', 'processPayment')
@@ -39,20 +38,18 @@ import type { TraceContext } from '@platform/shared-infra'
  *
  * @example
  * ```ts
- * const user = await withSpan('fetchUser', async (context) => {
- *   context.addMetadata('user.id', userId)
+ * const user = await withSpan('fetchUser', async (span) => {
+ *   span.setAttribute('user.id', userId)
  *
  *   try {
  *     const response = await fetch(`/api/users/${userId}`)
  *     const data = await response.json()
  *
- *     context.addMetadata('user.role', data.role)
- *     context.setSuccess()
- *
+ *     span.setAttribute('user.role', data.role)
  *     return data
  *   } catch (error) {
- *     context.recordError(error as Error)
- *     context.setFailure(error instanceof Error ? error.message : 'Unknown error')
+ *     span.setAttribute('error', true)
+ *     span.setAttribute('error.message', error instanceof Error ? error.message : 'Unknown')
  *     throw error
  *   }
  * }, { 'http.method': 'GET' })
@@ -60,29 +57,29 @@ import type { TraceContext } from '@platform/shared-infra'
  */
 export async function withSpan<T>(
   name: string,
-  fn: (context: TraceContext) => Promise<T>,
+  fn: (span: Span) => Promise<T>,
   attributes?: Record<string, string | number | boolean>
 ): Promise<T> {
-  return observability.tracing.trace(name, async (context) => {
-    // Add initial attributes
-    if (attributes) {
-      Object.entries(attributes).forEach(([key, value]) => {
-        context.addMetadata(key, value)
-      })
-    }
+  const span = observability.tracing.startSpan(name)
 
-    try {
-      const result = await fn(context)
-      context.setSuccess()
-      return result
-    } catch (error) {
-      context.recordError(error as Error)
-      context.setFailure(
-        error instanceof Error ? error.message : 'Unknown error'
-      )
-      throw error
-    }
-  })
+  // Add initial attributes
+  if (attributes) {
+    span.setAttributes(attributes)
+  }
+
+  try {
+    const result = await fn(span)
+    span.end()
+    return result
+  } catch (error) {
+    span.setAttribute('error', true)
+    span.setAttribute(
+      'error.message',
+      error instanceof Error ? error.message : 'Unknown error'
+    )
+    span.end()
+    throw error
+  }
 }
 
 /**
@@ -90,38 +87,43 @@ export async function withSpan<T>(
  *
  * Useful for adding trace context to logs or error reports
  *
- * @returns Current trace ID or undefined if not in active trace
+ * @returns Current trace ID or undefined if not in active span
  *
  * @example
  * ```ts
  * const traceId = getTraceId()
- * logger.error('Operation failed', { traceId, userId })
+ * logger.info('Operation failed', { traceId, userId })
  * ```
  */
 export function getTraceId(): string | undefined {
-  return observability.tracing.getTraceId()
+  // Create a trace context to get the current trace ID
+  const trace = observability.tracing.createTrace()
+  return trace.traceId
 }
 
 /**
- * Add metadata to the current active span
+ * Add metadata to a span
  *
- * This is useful when you need to add context to an existing span
- * without creating a new nested span.
+ * This is a helper for adding attributes to spans in a consistent way.
  *
+ * @param span - The span to add metadata to
  * @param key - Metadata key
  * @param value - Metadata value
  *
  * @example
  * ```ts
- * addSpanMetadata('cache.hit', true)
- * addSpanMetadata('db.query.duration_ms', 42)
+ * await withSpan('operation', async (span) => {
+ *   addSpanMetadata(span, 'cache.hit', true)
+ *   addSpanMetadata(span, 'db.query.duration_ms', 42)
+ * })
  * ```
  */
 export function addSpanMetadata(
+  span: Span,
   key: string,
   value: string | number | boolean
 ): void {
-  observability.tracing.addMetadata(key, value)
+  span.setAttribute(key, value)
 }
 
 /**
@@ -132,7 +134,7 @@ export function addSpanMetadata(
 export const registerOpenTelemetry = () => {
   // No-op: Observability is now initialized automatically via instrumentation.ts
   console.log(
-    '[otel-instrumentation] OpenTelemetry now initialized via ACL package'
+    '[otel-instrumentation] OpenTelemetry now initialized via edge adapter'
   )
 }
 
@@ -149,9 +151,10 @@ export const getTracer = () => {
     startActiveSpan: (
       name: string,
       options: { attributes?: Record<string, string | number | boolean> },
-      fn: (context: TraceContext) => Promise<unknown>
+      fn: (span: Span) => Promise<unknown>
     ) => {
       return withSpan(name, fn, options?.attributes)
     },
   }
 }
+
