@@ -60,14 +60,6 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: apps/landing-page/pnpm-lock.yaml
 
-      - name: Build shared dependencies
-        run: |
-          echo "Building @platform/observability-edge package..."
-          cd packages/observability-edge
-          pnpm install
-          pnpm run build
-        working-directory: ${{ github.workspace }}
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -125,14 +117,6 @@ jobs:
 
       - name: Install Doppler CLI
         uses: dopplerhq/cli-action@v3
-
-      - name: Build shared dependencies
-        run: |
-          echo "Building @platform/observability-edge package..."
-          cd packages/observability-edge
-          pnpm install
-          pnpm run build
-        working-directory: ${{ github.workspace }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -239,14 +223,6 @@ jobs:
 
       - name: Install Doppler CLI
         uses: dopplerhq/cli-action@v3
-
-      - name: Build shared dependencies
-        run: |
-          echo "Building @platform/observability-edge package..."
-          cd packages/observability-edge
-          pnpm install
-          pnpm run build
-        working-directory: ${{ github.workspace }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
