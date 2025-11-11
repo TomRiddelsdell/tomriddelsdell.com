@@ -32,7 +32,7 @@ import type {
   Gauge,
   MetricTags,
   PlatformObservability,
-} from './types';
+} from './types'
 
 // Re-export types for consumer convenience
 export type {
@@ -49,9 +49,9 @@ export type {
   Gauge,
   MetricTags,
   PlatformObservability,
-} from './types';
+} from './types'
 
-export { TechnicalMetrics } from './types';
+export { TechnicalMetrics } from './types'
 
 /**
  * Edge-compatible structured logger
@@ -66,9 +66,9 @@ export class EdgeStructuredLogger implements Logger {
   static generateCorrelationId(): string {
     // Use crypto.randomUUID if available (edge runtime), fallback to timestamp+random
     if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-      return crypto.randomUUID();
+      return crypto.randomUUID()
     }
-    return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+    return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
   }
 
   /**
@@ -86,7 +86,7 @@ export class EdgeStructuredLogger implements Logger {
       service: this.serviceName,
       message,
       ...(context && { metadata: context }),
-    };
+    }
 
     // Add error details if present
     if (error) {
@@ -94,57 +94,62 @@ export class EdgeStructuredLogger implements Logger {
         name: error.name,
         message: error.message,
         stack: error.stack,
-      };
+      }
     }
 
     // Extract common fields from context
     if (context) {
-      if (context.correlationId) entry.correlationId = String(context.correlationId);
-      if (context.traceId) entry.traceId = String(context.traceId);
-      if (context.spanId) entry.spanId = String(context.spanId);
-      if (context.userId) entry.userId = String(context.userId);
-      if (context.aggregateId) entry.aggregateId = String(context.aggregateId);
+      if (context.correlationId)
+        entry.correlationId = String(context.correlationId)
+      if (context.traceId) entry.traceId = String(context.traceId)
+      if (context.spanId) entry.spanId = String(context.spanId)
+      if (context.userId) entry.userId = String(context.userId)
+      if (context.aggregateId) entry.aggregateId = String(context.aggregateId)
     }
 
-    return entry;
+    return entry
   }
 
   /**
    * Output log entry as JSON to stdout
    */
   private output(entry: LogEntry): void {
-    const json = JSON.stringify(entry);
+    const json = JSON.stringify(entry)
 
     // Use console methods for proper stream routing
     if (entry.level === 'error') {
-      console.error(json);
+      console.error(json)
     } else if (entry.level === 'warn') {
-      console.warn(json);
+      console.warn(json)
     } else if (entry.level === 'debug') {
-      console.debug(json);
+      console.debug(json)
     } else {
-      console.log(json);
+      console.log(json)
     }
   }
 
   info(message: string, context?: Record<string, unknown>): void {
-    const entry = this.createLogEntry('info', message, context);
-    this.output(entry);
+    const entry = this.createLogEntry('info', message, context)
+    this.output(entry)
   }
 
-  error(message: string, error?: Error, context?: Record<string, unknown>): void {
-    const entry = this.createLogEntry('error', message, context, error);
-    this.output(entry);
+  error(
+    message: string,
+    error?: Error,
+    context?: Record<string, unknown>
+  ): void {
+    const entry = this.createLogEntry('error', message, context, error)
+    this.output(entry)
   }
 
   debug(message: string, context?: Record<string, unknown>): void {
-    const entry = this.createLogEntry('debug', message, context);
-    this.output(entry);
+    const entry = this.createLogEntry('debug', message, context)
+    this.output(entry)
   }
 
   warn(message: string, context?: Record<string, unknown>): void {
-    const entry = this.createLogEntry('warn', message, context);
-    this.output(entry);
+    const entry = this.createLogEntry('warn', message, context)
+    this.output(entry)
   }
 }
 
@@ -153,15 +158,18 @@ export class EdgeStructuredLogger implements Logger {
  * Stores metrics in memory and logs them as structured data
  */
 export class EdgeMetricsCollector implements Metrics {
-  private serviceName: string;
-  private environment: string;
-  private version: string;
-  private metricsStore = new Map<string, { value: number; type: string; tags: MetricTags }>();
+  private serviceName: string
+  private environment: string
+  private version: string
+  private metricsStore = new Map<
+    string,
+    { value: number; type: string; tags: MetricTags }
+  >()
 
   constructor(config: TelemetryConfig) {
-    this.serviceName = config.serviceName;
-    this.environment = config.environment;
-    this.version = config.version;
+    this.serviceName = config.serviceName
+    this.environment = config.environment
+    this.version = config.version
   }
 
   /**
@@ -173,17 +181,22 @@ export class EdgeMetricsCollector implements Metrics {
       environment: this.environment,
       version: this.version,
       ...tags,
-    };
+    }
   }
 
   /**
    * Store and log metric
    */
-  private recordMetric(name: string, value: number, type: string, tags?: MetricTags): void {
-    const enrichedTags = this.addStandardTags(tags);
+  private recordMetric(
+    name: string,
+    value: number,
+    type: string,
+    tags?: MetricTags
+  ): void {
+    const enrichedTags = this.addStandardTags(tags)
 
     // Store in memory
-    this.metricsStore.set(name, { value, type, tags: enrichedTags });
+    this.metricsStore.set(name, { value, type, tags: enrichedTags })
 
     // Log as structured data for aggregation
     console.log(
@@ -197,32 +210,32 @@ export class EdgeMetricsCollector implements Metrics {
           tags: enrichedTags,
         },
       })
-    );
+    )
   }
 
   counter: Counter = {
     inc: (name: string, value: number, tags?: MetricTags): void => {
-      this.recordMetric(name, value, 'counter', tags);
+      this.recordMetric(name, value, 'counter', tags)
     },
-  };
+  }
 
   histogram: Histogram = {
     observe: (name: string, value: number, tags?: MetricTags): void => {
-      this.recordMetric(name, value, 'histogram', tags);
+      this.recordMetric(name, value, 'histogram', tags)
     },
-  };
+  }
 
   gauge: Gauge = {
     set: (name: string, value: number, tags?: MetricTags): void => {
-      this.recordMetric(name, value, 'gauge', tags);
+      this.recordMetric(name, value, 'gauge', tags)
     },
-  };
+  }
 
   /**
    * Get all collected metrics (useful for /metrics endpoint)
    */
   getMetrics(): Map<string, { value: number; type: string; tags: MetricTags }> {
-    return this.metricsStore;
+    return this.metricsStore
   }
 }
 
@@ -236,11 +249,16 @@ export class EdgeTracingManager implements Tracing {
   /**
    * Edge-compatible span implementation
    */
-  private createSpan(name: string, traceId: string, spanId: string, parentSpanId?: string): Span {
-    const startTime = Date.now();
+  private createSpan(
+    name: string,
+    traceId: string,
+    spanId: string,
+    parentSpanId?: string
+  ): Span {
+    const startTime = Date.now()
     const attributes: Record<string, string | number | boolean> = {
       'service.name': this.serviceName,
-    };
+    }
 
     return {
       spanContext: () => ({
@@ -250,15 +268,17 @@ export class EdgeTracingManager implements Tracing {
       }),
 
       setAttribute: (key: string, value: string | number | boolean): void => {
-        attributes[key] = value;
+        attributes[key] = value
       },
 
-      setAttributes: (attrs: Record<string, string | number | boolean>): void => {
-        Object.assign(attributes, attrs);
+      setAttributes: (
+        attrs: Record<string, string | number | boolean>
+      ): void => {
+        Object.assign(attributes, attrs)
       },
 
       end: (): void => {
-        const duration = Date.now() - startTime;
+        const duration = Date.now() - startTime
 
         // Log span as structured data
         console.log(
@@ -274,25 +294,26 @@ export class EdgeTracingManager implements Tracing {
               attributes,
             },
           })
-        );
+        )
       },
-    };
+    }
   }
 
   startSpan(name: string, parentContext?: SpanContext): Span {
-    const traceId = parentContext?.traceId || EdgeStructuredLogger.generateCorrelationId();
-    const spanId = EdgeStructuredLogger.generateCorrelationId();
-    const parentSpanId = parentContext?.spanId;
+    const traceId =
+      parentContext?.traceId || EdgeStructuredLogger.generateCorrelationId()
+    const spanId = EdgeStructuredLogger.generateCorrelationId()
+    const parentSpanId = parentContext?.spanId
 
-    return this.createSpan(name, traceId, spanId, parentSpanId);
+    return this.createSpan(name, traceId, spanId, parentSpanId)
   }
 
   createTrace(correlationId?: string): TraceContext {
-    const id = correlationId || EdgeStructuredLogger.generateCorrelationId();
+    const id = correlationId || EdgeStructuredLogger.generateCorrelationId()
     return {
       traceId: id,
       correlationId: id,
-    };
+    }
   }
 }
 
@@ -302,15 +323,15 @@ export class EdgeTracingManager implements Tracing {
  */
 export class CloudflareEdgeAdapter {
   createLogger(config: TelemetryConfig): Logger {
-    return new EdgeStructuredLogger(config.serviceName);
+    return new EdgeStructuredLogger(config.serviceName)
   }
 
   createMetrics(config: TelemetryConfig): Metrics {
-    return new EdgeMetricsCollector(config);
+    return new EdgeMetricsCollector(config)
   }
 
   createTracing(config: TelemetryConfig): Tracing {
-    return new EdgeTracingManager(config.serviceName);
+    return new EdgeTracingManager(config.serviceName)
   }
 
   /**
@@ -321,7 +342,7 @@ export class CloudflareEdgeAdapter {
       log: this.createLogger(config),
       metrics: this.createMetrics(config),
       tracing: this.createTracing(config),
-    };
+    }
   }
 
   /**
@@ -330,16 +351,16 @@ export class CloudflareEdgeAdapter {
   async exportMetrics(metrics: Record<string, number>): Promise<void> {
     // Check for Cloudflare Analytics Engine binding
     if (typeof globalThis !== 'undefined' && 'ANALYTICS' in globalThis) {
-      const analytics = (globalThis as any).ANALYTICS;
+      const analytics = (globalThis as any).ANALYTICS
       for (const [name, value] of Object.entries(metrics)) {
         try {
           await analytics.writeDataPoint({
             blobs: [name],
             doubles: [value],
             indexes: [],
-          });
+          })
         } catch (error) {
-          console.warn('Failed to write to Cloudflare Analytics Engine:', error);
+          console.warn('Failed to write to Cloudflare Analytics Engine:', error)
         }
       }
     } else {
@@ -350,7 +371,7 @@ export class CloudflareEdgeAdapter {
           timestamp: new Date().toISOString(),
           metrics,
         })
-      );
+      )
     }
   }
 
@@ -365,8 +386,8 @@ export class CloudflareEdgeAdapter {
           timestamp: new Date().toISOString(),
           trace,
         })
-      );
-    });
+      )
+    })
   }
 
   /**
@@ -374,8 +395,8 @@ export class CloudflareEdgeAdapter {
    */
   async exportLogs(logs: LogEntry[]): Promise<void> {
     logs.forEach((log) => {
-      console.log(JSON.stringify(log));
-    });
+      console.log(JSON.stringify(log))
+    })
   }
 }
 
@@ -396,7 +417,9 @@ export class CloudflareEdgeAdapter {
  * observability.log.info('Application started');
  * ```
  */
-export function createEdgeObservability(config: TelemetryConfig): PlatformObservability {
-  const adapter = new CloudflareEdgeAdapter();
-  return adapter.createObservability(config);
+export function createEdgeObservability(
+  config: TelemetryConfig
+): PlatformObservability {
+  const adapter = new CloudflareEdgeAdapter()
+  return adapter.createObservability(config)
 }
