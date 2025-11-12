@@ -160,8 +160,10 @@
 		8080,
 		9090
 	],
-	"postCreateCommand": "bash .devcontainer/setup-optimized.sh",
 	"onCreateCommand": "mkdir -p /workspaces/packages/{shared,ui-components,events,contracts} /workspaces/services/{accounts,admin,app-catalog,entitlements} /workspaces/apps/{app-bar,app-foo} /workspaces/contracts/{api,events,ui} /workspaces/tests/{unit,integration,e2e,contract} /workspaces/infra/{terraform,scripts}",
+	"postCreateCommand": "bash .devcontainer/setup-optimized.sh",
+	"updateContentCommand": "bash .devcontainer/setup-optimized.sh",
+	"postStartCommand": "bash .devcontainer/setup-optimized.sh",
 	"workspaceFolder": "/workspaces",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces,type=bind",
 	"remoteUser": "codespace",
