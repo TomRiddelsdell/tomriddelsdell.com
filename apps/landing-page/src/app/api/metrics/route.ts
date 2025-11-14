@@ -1,19 +1,14 @@
 /**
- * Prometheus metrics endpoint with distributed tracing
- *
+ * Prometheus metrics endpoint
+ * Simplified version for Cloudflare Workers
  * Exposes application metrics in Prometheus text format for scraping
- * Now using @platform/observability with CloudflareEdgeAdapter
  */
 
 import { NextResponse } from 'next/server'
-import {
-  logger,
-  tracing,
-  generateCorrelationId,
-} from '@/lib/observability-setup'
 
-// Configure for edge runtime
-export const runtime = 'edge'
+// Use Node.js runtime (required for @opennextjs/cloudflare)
+// Edge runtime is not supported - see https://opennext.js.org/cloudflare
+export const runtime = 'nodejs'
 
 // Metrics storage (in-memory for demo)
 const metrics = new Map<string, { value: number; type: string; help: string }>()
@@ -61,63 +56,23 @@ function formatPrometheusMetrics(): string {
 }
 
 export async function GET() {
-  // Create trace context for this request using @platform/observability
-  const correlationId = generateCorrelationId()
-
-  // Create span for metrics collection
-  const span = tracing.startSpan('metrics.collection')
-  const spanContext = span.spanContext()
-
-  span.setAttribute('service.name', 'platform-modular-monolith')
-  span.setAttribute('bounded.context', 'landing-page')
-  span.setAttribute('endpoint', '/api/metrics')
-  span.setAttribute('metrics.format', 'prometheus')
-
   try {
-    logger.info('Metrics requested', {
-      correlationId,
-      traceId: spanContext.traceId,
-      spanId: spanContext.spanId,
-      endpoint: '/api/metrics',
-      method: 'GET',
-    })
-
     const metricsText = formatPrometheusMetrics()
-
-    span.setAttribute('http.status_code', 200)
-    span.setAttribute('metrics.lines_count', metricsText.split('\n').length)
-    span.setAttribute('metrics.size_bytes', metricsText.length)
 
     return new Response(metricsText, {
       status: 200,
       headers: {
         'Content-Type': 'text/plain; version=0.0.4; charset=utf-8',
         'Cache-Control': 'no-store, max-age=0',
-        'X-Correlation-Id': correlationId,
-        'X-Trace-Id': spanContext.traceId,
       },
     })
   } catch (error) {
-    span.setAttribute('error', true)
-    span.setAttribute(
-      'error.message',
-      error instanceof Error ? error.message : 'Unknown error'
-    )
-
-    logger.error(
-      'Metrics collection failed',
-      error instanceof Error ? error : new Error(String(error)),
-      {
-        correlationId,
-        traceId: spanContext.traceId,
-      }
-    )
-
     return NextResponse.json(
-      { error: 'Failed to generate metrics' },
+      { 
+        error: 'Failed to generate metrics',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
-  } finally {
-    span.end()
   }
 }
