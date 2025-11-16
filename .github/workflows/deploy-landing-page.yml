@@ -134,25 +134,68 @@ jobs:
           MAX_ATTEMPTS=10
           ATTEMPT=1
           
+          # Test 1: Worker URL - Homepage
+          echo ""
+          echo "📍 Testing Worker URL (landing-page-preview.t-riddelsdell.workers.dev)..."
           while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-            echo "Attempt $ATTEMPT of $MAX_ATTEMPTS..."
+            echo "  Attempt $ATTEMPT of $MAX_ATTEMPTS..."
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://landing-page-preview.t-riddelsdell.workers.dev || echo "000")
             
             if [ "$HTTP_CODE" = "200" ]; then
-              echo "✅ Staging site is healthy (HTTP $HTTP_CODE)"
-              exit 0
+              echo "  ✅ Homepage is healthy (HTTP $HTTP_CODE)"
+              break
             elif [ "$HTTP_CODE" = "000" ]; then
-              echo "⚠️  Unable to connect, retrying..."
+              echo "  ⚠️  Unable to connect, retrying..."
             else
-              echo "⚠️  Received HTTP $HTTP_CODE, retrying..."
+              echo "  ⚠️  Received HTTP $HTTP_CODE, retrying..."
             fi
             
             ATTEMPT=$((ATTEMPT + 1))
             [ $ATTEMPT -le $MAX_ATTEMPTS ] && sleep 10
           done
           
-          echo "❌ Health check failed after $MAX_ATTEMPTS attempts"
-          exit 1
+          if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
+            echo "  ❌ Homepage check failed after $MAX_ATTEMPTS attempts"
+            exit 1
+          fi
+          
+          # Test 2: Health endpoint
+          echo ""
+          echo "📍 Testing /api/health endpoint..."
+          HEALTH_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://landing-page-preview.t-riddelsdell.workers.dev/api/health || echo "000")
+          if [ "$HEALTH_CODE" = "200" ]; then
+            echo "  ✅ Health endpoint responding (HTTP $HEALTH_CODE)"
+          else
+            echo "  ❌ Health endpoint failed (HTTP $HEALTH_CODE)"
+            exit 1
+          fi
+          
+          # Test 3: Verify health endpoint JSON response
+          echo ""
+          echo "📍 Verifying health endpoint response..."
+          HEALTH_JSON=$(curl -s https://landing-page-preview.t-riddelsdell.workers.dev/api/health)
+          if echo "$HEALTH_JSON" | grep -q '"status":"healthy"'; then
+            echo "  ✅ Health endpoint returns valid JSON with healthy status"
+          else
+            echo "  ❌ Health endpoint response invalid: $HEALTH_JSON"
+            exit 1
+          fi
+          
+          # Test 4: Custom domain (expect 302 redirect to Cloudflare Access)
+          echo ""
+          echo "📍 Testing custom domain (staging.tomriddelsdell.com)..."
+          CUSTOM_DOMAIN_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://staging.tomriddelsdell.com || echo "000")
+          if [ "$CUSTOM_DOMAIN_CODE" = "302" ] || [ "$CUSTOM_DOMAIN_CODE" = "200" ]; then
+            echo "  ✅ Custom domain responding (HTTP $CUSTOM_DOMAIN_CODE)"
+            if [ "$CUSTOM_DOMAIN_CODE" = "302" ]; then
+              echo "  ℹ️  Note: 302 indicates Cloudflare Access is active (expected for staging)"
+            fi
+          else
+            echo "  ⚠️  Custom domain returned HTTP $CUSTOM_DOMAIN_CODE (may indicate DNS/routing issue)"
+          fi
+          
+          echo ""
+          echo "✅ All critical health checks passed!"
 
       - name: Deployment summary
         if: always()
@@ -240,25 +283,65 @@ jobs:
           MAX_ATTEMPTS=10
           ATTEMPT=1
           
+          # Test 1: Worker URL - Homepage
+          echo ""
+          echo "📍 Testing Worker URL (landing-page-prod.t-riddelsdell.workers.dev)..."
           while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-            echo "Attempt $ATTEMPT of $MAX_ATTEMPTS..."
+            echo "  Attempt $ATTEMPT of $MAX_ATTEMPTS..."
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://landing-page-prod.t-riddelsdell.workers.dev || echo "000")
             
             if [ "$HTTP_CODE" = "200" ]; then
-              echo "✅ Production site is healthy (HTTP $HTTP_CODE)"
-              exit 0
+              echo "  ✅ Homepage is healthy (HTTP $HTTP_CODE)"
+              break
             elif [ "$HTTP_CODE" = "000" ]; then
-              echo "⚠️  Unable to connect, retrying..."
+              echo "  ⚠️  Unable to connect, retrying..."
             else
-              echo "⚠️  Received HTTP $HTTP_CODE, retrying..."
+              echo "  ⚠️  Received HTTP $HTTP_CODE, retrying..."
             fi
             
             ATTEMPT=$((ATTEMPT + 1))
             [ $ATTEMPT -le $MAX_ATTEMPTS ] && sleep 10
           done
           
-          echo "❌ Health check failed after $MAX_ATTEMPTS attempts"
-          exit 1
+          if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
+            echo "  ❌ Homepage check failed after $MAX_ATTEMPTS attempts"
+            exit 1
+          fi
+          
+          # Test 2: Health endpoint
+          echo ""
+          echo "📍 Testing /api/health endpoint..."
+          HEALTH_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://landing-page-prod.t-riddelsdell.workers.dev/api/health || echo "000")
+          if [ "$HEALTH_CODE" = "200" ]; then
+            echo "  ✅ Health endpoint responding (HTTP $HEALTH_CODE)"
+          else
+            echo "  ❌ Health endpoint failed (HTTP $HEALTH_CODE)"
+            exit 1
+          fi
+          
+          # Test 3: Verify health endpoint JSON response
+          echo ""
+          echo "📍 Verifying health endpoint response..."
+          HEALTH_JSON=$(curl -s https://landing-page-prod.t-riddelsdell.workers.dev/api/health)
+          if echo "$HEALTH_JSON" | grep -q '"status":"healthy"'; then
+            echo "  ✅ Health endpoint returns valid JSON with healthy status"
+          else
+            echo "  ❌ Health endpoint response invalid: $HEALTH_JSON"
+            exit 1
+          fi
+          
+          # Test 4: Custom domain (expect 200 for production, no auth)
+          echo ""
+          echo "📍 Testing custom domain (tomriddelsdell.com)..."
+          CUSTOM_DOMAIN_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://tomriddelsdell.com || echo "000")
+          if [ "$CUSTOM_DOMAIN_CODE" = "200" ]; then
+            echo "  ✅ Custom domain responding (HTTP $CUSTOM_DOMAIN_CODE)"
+          else
+            echo "  ⚠️  Custom domain returned HTTP $CUSTOM_DOMAIN_CODE (may indicate DNS/routing issue)"
+          fi
+          
+          echo ""
+          echo "✅ All critical health checks passed!"
 
       - name: Smoke tests
         run: |
