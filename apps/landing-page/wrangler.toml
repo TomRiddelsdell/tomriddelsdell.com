@@ -12,6 +12,12 @@ bucket_name = "landing-page-cache"
 [env.preview]
 name = "landing-page-preview"
 
+# Custom domain routes for staging
+# Note: Domain must be added to Cloudflare account first
+[[env.preview.routes]]
+pattern = "staging.tomriddelsdell.com/*"
+zone_name = "tomriddelsdell.com"
+
 [[env.preview.r2_buckets]]
 binding = "NEXT_INC_CACHE_R2_BUCKET"
 bucket_name = "landing-page-cache"
@@ -26,6 +32,15 @@ bucket_name = "landing-page-cache"
 # Production environment - deployed from main branch
 [env.production] 
 name = "landing-page-prod"
+
+# Custom domain routes for production
+[[env.production.routes]]
+pattern = "tomriddelsdell.com/*"
+zone_name = "tomriddelsdell.com"
+
+[[env.production.routes]]
+pattern = "www.tomriddelsdell.com/*"
+zone_name = "tomriddelsdell.com"
 
 [[env.production.r2_buckets]]
 binding = "NEXT_INC_CACHE_R2_BUCKET"
