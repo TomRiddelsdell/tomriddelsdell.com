@@ -64,7 +64,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run quality gates
-        run: bash ../../scripts/quality-gates.sh .
+        run: |
+          cd ../../
+          bash scripts/quality-gates.sh apps/landing-page
 
   # Deploy to staging environment
   deploy-staging:
@@ -321,10 +323,15 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Make scripts executable
+        continue-on-error: true
         run: |
           # Install bc for performance calculations
           sudo apt-get update && sudo apt-get install -y bc
-          chmod +x apps/landing-page/scripts/*.sh
+          if [ -d "apps/landing-page/scripts" ]; then
+            chmod +x apps/landing-page/scripts/*.sh
+          else
+            echo "No scripts directory found, skipping..."
+          fi
 
       - name: Comprehensive staging health check
         if: needs.deploy-staging.result == 'success'
