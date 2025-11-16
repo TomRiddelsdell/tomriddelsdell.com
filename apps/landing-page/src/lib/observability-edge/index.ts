@@ -351,7 +351,11 @@ export class CloudflareEdgeAdapter {
   async exportMetrics(metrics: Record<string, number>): Promise<void> {
     // Check for Cloudflare Analytics Engine binding
     if (typeof globalThis !== 'undefined' && 'ANALYTICS' in globalThis) {
-      const analytics = (globalThis as any).ANALYTICS
+      const analytics = (
+        globalThis as unknown as {
+          ANALYTICS: { writeDataPoint: (data: unknown) => Promise<void> }
+        }
+      ).ANALYTICS
       for (const [name, value] of Object.entries(metrics)) {
         try {
           await analytics.writeDataPoint({

@@ -79,7 +79,7 @@ export function logApiRequest(
   request: NextRequest,
   context: TraceContext,
   status: number,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): void {
   const duration = Date.now() - context.startTime
 
@@ -102,7 +102,7 @@ export function logApiError(
   request: NextRequest,
   context: TraceContext,
   error: Error,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): void {
   const duration = Date.now() - context.startTime
 
