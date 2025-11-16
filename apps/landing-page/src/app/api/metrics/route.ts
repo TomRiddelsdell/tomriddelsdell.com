@@ -68,9 +68,9 @@ export async function GET() {
     })
   } catch (error) {
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to generate metrics',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
