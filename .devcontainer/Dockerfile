@@ -34,9 +34,6 @@ RUN echo "🔧 Installing CLI tools for Portfolio Platform..." && \
     # Install Doppler CLI (Secrets Management)
     echo "🔐 Installing Doppler CLI..." && \
     curl -Ls --tlsv1.2 --proto "=https" --retry 3 https://cli.doppler.com/install.sh | sh && \
-    # Install Claude CLI (AI-Powered Coding Assistant)
-    echo "🤖 Installing Claude CLI..." && \
-    curl -fsSL https://claude.ai/install.sh | bash && \
     # Install Confluent CLI (Kafka Management)
     echo "📊 Installing Confluent CLI..." && \
     cd /tmp && \
@@ -45,6 +42,9 @@ RUN echo "🔧 Installing CLI tools for Portfolio Platform..." && \
     # Install npm-based CLI tools using configured global prefix (runs as root but installs to shared location)
     echo "☁️ Installing npm-based CLI tools globally..." && \
     npm install -g pnpm@latest wrangler@latest neonctl@latest && \
+    # Install Claude CLI (AI-Powered Coding Assistant via npm)
+    echo "🤖 Installing Claude CLI..." && \
+    npm install -g @anthropic-ai/claude-code && \
     # Install additional development tools
     echo "🛠️ Installing additional development utilities..." && \
     npm install -g @playwright/test eslint prettier typescript ts-node nodemon turbo@latest && \
