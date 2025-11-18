@@ -1,4 +1,4 @@
-# ADR-023: Unified Observability Architecture Across All Environments
+# ADR-028: Unified Observability Architecture Across All Environments
 
 ## Status
 

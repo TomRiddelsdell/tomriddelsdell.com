@@ -1,4 +1,4 @@
-# ADR-024: Independent App Deployment Architecture
+# ADR-029: Independent App Deployment Architecture
 
 ## Status
 Accepted and Implemented
