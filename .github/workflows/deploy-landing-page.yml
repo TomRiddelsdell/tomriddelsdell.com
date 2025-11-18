@@ -1,5 +1,10 @@
 name: Deploy Landing Page
 
+# Note: VS Code may show warnings about action resolution (actions/checkout@v4, pnpm/action-setup@v4)
+# and secret access (DOPPLER_TOKEN_STG, DOPPLER_TOKEN_PROD). These are false positives:
+# - Actions are valid and publicly available
+# - Secrets exist in repository settings (verified with: gh secret list)
+
 on:
   push:
     branches:

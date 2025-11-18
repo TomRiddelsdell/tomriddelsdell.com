@@ -25,6 +25,7 @@ tests/
 **Purpose**: Prevent issues like the CSS 404 error that occurred on 2025-11-18.
 
 **What it tests**:
+
 - ✅ All CSS files load successfully (HTTP 200)
 - ✅ CSS is actually applied to the page
 - ✅ All images load successfully
@@ -36,6 +37,7 @@ tests/
 This test suite would have caught the missing `[assets]` configuration in `wrangler.toml` that caused all static assets to return 404.
 
 **Run locally**:
+
 ```bash
 pnpm exec playwright test tests/e2e/static-assets.spec.ts
 ```
@@ -45,12 +47,14 @@ pnpm exec playwright test tests/e2e/static-assets.spec.ts
 **Purpose**: Ensure observability endpoints are functional.
 
 **What it tests**:
+
 - ✅ `/api/health` returns valid JSON
 - ✅ `/api/metrics` returns performance data
 - ✅ Health checks complete within 500ms
 - ✅ Endpoints include expected metadata
 
 **Run locally**:
+
 ```bash
 pnpm exec playwright test tests/e2e/api-health.spec.ts
 ```
@@ -60,6 +64,7 @@ pnpm exec playwright test tests/e2e/api-health.spec.ts
 **Purpose**: Detect unintended visual changes.
 
 **What it tests**:
+
 - ✅ Homepage visual snapshot (desktop, tablet, mobile)
 - ✅ Hero section styling
 - ✅ Navigation styling
@@ -69,11 +74,13 @@ pnpm exec playwright test tests/e2e/api-health.spec.ts
 - ✅ Color application
 
 **First run** (create baselines):
+
 ```bash
 pnpm exec playwright test tests/e2e/visual-regression.spec.ts --update-snapshots
 ```
 
 **Subsequent runs** (compare against baselines):
+
 ```bash
 pnpm exec playwright test tests/e2e/visual-regression.spec.ts
 ```
@@ -83,11 +90,13 @@ pnpm exec playwright test tests/e2e/visual-regression.spec.ts
 **Purpose**: Basic functionality and accessibility.
 
 **What it tests**:
+
 - ✅ Page loads correctly
 - ✅ Responsive design
 - ✅ Accessibility standards (alt text, heading structure)
 
 **Run locally**:
+
 ```bash
 pnpm exec playwright test tests/e2e/homepage.spec.ts
 ```
@@ -95,31 +104,37 @@ pnpm exec playwright test tests/e2e/homepage.spec.ts
 ## Running Tests
 
 ### Run all E2E tests
+
 ```bash
 pnpm exec playwright test
 ```
 
 ### Run specific test file
+
 ```bash
 pnpm exec playwright test tests/e2e/static-assets.spec.ts
 ```
 
 ### Run tests in headed mode (see browser)
+
 ```bash
 pnpm exec playwright test --headed
 ```
 
 ### Run tests in debug mode
+
 ```bash
 pnpm exec playwright test --debug
 ```
 
 ### Run tests against deployed staging
+
 ```bash
 PLAYWRIGHT_TEST_BASE_URL=https://landing-page-preview.t-riddelsdell.workers.dev pnpm exec playwright test
 ```
 
 ### Run tests against deployed production
+
 ```bash
 PLAYWRIGHT_TEST_BASE_URL=https://landing-page-prod.t-riddelsdell.workers.dev pnpm exec playwright test
 ```
@@ -176,6 +191,7 @@ pnpm exec playwright show-report
 ```
 
 On CI/CD, failed test reports are uploaded as artifacts:
+
 - Artifact name: `playwright-report-staging` or `playwright-report-production`
 - Retention: 7 days
 - Access: Via GitHub Actions run summary
@@ -185,6 +201,7 @@ On CI/CD, failed test reports are uploaded as artifacts:
 ### Adding a new E2E test
 
 1. Create a new file in `tests/e2e/`:
+
    ```typescript
    import { test, expect } from '@playwright/test'
    
@@ -197,6 +214,7 @@ On CI/CD, failed test reports are uploaded as artifacts:
    ```
 
 2. Run the test:
+
    ```bash
    pnpm exec playwright test tests/e2e/your-new-test.spec.ts
    ```
