@@ -162,6 +162,10 @@ All ADRs follow a consistent format:
 
 | [ADR-027](./adr-027-development-container-architecture.md) | Development Container Architecture | Accepted | 2025-09-22 |
 
+| [ADR-028](./adr-028-unified-observability-architecture.md) | Unified Observability Architecture | Accepted | 2025-10-19 |
+
+| [ADR-029](./adr-029-independent-app-deployment.md) | Independent App Deployment Architecture | Accepted | 2025-11-18 |
+
 | [ADR-018](./adr-018-oauth-and-authorization.md) | OAuth and Authorization | Accepted | 2025-09-10 |- Open-source friendly with collaboration capabilities
 
 ## FAQ → ADR Quick Reference

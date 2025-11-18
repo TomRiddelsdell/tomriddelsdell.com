@@ -8,7 +8,7 @@
 
 ## Overview
 
-This document outlines the implementation roadmap for DDD-compliant observability following ADR-023 (Unified Observability Architecture) and ADR-010 (Observability Requirements).
+This document outlines the implementation roadmap for DDD-compliant observability following ADR-028 (Unified Observability Architecture) and ADR-010 (Observability Requirements).
 
 **Key Focus Areas:**
 
