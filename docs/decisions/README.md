@@ -1,18 +1,10 @@
 # Architectural Decision Records (ADRs)# Architectural Decision Records (ADRs)# Architecture Decision Records Summary
 
-
-
 This directory contains all architectural decisions for the tomriddelsdell.com platform. Each ADR documents a significant architectural decision, its context, and consequences.
 
-
-
-## ADR FormatThis directory contains all architectural decisions for the tomriddelsdell.com platform. Each ADR documents a significant architectural decision, its context, and consequences.This document provides an index of all architectural decisions made for the tomriddelsdell.com platform.
-
-
+## ADR FormatThis directory contains all architectural decisions for the tomriddelsdell.com platform. Each ADR documents a significant architectural decision, its context, and consequences.This document provides an index of all architectural decisions made for the tomriddelsdell.com platform
 
 All ADRs follow a consistent format:
-
-
 
 - **Status**: Proposed, Accepted, Deprecated, Superseded## ADR Format## ADR Index
 
@@ -26,15 +18,9 @@ All ADRs follow a consistent format:
 
 - **Implementation Guidance**: How to implement the decision
 
-
-
 ## Complete ADR Index
 
-- **Status**: Proposed, Accepted, Deprecated, Superseded1. **[Business Domain and Platform Purpose](./adr-business-domain.md)** - Defines the platform as a personal portfolio for quantitative finance
-
-### Domain & Business Logic
-
-- **Context**: Background and problem statement2. **[Single-Tenant Architecture Strategy](./adr-tenant-architecture.md)** - Each user is their own tenant with complete data isolation
+### Domain & Business Logic (ADRs)
 
 | ADR | Title | Status | Date |
 
@@ -44,11 +30,7 @@ All ADRs follow a consistent format:
 
 | [ADR-005](./adr-005-domain-model-and-aggregates.md) | Domain Model and Aggregates | Accepted | 2025-09-10 |- **Consequences**: Benefits, drawbacks, and implications4. **[Security and Compliance Strategy](./adr-security-compliance.md)** - GDPR-compliant security approach appropriate for personal portfolio scale
 
-
-
 ### Event Sourcing & CQRS- **Alternatives Considered**: Other options and why they were rejected
-
-
 
 | ADR | Title | Status | Date |- **Implementation Guidance**: How to implement the decision### Technology Stack Decisions
 
@@ -64,11 +46,7 @@ All ADRs follow a consistent format:
 
 | [ADR-012](./adr-012-projection-strategy.md) | Projection Strategy and Read Models | Accepted | 2025-09-10 |6. **[Observability](./adr-observability.md)** - Monitoring and observability strategy
 
-
-
 ### Security & Authentication### Domain & Business Logic7. **[Event Versioning](./adr-event-versioning.md)** - Event sourcing versioning approach
-
-
 
 | ADR | Title | Status | Date |8. **[Snapshots](./adr-snapshots.md)** - Snapshot strategy for event sourcing
 
@@ -100,11 +78,7 @@ All ADRs follow a consistent format:
 
 | [ADR-026](./adr-026-database-migration-strategy.md) | Database Schema Evolution | Accepted | 2025-09-10 || Tenant Architecture     | ✅ Accepted | 2025-09-09 | High - Affects all data and security design |
 
-
-
 ### Monitoring & Observability| ADR | Title | Status | Date || Authentication Strategy | ✅ Accepted | 2025-09-09 | High - Core security and user management    |
-
-
 
 | ADR | Title | Status | Date ||-----|-------|--------|------|| Security & Compliance   | ✅ Accepted | 2025-09-09 | High - Legal and security requirements      |
 
@@ -112,11 +86,7 @@ All ADRs follow a consistent format:
 
 | [ADR-010](./adr-010-observability-requirements.md) | Observability Requirements | Accepted | 2025-09-10 || [ADR-006](./adr-006-event-sourcing-implementation.md) | Event Sourcing Implementation | Accepted | 2025-09-10 || Frontend Framework      | ✅ Accepted | Previous   | Medium - Development consistency            |
 
-
-
 ### Integration & APIs| [ADR-007](./adr-007-event-versioning.md) | Event Versioning and Schema Evolution | Accepted | 2025-09-10 || Observability           | Status TBD  | Previous   | Medium - Operations and monitoring          |
-
-
 
 | ADR | Title | Status | Date || [ADR-008](./adr-008-snapshots.md) | Snapshot Strategy | Accepted | 2025-09-10 || Event Versioning        | Status TBD  | Previous   | Medium - Event sourcing implementation      |
 
@@ -128,11 +98,7 @@ All ADRs follow a consistent format:
 
 | [ADR-022](./adr-022-message-bus-architecture.md) | Message Bus Architecture and Integration | Proposed | 2025-09-10 || [ADR-012](./adr-012-projection-strategy.md) | Projection Strategy and Read Models | Accepted | 2025-09-10 |
 
-
-
 ### Frontend & UI## Key Architectural Principles
-
-
 
 | ADR | Title | Status | Date |### Security & Authentication
 
@@ -140,11 +106,7 @@ All ADRs follow a consistent format:
 
 | [ADR-013](./adr-013-frontend-framework.md) | Frontend Framework Selection | Accepted | 2025-09-10 |Based on the accepted ADRs, the platform follows these core principles:
 
-
-
 ### Application Architecture| ADR | Title | Status | Date |
-
-
 
 | ADR | Title | Status | Date ||-----|-------|--------|------|### 1. **Personal Portfolio First**
 
@@ -170,25 +132,17 @@ All ADRs follow a consistent format:
 
 ## FAQ → ADR Quick Reference
 
-
-
-### Domain & Business Logic
-
-### Infrastructure & Deployment### 2. **Simplicity Over Enterprise Complexity**
+### Domain & Business Logic Questions
 
 **Q: What are the critical business rules and invariants?**  
 
 → [ADR-005: Domain Model and Aggregates](./adr-005-domain-model-and-aggregates.md)
-
-
 
 **Q: How do we handle cross-aggregate consistency?**  | ADR | Title | Status | Date |- Single-tenant architecture (user = tenant)
 
 → [ADR-006: Event Sourcing Implementation](./adr-006-event-sourcing-implementation.md)  
 
 → [ADR-012: Projection Strategy](./adr-012-projection-strategy.md)|-----|-------|--------|------|- Appropriate scale solutions, not enterprise-grade complexity
-
-
 
 **Q: What is the business domain and bounded contexts?**  | [ADR-014](./adr-014-infrastructure-and-deployment.md) | Infrastructure and Deployment | Accepted | 2025-09-10 |- Cost-effective technology choices
 
@@ -204,8 +158,6 @@ All ADRs follow a consistent format:
 
 → [ADR-006: Event Sourcing Implementation](./adr-006-event-sourcing-implementation.md)| [ADR-026](./adr-026-database-migration-strategy.md) | Database Schema Evolution | Accepted | 2025-09-10 |
 
-
-
 **Q: How do we handle event schema evolution?**  - GDPR-compliant data handling
 
 → [ADR-007: Event Versioning](./adr-007-event-versioning.md)
@@ -215,8 +167,6 @@ All ADRs follow a consistent format:
 **Q: When and how do we use snapshots?**  
 
 → [ADR-008: Snapshot Strategy](./adr-008-snapshots.md)- Complete user data isolation
-
-
 
 **Q: How do we replay events and rebuild projections?**  | ADR | Title | Status | Date |- Professional security standards without enterprise overhead
 
@@ -228,11 +178,7 @@ All ADRs follow a consistent format:
 
 → [ADR-012: Projection Strategy](./adr-012-projection-strategy.md)| [ADR-010](./adr-010-observability-requirements.md) | Observability Requirements | Accepted | 2025-09-10 |### 4. **Modern Technology Demonstration**
 
-
-
 ### Infrastructure & Deployment
-
-
 
 **Q: What database do we use for CI/CD tests?**  ### Integration & APIs- Technology choices that showcase best practices
 
@@ -256,8 +202,6 @@ All ADRs follow a consistent format:
 
 → [ADR-014: Infrastructure and Deployment](./adr-014-infrastructure-and-deployment.md)| [ADR-020](./adr-020-api-design-standards.md) | API Design Standards | Accepted | 2025-09-10 |### 5. **Professional Quality Standards**
 
-
-
 **Q: How do we deploy and manage releases?**  | [ADR-022](./adr-022-kafka-rest-proxy.md) | Kafka REST Proxy for Serverless | Accepted | 2025-09-10 |
 
 → [ADR-015: Deployment Strategy](./adr-015-deployment-strategy.md)
@@ -268,11 +212,7 @@ All ADRs follow a consistent format:
 
 → [ADR-026: Database Migration Strategy](./adr-026-database-migration-strategy.md)### Frontend & UI- Comprehensive documentation and decision tracking
 
-
-
 ### Security & Authentication- Proper testing and quality assurance
-
-
 
 **Q: How do users authenticate?**  | ADR | Title | Status | Date |- Educational value for the community
 
@@ -284,31 +224,23 @@ All ADRs follow a consistent format:
 
 → [ADR-018: OAuth and Authorization](./adr-018-oauth-and-authorization.md)| [ADR-013](./adr-013-frontend-framework.md) | Frontend Framework Selection | Accepted | 2025-09-10 |## Implementation Roadmap
 
-
-
 **Q: What are our security requirements?**  
 
 → [ADR-004: Security and Compliance](./adr-004-security-compliance.md)
 
-### Application ArchitectureBased on the ADRs, the implementation should proceed in this order:
+### Application ArchitectureBased on the ADRs, the implementation should proceed in this order
 
 **Q: How do we handle multi-tenancy?**  
 
 → [ADR-002: Tenant Architecture](./adr-002-tenant-architecture.md)
 
-
-
 ### Application Development| ADR | Title | Status | Date |1. **Infrastructure Setup** - Terraform for AWS Cognito and base infrastructure
-
-
 
 **Q: What is our definition of done?**  |-----|-------|--------|------|2. **Authentication Integration** - Implement Cognito auth flows in applications
 
 → [ADR-021: Testing Strategy](./adr-021-testing-strategy.md)  
 
 → [ADR-016: Application Architecture Standards](./adr-016-application-architecture-standards.md)| [ADR-016](./adr-016-application-architecture-standards.md) | Application Architecture Standards | Accepted | 2025-09-10 |3. **Core Platform Services** - User management, app catalog, and entitlements
-
-
 
 **Q: How should we structure application code?**  | [ADR-021](./adr-021-testing-strategy.md) | Testing Strategy | Proposed | 2025-10-06 |4. **Frontend Applications** - Landing page and platform management interfaces
 
@@ -320,35 +252,29 @@ All ADRs follow a consistent format:
 
 → [ADR-021: Testing Strategy](./adr-021-testing-strategy.md)## FAQ → ADR Quick Reference6. **Observability and Monitoring** - Comprehensive logging and monitoring
 
-
-
-**Q: How do we handle technical debt?**  7. **Security Hardening** - GDPR compliance features and security enhancements
+7. **Security Hardening** - GDPR compliance features and security enhancements
 
 → [ADR-016: Application Architecture Standards](./adr-016-application-architecture-standards.md)
 
-### Domain & Business Logic
+### Domain & Business Logic Best Practices
 
 **Q: How do we handle errors and exceptions?**  
 
-→ [ADR-025: Error Handling and Exception Management](./adr-025-error-handling-strategy.md)## ADR Governance
+→ [ADR-025: Error Handling and Exception Management](./adr-025-error-handling-strategy.md)
 
-
-
-**Q: What are the performance requirements and SLAs?**  **Q: What are the critical business rules and invariants?**  
+**Q: What are the performance requirements and SLAs?**  
 
 → [ADR-024: Performance Requirements and SLA Definitions](./adr-024-performance-requirements.md)
 
-→ [ADR-005: Domain Model and Aggregates](./adr-005-domain-model-and-aggregates.md)### When to Create an ADR
+**Q: What are the critical business rules and invariants?**  
+
+→ [ADR-005: Domain Model and Aggregates](./adr-005-domain-model-and-aggregates.md)
 
 ### APIs & Integration
-
-
 
 **Q: How do we design REST APIs?**  
 
 → [ADR-020: API Design Standards](./adr-020-api-design-standards.md)**Q: How do we handle cross-aggregate consistency?**  - Any architectural decision that affects multiple services or applications
-
-
 
 **Q: How do we integrate with Kafka from serverless functions?**  → [ADR-006: Event Sourcing Implementation](./adr-006-event-sourcing-implementation.md)  - Technology stack choices and changes
 
@@ -359,8 +285,6 @@ All ADRs follow a consistent format:
 **Q: What message bus do we use?**  
 
 → [ADR-011: Message Bus Strategy](./adr-011-message-bus-strategy.md)- Scalability and performance trade-offs
-
-
 
 **Q: How do we manage API contracts?**  **Q: What is the business domain and bounded contexts?**  - Decisions that will be difficult to reverse
 
@@ -376,8 +300,6 @@ All ADRs follow a consistent format:
 
 → [ADR-010: Observability Requirements](./adr-010-observability-requirements.md)### Event Sourcing & CQRS
 
-
-
 **Q: What metrics and logs do we collect?**  1. Draft ADR with context, decision, and rationale
 
 → [ADR-010: Observability Requirements](./adr-010-observability-requirements.md)
@@ -392,11 +314,7 @@ All ADRs follow a consistent format:
 
 → [ADR-013: Frontend Framework Selection](./adr-013-frontend-framework.md)4. Accept, reject, or defer the decision
 
-
-
 ### Development Environment**Q: How do we handle event schema evolution?**  5. Implement and monitor outcomes
-
-
 
 **Q: How is the development container configured?**  → [ADR-007: Event Versioning](./adr-007-event-versioning.md)
 
@@ -404,9 +322,11 @@ All ADRs follow a consistent format:
 
 ### Updating ADRs
 
-## Contributing
-
 **Q: When and how do we use snapshots?**  
+
+→ [ADR-008: Snapshot Strategy](./adr-008-snapshots.md)
+
+## ADR Governance and Guidelines
 
 ### Creating a New ADR
 
@@ -426,8 +346,6 @@ All ADRs follow a consistent format:
 
 7. Add to the FAQ section if appropriate
 
-
-
 ### Updating an Existing ADR
 
 **Q: How do we design read models and projections?**  ## Related Documentation
@@ -440,11 +358,7 @@ All ADRs follow a consistent format:
 
 4. Update cross-references if needed- [Clarifying Questions](../clarifying-questions.md) - Source of many architectural decisions
 
-
-
 ## Related Documentation### Infrastructure & Deployment- [Architecture Overview](../architecture.md) - High-level system architecture
-
-
 
 - **[Main Documentation Index](../README.md)** - Overview of all documentation- [Infrastructure Documentation](../../infra/README.md) - Implementation details
 
@@ -457,8 +371,6 @@ All ADRs follow a consistent format:
 → [ADR-021: Testing Strategy](./adr-021-testing-strategy.md)  
 
 ---→ [Operations Guide: CI/CD Database Architecture](../operations/ci-cd-database-architecture.md)
-
-
 
 **Last Updated**: October 6, 2025**Q: How do we manage secrets and environment configuration?**  
 

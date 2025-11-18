@@ -26,6 +26,7 @@ This document outlines the implementation roadmap for DDD-compliant observabilit
 ### ✅ Completed
 
 **Phase 1: Infrastructure Baseline** (ADR-023 Phase 1)
+
 - ✅ **Landing Page Deployed**: Next.js 16.0.1 on Cloudflare Workers via OpenNext (staging + production operational)
   - **Adapter**: `@opennextjs/cloudflare` 1.11.1
   - **Staging URL**: `https://landing-page-preview.t-riddelsdell.workers.dev`
@@ -39,6 +40,7 @@ This document outlines the implementation roadmap for DDD-compliant observabilit
 - ✅ **Environment Variables**: Staging configured with OTLP endpoint + auth
 
 **Independent App Architecture** (ADR-024 - November 10, 2025)
+
 - ✅ **Removed Monorepo Coupling**: Eliminated shared pnpm workspace, .npmrc, and lockfile
 - ✅ **Per-App Dependencies**: Landing-page has own node_modules and pnpm-lock.yaml
 - ✅ **Build Independence**: No file: references or prebuild scripts crossing boundaries
@@ -46,6 +48,7 @@ This document outlines the implementation roadmap for DDD-compliant observabilit
 - ✅ **DDD Compliance**: True bounded context independence - apps can use different Next.js versions
 
 **Documentation Updates** (October 20, 2025)
+
 - ✅ **ADR-023 Enhanced**: DDD-compliant architecture documented (~900 lines added)
   - Complete Event Sourcing metrics interface (10+ specialized metrics)
   - 5 Grafana dashboard templates with PromQL/TraceQL queries
@@ -61,6 +64,7 @@ This document outlines the implementation roadmap for DDD-compliant observabilit
 ### ❌ Architectural Debt Identified
 
 **Current State Violations** (Must Fix in Phase 2):
+
 - ❌ **Direct Vendor Imports**: `landing-page/src/lib/otel-instrumentation.ts` imports OpenTelemetry SDK directly
 - ❌ **No Application ACL**: Application code coupled to vendor API
 - ❌ **DDD Violation**: Infrastructure concerns leak into application layer
@@ -106,6 +110,7 @@ Grafana Cloud (Backend)
 ```
 
 **Critical Requirements**:
+
 - ✅ Application code NEVER imports vendor SDKs
 - ✅ Use domain language: `trace()`, `addMetadata()`, `recordError()`
 - ✅ Domain layer has ZERO observability imports
@@ -119,13 +124,16 @@ Grafana Cloud (Backend)
 **Tasks:**
 
 1. **Package Structure** (30 minutes)
+
    ```bash
    mkdir -p packages/shared-infra/src/observability
    cd packages/shared-infra
    ```
+
    - Create package.json with TypeScript + OpenTelemetry dependencies
    - Set up tsconfig.json with strict typing
    - Create directory structure:
+
      ```
      src/observability/
        ├── types.ts              # Interfaces (Observability, Logger, Metrics, Tracing)
@@ -138,39 +146,39 @@ Grafana Cloud (Backend)
 
 2. **Define Domain-Friendly Interfaces** (1 hour)
    - Create `types.ts` with complete interfaces from ADR-023:
-     * `Observability` interface (log, metrics, tracing)
-     * `Logger` interface (debug, info, warn, error)
-     * `Metrics` interface (counter, gauge, histogram, eventSourcing)
-     * `EventSourcingMetrics` interface (10+ specialized metrics)
-     * `Tracing` interface (trace, addMetadata, getTraceId)
-     * `TraceContext` interface (addMetadata, recordError, setSuccess, setFailure)
-     * `ObservabilityConfig` interface (environment-driven configuration)
+     - `Observability` interface (log, metrics, tracing)
+     - `Logger` interface (debug, info, warn, error)
+     - `Metrics` interface (counter, gauge, histogram, eventSourcing)
+     - `EventSourcingMetrics` interface (10+ specialized metrics)
+     - `Tracing` interface (trace, addMetadata, getTraceId)
+     - `TraceContext` interface (addMetadata, recordError, setSuccess, setFailure)
+     - `ObservabilityConfig` interface (environment-driven configuration)
 
 3. **Implement Node.js Adapter** (2-3 hours)
    - Create `implementations/nodejs.ts`:
-     * `NodeJSObservability` class implements `Observability`
-     * Wrap OpenTelemetry SDK (NodeTracerProvider, OTLPTraceExporter)
-     * Translate domain methods to vendor API:
+     - `NodeJSObservability` class implements `Observability`
+     - Wrap OpenTelemetry SDK (NodeTracerProvider, OTLPTraceExporter)
+     - Translate domain methods to vendor API:
        - `trace()` → `tracer.startActiveSpan()`
        - `addMetadata()` → `span.setAttribute()`
        - `recordError()` → `span.recordException()`
-     * Implement `EventSourcingMetrics` with proper metric types
-     * Auto-instrument HTTP requests with FetchInstrumentation
-     * This is the ONLY file that imports OpenTelemetry SDK
+     - Implement `EventSourcingMetrics` with proper metric types
+     - Auto-instrument HTTP requests with FetchInstrumentation
+     - This is the ONLY file that imports OpenTelemetry SDK
 
 4. **Implement Edge Adapter** (1 hour)
    - Create `implementations/edge.ts`:
-     * `EdgeObservability` class for Cloudflare Workers/Next.js Edge
-     * HTTP-based OTLP export (no Node.js SDK dependencies)
-     * Same interface as Node.js implementation
-     * Zero Node.js-specific imports
+     - `EdgeObservability` class for Cloudflare Workers/Next.js Edge
+     - HTTP-based OTLP export (no Node.js SDK dependencies)
+     - Same interface as Node.js implementation
+     - Zero Node.js-specific imports
 
 5. **Implement Factory** (30 minutes)
    - Create `factory.ts`:
-     * Runtime detection (Node.js vs Edge vs Java)
-     * `createObservability(config)` function
-     * Returns appropriate implementation based on runtime
-     * Configuration validation with Zod schema
+     - Runtime detection (Node.js vs Edge vs Java)
+     - `createObservability(config)` function
+     - Returns appropriate implementation based on runtime
+     - Configuration validation with Zod schema
 
 6. **Write Tests** (1 hour)
    - Unit tests for all interfaces
@@ -180,6 +188,7 @@ Grafana Cloud (Backend)
    - Target: >80% test coverage
 
 **Success Criteria:**
+
 - ✅ `@platform/shared-infra/observability` package builds successfully
 - ✅ All TypeScript interfaces defined with JSDoc
 - ✅ `NodeJSObservability` wraps OpenTelemetry SDK correctly
@@ -189,6 +198,7 @@ Grafana Cloud (Backend)
 - ✅ Tests pass with >80% coverage
 
 **Verification Command:**
+
 ```bash
 cd /workspaces/packages/shared-infra
 npm run build
@@ -207,6 +217,7 @@ grep -r "@opentelemetry" src --exclude-dir=implementations  # Should return ZERO
 **Change Log:** `/workspaces/changes/2025-10-21-landing-page-acl-migration.md`
 
 **Completion Summary:**
+
 - ✅ Package dependencies updated - @platform/shared-infra integrated
 - ✅ Observability singleton created with environment-based config
 - ✅ All application code refactored to use domain-friendly API
@@ -224,6 +235,7 @@ grep -r "@opentelemetry" src --exclude-dir=implementations  # Should return ZERO
 
 2. **Create Observability Instance** (30 minutes)
    - Create `apps/landing-page/src/lib/observability.ts`:
+
      ```typescript
      import { createObservability } from '@platform/shared-infra/observability'
      
@@ -240,19 +252,19 @@ grep -r "@opentelemetry" src --exclude-dir=implementations  # Should return ZERO
 
 3. **Refactor Application Code** (1-1.5 hours)
    - Update `instrumentation.ts`:
-     * Replace direct OTel imports with `observability` import
-     * Remove `NodeTracerProvider`, `OTLPTraceExporter` usage
-     * Use `observability` singleton instead
-   
+     - Replace direct OTel imports with `observability` import
+     - Remove `NodeTracerProvider`, `OTLPTraceExporter` usage
+     - Use `observability` singleton instead
+
    - Update `otel-instrumentation.ts`:
-     * Remove ALL vendor SDK imports
-     * Use domain-friendly API: `observability.tracing.trace()`
-     * Replace `span.setAttribute()` with `context.addMetadata()`
-     * Replace `span.recordException()` with `context.recordError()`
-   
+     - Remove ALL vendor SDK imports
+     - Use domain-friendly API: `observability.tracing.trace()`
+     - Replace `span.setAttribute()` with `context.addMetadata()`
+     - Replace `span.recordException()` with `context.recordError()`
+
    - Update API routes (if any):
-     * Replace vendor API with domain-friendly API
-     * Inject `observability` into use cases (dependency injection)
+     - Replace vendor API with domain-friendly API
+     - Inject `observability` into use cases (dependency injection)
 
 4. **Verify Traces Still Flow** (30 minutes)
    - Build landing-page: `cd apps/landing-page && pnpm build`
@@ -262,6 +274,7 @@ grep -r "@opentelemetry" src --exclude-dir=implementations  # Should return ZERO
    - Verify trace structure unchanged (same spans, metadata)
 
 **Success Criteria:**
+
 - ✅ Landing-page builds successfully with ACL
 - ✅ Zero direct OpenTelemetry imports in `apps/landing-page/src/**/*.ts`
 - ✅ Traces still appear in Grafana Cloud with same structure
@@ -270,6 +283,7 @@ grep -r "@opentelemetry" src --exclude-dir=implementations  # Should return ZERO
 - ✅ No regression in observability functionality
 
 **Verification Commands:**
+
 ```bash
 # Should return ZERO matches (application code)
 grep -r "@opentelemetry" apps/landing-page/src --exclude-dir=node_modules
@@ -298,11 +312,11 @@ cd apps/landing-page && make deploy ENV=staging
 
 2. **Implement in Node.js Adapter** (30 minutes)
    - Update `implementations/nodejs.ts`:
-     * Implement `EventSourcingMetrics` class
-     * Use OpenTelemetry Histogram for aggregateSize
-     * Use OpenTelemetry Counter for concurrencyConflict
-     * Use OpenTelemetry Gauge for projectionLag
-     * Add proper metric labels (aggregate_type, projection_name, etc.)
+     - Implement `EventSourcingMetrics` class
+     - Use OpenTelemetry Histogram for aggregateSize
+     - Use OpenTelemetry Counter for concurrencyConflict
+     - Use OpenTelemetry Gauge for projectionLag
+     - Add proper metric labels (aggregate_type, projection_name, etc.)
 
 3. **Add Usage Examples** (15 minutes)
    - Create `packages/shared-infra/docs/event-sourcing-metrics.md`
@@ -311,6 +325,7 @@ cd apps/landing-page && make deploy ENV=staging
    - Reference ADR-023 section 1.6 for complete examples
 
 **Success Criteria:**
+
 - ✅ `EventSourcingMetrics` interface fully implemented
 - ✅ All metrics properly typed with labels
 - ✅ Usage examples documented
@@ -330,27 +345,27 @@ cd apps/landing-page && make deploy ENV=staging
 1. **Create Dashboard JSON Files** (1 hour)
    - Create `infra/grafana/dashboards/` directory
    - Dashboard 1: `event-sourcing-health.json`
-     * Event store write rate, aggregate size, concurrency conflicts, snapshot efficiency
-     * PromQL queries from ADR-023
-     * Alert thresholds configured
-   
+     - Event store write rate, aggregate size, concurrency conflicts, snapshot efficiency
+     - PromQL queries from ADR-023
+     - Alert thresholds configured
+
    - Dashboard 2: `cqrs-projections.json`
-     * Projection lag, throughput, error rate, dead letter queue
-     * TraceQL queries for projection failures
-   
+     - Projection lag, throughput, error rate, dead letter queue
+     - TraceQL queries for projection failures
+
    - Dashboard 3: `landing-page-health.json`
-     * HTTP request rate, response time, error rate
-     * Custom panels for landing-page specific metrics
+     - HTTP request rate, response time, error rate
+     - Custom panels for landing-page specific metrics
 
 2. **Configure Alert Rules** (30 minutes)
    - Create `infra/grafana/alerts/observability-alerts.yml`
    - Critical alerts:
-     * Projection lag > 300s (5 min)
-     * Event store P95 latency > 100ms
-     * Error rate > 5% for 5 minutes
+     - Projection lag > 300s (5 min)
+     - Event store P95 latency > 100ms
+     - Error rate > 5% for 5 minutes
    - Warning alerts:
-     * Snapshot hit ratio < 50%
-     * Aggregate size > 500 events
+     - Snapshot hit ratio < 50%
+     - Aggregate size > 500 events
 
 3. **Document Import Procedure** (30 minutes)
    - Create `infra/grafana/README.md`
@@ -359,6 +374,7 @@ cd apps/landing-page && make deploy ENV=staging
    - Configure alerting channels (email, Slack, PagerDuty)
 
 **Success Criteria:**
+
 - ✅ Dashboard JSON files created with valid syntax
 - ✅ Alert rules configured with proper thresholds
 - ✅ Import instructions documented
@@ -366,6 +382,7 @@ cd apps/landing-page && make deploy ENV=staging
 - ✅ Templates versioned in Git
 
 **Verification:**
+
 ```bash
 # Validate JSON syntax
 cat infra/grafana/dashboards/*.json | jq empty
@@ -399,6 +416,7 @@ ls -la infra/grafana/dashboards/
 
 3. **Validate DDD Compliance** (20 minutes)
    - Run verification commands:
+
      ```bash
      # MUST return zero matches
      grep -r "@opentelemetry" apps/*/src --exclude-dir=node_modules
@@ -410,7 +428,7 @@ ls -la infra/grafana/dashboards/
      # Tests should pass
      cd packages/shared-infra && npm test
      ```
-   
+
    - Update ADR-023 compliance scorecard
    - Document Phase 2 completion
 
@@ -421,6 +439,7 @@ ls -la infra/grafana/dashboards/
    - Note any deviations from plan
 
 **Success Criteria:**
+
 - ✅ Comprehensive documentation complete
 - ✅ Migration guide available for other services
 - ✅ DDD compliance verified (zero vendor imports in app code)
@@ -428,6 +447,7 @@ ls -la infra/grafana/dashboards/
 - ✅ Change log created
 
 **Verification:**
+
 ```bash
 # ADR-023 compliance check
 grep -r "@opentelemetry" apps/landing-page/src --exclude-dir=node_modules  # ZERO matches
@@ -450,29 +470,34 @@ ls changes/2025-10-20-phase-2-ddd-observability-complete.md
 **Target:** All microservices using DDD-compliant observability
 
 ### 3.1: Identity Service (2 hours)
+
 - Add `@platform/shared-infra/observability` dependency
 - Inject `Observability` into use cases
 - Configure OTLP export to collector
 - Verify traces in Grafana Cloud
 
 ### 3.2: Accounts Service (2 hours)
+
 - Same pattern as Identity Service
 - Test cross-service tracing (Identity → Accounts)
 - Verify trace context propagation via HTTP headers
 
 ### 3.3: Remaining Services (8-10 hours)
+
 - QIS Data Management (2 hours)
 - Admin Service (2 hours)
 - App Catalog (2 hours)
 - Entitlements Service (2 hours)
 
 ### 3.4: Unified Dashboard (2 hours)
+
 - Service topology view
 - Cross-service tracing queries
 - Service-specific panels
 - Import pre-built dashboards
 
 **Phase 3 Success Criteria:**
+
 - ✅ All 6 microservices use identical `Observability` interface
 - ✅ Cross-service traces work correctly
 - ✅ Service topology visible in Grafana
@@ -486,36 +511,42 @@ ls changes/2025-10-20-phase-2-ddd-observability-complete.md
 **Target:** Production-ready observability with SLOs
 
 ### 4.1: Critical Alerts (2 hours)
+
 - Service down (health check failures)
 - High error rate (> 5% errors in 5 min)
 - Database connection failures
 - Event bus connectivity issues
 
 ### 4.2: Performance Alerts (2 hours)
+
 - Slow response times (p95 > 500ms)
 - High latency (p99 > 1s)
 - Database query performance
 - Memory/CPU warnings
 
 ### 4.3: Domain-Specific Dashboards (3 hours)
+
 - Event sourcing metrics
 - CQRS query performance
 - Aggregate lifecycle tracking
 - Domain event flow visualization
 
 ### 4.4: SLO Tracking (2 hours)
+
 - Define service-level objectives
 - Configure error budget tracking
 - Create SLO dashboards
 - Set up SLO breach alerts
 
 ### 4.5: Runbooks (2 hours)
+
 - Incident response procedures
 - Common issue troubleshooting
 - Grafana query examples
 - Team training materials
 
 **Phase 4 Success Criteria:**
+
 - ✅ Critical alerts trigger correctly
 - ✅ Domain-specific dashboards operational
 - ✅ SLOs defined and tracked
@@ -584,6 +615,7 @@ ls changes/2025-10-20-phase-2-ddd-observability-complete.md
 5. Revise prompts based on failure analysis
 
 **Rollback Command:**
+
 ```bash
 git checkout develop apps/landing-page/src/lib/otel-instrumentation.ts
 git checkout develop apps/landing-page/src/instrumentation.ts
@@ -628,6 +660,7 @@ rm -rf packages/shared-infra/src/observability
 **Expected Outcome**: DDD-compliant observability operational, ADR-023 Phase 2 complete (~95% compliance).
 
 **Follow-Up Sessions**:
+
 - Phase 3: Roll out to all microservices (12-14 hours)
 - Phase 4: Production hardening with SLOs (11 hours)
 
@@ -636,9 +669,10 @@ rm -rf packages/shared-infra/src/observability
 **Total Phase 2 Effort**: 8-10 hours  
 **Total Remaining Work**: 23-25 hours (Phases 3-4)  
 **Overall Progress**: Phase 1 ✅ Complete | Phase 2 🚧 Ready to Start | Phases 3-4 📋 Planned
-   - user.authentication (auth middleware)
-   - database.query (database operations)
-   - external.api.call (external API calls)
+
+- user.authentication (auth middleware)
+- database.query (database operations)
+- external.api.call (external API calls)
 
 4. Implement trace correlation
    - Add W3C trace context propagation
@@ -647,6 +681,7 @@ rm -rf packages/shared-infra/src/observability
    - Add trace context to error responses
 
 **Success Criteria:**
+
 - ✅ Jaeger operational and accessible
 - ✅ Traces exported successfully
 - ✅ Critical spans instrumented
@@ -697,6 +732,7 @@ rm -rf packages/shared-infra/src/observability
    - Add Makefile targets for dashboard management
 
 **Success Criteria:**
+
 - ✅ Grafana operational with data sources
 - ✅ Development Health dashboard showing live data
 - ✅ Infrastructure Overview dashboard operational
@@ -746,6 +782,7 @@ rm -rf packages/shared-infra/src/observability
    - Add saved queries to Grafana Explore
 
 **Success Criteria:**
+
 - ✅ Loki operational and receiving logs
 - ✅ 90-day retention policy active
 - ✅ Log analysis dashboard functional
@@ -789,6 +826,7 @@ rm -rf packages/shared-infra/src/observability
    - Validate security (auth, encryption)
 
 **Success Criteria:**
+
 - ✅ ADR-010 compliance validated at 95%+
 - ✅ Comprehensive documentation complete
 - ✅ Developer onboarding guide ready
@@ -818,9 +856,9 @@ rm -rf packages/shared-infra/src/observability
    - Sign up and configure account
 
 2. Configure monitors
-   - **Primary**: https://tomriddelsdell.com/api/health (JSON health check)
-   - **Backup**: https://tomriddelsdell.com (homepage availability)
-   - **Staging**: https://staging.tomriddelsdell.com/api/health
+   - **Primary**: <https://tomriddelsdell.com/api/health> (JSON health check)
+   - **Backup**: <https://tomriddelsdell.com> (homepage availability)
+   - **Staging**: <https://staging.tomriddelsdell.com/api/health>
    - Check interval: 5 minutes
    - Alert threshold: 2 consecutive failures
    - Monitor from multiple geographic regions
@@ -837,6 +875,7 @@ rm -rf packages/shared-infra/src/observability
    - Historical incident timeline
 
 **Success Criteria:**
+
 - ✅ External monitoring operational
 - ✅ Multi-channel alerting configured
 - ✅ Public status page live
@@ -875,6 +914,7 @@ rm -rf packages/shared-infra/src/observability
    - Document on-call procedures
 
 **Success Criteria:**
+
 - ✅ Multi-channel notifications operational
 - ✅ Escalation policies defined
 - ✅ Notification runbook complete
@@ -907,6 +947,7 @@ rm -rf packages/shared-infra/src/observability
    - Include escalation criteria
 
 **Success Criteria:**
+
 - ✅ Alert false positive rate < 5%
 - ✅ Alert documentation complete
 - ✅ Deduplication working
@@ -946,6 +987,7 @@ rm -rf packages/shared-infra/src/observability
    - Token refresh endpoint: `/auth/refresh`
 
 **Success Criteria:**
+
 - ✅ @platform/auth package created
 - ✅ OAuth endpoints implemented
 - ✅ PKCE implementation working
@@ -980,6 +1022,7 @@ rm -rf packages/shared-infra/src/observability
    - Handle authentication errors gracefully
 
 **Success Criteria:**
+
 - ✅ Secure session storage implemented
 - ✅ Automatic token refresh working
 - ✅ CSRF protection active
@@ -1018,6 +1061,7 @@ rm -rf packages/shared-infra/src/observability
    - Add authentication errors to error dashboards
 
 **Success Criteria:**
+
 - ✅ Authentication middleware operational
 - ✅ Protected routes working
 - ✅ RBAC implemented
@@ -1057,6 +1101,7 @@ rm -rf packages/shared-infra/src/observability
    - Add "Sign in to continue" prompts
 
 **Success Criteria:**
+
 - ✅ Polished login UI implemented
 - ✅ User profile page functional
 - ✅ Authentication components integrated
@@ -1103,6 +1148,7 @@ rm -rf packages/shared-infra/src/observability
    - Document compliance status
 
 **Success Criteria:**
+
 - ✅ All authentication tests passing
 - ✅ Security audit complete
 - ✅ Documentation comprehensive
@@ -1110,9 +1156,9 @@ rm -rf packages/shared-infra/src/observability
 
 ---
 
-## Success Metrics
+## Phase 2 Success Metrics
 
-### Phase 2: Observability
+### Observability
 
 | Metric                       | Target      | Current | Status |
 | ---------------------------- | ----------- | ------- | ------ |
@@ -1143,7 +1189,7 @@ rm -rf packages/shared-infra/src/observability
 
 ---
 
-## Risk Management
+## Phase 2 Risk Management
 
 ### Phase 2 Risks
 
@@ -1196,15 +1242,18 @@ rm -rf packages/shared-infra/src/observability
 ## Dependencies and Blockers
 
 ### Phase 2 Dependencies
+
 - ✅ Landing page deployed (completed Phase 1.5)
 - ✅ CI/CD pipeline operational (completed Phase 1.5)
 - 🔄 Docker Compose available (for Jaeger, Grafana, Loki)
 
 ### Phase 3 Dependencies
+
 - 🔄 Phase 2.3 (Grafana Alerting) must complete first
 - 🔄 External monitoring service account required
 
 ### Phase 4 Dependencies
+
 - ✅ AWS Cognito User Pool configured (already done)
 - 🔄 Phase 2.1 (OpenTelemetry) recommended for auth instrumentation
 - 🔄 Protected routes identified
@@ -1239,7 +1288,7 @@ gantt
 
 ---
 
-## Next Steps
+## Phase 2 Next Steps
 
 ### Immediate Actions (This Week)
 
@@ -1265,6 +1314,7 @@ gantt
 ## References
 
 ### Key Documents
+
 - **ADR-010**: Observability Requirements and Strategy
 - **ADR-003**: Authentication Strategy (AWS Cognito)
 - **ADR-015**: Deployment Strategy
@@ -1274,10 +1324,12 @@ gantt
 - **Compliance Review**: `docs/monitoring-adr-compliance-review.md`
 
 ### Execution Prompts
+
 - **Phase 2 Observability**: Prompts 1.7-1.11 in `.prompts/copilot-execution-prompts.md`
 - **Phase 4 Authentication**: Referenced in ADR-003
 
 ### Related Changes
+
 - **2025-10-08**: Production monitoring implementation (Phase 1.5)
 - **2025-10-09**: Observability prompts created (Phase 2 & 3 planning)
 

@@ -1,11 +1,13 @@
 # ADR-029: Independent App Deployment Architecture
 
 ## Status
+
 Accepted and Implemented
 
 ## Context
 
 The platform was initially structured as a pnpm monorepo with:
+
 - Shared `pnpm-workspace.yaml` at root
 - Shared `.npmrc` with `node-linker=hoisted` creating single `node_modules` at root
 - Single `pnpm-lock.yaml` for all apps and services
@@ -13,12 +15,14 @@ The platform was initially structured as a pnpm monorepo with:
 - Build-time coupling where apps had `prebuild` scripts to build shared packages
 
 This structure violated DDD principles for independent bounded contexts:
+
 1. **Dependency Version Lock-in**: All apps forced to use same dependency versions
 2. **Build Coupling**: Apps couldn't build without building shared dependencies first
 3. **Deployment Dependencies**: Apps couldn't be deployed independently
 4. **Version Conflicts**: Couldn't have `landing-page` on Next.js 14 while another app uses Next.js 16
 
 Example of coupling:
+
 ```json
 // apps/landing-page/package.json (OLD)
 {
@@ -38,12 +42,14 @@ Example of coupling:
 ### Key Changes
 
 #### 1. Remove Shared Workspace Configuration
+
 - ❌ Delete root `pnpm-workspace.yaml`
 - ❌ Delete root `.npmrc`
 - ❌ Delete root `pnpm-lock.yaml`
 - ✅ Each app manages its own pnpm configuration
 
 #### 2. Per-App Dependency Management
+
 - ✅ Each app has its own `.npmrc` (if needed for special requirements like OpenNext)
 - ✅ Each app has its own `pnpm-lock.yaml` committed to git
 - ✅ Each app has its own `node_modules` directory (gitignored)
@@ -57,6 +63,7 @@ Example of coupling:
 - ✅ **Interim Solution**: Inline small shared code (< 1000 lines) until package publishing workflow is established
 
 **Package Publishing Strategy**:
+
 ```json
 // Future state - apps consume published packages
 {
@@ -68,7 +75,8 @@ Example of coupling:
 }
 ```
 
-**Rationale**: 
+**Rationale**:
+
 - Semantic versioning enables independent evolution of packages and apps
 - Published packages are immutable and auditable
 - Apps can use different package versions without coordination
@@ -78,6 +86,7 @@ Example of coupling:
 #### 4. Landing Page Implementation (Proof of Concept)
 
 **Changes Made**:
+
 ```bash
 # Structure
 apps/landing-page/
@@ -93,6 +102,7 @@ apps/landing-page/
 ```
 
 **package.json Changes**:
+
 ```json
 {
   "scripts": {
@@ -112,6 +122,7 @@ apps/landing-page/
 ```
 
 **Import Changes**:
+
 ```typescript
 // OLD:
 import { createEdgeObservability } from '@platform/observability-edge'
@@ -123,18 +134,21 @@ import { createEdgeObservability } from './observability-edge/index'
 ### Benefits
 
 **DDD Compliance**:
+
 - ✅ Each app is a truly independent bounded context
 - ✅ Apps can evolve dependency versions independently
 - ✅ No build-time coupling between contexts
 - ✅ Clear ownership and boundaries
 
 **Deployment Independence**:
+
 - ✅ `landing-page` can deploy on Next.js 14.2.18 while other apps use Next.js 16.0.1
 - ✅ Each app builds and deploys without requiring other apps
 - ✅ Dependency updates in one app don't force updates in others
 - ✅ CI/CD pipelines are fully independent per app
 
 **Development Velocity**:
+
 - ✅ Developers can work on one app without impacting others
 - ✅ Faster builds (only install dependencies for app being developed)
 - ✅ Clearer dependency trees per app
@@ -143,16 +157,19 @@ import { createEdgeObservability } from './observability-edge/index'
 ### Drawbacks
 
 **Initial Code Duplication (Temporary)**:
+
 - ⚠️ Small shared code (observability-edge: 718 lines) temporarily inlined into apps during migration
 - **Timeline**: Interim solution until package publishing workflow is established
 - **Resolution**: Publish packages to GitHub Packages with semantic versioning (planned Phase 2)
 
 **Package Publishing Setup Required**:
+
 - ⚠️ Need to configure GitHub Packages registry and CI/CD publishing workflow
 - **Mitigation**: One-time setup, automated thereafter
 - **Scope**: ~4-8 hours to configure GitHub Actions for automated publishing
 
 **Initial Migration Effort**:
+
 - ⚠️ Each app needs migration from workspace to independent structure
 - **Mitigation**: Incremental migration, starting with landing-page as proof-of-concept
 
@@ -180,6 +197,7 @@ packages:
 **Decision: Rejected**
 
 **Reasons**:
+
 - ❌ Creates dependency version coupling - all apps must use same package versions
 - ❌ Violates DDD principle of independent bounded contexts
 - ❌ Apps cannot evolve package dependencies independently
@@ -187,6 +205,7 @@ packages:
 - ❌ Defeats the purpose of microservices independence
 
 **When it might be acceptable**:
+
 - All apps deploy together as a unit (modular monolith)
 - Team is very small (< 3 developers)
 - Rapid prototyping phase
@@ -196,12 +215,14 @@ packages:
 **Decision: Rejected**
 
 **Reasons**:
+
 - ❌ Loses benefits of unified tooling, CI/CD orchestration
 - ❌ Harder to maintain shared deploy/ scripts and infrastructure code
 - ❌ Documentation fragmentation
 - ❌ Overhead of managing multiple repositories
 
 **When it might be acceptable**:
+
 - Apps owned by different teams/organizations
 - Need strict access control per app
 - Apps have completely different tech stacks
@@ -211,12 +232,14 @@ packages:
 **Decision: Rejected**
 
 **Reasons**:
+
 - ❌ Adds significant tooling complexity
 - ❌ Still couples dependency versions across apps
 - ❌ Opinionated build system may conflict with OpenNext/Cloudflare requirements
 - ❌ Learning curve for team
 
 **When it might be acceptable**:
+
 - Large monorepo (50+ apps)
 - Need sophisticated caching and build orchestration
 - Team already familiar with tools
@@ -352,11 +375,13 @@ echo "//npm.pkg.github.com/:_authToken=${GITHUB_PACKAGES_TOKEN}" >> ~/.npmrc
 ### Versioning Guidelines
 
 **Semantic Versioning (semver)**:
+
 - **MAJOR** (1.0.0 → 2.0.0): Breaking changes - incompatible API changes
 - **MINOR** (1.0.0 → 1.1.0): New features - backward compatible
 - **PATCH** (1.0.0 → 1.0.1): Bug fixes - backward compatible
 
 **Examples**:
+
 ```bash
 # Bug fix
 git tag @platform/observability@1.0.1
@@ -408,6 +433,7 @@ When publishing breaking changes:
 5. **Deprecation period**: Mark old APIs as deprecated before removing
 
 **Example Migration**:
+
 ```typescript
 // v1.x.x (deprecated)
 import { createObservability } from '@platform/observability'
@@ -419,12 +445,14 @@ import { initObservability } from '@platform/observability'
 ### When to Inline vs. Publish
 
 **Publish to GitHub Packages when**:
+
 - ✅ Code used by 2+ apps
 - ✅ Package is stable (infrequent changes)
 - ✅ Need version control and immutability
 - ✅ Want to share with external projects
 
 **Inline code when**:
+
 - ✅ Small code (< 500 lines)
 - ✅ Rapid prototyping phase
 - ✅ App-specific customizations
@@ -449,12 +477,14 @@ import { initObservability } from '@platform/observability'
 **Objective**: Enable semantic versioning of shared packages via GitHub Packages
 
 **Tasks**:
+
 1. [ ] Configure GitHub Packages for @platform/* scope
    - Set up `.npmrc` with registry configuration
    - Configure authentication tokens
    - Document publishing workflow
 
 2. [ ] Create Package Publishing Workflow
+
    ```yaml
    # .github/workflows/publish-packages.yml
    name: Publish Packages
@@ -475,6 +505,7 @@ import { initObservability } from '@platform/observability'
    - `@platform/shared-infra@1.0.0` (if exists)
 
 5. [ ] Update Package Consumption
+
    ```json
    // apps/landing-page/package.json
    {
@@ -494,6 +525,7 @@ import { initObservability } from '@platform/observability'
 ### Phase 3: Other Apps Migration (Future Work)
 
 For each app in `apps/`:
+
 1. [ ] Create app-specific `.npmrc` (if needed)
 2. [ ] Evaluate shared dependencies
    - Use published packages from Phase 2
@@ -505,12 +537,15 @@ For each app in `apps/`:
 ### Phase 4: Services Migration (Future Work)
 
 Same process for `services/` directory
+
 - [x] Update imports to use local paths
 - [x] Verify build succeeds
 - [x] Commit changes
 
 ### Phase 2: Other Apps (Future Work)
+
 For each app in `apps/`:
+
 1. Create app-specific `.npmrc` (if needed)
 2. Evaluate shared dependencies - inline or publish
 3. Run `pnpm install` to create app-specific lockfile
@@ -518,6 +553,7 @@ For each app in `apps/`:
 5. Update CI/CD workflows if needed
 
 ### Phase 3: Services (Future Work)
+
 Same process for `services/` directory
 
 ## Success Criteria
@@ -532,6 +568,7 @@ Same process for `services/` directory
 ## Consequences
 
 **Positive**:
+
 - ✅ True microservices independence - apps are genuinely decoupled
 - ✅ Semantic versioning of shared packages enables controlled evolution
 - ✅ Apps can use different versions of shared packages without coordination
@@ -543,12 +580,14 @@ Same process for `services/` directory
 - ✅ External projects can consume published packages
 
 **Negative**:
+
 - ⚠️ Temporary code duplication during migration (< 1000 lines, resolved in Phase 2)
 - ⚠️ Package publishing infrastructure setup required (~4-8 hours one-time)
 - ⚠️ Need to coordinate breaking changes in shared packages across consuming apps
 - ⚠️ Migration effort for existing apps (incremental, app-by-app)
 
 **Neutral**:
+
 - 🔄 Shifts from "monorepo with shared deps" to "polyrepo-style monorepo with published packages"
 - 🔄 Maintains benefits of unified repo (shared CI/CD, infrastructure, documentation)
 - 🔄 Adds package versioning responsibility (but improves clarity)
@@ -562,18 +601,21 @@ Same process for `services/` directory
 ## Notes
 
 **November 10, 2025**: Initial implementation completed for landing-page (Phase 1).
+
 - Successfully removed workspace coupling
 - Verified OpenNext Cloudflare build works with independent dependencies
 - Next.js version: 16.0.1 (latest) vs. previous 14.2.18 (demonstrates version independence)
 - Temporarily inlined observability-edge (718 lines) - will be replaced with published package in Phase 2
 
 **Next Steps**:
+
 - Phase 2: Set up GitHub Packages publishing workflow for @platform/* packages
 - Publish `@platform/observability-edge@1.0.0`
 - Update landing-page to consume published package
 - Remove inlined code
 
 **Package Publishing Registry**: GitHub Packages (free for private repos)
+
 - Registry: `https://npm.pkg.github.com`
 - Scope: `@platform`
 - Authentication: GitHub Personal Access Token with `write:packages` permission

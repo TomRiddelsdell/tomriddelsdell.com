@@ -9,6 +9,7 @@
 ### Implementation Roadmap
 
 **✅ Phase 1 Complete (Infrastructure):**
+
 - Local OTel Collector running in Docker
 - Collector forwards to both Jaeger (local) and Grafana Cloud
 - Landing page instrumented with OpenTelemetry SDK (temporary)
@@ -16,12 +17,14 @@
 - Basic unified visibility achieved
 
 **🚧 Phase 2 In Progress (DDD Compliance):**
+
 - ⏳ Create `@platform/shared-infra` Anti-Corruption Layer
 - ⏳ Extract OpenTelemetry implementation behind domain interface
 - ⏳ Migrate landing page to use ACL
 - ⏳ Document observability patterns for all services
 
 **📋 Phase 3 Planned (Service Rollout):**
+
 - Deploy OTLP proxy worker (optional enhancement)
 - Instrument remaining microservices with ACL
 - Create domain-specific dashboards
@@ -79,12 +82,14 @@ Per our architecture documentation and DDD best practices:
 Implement a **DDD-compliant observability architecture** that maintains clean bounded contexts across our microservices while providing unified visibility. This architecture uses **two Anti-Corruption Layers** to protect domain code from infrastructure concerns:
 
 **Layer 1: Application ACL** (`@platform/shared-infra/observability`)
+
 - Domain-friendly observability interface
 - Hides all vendor-specific concepts
 - Works identically across all microservices
 - Enables easy vendor swapping
 
 **Layer 2: Infrastructure ACL** (OpenTelemetry Collector)
+
 - Translates OTLP to vendor-specific formats
 - Centralizes backend integration
 - Provides buffering and reliability
@@ -147,30 +152,35 @@ flowchart TB
 ### Architecture Layers Explained
 
 **Layer 1: Domain/Application Code**
+
 - Business logic and use cases
 - Zero observability dependencies
 - Completely vendor-agnostic
 - Uses domain language only
 
 **Layer 2: Application ACL** (`@platform/shared-infra/observability`)
+
 - Domain-friendly observability interface
 - Runtime detection (Node.js vs Edge vs Java)
 - Hides all vendor SDKs
 - Provides consistent API across all services
 
 **Layer 3: Vendor Implementation** (OpenTelemetry, Datadog, etc.)
+
 - Specific SDK implementations
 - Only imported by ACL package
 - Never visible to application code
 - Swappable via configuration
 
 **Layer 4: Infrastructure ACL** (OTel Collector)
+
 - Protocol translation (OTLP → vendor formats)
 - Buffering and reliability
 - Multi-backend export
 - Centralized configuration
 
 **Layer 5: Observability Backends** (Grafana, Jaeger, etc.)
+
 - Data storage and visualization
 - Completely abstracted from application
 - Swappable without code changes
@@ -871,6 +881,7 @@ packages/shared-infra/
 ```
 
 **DDD Compliance**:
+
 - ✅ Single bounded context for observability
 - ✅ Implementation details hidden behind interface
 - ✅ Runtime detection is infrastructure concern, not domain concern
@@ -881,6 +892,7 @@ packages/shared-infra/
     });
   }
 }
+
 ```
 
 **DDD Compliance**:
@@ -1475,6 +1487,7 @@ service:
 ```
 
 **Start Command**:
+
 ```bash
 docker-compose -f infra/docker-compose.otel.yml up -d
 ```
@@ -1513,6 +1526,7 @@ export default {
 ```
 
 **Deploy**:
+
 ```bash
 wrangler deploy --name otel-collector-proxy
 ```
@@ -1560,6 +1574,7 @@ primary_region = "lhr"
 ```
 
 **Deploy**:
+
 ```bash
 fly deploy -c infra/fly/otel-collector.toml
 ```
@@ -1572,9 +1587,10 @@ fly deploy -c infra/fly/otel-collector.toml
 
 #### 3.1 Grafana Cloud Setup
 
-**Sign up**: https://grafana.com/products/cloud/
+**Sign up**: <https://grafana.com/products/cloud/>
 
 **Free Tier Limits** (as of 2025):
+
 - 10,000 active series (metrics)
 - 50 GB logs per month
 - 50 GB traces per month
@@ -1595,6 +1611,7 @@ Per Grafana Cloud support, you don't need a Grafana service account for writing 
 Write permissions are controlled by the data source configuration, not the Grafana role.
 
 **Configuration**:
+
 ```bash
 # Get credentials from Grafana Cloud
 # 1. Get Instance ID: Administration → General Settings → Instance ID
@@ -1613,11 +1630,13 @@ doppler secrets set GRAFANA_CLOUD_API_KEY --project tomriddelsdell-infra --confi
 #### 3.2 Unified Dashboards
 
 **Import Pre-built Dashboards**:
+
 - OpenTelemetry APM Dashboard
 - Kubernetes/Service Mesh Dashboard (adapt for serverless)
 - Custom domain-specific dashboards
 
 **Environment Filtering**:
+
 ```promql
 # All environments in single view
 http_requests_total{deployment_environment=~"development|staging|production"}
@@ -1683,18 +1702,21 @@ rate(http_requests_total{deployment_environment="production"}[5m])
 **Two-Layer ACL Strategy**:
 
 **Layer 1: Application ACL** (`@platform/shared-infra/observability`)
+
 - Protects application code from vendor SDKs
 - Provides domain-friendly interface
 - Translates domain language to vendor API
 - Examples: `trace()` → `startActiveSpan()`, `addMetadata()` → `setAttribute()`
 
 **Layer 2: Infrastructure ACL** (OpenTelemetry Collector)
+
 - Protects infrastructure from backend changes
 - Translates OTLP to vendor-specific formats
 - Centralizes backend integration
 - Examples: OTLP → Jaeger format, OTLP → Prometheus format
 
 **Application Code** never references:
+
 - OpenTelemetry SDK classes (`NodeTracerProvider`, `OTLPTraceExporter`)
 - Jaeger APIs
 - Prometheus client libraries
@@ -1702,11 +1724,13 @@ rate(http_requests_total{deployment_environment="production"}[5m])
 - Cloudflare Analytics APIs
 
 **What Application Code DOES reference**:
+
 - Domain-friendly interface: `Observability`, `Logger`, `Metrics`, `Tracing`
 - Domain language: `trace()`, `addMetadata()`, `recordError()`
 - Abstract concepts only, never vendor specifics
 
-**DDD Compliance**: 
+**DDD Compliance**:
+
 - ✅ Application ACL provides domain-friendly interface
 - ✅ Infrastructure ACL enables backend swapping
 - ✅ Two-layer protection from vendor changes
@@ -1715,6 +1739,7 @@ rate(http_requests_total{deployment_environment="production"}[5m])
 ### Bounded Context Mapping
 
 **Observability Bounded Context**:
+
 - **Type**: Supporting Subdomain (Infrastructure)
 - **Relationship**: Shared Kernel (used by all bounded contexts)
 - **Pattern**: Anti-Corruption Layer (protects from vendor changes)
@@ -1739,6 +1764,7 @@ rate(http_requests_total{deployment_environment="production"}[5m])
 **Key Insight**: Observability is a separate bounded context with its own model. Microservices consume it via a published interface, never directly importing vendor code.
 
 **DDD Compliance**:
+
 - ✅ Clear bounded context boundaries
 - ✅ Explicit integration patterns (ACL, Shared Kernel)
 - ✅ Published language for cross-context communication
@@ -1747,6 +1773,7 @@ rate(http_requests_total{deployment_environment="production"}[5m])
 ### Dependency Inversion Principle
 
 **Traditional (Violates DIP)**:
+
 ```typescript
 // ❌ Application depends on concrete vendor implementation
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
@@ -1765,6 +1792,7 @@ class RegisterUserUseCase {
 ```
 
 **DDD-Compliant (Follows DIP)**:
+
 ```typescript
 // ✅ Application depends on abstraction defined in shared infrastructure
 import type { Observability } from '@platform/shared-infra/observability'
@@ -1787,6 +1815,7 @@ class RegisterUserUseCase {
 ```
 
 **Benefits**:
+
 1. **Testability**: Easy to mock `Observability` interface with test implementation
 2. **Flexibility**: Swap from OpenTelemetry to Datadog without changing use cases
 3. **Clarity**: Use case focuses on business logic, not infrastructure concerns
@@ -1794,6 +1823,7 @@ class RegisterUserUseCase {
 5. **Microservices Consistency**: All services use same interface, different implementations
 
 **DDD Compliance**:
+
 - ✅ High-level modules (domain) don't depend on low-level modules (vendors)
 - ✅ Both depend on abstractions (Observability interface)
 - ✅ Abstractions don't depend on details
@@ -1804,6 +1834,7 @@ class RegisterUserUseCase {
 **Critical Distinction for DDD Compliance**:
 
 **Domain Events** (Business-meaningful, part of domain model):
+
 ```typescript
 // Domain layer - business events that represent state changes
 class UserRegisteredEvent implements DomainEvent {
@@ -1827,6 +1858,7 @@ await domainEvents.publish(new UserRegisteredEvent(user.id, user.email, new Date
 ```
 
 **Telemetry Events** (Infrastructure concern, technical debugging):
+
 ```typescript
 // Infrastructure/Application layer - observability telemetry
 // NOT part of domain model, used for debugging and monitoring
@@ -1860,6 +1892,7 @@ observability.log.info('User registration completed', {
 | **Coupling** | Part of domain model, versioned | Cross-cutting concern, not versioned |
 
 **DDD Compliance**:
+
 - ✅ Domain events in domain layer (pure business logic)
 - ✅ Telemetry in application/infrastructure layer (cross-cutting concern)
 - ✅ Clear separation of concerns prevents confusion
@@ -1869,6 +1902,7 @@ observability.log.info('User registration completed', {
 ### Ubiquitous Language
 
 **Vendor-Specific Language (Violates DDD)**:
+
 ```typescript
 // ❌ Uses vendor terminology that doesn't match domain language
 span.setAttribute('user.id', userId)  // "setAttribute" is OpenTelemetry-specific
@@ -1877,6 +1911,7 @@ span.setStatus({ code: SpanStatusCode.ERROR })  // "SpanStatusCode" is vendor en
 ```
 
 **Domain-Friendly Language (DDD-Compliant)**:
+
 ```typescript
 // ✅ Uses language that matches our domain model
 context.addMetadata('user.id', userId)  // "addMetadata" is universal
@@ -1885,6 +1920,7 @@ context.setFailure('validation failed')  // "setFailure" matches domain language
 ```
 
 **Benefits**:
+
 - ✅ Code reads naturally, matches business discussions
 - ✅ New developers understand without learning vendor API
 - ✅ Domain experts can read and understand code
@@ -1892,6 +1928,7 @@ context.setFailure('validation failed')  // "setFailure" matches domain language
 - ✅ Easy to reason about without vendor documentation
 
 **DDD Compliance**:
+
 - ✅ Observability interface uses ubiquitous language
 - ✅ No vendor-specific terms in application code
 - ✅ API matches domain conversations
@@ -1940,6 +1977,7 @@ QIS Service (Java)
 5. **Unified Visibility**: All services appear in single Grafana dashboard
 
 **DDD Compliance**:
+
 - ✅ Each microservice is a separate bounded context
 - ✅ Shared kernel (observability) provides consistency
 - ✅ Anti-Corruption Layer protects each service from vendor changes
@@ -1990,33 +2028,41 @@ QIS Service (Java)
 **Panels**:
 
 1. **Event Store Write Rate** (Time Series)
+
    ```promql
    rate(event_store_events_appended_total[5m])
    ```
+
    - Shows events written per second
    - Split by aggregate type
    - Alert: Sudden drops indicate system issues
 
 2. **Aggregate Size Distribution** (Histogram)
+
    ```promql
    histogram_quantile(0.95, sum(rate(aggregate_size_bucket[5m])) by (le, aggregate_type))
    ```
+
    - P50, P95, P99 aggregate sizes
    - Identifies aggregates needing refactoring
    - Alert: P95 > 500 events
 
 3. **Concurrency Conflicts** (Counter)
+
    ```promql
    sum(rate(event_store_concurrency_conflicts_total[5m])) by (aggregate_type)
    ```
+
    - Optimistic locking failures per minute
    - Indicates hot aggregates with contention
    - Alert: > 10 conflicts/min
 
 4. **Snapshot Efficiency** (Gauge)
+
    ```promql
    snapshot_hit_ratio{aggregate_type="Project"}
    ```
+
    - Percentage of loads from snapshot vs full replay
    - Should be > 60% for effective strategy
    - Alert: < 50% hit rate
@@ -2041,33 +2087,41 @@ QIS Service (Java)
 **Panels**:
 
 1. **Projection Lag** (Time Series)
+
    ```promql
    projection_lag_seconds{projection_name="UserProfile"}
    ```
+
    - Time between event timestamp and projection update
    - Critical SLA metric for eventual consistency
    - Alert: > 30 seconds lag
 
 2. **Projection Throughput** (Time Series)
+
    ```promql
    rate(projection_events_processed_total[1m]) by (projection_name)
    ```
+
    - Events processed per second per projection
    - Shows processing capacity
    - Alert: Drops below baseline
 
 3. **Projection Error Rate** (Time Series)
+
    ```promql
    rate(projection_errors_total[5m]) by (projection_name, error_type)
    ```
+
    - Failed events per minute
    - Split by error type (DatabaseTimeout, ValidationError, etc.)
    - Alert: > 5% error rate
 
 4. **Dead Letter Queue Size** (Gauge)
+
    ```promql
    projection_dead_letter_count by (projection_name)
    ```
+
    - Events waiting for manual intervention
    - Should be close to zero
    - Alert: > 10 events
@@ -2118,20 +2172,24 @@ queries:
    - Interactive: Click service → see event types
 
 2. **Event Flow Latency** (Heatmap)
+
    ```promql
    histogram_quantile(0.95, 
      sum(rate(event_flow_duration_bucket[5m])) 
      by (le, source_service, target_service)
    )
    ```
+
    - Time from event publish to consumption
    - Identifies slow event propagation
    - Alert: P95 > 5 seconds
 
 3. **Event Types by Service** (Bar Chart)
+
    ```promql
    sum(event_published_total) by (service, event_type)
    ```
+
    - Shows which services publish which events
    - Helps understand domain event flow
 
@@ -2165,40 +2223,48 @@ queries:
 **Panels**:
 
 1. **Top 10 Largest Aggregates** (Table)
+
    ```promql
    topk(10, aggregate_size_events{aggregate_type="Project"})
    ```
+
    - Shows aggregates with most events
    - Candidates for snapshot creation
    - Candidates for refactoring
 
 2. **Aggregate Load Performance** (Time Series)
+
    ```promql
    histogram_quantile(0.95,
      sum(rate(repository_load_duration_bucket[5m]))
      by (le, aggregate_type, load_source)
    )
    ```
+
    - P95 latency for loading aggregates
    - Split by snapshot vs full replay
    - Alert: P95 > 200ms
 
 3. **Snapshot Creation Rate** (Time Series)
+
    ```promql
    rate(snapshot_operations_total{operation="created"}[5m]) 
    by (aggregate_type)
    ```
+
    - Snapshots created per minute
    - Should correlate with aggregate growth
    - Validates snapshot strategy
 
 4. **Events Replayed Distribution** (Histogram)
+
    ```promql
    histogram_quantile(0.95,
      sum(rate(events_replayed_bucket[5m]))
      by (le, load_source)
    )
    ```
+
    - P50, P95, P99 events replayed per load
    - Lower is better (means snapshots working)
    - Alert: P95 > 100 events
@@ -2232,39 +2298,47 @@ queries:
 **Panels**:
 
 1. **Event Store Write Latency** (Time Series)
+
    ```promql
    histogram_quantile(0.95,
      sum(rate(event_store_write_latency_bucket[5m]))
      by (le, operation)
    )
    ```
+
    - P95 latency for append/load/snapshot operations
    - Database performance indicator
    - Alert: P95 > 100ms
 
 2. **Events Per Commit** (Histogram)
+
    ```promql
    histogram_quantile(0.95,
      sum(rate(events_per_commit_bucket[5m]))
      by (le, aggregate_type)
    )
    ```
+
    - Distribution of events per transaction
    - Identifies commands that create many events
    - Optimization target if P95 > 10
 
 3. **Event Store Throughput** (Time Series)
+
    ```promql
    sum(rate(event_store_events_appended_total[1m]))
    ```
+
    - Total events written per second
    - System capacity metric
    - Trend: Should grow with user base
 
 4. **Connection Pool Usage** (Gauge)
+
    ```promql
    event_store_pool_connections_active / event_store_pool_connections_max
    ```
+
    - Database connection utilization
    - Should be < 80%
    - Alert: > 90% utilization
@@ -2502,6 +2576,7 @@ doppler secrets set OTEL_EXPORTER_OTLP_ENDPOINT "https://otel.yourdomain.com" --
 ### Step 4: Deploy Cloud Collector (1-2 hours)
 
 **Choose one**:
+
 - Cloudflare Worker proxy (simpler, limited control)
 - Fly.io self-hosted collector (more control, $2-5/month)
 
@@ -2554,7 +2629,8 @@ doppler secrets set OTEL_EXPORTER_OTLP_ENDPOINT "https://otel.yourdomain.com" --
 
 **Investment**: 6-8 hours initial setup  
 **Ongoing**: $0-5/month  
-**Value**: 
+**Value**:
+
 - ✅ Consistent observability across all environments
 - ✅ Production debugging with full context
 - ✅ Environment comparison (staging vs prod)
@@ -2567,10 +2643,12 @@ doppler secrets set OTEL_EXPORTER_OTLP_ENDPOINT "https://otel.yourdomain.com" --
 ### Alternative 1: Keep Split Architecture
 
 **Pros**:
+
 - No migration work
 - Zero cost
 
 **Cons**:
+
 - ❌ Violates DDD principles (observability not properly abstracted)
 - ❌ Different tools for different environments (poor DX)
 - ❌ Cannot debug production with same tools as development
@@ -2581,10 +2659,12 @@ doppler secrets set OTEL_EXPORTER_OTLP_ENDPOINT "https://otel.yourdomain.com" --
 ### Alternative 2: Use Only Cloudflare Analytics
 
 **Pros**:
+
 - Zero cost
 - No infrastructure to manage
 
 **Cons**:
+
 - ❌ Cloudflare-specific (vendor lock-in)
 - ❌ No distributed tracing
 - ❌ Limited customization
@@ -2596,11 +2676,13 @@ doppler secrets set OTEL_EXPORTER_OTLP_ENDPOINT "https://otel.yourdomain.com" --
 ### Alternative 3: Enterprise Observability (Datadog, New Relic)
 
 **Pros**:
+
 - Fully managed
 - Enterprise features
 - Great UX
 
 **Cons**:
+
 - ❌ $15-50/month minimum (too expensive for portfolio site)
 - ❌ Overkill for current scale
 - ❌ Still requires OTel Collector for edge runtime compatibility
@@ -2610,10 +2692,12 @@ doppler secrets set OTEL_EXPORTER_OTLP_ENDPOINT "https://otel.yourdomain.com" --
 ### Alternative 4: Self-Hosted Full Stack (Jaeger + Prometheus + Grafana)
 
 **Pros**:
+
 - Full control
 - Zero vendor cost
 
 **Cons**:
+
 - ❌ $20-50/month infrastructure cost (persistent storage, compute)
 - ❌ Maintenance burden (upgrades, backups, security)
 - ❌ Single point of failure (need HA setup)
@@ -2629,6 +2713,7 @@ doppler secrets set OTEL_EXPORTER_OTLP_ENDPOINT "https://otel.yourdomain.com" --
 **Implementation Path**: Option A - Cloudflare Worker OTLP Proxy
 
 **Rationale**:
+
 1. **DDD Compliant**: Proper bounded contexts, Anti-Corruption Layer, clean dependencies
 2. **Cost Effective**: $0/month (Cloudflare Worker free tier)
 3. **Developer Experience**: Single tool for all environments
@@ -2660,6 +2745,7 @@ doppler secrets set OTEL_EXPORTER_OTLP_ENDPOINT "https://otel.yourdomain.com" --
 **Goal**: Refactor to proper DDD-compliant architecture with Anti-Corruption Layers
 
 **Current State Analysis**:
+
 - ❌ `landing-page/src/lib/otel-instrumentation.ts` directly imports OpenTelemetry SDK
 - ❌ Application code coupled to vendor API (`NodeTracerProvider`, `OTLPTraceExporter`)
 - ❌ No domain-friendly abstraction layer
@@ -2775,11 +2861,13 @@ doppler secrets set OTEL_EXPORTER_OTLP_ENDPOINT "https://otel.yourdomain.com" --
 ### DDD Compliance Requirements
 
 **Phase 1 (Infrastructure) - ✅ COMPLETED**:
+
 - ✅ Infrastructure works correctly (traces reach Grafana Cloud)
 - ✅ OTel Collector acts as Infrastructure Anti-Corruption Layer
 - ✅ Configuration-driven backend selection
 
 **Phase 2 (Application ACL) - 🚧 IN PROGRESS**:
+
 - ⏳ Application code NEVER imports vendor SDKs directly
 - ⏳ `@platform/shared-infra/observability` package provides domain-friendly interface
 - ⏳ Use cases inject `Observability` dependency (Dependency Inversion Principle)
@@ -2788,12 +2876,14 @@ doppler secrets set OTEL_EXPORTER_OTLP_ENDPOINT "https://otel.yourdomain.com" --
 - ⏳ Ubiquitous language used in API (`trace()`, `addMetadata()`, `recordError()`)
 
 **Phase 3 (Microservices) - 📋 PLANNED**:
+
 - 📋 All microservices use identical `Observability` interface
 - 📋 Cross-service tracing works correctly (trace context propagation)
 - 📋 Service topology visible in Grafana (distributed tracing)
 - 📋 Consistent telemetry across all services
 
 **Phase 4 (Production) - 📋 PLANNED**:
+
 - 📋 Critical alerts configured and tested
 - 📋 Domain-specific dashboards created
 - 📋 SLO tracking operational
@@ -2814,6 +2904,7 @@ doppler secrets set OTEL_EXPORTER_OTLP_ENDPOINT "https://otel.yourdomain.com" --
 ### Architectural Quality Gates
 
 **Must Pass Before Phase 2 Complete**:
+
 1. ❌ Zero direct vendor imports in application code
 2. ❌ `grep -r "@opentelemetry" apps/*/src` returns no matches (only in `packages/shared-infra`)
 3. ❌ All use cases inject `Observability` via constructor
@@ -2821,6 +2912,7 @@ doppler secrets set OTEL_EXPORTER_OTLP_ENDPOINT "https://otel.yourdomain.com" --
 5. ❌ Application ACL package has > 80% test coverage
 
 **Must Pass Before Phase 3 Rollout**:
+
 1. ⏳ All microservices use identical interface
 2. ⏳ Cross-service traces propagate correctly
 3. ⏳ No service imports vendor SDKs directly
@@ -2828,6 +2920,7 @@ doppler secrets set OTEL_EXPORTER_OTLP_ENDPOINT "https://otel.yourdomain.com" --
 5. ⏳ Documentation complete with migration examples
 
 **Must Pass Before Production (Phase 4)**:
+
 1. 📋 Critical alerts trigger correctly in staging
 2. 📋 Dashboards show meaningful metrics
 3. 📋 Runbooks tested with simulated incidents
@@ -2881,9 +2974,9 @@ curl -H "Authorization: Bearer $GRAFANA_AI_API_TOKEN" \
 - **ADR-010**: Observability Requirements and Strategy (vendor-neutral foundation)
 - **ADR-014**: Infrastructure and Deployment (Cloudflare + monitoring approach)
 - **Architecture**: Bounded Contexts and Anti-Corruption Layer principles
-- **OpenTelemetry**: https://opentelemetry.io/docs/
-- **Grafana Cloud**: https://grafana.com/products/cloud/
-- **OTLP Specification**: https://opentelemetry.io/docs/specs/otlp/
+- **OpenTelemetry**: <https://opentelemetry.io/docs/>
+- **Grafana Cloud**: <https://grafana.com/products/cloud/>
+- **OTLP Specification**: <https://opentelemetry.io/docs/specs/otlp/>
 
 ## Appendix: Configuration Examples
 
