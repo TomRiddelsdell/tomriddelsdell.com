@@ -181,17 +181,48 @@ jobs:
             exit 1
           fi
           
-          # Test 4: Custom domain (expect 302 redirect to Cloudflare Access)
+          # Test 4: Custom domain (verify it's actually reaching our Worker)
           echo ""
           echo "📍 Testing custom domain (staging.tomriddelsdell.com)..."
+          
+          # For staging with Cloudflare Access, we expect a 302 redirect
           CUSTOM_DOMAIN_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://staging.tomriddelsdell.com || echo "000")
-          if [ "$CUSTOM_DOMAIN_CODE" = "302" ] || [ "$CUSTOM_DOMAIN_CODE" = "200" ]; then
-            echo "  ✅ Custom domain responding (HTTP $CUSTOM_DOMAIN_CODE)"
-            if [ "$CUSTOM_DOMAIN_CODE" = "302" ]; then
-              echo "  ℹ️  Note: 302 indicates Cloudflare Access is active (expected for staging)"
+          
+          if [ "$CUSTOM_DOMAIN_CODE" = "302" ]; then
+            # Verify the redirect is to Cloudflare Access (not some other redirect)
+            REDIRECT_LOCATION=$(curl -s -I https://staging.tomriddelsdell.com | grep -i "^location:" | awk '{print $2}' | tr -d '\r\n')
+            if echo "$REDIRECT_LOCATION" | grep -q "cloudflareaccess.com"; then
+              echo "  ✅ Custom domain responding with Cloudflare Access (HTTP 302)"
+              echo "  ℹ️  Redirect to: ${REDIRECT_LOCATION:0:60}..."
+              
+              # Additional check: Try to reach health endpoint via custom domain with auth bypass header
+              # (This won't work with Cloudflare Access but we can document the expectation)
+              echo "  ℹ️  Note: Full endpoint verification requires authentication bypass"
+            else
+              echo "  ⚠️  Custom domain redirects but not to Cloudflare Access: $REDIRECT_LOCATION"
+              echo "  ⚠️  This may indicate incorrect DNS/routing configuration"
+              exit 1
             fi
+          elif [ "$CUSTOM_DOMAIN_CODE" = "200" ]; then
+            # No authentication - verify this is actually our Worker
+            HEALTH_RESPONSE=$(curl -s https://staging.tomriddelsdell.com/api/health)
+            if echo "$HEALTH_RESPONSE" | grep -q '"service":"landing-page"'; then
+              echo "  ✅ Custom domain responding correctly (HTTP 200)"
+              echo "  ✅ Health endpoint confirms this is our Worker"
+            else
+              echo "  ❌ Custom domain returns 200 but health endpoint doesn't match our Worker"
+              echo "  Response: $HEALTH_RESPONSE"
+              exit 1
+            fi
+          elif [ "$CUSTOM_DOMAIN_CODE" = "404" ]; then
+            echo "  ❌ Custom domain returns 404 - DNS/routing not configured correctly"
+            echo "  ⚠️  The Worker is deployed but custom domain routing is missing"
+            echo "  📋 Action required: Configure custom domain in Cloudflare Workers settings"
+            exit 1
           else
-            echo "  ⚠️  Custom domain returned HTTP $CUSTOM_DOMAIN_CODE (may indicate DNS/routing issue)"
+            echo "  ⚠️  Custom domain returned unexpected HTTP $CUSTOM_DOMAIN_CODE"
+            echo "  ⚠️  Expected: 302 (with Cloudflare Access) or 200 (without auth)"
+            exit 1
           fi
           
           echo ""
@@ -330,14 +361,37 @@ jobs:
             exit 1
           fi
           
-          # Test 4: Custom domain (expect 200 for production, no auth)
+          # Test 4: Custom domain (expect 200 for production, verify it's our Worker)
           echo ""
           echo "📍 Testing custom domain (tomriddelsdell.com)..."
           CUSTOM_DOMAIN_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://tomriddelsdell.com || echo "000")
+          
           if [ "$CUSTOM_DOMAIN_CODE" = "200" ]; then
-            echo "  ✅ Custom domain responding (HTTP $CUSTOM_DOMAIN_CODE)"
+            # Verify this is actually our Worker by checking health endpoint
+            HEALTH_RESPONSE=$(curl -s https://tomriddelsdell.com/api/health)
+            if echo "$HEALTH_RESPONSE" | grep -q '"service":"landing-page"'; then
+              echo "  ✅ Custom domain responding correctly (HTTP 200)"
+              echo "  ✅ Health endpoint confirms this is our Worker"
+            else
+              echo "  ❌ Custom domain returns 200 but health endpoint doesn't match our Worker"
+              echo "  Response: $HEALTH_RESPONSE"
+              exit 1
+            fi
+          elif [ "$CUSTOM_DOMAIN_CODE" = "404" ]; then
+            echo "  ❌ Custom domain returns 404 - DNS/routing not configured correctly"
+            echo "  ⚠️  The Worker is deployed but custom domain routing is missing"
+            echo "  📋 Action required: Configure custom domain in Cloudflare Workers settings"
+            exit 1
+          elif [ "$CUSTOM_DOMAIN_CODE" = "302" ]; then
+            echo "  ⚠️  Custom domain redirects (HTTP 302) - unexpected for production"
+            REDIRECT_LOCATION=$(curl -s -I https://tomriddelsdell.com | grep -i "^location:" | awk '{print $2}' | tr -d '\r\n')
+            echo "  ⚠️  Redirects to: $REDIRECT_LOCATION"
+            echo "  ⚠️  Check if Cloudflare Access is accidentally enabled on production"
+            exit 1
           else
-            echo "  ⚠️  Custom domain returned HTTP $CUSTOM_DOMAIN_CODE (may indicate DNS/routing issue)"
+            echo "  ❌ Custom domain returned unexpected HTTP $CUSTOM_DOMAIN_CODE"
+            echo "  ⚠️  Expected: 200 for production domain"
+            exit 1
           fi
           
           echo ""
