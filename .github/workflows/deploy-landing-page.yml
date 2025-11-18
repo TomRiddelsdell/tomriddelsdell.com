@@ -154,6 +154,42 @@ jobs:
             [ $ATTEMPT -le $MAX_ATTEMPTS ] && sleep 10
           done
           
+          # Test 2: Verify CSS files are accessible (prevent 404 errors)
+          echo ""
+          echo "📦 Verifying static assets are accessible..."
+          HOMEPAGE_HTML=$(curl -s https://landing-page-preview.t-riddelsdell.workers.dev)
+          
+          # Extract CSS file path from HTML
+          CSS_FILE=$(echo "$HOMEPAGE_HTML" | grep -o '/_next/static/css/[^"]*\.css' | head -1)
+          
+          if [ -n "$CSS_FILE" ]; then
+            echo "  Found CSS file: $CSS_FILE"
+            CSS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://landing-page-preview.t-riddelsdell.workers.dev$CSS_FILE")
+            
+            if [ "$CSS_STATUS" = "200" ]; then
+              echo "  ✅ CSS file is accessible (HTTP $CSS_STATUS)"
+            else
+              echo "  ❌ CSS file returned HTTP $CSS_STATUS (expected 200)"
+              echo "  ⚠️  This indicates the assets directory may not be configured in wrangler.toml"
+              exit 1
+            fi
+          else
+            echo "  ⚠️  Warning: No CSS file found in HTML"
+          fi
+          
+          # Test 3: Verify images are accessible
+          echo ""
+          echo "🖼️  Verifying image assets..."
+          for IMAGE in "background.jpg" "me.jpg"; do
+            IMG_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://landing-page-preview.t-riddelsdell.workers.dev/$IMAGE")
+            if [ "$IMG_STATUS" = "200" ]; then
+              echo "  ✅ $IMAGE is accessible (HTTP $IMG_STATUS)"
+            else
+              echo "  ❌ $IMAGE returned HTTP $IMG_STATUS (expected 200)"
+              exit 1
+            fi
+          done
+          
           if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
             echo "  ❌ Homepage check failed after $MAX_ATTEMPTS attempts"
             exit 1
