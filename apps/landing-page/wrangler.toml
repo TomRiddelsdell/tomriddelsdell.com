@@ -11,6 +11,7 @@ bucket_name = "landing-page-cache"
 # Preview environment (staging) - deployed from develop branch
 [env.preview]
 name = "landing-page-preview"
+workers_dev = true  # Keep .workers.dev subdomain active even with custom routes
 
 # Custom domain routes for staging
 # Note: Domain must be added to Cloudflare account first
@@ -32,6 +33,7 @@ bucket_name = "landing-page-cache"
 # Production environment - deployed from main branch
 [env.production] 
 name = "landing-page-prod"
+workers_dev = true  # Keep .workers.dev subdomain active even with custom routes
 
 # Custom domain routes for production
 [[env.production.routes]]
