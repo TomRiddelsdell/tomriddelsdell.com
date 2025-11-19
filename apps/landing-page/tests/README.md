@@ -101,6 +101,48 @@ pnpm exec playwright test tests/e2e/visual-regression.spec.ts
 pnpm exec playwright test tests/e2e/homepage.spec.ts
 ```
 
+### 5. Performance Tests (Lighthouse CI)
+
+**Purpose**: Monitor Core Web Vitals and overall performance metrics to prevent performance regressions.
+
+**What it tests**:
+
+- ✅ Performance score ≥ 90
+- ✅ First Contentful Paint (FCP) < 1.8s
+- ✅ Largest Contentful Paint (LCP) < 2.5s
+- ✅ Cumulative Layout Shift (CLS) < 0.1
+- ✅ Total Blocking Time (TBT) < 200ms
+- ✅ JavaScript bundle < 200KB
+- ✅ CSS bundle < 50KB
+- ✅ Total page weight < 1MB
+
+**Run locally against dev server**:
+
+```bash
+# Start dev server first
+pnpm run dev
+
+# In another terminal
+pnpm run lighthouse:local
+```
+
+**Run against staging deployment**:
+
+```bash
+pnpm run lighthouse:staging
+```
+
+**View Lighthouse reports**:
+
+Reports are saved to `.lighthouseci/` directory and can be viewed in the browser.
+
+**CI/CD Integration**:
+
+Lighthouse CI runs automatically on PRs and pushes to `develop`/`main`. Results are:
+- Posted as PR comments
+- Uploaded as workflow artifacts
+- Cause build failure if thresholds are not met
+
 ## Running Tests
 
 ### Run all E2E tests
@@ -153,9 +195,15 @@ Tests run automatically in the CI/CD pipeline:
 2. **Post-Deployment Verification** (after staging deployment):
    - Static assets tests
    - API health tests
-   - (Visual regression tests can be added)
+   - Performance tests (Lighthouse CI)
 
-3. **Deployment Health Checks**:
+3. **Performance Monitoring** (on PRs and commits):
+   - Lighthouse CI performance testing
+   - Core Web Vitals monitoring
+   - Resource budget validation
+   - PR comments with performance impact
+
+4. **Deployment Health Checks**:
    - Homepage accessibility (HTTP 200)
    - CSS file availability (HTTP 200)
    - Image asset availability (HTTP 200)
@@ -259,24 +307,64 @@ Current test coverage:
 | Visual Regression | ✅ Medium | `visual-regression.spec.ts` |
 | Accessibility | ✅ Medium | `homepage.spec.ts` |
 | Responsiveness | ✅ High | `homepage.spec.ts`, `visual-regression.spec.ts` |
+| Performance | ✅ High | Lighthouse CI |
 | Unit Tests | ⚠️ Low | `__tests__/page.test.tsx` |
 
 ## Roadmap
 
 Future test additions:
 
-- [ ] Performance tests (Core Web Vitals)
+- [x] Performance tests (Core Web Vitals) - **Implemented via Lighthouse CI**
+- [ ] SEO tests (meta tags, schema.org)
 - [ ] SEO tests (meta tags, schema.org)
 - [ ] Form submission tests (when contact form is implemented)
 - [ ] Navigation tests (multi-page when added)
 - [ ] Cross-browser testing (Firefox, Safari)
 - [ ] Mobile device emulation tests
-- [ ] Lighthouse CI integration
 - [ ] Bundle size monitoring
+
+## Performance Budgets
+
+The following performance budgets are enforced via Lighthouse CI:
+
+### Core Web Vitals
+
+| Metric | Threshold | Severity |
+|--------|-----------|----------|
+| First Contentful Paint (FCP) | < 1.8s | Error |
+| Largest Contentful Paint (LCP) | < 2.5s | Error |
+| Cumulative Layout Shift (CLS) | < 0.1 | Error |
+| Total Blocking Time (TBT) | < 200ms | Error |
+| Speed Index | < 3s | Warning |
+| Time to Interactive (TTI) | < 3.8s | Warning |
+
+### Resource Budgets
+
+| Resource Type | Budget | Severity |
+|---------------|--------|----------|
+| JavaScript | < 200KB | Warning |
+| CSS | < 50KB | Warning |
+| Images | < 500KB | Warning |
+| Total Page Weight | < 1MB | Warning |
+| Script Count | < 10 files | Warning |
+| Stylesheet Count | < 3 files | Warning |
+
+### Score Thresholds
+
+| Category | Minimum Score | Severity |
+|----------|---------------|----------|
+| Performance | 90 | Error |
+| Accessibility | 95 | Warning |
+| Best Practices | 90 | Warning |
+| SEO | 90 | Warning |
+
+**Note**: These budgets are configured in `lighthouserc.js` and `lighthouserc.staging.js`.
 
 ## Related Documentation
 
 - [Playwright Documentation](https://playwright.dev/)
+- [Lighthouse CI Documentation](https://github.com/GoogleChrome/lighthouse-ci)
+- [Core Web Vitals](https://web.dev/vitals/)
 - [Testing Best Practices](../../docs/decisions/adr-021-testing-strategy.md)
 - [CI/CD Workflow](../../.github/workflows/deploy-landing-page.yml)
 - [Deployment Guide](../README.md)
