@@ -143,6 +143,91 @@ Lighthouse CI runs automatically on PRs and pushes to `develop`/`main`. Results 
 - Uploaded as workflow artifacts
 - Cause build failure if thresholds are not met
 
+### 6. SEO Tests (`seo.spec.ts`)
+
+**Purpose**: Ensure the landing page follows SEO best practices for search engine optimization and social media sharing.
+
+**What it tests**:
+
+**Basic SEO Meta Tags**:
+- ✅ Page title (10-60 characters, contains "Tom Riddelsdell")
+- ✅ Meta description (50-160 characters)
+- ✅ Meta keywords
+- ✅ Author meta tag
+- ✅ Viewport meta tag for mobile
+- ✅ Canonical URL
+- ✅ Robots directives (allow indexing)
+
+**Open Graph Tags** (for Facebook, LinkedIn, etc.):
+- ✅ og:title (required)
+- ✅ og:type (required, set to "website")
+- ✅ og:image (required, accessible)
+- ✅ og:url (required, valid URL)
+- ✅ og:description (recommended)
+- ✅ og:site_name (recommended)
+- ✅ og:locale (recommended, e.g., "en_US")
+
+**Twitter Card Tags**:
+- ✅ twitter:card ("summary_large_image")
+- ✅ twitter:title
+- ✅ twitter:description
+- ✅ twitter:image (accessible)
+- ✅ twitter:creator (@handle)
+- ✅ twitter:site (@handle)
+
+**Structured Data (JSON-LD)**:
+- ✅ Valid schema.org Person type
+- ✅ Required fields: name, url, description
+- ✅ Professional details: jobTitle, knowsAbout
+- ✅ Social media links (sameAs array)
+- ✅ All URLs are valid
+
+**robots.txt and sitemap.xml**:
+- ✅ robots.txt is accessible (HTTP 200)
+- ✅ robots.txt allows crawling
+- ✅ robots.txt references sitemap
+- ✅ sitemap.xml is accessible (HTTP 200)
+- ✅ sitemap.xml is valid XML
+- ✅ sitemap.xml contains homepage URL
+- ✅ sitemap.xml has lastmod dates
+
+**SEO Best Practices**:
+- ✅ HTML lang attribute is set
+- ✅ Exactly one h1 tag per page
+- ✅ All images have alt attributes
+- ✅ No duplicate meta tags
+- ✅ Page loads quickly (< 3 seconds)
+
+**Run locally**:
+
+```bash
+pnpm exec playwright test tests/e2e/seo.spec.ts
+```
+
+**Utility Functions** (`tests/utils/seo-helpers.ts`):
+
+Reusable helper functions for SEO testing:
+- `getPageTitle()` - Get page title
+- `getMetaContent()` - Get meta tag by name
+- `getMetaProperty()` - Get meta tag by property (Open Graph)
+- `getOpenGraphData()` - Get all Open Graph metadata
+- `getTwitterCardData()` - Get all Twitter Card metadata
+- `getStructuredData()` - Get JSON-LD structured data
+- `getCanonicalUrl()` - Get canonical URL
+- `isValidUrl()` - Validate URL format
+- `validateStructuredDataType()` - Validate schema.org type
+
+**Social Media Preview Testing**:
+
+To test how your page appears when shared on social media:
+
+- **Facebook Sharing Debugger**: <https://developers.facebook.com/tools/debug/>
+- **Twitter Card Validator**: <https://cards-dev.twitter.com/validator>
+- **LinkedIn Post Inspector**: <https://www.linkedin.com/post-inspector/>
+- **Google Rich Results Test**: <https://search.google.com/test/rich-results>
+
+Enter your URL (`https://tomriddelsdell.com`) to see how the preview cards render.
+
 ## Running Tests
 
 ### Run all E2E tests
@@ -308,6 +393,7 @@ Current test coverage:
 | Accessibility | ✅ Medium | `homepage.spec.ts` |
 | Responsiveness | ✅ High | `homepage.spec.ts`, `visual-regression.spec.ts` |
 | Performance | ✅ High | Lighthouse CI |
+| SEO | ✅ High | `seo.spec.ts` |
 | Unit Tests | ⚠️ Low | `__tests__/page.test.tsx` |
 
 ## Roadmap
@@ -315,8 +401,7 @@ Current test coverage:
 Future test additions:
 
 - [x] Performance tests (Core Web Vitals) - **Implemented via Lighthouse CI**
-- [ ] SEO tests (meta tags, schema.org)
-- [ ] SEO tests (meta tags, schema.org)
+- [x] SEO tests (meta tags, Open Graph, Twitter Cards, structured data) - **Implemented**
 - [ ] Form submission tests (when contact form is implemented)
 - [ ] Navigation tests (multi-page when added)
 - [ ] Cross-browser testing (Firefox, Safari)

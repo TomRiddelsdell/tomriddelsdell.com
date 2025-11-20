@@ -1,0 +1,26 @@
+# Robots.txt for tomriddelsdell.com
+# Allow all search engines to crawl the site
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://tomriddelsdell.com/sitemap.xml
+
+# Crawl-delay (optional, helps prevent overwhelming the server)
+# Most modern crawlers ignore this, but it doesn't hurt to include
+Crawl-delay: 1
+
+# Disallow crawling of API routes (internal use only)
+User-agent: *
+Disallow: /api/
+
+# Block known bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
