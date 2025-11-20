@@ -1,7 +1,13 @@
 # ADR-015: Deployment Strategy and CI/CD Pipeline
 
 ## Status
-Proposed
+Accepted and Implemented
+
+## Implementation Notes
+- **Landing Page Deployment**: Implemented using OpenNext Cloudflare adapter (`@opennextjs/cloudflare v1.11.0`)
+- **First Production Deployment**: November 2024 - Landing page deployed to Cloudflare Workers
+- **CI/CD Pipeline**: GitHub Actions workflows operational for quality gates and automated deployment
+- **Environment Strategy**: Staging (develop branch) and Production (main branch) environments active
 
 ## Context
 We need to define our deployment strategy including CI/CD pipeline design, database migration handling, disaster recovery planning, blue/green deployments, and monitoring/alerting infrastructure. This strategy must support our event-sourced, multi-service architecture while maintaining simplicity for initial development.
@@ -31,9 +37,11 @@ We need to define our deployment strategy including CI/CD pipeline design, datab
 │   └── app-template.mk          # Template for individual app Makefiles
 ├── apps/
 │   ├── landing-page/
-│   │   ├── Makefile              # Technology: nodejs, Target: cloudflare-pages
+│   │   ├── Makefile              # Technology: nextjs, Target: cloudflare-worker
 │   │   ├── package.json          # Node.js dependencies
-│   │   └── wrangler.toml         # Cloudflare Pages config
+│   │   ├── next.config.js        # Next.js + OpenNext configuration
+│   │   ├── open-next.config.ts   # OpenNext Cloudflare configuration
+│   │   └── wrangler.toml         # Cloudflare Worker config (not Pages)
 │   └── qis-data-management/
 │       ├── Makefile              # Technology: python, Target: aws-ecs
 │       ├── requirements.txt      # Python dependencies
@@ -161,6 +169,108 @@ duplicated_lines_density.threshold=3
 - **PR quality checks**: SonarQube analysis, security scans, test coverage
 - **Deployment gates**: All quality checks must pass before production deployment
 - **Quality metrics**: Track trends in technical debt, coverage, and code quality
+
+### Platform-Specific Deployment Details
+
+#### Next.js Applications (OpenNext Cloudflare)
+
+**Landing Page - Cloudflare Workers Deployment:**
+
+The landing-page application uses OpenNext Cloudflare adapter (`@opennextjs/cloudflare`) to deploy Next.js to Cloudflare Workers.
+
+**Build Process:**
+```bash
+# Build command (runs in GitHub Actions and locally)
+pnpm run build:cloudflare
+
+# Under the hood this executes:
+npx opennextjs-cloudflare build
+```
+
+**Deployment:**
+```bash
+# Staging deployment
+pnpm opennextjs-cloudflare deploy --env preview
+
+# Production deployment  
+pnpm opennextjs-cloudflare deploy --env production
+```
+
+**Critical Configuration Requirements:**
+
+1. **pnpm Configuration** - Root `.npmrc` must contain:
+   ```ini
+   # OpenNext requires flat node_modules (no symlinks)
+   node-linker=hoisted
+   shamefully-hoist=true
+   ```
+   This is required because OpenNext's esbuild bundler cannot resolve through pnpm's `.pnpm/` symlink structure.
+
+2. **Wrangler Configuration** - `wrangler.toml`:
+   ```toml
+   compatibility_date = "2024-09-23"  # Minimum for automatic Node.js built-ins
+   compatibility_flags = ["nodejs_compat"]
+   main = ".open-next/worker.js"
+   
+   # R2 bucket for ISR/caching (required for both preview and production)
+   [[r2_buckets]]
+   binding = "NEXT_INC_CACHE_R2_BUCKET"
+   bucket_name = "landing-page-cache"
+   ```
+
+3. **Next.js Configuration** - `next.config.js`:
+   ```javascript
+   import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+   
+   // Required for Cloudflare bindings access during development
+   initOpenNextCloudflareForDev();
+   ```
+
+4. **R2 Bucket Requirements:**
+   - Bucket must be created before first deployment
+   - Required for ISR (Incremental Static Regeneration) and caching
+   - Bucket name configured in both `[env.preview]` and `[env.production]` sections
+
+**GitHub Actions Integration:**
+```yaml
+# Quality gates job must create .npmrc before pnpm install
+- name: Setup pnpm for OpenNext
+  run: |
+    echo "node-linker=hoisted" > .npmrc
+    echo "shamefully-hoist=true" >> .npmrc
+
+# Build step
+- name: Build application
+  run: pnpm run build:cloudflare
+
+# Deploy step (staging)
+- name: Deploy to Cloudflare Workers (Preview)
+  run: pnpm opennextjs-cloudflare deploy --env preview
+  env:
+    CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+# Health check
+- name: Health Check
+  run: |
+    curl --fail https://landing-page-preview.t-riddelsdell.workers.dev/api/health
+    curl --fail https://landing-page-preview.t-riddelsdell.workers.dev/api/metrics
+```
+
+**Deployment URLs:**
+- **Staging**: `https://landing-page-preview.t-riddelsdell.workers.dev`
+- **Production**: `https://landing-page-prod.t-riddelsdell.workers.dev`
+
+**Build Output:**
+- Build artifacts: `.open-next/` directory (gitignored)
+- Worker entry point: `.open-next/worker.js`
+- Static assets: Bundled into Worker deployment
+
+**Limitations & Considerations:**
+- OpenNext adapter compatibility limited to Next.js 14.x (14.2.18 verified)
+- R2 bucket required even if ISR not actively used
+- Worker compatibility_date must be >= 2024-09-23 for Node.js built-ins
+- pnpm `node-linker=hoisted` affects entire monorepo (trade-off for OpenNext support)
 
 ### Database Migration Strategy
 

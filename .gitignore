@@ -26,6 +26,8 @@ out/
 *.tgz
 .next/
 **/.next/
+.open-next/
+**/.open-next/
 .nuxt/
 **/.nuxt/
 .output/

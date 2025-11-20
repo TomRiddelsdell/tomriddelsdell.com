@@ -1,6 +1,7 @@
 # Portfolio Platform Development Container
 # Optimized for event-sourced microservices development
-FROM mcr.microsoft.com/devcontainers/universal:2-linux
+# Using Universal Dev Container 4.x with Ubuntu 24.04 (Noble) for modern glibc 2.39 and comprehensive tooling
+FROM mcr.microsoft.com/devcontainers/universal:4-linux
 
 # Set environment variables for build
 ENV DEBIAN_FRONTEND=noninteractive
@@ -33,7 +34,7 @@ RUN echo "🔧 Installing CLI tools for Portfolio Platform..." && \
     # Install Doppler CLI (Secrets Management)
     echo "🔐 Installing Doppler CLI..." && \
     curl -Ls --tlsv1.2 --proto "=https" --retry 3 https://cli.doppler.com/install.sh | sh && \
-    # Install Confluent CLI (Kafka Management) 
+    # Install Confluent CLI (Kafka Management)
     echo "📊 Installing Confluent CLI..." && \
     cd /tmp && \
     curl -L --http1.1 https://cnfl.io/cli | sh -s -- latest && \
@@ -41,6 +42,9 @@ RUN echo "🔧 Installing CLI tools for Portfolio Platform..." && \
     # Install npm-based CLI tools using configured global prefix (runs as root but installs to shared location)
     echo "☁️ Installing npm-based CLI tools globally..." && \
     npm install -g pnpm@latest wrangler@latest neonctl@latest && \
+    # Install Claude CLI (AI-Powered Coding Assistant via npm)
+    echo "🤖 Installing Claude CLI..." && \
+    npm install -g @anthropic-ai/claude-code && \
     # Install additional development tools
     echo "🛠️ Installing additional development utilities..." && \
     npm install -g @playwright/test eslint prettier typescript ts-node nodemon turbo@latest && \
@@ -57,6 +61,7 @@ RUN echo "✅ Installation verification:" && \
     echo "  • npm: $(npm --version)" && \
     echo "  • pnpm: $(pnpm --version)" && \
     echo "  • Doppler: $(doppler --version 2>/dev/null || echo 'MISSING')" && \
+    echo "  • Claude CLI: $(claude --version 2>/dev/null || echo 'MISSING')" && \
     echo "  • Confluent CLI: $(confluent version 2>/dev/null | head -n1 || echo 'MISSING')" && \
     echo "  • Terraform: $(terraform --version 2>/dev/null | head -n1 || echo 'from features')" && \
     echo "  • AWS CLI: $(aws --version 2>/dev/null | head -n1 || echo 'from features')" && \
@@ -70,6 +75,7 @@ RUN echo "✅ Installation verification:" && \
     # Fail the build if critical tools are missing
     echo "🔍 Verifying critical CLI tools are accessible..." && \
     doppler --version > /dev/null && echo "  ✅ Doppler OK" && \
+    claude --version > /dev/null && echo "  ✅ Claude CLI OK" && \
     wrangler --version > /dev/null && echo "  ✅ Wrangler OK" && \
     neonctl --version > /dev/null && echo "  ✅ Neon CLI OK" && \
     confluent version > /dev/null && echo "  ✅ Confluent CLI OK" && \

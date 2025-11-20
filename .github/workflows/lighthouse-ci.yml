@@ -1,0 +1,195 @@
+name: Lighthouse CI - Performance Testing
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+    paths:
+      - 'apps/landing-page/**'
+      - '.github/workflows/lighthouse-ci.yml'
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - 'apps/landing-page/**'
+      - '.github/workflows/lighthouse-ci.yml'
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'URL to test (optional, defaults to staging)'
+        required: false
+        type: string
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "10"
+
+jobs:
+  lighthouse-ci:
+    name: Lighthouse CI Performance Testing
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/landing-page
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          cache-dependency-path: apps/landing-page/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Lighthouse CI against staging
+        run: |
+          echo "🔍 Running Lighthouse CI performance tests..."
+          pnpm run lighthouse:staging
+        continue-on-error: true
+        id: lighthouse
+
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports
+          path: apps/landing-page/.lighthouseci/
+          retention-days: 30
+
+      - name: Parse Lighthouse results
+        if: always()
+        id: parse-results
+        run: |
+          # Parse Lighthouse results from JSON
+          MANIFEST_FILE=".lighthouseci/manifest.json"
+          
+          if [ -f "$MANIFEST_FILE" ]; then
+            echo "📊 Lighthouse CI results found"
+            
+            # Extract performance scores (this is a simplified parser)
+            # In production, you'd use jq or a proper JSON parser
+            echo "lighthouse_run=success" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ No Lighthouse results found"
+            echo "lighthouse_run=failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Read manifest to get report URLs
+            const manifestPath = path.join(process.cwd(), 'apps/landing-page/.lighthouseci/manifest.json');
+            
+            let comment = '## 🔍 Lighthouse CI Performance Report\n\n';
+            
+            if (fs.existsSync(manifestPath)) {
+              const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+              
+              comment += '### 📊 Results\n\n';
+              comment += `- **Total Runs**: ${manifest.length || 0}\n`;
+              comment += `- **Timestamp**: ${new Date().toISOString()}\n\n`;
+              
+              if (manifest.length > 0 && manifest[0].summary) {
+                const summary = manifest[0].summary;
+                comment += '### Performance Metrics\n\n';
+                comment += '| Metric | Score |\n';
+                comment += '|--------|-------|\n';
+                comment += `| Performance | ${summary.performance || 'N/A'} |\n`;
+                comment += `| Accessibility | ${summary.accessibility || 'N/A'} |\n`;
+                comment += `| Best Practices | ${summary['best-practices'] || 'N/A'} |\n`;
+                comment += `| SEO | ${summary.seo || 'N/A'} |\n\n`;
+              }
+              
+              comment += '### 📁 Artifacts\n\n';
+              comment += 'Full Lighthouse reports are available in the workflow artifacts.\n\n';
+              comment += '---\n';
+              comment += '*View detailed reports in the [Actions artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})*\n';
+            } else {
+              comment += '⚠️ Lighthouse CI did not generate results. Check the workflow logs for details.\n';
+            }
+            
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('Lighthouse CI Performance Report')
+            );
+            
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+      - name: Check Lighthouse CI status
+        if: steps.lighthouse.outcome == 'failure'
+        run: |
+          echo "::error::Lighthouse CI performance tests failed!"
+          echo "::error::Performance budgets or Core Web Vitals thresholds were not met."
+          echo "::error::Review the Lighthouse reports in the artifacts for details."
+          exit 1
+
+      - name: Performance summary
+        if: always()
+        run: |
+          echo "## 📊 Lighthouse CI Performance Testing" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ steps.lighthouse.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🎯 Performance Thresholds" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Threshold |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Performance Score | ≥ 90 |" >> $GITHUB_STEP_SUMMARY
+          echo "| First Contentful Paint | < 1.8s |" >> $GITHUB_STEP_SUMMARY
+          echo "| Largest Contentful Paint | < 2.5s |" >> $GITHUB_STEP_SUMMARY
+          echo "| Cumulative Layout Shift | < 0.1 |" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Blocking Time | < 200ms |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Resource Budgets" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Resource | Budget |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| JavaScript | < 200KB |" >> $GITHUB_STEP_SUMMARY
+          echo "| CSS | < 50KB |" >> $GITHUB_STEP_SUMMARY
+          echo "| Images | < 500KB |" >> $GITHUB_STEP_SUMMARY
+          echo "| Total | < 1MB |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Full reports available in workflow artifacts*" >> $GITHUB_STEP_SUMMARY
