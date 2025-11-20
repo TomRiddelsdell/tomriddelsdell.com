@@ -1,9 +1,9 @@
 /**
  * Lighthouse CI Configuration - Staging Environment
- * 
+ *
  * Configures performance budgets and Core Web Vitals thresholds for staging deployment.
  * Tests against the actual Cloudflare Workers deployment.
- * 
+ *
  * @see https://web.dev/vitals/
  * @see https://github.com/GoogleChrome/lighthouse-ci/blob/main/docs/configuration.md
  */
@@ -41,11 +41,14 @@ export default {
         'cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],
         'total-blocking-time': ['error', { maxNumericValue: 200 }],
         'speed-index': ['warn', { maxNumericValue: 3000 }],
-        'interactive': ['warn', { maxNumericValue: 3800 }],
+        interactive: ['warn', { maxNumericValue: 3800 }],
 
         // Resource budgets
         'resource-summary:script:size': ['warn', { maxNumericValue: 204800 }], // 200KB
-        'resource-summary:stylesheet:size': ['warn', { maxNumericValue: 51200 }], // 50KB
+        'resource-summary:stylesheet:size': [
+          'warn',
+          { maxNumericValue: 51200 },
+        ], // 50KB
         'resource-summary:image:size': ['warn', { maxNumericValue: 512000 }], // 500KB
         'resource-summary:total:size': ['warn', { maxNumericValue: 1048576 }], // 1MB
 
@@ -58,4 +61,4 @@ export default {
       target: 'temporary-public-storage',
     },
   },
-};
+}
