@@ -1,0 +1,37 @@
+# Wrangler Ignore - Exclude files from Cloudflare Pages deployment
+# Refs: https://developers.cloudflare.com/pages/configuration/build-configuration/
+
+# Next.js cache directory (can be very large, exceeds 25 MiB limit)
+cache/
+
+# Node modules (should not be deployed)
+node_modules/
+
+# Source files (not needed in deployment)
+src/
+
+# Development files
+.env*
+!.env.example
+*.log
+.DS_Store
+
+# Build artifacts that aren't needed
+*.map
+
+# Git
+.git/
+.gitignore
+
+# Testing
+__tests__/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+coverage/
+
+# Documentation
+README.md
+*.md
+!CHANGELOG.md

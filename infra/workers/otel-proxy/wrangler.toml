@@ -1,0 +1,38 @@
+name = "otel-proxy"
+main = "src/index.ts"
+compatibility_date = "2024-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Production route
+routes = [
+  { pattern = "otel.tomriddelsdell.com/*", zone_name = "tomriddelsdell.com" }
+]
+
+# Environment variables (set via Doppler or wrangler secret)
+[vars]
+# GRAFANA_CLOUD_OTLP_ENDPOINT will be set via secret
+# GRAFANA_CLOUD_API_KEY will be set via secret
+# OTEL_PROXY_API_KEY will be set via secret (for authenticating incoming requests)
+
+# Observability
+[observability]
+enabled = true
+head_sampling_rate = 1.0
+
+# Dev environment (local testing)
+[env.dev]
+vars = { ENVIRONMENT = "development" }
+
+# Staging environment
+[env.staging]
+vars = { ENVIRONMENT = "staging" }
+routes = [
+  { pattern = "otel-staging.tomriddelsdell.com/*", zone_name = "tomriddelsdell.com" }
+]
+
+# Production environment
+[env.production]
+vars = { ENVIRONMENT = "production" }
+routes = [
+  { pattern = "otel.tomriddelsdell.com/*", zone_name = "tomriddelsdell.com" }
+]

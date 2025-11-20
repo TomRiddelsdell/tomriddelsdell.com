@@ -1,0 +1,69 @@
+# Grafana Data Sources Configuration
+# Auto-provisioned on Grafana startup
+
+apiVersion: 1
+
+datasources:
+  # Prometheus data source
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    jsonData:
+      timeInterval: '15s'
+      queryTimeout: '60s'
+      httpMethod: POST
+      exemplarTraceIdDestinations:
+        # Link Prometheus exemplars to Jaeger traces
+        - datasourceUid: jaeger
+          name: traceID
+    editable: false
+    version: 1
+
+  # Jaeger data source
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    uid: jaeger
+    jsonData:
+      tracesToLogsV2:
+        # Link traces to logs (when Loki is added)
+        datasourceUid: 'loki'
+        spanStartTimeShift: '-1h'
+        spanEndTimeShift: '1h'
+        tags: ['service', 'environment']
+        filterByTraceID: true
+        filterBySpanID: false
+      tracesToMetrics:
+        # Link traces to metrics
+        datasourceUid: 'prometheus'
+        spanStartTimeShift: '-1h'
+        spanEndTimeShift: '1h'
+        tags: [{ key: 'service.name', value: 'service' }]
+      serviceMap:
+        datasourceUid: 'prometheus'
+      spanBar:
+        type: 'Tag'
+        tag: 'http.method'
+    editable: false
+    version: 1
+
+  # Loki data source (for future logs integration)
+  # Uncomment when Loki is added to the stack
+  # - name: Loki
+  #   type: loki
+  #   access: proxy
+  #   url: http://loki:3100
+  #   uid: loki
+  #   jsonData:
+  #     maxLines: 1000
+  #     derivedFields:
+  #       # Extract trace IDs from logs
+  #       - datasourceUid: jaeger
+  #         matcherRegex: "traceID=(\\w+)"
+  #         name: TraceID
+  #         url: '$${__value.raw}'
+  #   editable: false
+  #   version: 1

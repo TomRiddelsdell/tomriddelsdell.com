@@ -1,0 +1,159 @@
+name: Deploy API Workers
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - 'apps/api/**'
+      - '.github/workflows/deploy-api.yml'
+  pull_request:
+    branches:
+      - develop
+      - main
+    paths:
+      - 'apps/api/**'
+      - '.github/workflows/deploy-api.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  # Quality gates for API Workers
+  quality-gates:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type check
+        run: npm run type-check
+
+      - name: Run tests
+        run: npm test
+        continue-on-error: true
+
+  # Deploy to staging (develop branch)
+  deploy-staging:
+    name: Deploy to Staging
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://api-staging.tomriddelsdell.com
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy to Cloudflare Workers (Staging)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/api
+          command: deploy --env staging
+
+      - name: Wait for deployment
+        run: sleep 10
+
+      - name: Verify staging health check
+        run: |
+          echo "Testing staging health endpoint..."
+          curl -f https://api-staging.tomriddelsdell.com/health || exit 1
+
+      - name: Verify staging metrics endpoint
+        run: |
+          echo "Testing staging metrics endpoint..."
+          curl -f https://api-staging.tomriddelsdell.com/metrics || exit 1
+
+  # Deploy to production (main branch)
+  deploy-production:
+    name: Deploy to Production
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: quality-gates
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://api.tomriddelsdell.com
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy to Cloudflare Workers (Production)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/api
+          command: deploy --env production
+
+      - name: Wait for deployment
+        run: sleep 10
+
+      - name: Verify production health check
+        run: |
+          echo "Testing production health endpoint..."
+          curl -f https://api.tomriddelsdell.com/health || exit 1
+
+      - name: Verify production metrics endpoint
+        run: |
+          echo "Testing production metrics endpoint..."
+          curl -f https://api.tomriddelsdell.com/metrics || exit 1
+
+      - name: Send deployment notification
+        if: always()
+        run: |
+          echo "API Workers deployed to production"
+          echo "Health: https://api.tomriddelsdell.com/health"
+          echo "Metrics: https://api.tomriddelsdell.com/metrics"

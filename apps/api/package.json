@@ -1,0 +1,32 @@
+{
+  "name": "@platform/api",
+  "version": "1.0.0",
+  "description": "Cloudflare Workers API for tomriddelsdell.com - Health checks, metrics, and observability endpoints",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:production": "wrangler deploy --env production",
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/core": "^1.25.1",
+    "@opentelemetry/sdk-trace-base": "^1.25.1",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.52.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241022.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8",
+    "wrangler": "^3.84.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

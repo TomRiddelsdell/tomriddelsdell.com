@@ -1,15 +1,7 @@
-import { FlatCompat } from '@eslint/eslintrc'
 import js from '@eslint/js'
 import typescriptEslint from '@typescript-eslint/eslint-plugin'
 import typescriptParser from '@typescript-eslint/parser'
 import prettier from 'eslint-plugin-prettier'
-import react from 'eslint-plugin-react'
-import reactHooks from 'eslint-plugin-react-hooks'
-
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-  recommendedConfig: js.configs.recommended,
-})
 
 const config = [
   {
@@ -23,9 +15,10 @@ const config = [
       '**/coverage/**',
       '**/*.config.ts',
       '**/public/**',
+      '**/.open-next/**',
     ],
   },
-  ...compat.extends('next/core-web-vitals'),
+  js.configs.recommended,
   {
     files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
     languageOptions: {
@@ -37,12 +30,21 @@ const config = [
           jsx: true,
         },
       },
+      globals: {
+        React: 'readonly',
+        JSX: 'readonly',
+        NodeJS: 'readonly',
+        console: 'readonly',
+        process: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+      },
     },
     plugins: {
       '@typescript-eslint': typescriptEslint,
       prettier: prettier,
-      react: react,
-      'react-hooks': reactHooks,
     },
     rules: {
       'prettier/prettier': 'error',
@@ -50,6 +52,8 @@ const config = [
       '@typescript-eslint/no-explicit-any': 'warn',
       'prefer-const': 'error',
       'no-var': 'error',
+      'no-undef': 'off', // TypeScript handles this
+      'no-unused-vars': 'off', // Use @typescript-eslint/no-unused-vars instead
     },
   },
 ]

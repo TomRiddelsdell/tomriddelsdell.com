@@ -41,9 +41,11 @@ We will implement a **Layered Docker Build Strategy** with runtime optimization 
 
 ### Architecture
 
-**Base Image**: Microsoft Universal Dev Container (`mcr.microsoft.com/devcontainers/universal:2-linux`)
+**Base Image**: Microsoft Universal Dev Container (`mcr.microsoft.com/devcontainers/universal:4-linux`)
+- Ubuntu 24.04 LTS (Noble Numbat) with glibc 2.39 for modern tooling compatibility
 - Provides Node.js, Python, Git, GitHub CLI pre-installed
 - Includes common development tools and VS Code integration
+- Enhanced support for Cloudflare Wrangler CLI debugging (requires glibc 2.35+)
 
 **Custom Dockerfile Layer Structure**:
 1. **System Dependencies Layer** (cached): Essential packages via apt-get
@@ -258,5 +260,19 @@ mkdir -p /workspaces/{packages,services,apps,contracts,tests,infra}
 - **ADR-016**: Application Architecture Standards (development tooling requirements)
 
 ---
-*Timestamp: 2025-10-01*  
+
+## Revision History
+
+### 2025-10-11: Upgraded to Universal 4.x
+- **Change**: Upgraded base image from `universal:2-linux` to `universal:4-linux`
+- **Rationale**: Better Cloudflare Wrangler CLI debugging support requiring glibc 2.35+
+- **Benefits**:
+  - Ubuntu 24.04 LTS (Noble Numbat) with glibc 2.39
+  - Improved compatibility with modern CLI tooling
+  - Enhanced debugging capabilities for Cloudflare Workers
+  - All existing functionality preserved (codespace user, nvm group)
+- **Status**: Implemented
+
+---
+*Timestamp: 2025-10-01 (Updated: 2025-10-11)*
 *Status: Implemented and optimized for ~85% performance improvement*

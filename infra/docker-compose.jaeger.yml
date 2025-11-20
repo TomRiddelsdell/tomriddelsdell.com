@@ -1,0 +1,156 @@
+version: '3.8'
+
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.51
+    container_name: jaeger
+    environment:
+      # Enable OTLP collector for OpenTelemetry compatibility
+      - COLLECTOR_OTLP_ENABLED=true
+      # Configure storage backend
+      - SPAN_STORAGE_TYPE=memory
+      # Memory storage settings (for development)
+      - MEMORY_MAX_TRACES=100000
+      # Sampling configuration
+      - SAMPLING_STRATEGIES_FILE=/etc/jaeger/sampling_strategies.json
+    ports:
+      # Jaeger UI
+      - "16686:16686"
+      # OTLP HTTP collector (OpenTelemetry)
+      - "4318:4318"
+      # OTLP gRPC collector
+      - "4317:4317"
+      # Jaeger Thrift HTTP collector (legacy)
+      - "14268:14268"
+      # Jaeger agent (UDP)
+      - "6831:6831/udp"
+      # Jaeger agent (compact)
+      - "6832:6832/udp"
+      # Jaeger collector HTTP
+      - "14250:14250"
+      # Health check
+      - "14269:14269"
+    volumes:
+      - ./jaeger-sampling.json:/etc/jaeger/sampling_strategies.json:ro
+    networks:
+      - observability
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:14269/"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=90d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - observability
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: grafana
+    environment:
+      # Default credentials (change in production!)
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      # Enable anonymous access for development
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      # Server configuration
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_SERVER_SERVE_FROM_SUB_PATH=false
+      # Database configuration (SQLite for development)
+      - GF_DATABASE_TYPE=sqlite3
+      # Provisioning
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      # Plugins
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      # Alerting (legacy alerting disabled, unified alerting enabled)
+      - GF_ALERTING_ENABLED=false
+      - GF_UNIFIED_ALERTING_ENABLED=true
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-provisioning:/etc/grafana/provisioning:ro
+      - ./grafana-dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - observability
+    depends_on:
+      - prometheus
+      - jaeger
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # Optional: Elasticsearch for production storage
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+  #   container_name: elasticsearch
+  #   environment:
+  #     - discovery.type=single-node
+  #     - xpack.security.enabled=false
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   ports:
+  #     - "9200:9200"
+  #   volumes:
+  #     - elasticsearch-data:/usr/share/elasticsearch/data
+  #   networks:
+  #     - observability
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+
+  # jaeger-with-elasticsearch:
+  #   image: jaegertracing/all-in-one:1.51
+  #   container_name: jaeger-production
+  #   environment:
+  #     - COLLECTOR_OTLP_ENABLED=true
+  #     - SPAN_STORAGE_TYPE=elasticsearch
+  #     - ES_SERVER_URLS=http://elasticsearch:9200
+  #   depends_on:
+  #     - elasticsearch
+  #   ports:
+  #     - "16686:16686"
+  #     - "4318:4318"
+  #     - "14268:14268"
+  #   networks:
+  #     - observability
+
+networks:
+  observability:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  # elasticsearch-data:
+  #   driver: local
+

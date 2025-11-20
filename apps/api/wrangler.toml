@@ -1,0 +1,32 @@
+name = "platform-api"
+main = "src/index.ts"
+compatibility_date = "2024-10-10"
+workers_dev = true
+
+# Routes
+routes = [
+  { pattern = "api.tomriddelsdell.com/*", zone_name = "tomriddelsdell.com" }
+]
+
+# Observability
+[observability]
+enabled = true
+
+# Development environment
+[env.development]
+name = "platform-api-dev"
+vars = { ENVIRONMENT = "development" }
+
+# Staging environment
+[env.staging]
+name = "platform-api-staging"
+vars = { ENVIRONMENT = "staging" }
+
+# Production environment
+[env.production]
+name = "platform-api"
+vars = { ENVIRONMENT = "production" }
+
+# Secrets (set via: wrangler secret put <KEY> --env <ENV>)
+# - JAEGER_ENDPOINT
+# - JAEGER_AUTH_TOKEN
