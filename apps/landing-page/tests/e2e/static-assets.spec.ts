@@ -2,12 +2,12 @@ import { test, expect } from '@playwright/test'
 
 /**
  * Static Assets Tests
- * 
+ *
  * These tests ensure that all static assets (CSS, images, fonts) are:
  * 1. Accessible (HTTP 200)
  * 2. Have correct content types
  * 3. Actually load and apply to the page
- * 
+ *
  * Critical for catching deployment issues like the missing assets configuration
  * that caused the CSS 404 issue on 2025-11-18.
  */
@@ -27,8 +27,12 @@ test.describe('Static Assets', () => {
     for (const link of cssLinks) {
       const href = await link.getAttribute('href')
       if (href) {
-        const response = await page.request.get(href.startsWith('http') ? href : `${page.url()}${href}`)
-        expect(response.status(), `CSS file ${href} should return 200`).toBe(200)
+        const response = await page.request.get(
+          href.startsWith('http') ? href : `${page.url()}${href}`
+        )
+        expect(response.status(), `CSS file ${href} should return 200`).toBe(
+          200
+        )
         expect(response.headers()['content-type']).toContain('text/css')
       }
     }
@@ -40,10 +44,10 @@ test.describe('Static Assets', () => {
 
     // Check that the body has a background color (proves CSS is applied)
     const body = page.locator('body')
-    const backgroundColor = await body.evaluate((el) => 
-      window.getComputedStyle(el).backgroundColor
+    const backgroundColor = await body.evaluate(
+      (el) => window.getComputedStyle(el).backgroundColor
     )
-    
+
     // Should not be the browser default (rgba(0, 0, 0, 0) or empty)
     expect(backgroundColor).not.toBe('rgba(0, 0, 0, 0)')
     expect(backgroundColor).toBeTruthy()
@@ -55,10 +59,10 @@ test.describe('Static Assets', () => {
 
     // Check nav has expected Tailwind classes applied
     const nav = page.locator('nav').first()
-    const position = await nav.evaluate((el) => 
-      window.getComputedStyle(el).position
+    const position = await nav.evaluate(
+      (el) => window.getComputedStyle(el).position
     )
-    
+
     // Nav should be fixed (from 'fixed' Tailwind class)
     expect(position).toBe('fixed')
   })
@@ -83,20 +87,30 @@ test.describe('Static Assets', () => {
 
       if (src && !src.startsWith('data:')) {
         // For non-data URLs, verify the image loads
-        const imgUrl = src.startsWith('http') ? src : new URL(src, page.url()).href
+        const imgUrl = src.startsWith('http')
+          ? src
+          : new URL(src, page.url()).href
         const response = await page.request.get(imgUrl)
         expect(response.status(), `Image ${src} should return 200`).toBe(200)
-        
+
         const contentType = response.headers()['content-type']
-        expect(contentType, `Image ${src} should have image content type`).toMatch(/^image\//)
+        expect(
+          contentType,
+          `Image ${src} should have image content type`
+        ).toMatch(/^image\//)
       }
 
       // Verify image is visible and has loaded
       await expect(img).toBeVisible()
-      
+
       // Check if image has natural dimensions (proves it loaded)
-      const naturalWidth = await img.evaluate((el: HTMLImageElement) => el.naturalWidth)
-      expect(naturalWidth, `Image ${src} should have loaded (naturalWidth > 0)`).toBeGreaterThan(0)
+      const naturalWidth = await img.evaluate(
+        (el: HTMLImageElement) => el.naturalWidth
+      )
+      expect(
+        naturalWidth,
+        `Image ${src} should have loaded (naturalWidth > 0)`
+      ).toBeGreaterThan(0)
     }
   })
 
@@ -107,9 +121,9 @@ test.describe('Static Assets', () => {
     // Check for elements with background images
     const heroSection = page.locator('section#home').first()
     const bgDiv = heroSection.locator('div').first()
-    
-    const backgroundImage = await bgDiv.evaluate((el) => 
-      window.getComputedStyle(el).backgroundImage
+
+    const backgroundImage = await bgDiv.evaluate(
+      (el) => window.getComputedStyle(el).backgroundImage
     )
 
     // If there's a background image URL, verify it loads
@@ -118,9 +132,14 @@ test.describe('Static Assets', () => {
       if (urlMatch && urlMatch[1]) {
         const bgUrl = urlMatch[1]
         if (!bgUrl.startsWith('data:')) {
-          const fullUrl = bgUrl.startsWith('http') ? bgUrl : new URL(bgUrl, page.url()).href
+          const fullUrl = bgUrl.startsWith('http')
+            ? bgUrl
+            : new URL(bgUrl, page.url()).href
           const response = await page.request.get(fullUrl)
-          expect(response.status(), `Background image ${bgUrl} should return 200`).toBe(200)
+          expect(
+            response.status(),
+            `Background image ${bgUrl} should return 200`
+          ).toBe(200)
         }
       }
     }
@@ -128,7 +147,7 @@ test.describe('Static Assets', () => {
 
   test('JavaScript chunks should load', async ({ page }) => {
     const scriptErrors: string[] = []
-    
+
     // Listen for script load errors
     page.on('pageerror', (error) => {
       scriptErrors.push(error.message)
@@ -145,14 +164,19 @@ test.describe('Static Assets', () => {
     for (const script of scripts) {
       const src = await script.getAttribute('src')
       if (src && !src.startsWith('data:')) {
-        const scriptUrl = src.startsWith('http') ? src : new URL(src, page.url()).href
+        const scriptUrl = src.startsWith('http')
+          ? src
+          : new URL(src, page.url()).href
         const response = await page.request.get(scriptUrl)
         expect(response.status(), `Script ${src} should return 200`).toBe(200)
       }
     }
 
     // Verify no script errors occurred
-    expect(scriptErrors.length, `No JavaScript errors should occur: ${scriptErrors.join(', ')}`).toBe(0)
+    expect(
+      scriptErrors.length,
+      `No JavaScript errors should occur: ${scriptErrors.join(', ')}`
+    ).toBe(0)
   })
 
   test('all network requests should succeed (no 404s)', async ({ page }) => {
@@ -162,7 +186,7 @@ test.describe('Static Assets', () => {
     page.on('response', (response) => {
       const status = response.status()
       const url = response.url()
-      
+
       // Track 4xx and 5xx errors
       if (status >= 400) {
         failedRequests.push({ url, status })
@@ -174,7 +198,9 @@ test.describe('Static Assets', () => {
 
     // Verify no failed requests
     if (failedRequests.length > 0) {
-      const failureDetails = failedRequests.map(r => `${r.url} (HTTP ${r.status})`).join('\n  ')
+      const failureDetails = failedRequests
+        .map((r) => `${r.url} (HTTP ${r.status})`)
+        .join('\n  ')
       throw new Error(`Failed requests detected:\n  ${failureDetails}`)
     }
 
