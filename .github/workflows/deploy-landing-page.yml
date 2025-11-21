@@ -125,16 +125,9 @@ jobs:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_STG }}
         run: |
           echo "🚀 Deploying to Cloudflare Workers (staging via OpenNext)..."
+          echo "📝 Custom Domains will be automatically configured"
           doppler run --project tomriddelsdell-infra --config stg -- \
             pnpm opennextjs-cloudflare deploy --env preview
-
-      - name: Deploy custom domain routes
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_STG }}
-        run: |
-          echo "🌐 Deploying custom domain routes for staging..."
-          doppler run --project tomriddelsdell-infra --config stg -- \
-            pnpm wrangler triggers deploy --env preview
 
       - name: Wait for DNS propagation
         run: |
@@ -349,16 +342,9 @@ jobs:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PROD }}
         run: |
           echo "🚀 Deploying to Cloudflare Workers (production via OpenNext)..."
+          echo "📝 Custom Domains will be automatically configured"
           doppler run --project tomriddelsdell-infra --config prd -- \
             pnpm opennextjs-cloudflare deploy --env production
-
-      - name: Deploy custom domain routes
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PROD }}
-        run: |
-          echo "🌐 Deploying custom domain routes for production..."
-          doppler run --project tomriddelsdell-infra --config prd -- \
-            pnpm wrangler triggers deploy --env production
 
       - name: Wait for DNS propagation
         run: |
