@@ -27,7 +27,7 @@
     "test:coverage": "jest --coverage --testPathIgnorePatterns=tests/e2e/ --forceExit",
     "test:e2e": "playwright test",
     "lighthouse:local": "lhci autorun --config=lighthouserc.js",
-    "lighthouse:staging": "lhci autorun --config=lighthouserc.staging.js",
+    "lighthouse:staging": "lhci collect --config=lighthouserc.staging.js && lhci assert --config=lighthouserc.staging.js && lhci upload --config=lighthouserc.staging.js",
     "lighthouse:ci": "lhci autorun",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
