@@ -8,7 +8,7 @@
  * @see https://github.com/GoogleChrome/lighthouse-ci/blob/main/docs/configuration.md
  */
 
-export default {
+module.exports = {
   ci: {
     collect: {
       // Run against staging deployment
