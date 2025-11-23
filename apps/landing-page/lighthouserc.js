@@ -13,7 +13,7 @@
  * @see https://github.com/GoogleChrome/lighthouse-ci/blob/main/docs/configuration.md
  */
 
-export default {
+module.exports = {
   ci: {
     collect: {
       // Run against local dev server
