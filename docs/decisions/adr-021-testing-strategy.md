@@ -511,6 +511,39 @@ const project = ProjectTestDataBuilder.default()
 
 ### Performance Testing
 
+#### Lighthouse CI Integration
+
+```yaml
+# .github/workflows/deploy-landing-page.yml
+lighthouse-ci:
+  needs: [deploy-staging, deploy-production]
+  runs-on: ubuntu-latest
+  steps:
+    - name: Run Lighthouse CI against staging
+      run: |
+        pnpm run lighthouse:staging
+```
+
+**Performance Thresholds:**
+- Performance Score: ≥ 90
+- First Contentful Paint: < 1.8s
+- Largest Contentful Paint: < 2.5s
+- Cumulative Layout Shift: < 0.1
+- Total Blocking Time: < 200ms
+
+**Resource Budgets:**
+- JavaScript: < 200KB
+- CSS: < 50KB
+- Images: < 500KB
+- Total Page Size: < 1MB
+
+**Implementation Details:**
+- Lighthouse CI runs post-deployment on staging and production
+- Configuration files use `.cjs` extension (CommonJS) to work with `"type": "module"` in package.json
+- Tests HTML endpoints only (JSON APIs excluded)
+- Reports uploaded as GitHub Actions artifacts
+- Failures reported as warnings (non-blocking for deployment)
+
 #### Load Testing for Event Processing
 
 ```typescript
