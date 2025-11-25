@@ -1,14 +1,9 @@
 name: Lighthouse CI - Performance Testing
 
+# Note: For push events, Lighthouse CI runs as part of the deployment workflow
+# This standalone workflow is for PR testing and manual runs only
 on:
   pull_request:
-    branches:
-      - develop
-      - main
-    paths:
-      - 'apps/landing-page/**'
-      - '.github/workflows/lighthouse-ci.yml'
-  push:
     branches:
       - develop
       - main
