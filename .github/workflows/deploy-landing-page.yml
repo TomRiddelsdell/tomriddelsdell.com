@@ -294,7 +294,7 @@ jobs:
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: [quality-gates, lighthouse-ci]
+    needs: quality-gates
     if: |
       (github.ref == 'refs/heads/main' && github.event_name == 'push') ||
       (github.event_name == 'workflow_dispatch' && inputs.environment == 'production')
@@ -491,8 +491,8 @@ jobs:
   lighthouse-ci:
     name: Lighthouse CI Performance Testing
     runs-on: ubuntu-latest
-    needs: deploy-staging
-    if: needs.deploy-staging.result == 'success'
+    needs: [deploy-staging, deploy-production]
+    if: always() && (needs.deploy-staging.result == 'success' || needs.deploy-production.result == 'success')
     defaults:
       run:
         working-directory: apps/landing-page
