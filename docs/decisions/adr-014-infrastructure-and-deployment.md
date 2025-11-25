@@ -79,20 +79,74 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     # Automated deployment to staging environment
     # URL: https://landing-page-preview.t-riddelsdell.workers.dev
+    # Custom domain: https://staging.tomriddelsdell.com
+    
+  lighthouse-ci:
+    needs: [deploy-staging, deploy-production]
+    # Performance testing with Lighthouse CI (post-deployment)
+    # Tests Core Web Vitals, performance budgets, accessibility
+    # Runs after successful deployment to staging or production
     
   deploy-production:
     if: github.ref == 'refs/heads/main'
     # Automated deployment to production
     # URL: https://landing-page-prod.t-riddelsdell.workers.dev
+    # Custom domain: https://tomriddelsdell.com
     # Includes smoke tests and health checks
+    
+  post-deploy-checks:
+    # Comprehensive health checks and performance monitoring
+    # Verifies all critical endpoints and metrics
 ```
 
 **Implemented Security & Quality:**
 1. ✅ **Security Scanning**: Pre-commit secret detection, .gitignore verification
 2. ✅ **Secret Management**: Doppler for all environment variables and API tokens
-3. 🔄 **Dependency Updates**: Planned with Dependabot (not yet configured)
-4. 🔄 **Cost Monitoring**: Planned via Cloudflare analytics (not yet configured)
-5. ✅ **Quality Gates**: Type checking, linting, test coverage enforced in CI/CD
+3. ✅ **Performance Testing**: Lighthouse CI integrated into deployment pipeline
+   - Core Web Vitals monitoring (LCP, FID, CLS, TBT)
+   - Performance budgets enforced (images < 500KB, total < 1MB)
+   - Accessibility and SEO validation
+   - Post-deployment quality gates
+4. 🔄 **Dependency Updates**: Planned with Dependabot (not yet configured)
+5. 🔄 **Cost Monitoring**: Planned via Cloudflare analytics (not yet configured)
+6. ✅ **Quality Gates**: Type checking, linting, test coverage enforced in CI/CD
+
+## Custom Domain Configuration
+
+### Cloudflare Workers Routes
+
+Custom domains are configured using Cloudflare Worker Routes in `wrangler.toml`:
+
+```toml
+# Staging environment
+[env.preview]
+name = "landing-page-preview"
+workers_dev = true  # Keeps .workers.dev subdomain active
+
+[[env.preview.routes]]
+pattern = "staging.tomriddelsdell.com/*"
+zone_name = "tomriddelsdell.com"
+
+# Production environment
+[env.production]
+name = "landing-page-prod"
+workers_dev = true
+
+[[env.production.routes]]
+pattern = "tomriddelsdell.com/*"
+zone_name = "tomriddelsdell.com"
+
+[[env.production.routes]]
+pattern = "www.tomriddelsdell.com/*"
+zone_name = "tomriddelsdell.com"
+```
+
+**Key Configuration Notes:**
+- Use `zone_name` approach (not `custom_domain = true`) to avoid DNS conflicts
+- Include `/*` wildcard pattern for proper route matching
+- Keep `workers_dev = true` to maintain `.workers.dev` subdomain access
+- DNS records managed automatically by Cloudflare when routes are deployed
+- Each environment maintains both custom domain and workers.dev access
 
 ## Database Migration Strategy
 
