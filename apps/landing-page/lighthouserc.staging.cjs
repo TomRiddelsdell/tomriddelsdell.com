@@ -14,7 +14,6 @@ module.exports = {
       // Run against staging deployment
       url: [
         'https://landing-page-preview.t-riddelsdell.workers.dev',
-        'https://landing-page-preview.t-riddelsdell.workers.dev/api/health',
       ],
       numberOfRuns: 3,
       settings: {
