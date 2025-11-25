@@ -17,12 +17,13 @@ bucket_name = "landing-page-cache"
 # Preview environment (staging) - deployed from develop branch
 [env.preview]
 name = "landing-page-preview"
-workers_dev = true  # Keep .workers.dev subdomain active
+workers_dev = true  # Keep .workers.dev subdomain active even with custom routes
 
-# Custom domain for staging (simpler than routes, automatically handles DNS/certs)
+# Custom domain routes for staging
+# Note: Domain must be added to Cloudflare account first
 [[env.preview.routes]]
-pattern = "staging.tomriddelsdell.com"
-custom_domain = true
+pattern = "staging.tomriddelsdell.com/*"
+zone_name = "tomriddelsdell.com"
 
 [[env.preview.r2_buckets]]
 binding = "NEXT_INC_CACHE_R2_BUCKET"
@@ -38,16 +39,16 @@ bucket_name = "landing-page-cache"
 # Production environment - deployed from main branch
 [env.production] 
 name = "landing-page-prod"
-workers_dev = true  # Keep .workers.dev subdomain active
+workers_dev = true  # Keep .workers.dev subdomain active even with custom routes
 
-# Custom domains for production (automatically handles DNS/certs)
+# Custom domain routes for production
 [[env.production.routes]]
-pattern = "tomriddelsdell.com"
-custom_domain = true
+pattern = "tomriddelsdell.com/*"
+zone_name = "tomriddelsdell.com"
 
 [[env.production.routes]]
-pattern = "www.tomriddelsdell.com"
-custom_domain = true
+pattern = "www.tomriddelsdell.com/*"
+zone_name = "tomriddelsdell.com"
 
 [[env.production.r2_buckets]]
 binding = "NEXT_INC_CACHE_R2_BUCKET"
