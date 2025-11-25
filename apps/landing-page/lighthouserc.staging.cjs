@@ -12,9 +12,7 @@ module.exports = {
   ci: {
     collect: {
       // Run against staging deployment
-      url: [
-        'https://landing-page-preview.t-riddelsdell.workers.dev',
-      ],
+      url: ['https://landing-page-preview.t-riddelsdell.workers.dev'],
       numberOfRuns: 3,
       settings: {
         preset: 'desktop',

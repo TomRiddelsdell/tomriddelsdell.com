@@ -71,7 +71,9 @@ async function optimizeImage(inputPath, config) {
     const savings = ((1 - optimizedSize / originalSize) * 100).toFixed(1)
 
     console.log(`   Optimized: ${formatBytes(optimizedSize)}`)
-    console.log(`   💾 Saved: ${savings}% (${formatBytes(originalSize - optimizedSize)})`)
+    console.log(
+      `   💾 Saved: ${savings}% (${formatBytes(originalSize - optimizedSize)})`
+    )
     console.log(`   ✅ Created: ${basename(outputPath)}`)
 
     return { originalSize, optimizedSize, savings }
