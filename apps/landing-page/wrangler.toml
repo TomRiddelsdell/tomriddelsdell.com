@@ -23,6 +23,7 @@ workers_dev = true  # Keep .workers.dev subdomain active
 [[env.preview.routes]]
 pattern = "staging.tomriddelsdell.com"
 custom_domain = true
+override_existing_dns_record = true
 
 [[env.preview.r2_buckets]]
 binding = "NEXT_INC_CACHE_R2_BUCKET"
