@@ -12,7 +12,7 @@ export function InterestsSection() {
             <div className="relative">
               <div className="relative w-full h-96 lg:h-[500px] rounded-lg overflow-hidden shadow-2xl">
                 <Image
-                  src="/impliedvol.jpeg"
+                  src="/impliedvol.webp"
                   alt="Implied Volatility Surface"
                   fill
                   className="object-cover"

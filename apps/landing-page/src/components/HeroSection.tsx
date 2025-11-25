@@ -5,7 +5,7 @@ export function HeroSection() {
     <section id="home" className="pt-16 min-h-screen relative overflow-hidden">
       <div className="absolute inset-0 z-0">
         <Image
-          src="/background.jpg"
+          src="/background.webp"
           alt="Background"
           fill
           className="object-cover"
@@ -40,7 +40,7 @@ export function HeroSection() {
           <div className="flex-shrink-0">
             <div className="relative w-80 h-80 lg:w-96 lg:h-96">
               <Image
-                src="/me.jpg"
+                src="/me.webp"
                 alt="Tom Riddelsdell"
                 fill
                 className="object-cover rounded-full border-4 border-gray-900/20"
