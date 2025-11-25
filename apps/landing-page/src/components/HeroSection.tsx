@@ -10,6 +10,8 @@ export function HeroSection() {
           fill
           className="object-cover"
           priority
+          sizes="100vw"
+          quality={85}
         />
         <div className="absolute inset-0 bg-white/60" />
       </div>
@@ -43,6 +45,8 @@ export function HeroSection() {
                 fill
                 className="object-cover rounded-full border-4 border-gray-900/20"
                 priority
+                sizes="(max-width: 1024px) 320px, 384px"
+                quality={90}
               />
             </div>
           </div>
