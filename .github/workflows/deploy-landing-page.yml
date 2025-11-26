@@ -37,10 +37,18 @@ env:
   PNPM_VERSION: "10"
 
 jobs:
+  # Security scanning for landing page
+  security-scan:
+    name: Security Scan
+    uses: ./.github/workflows/security.yml
+    with:
+      node-version: "22"
+
   # Quality gates for landing page
   quality-gates:
     name: Quality Gates
     runs-on: ubuntu-latest
+    needs: security-scan
     defaults:
       run:
         working-directory: apps/landing-page
