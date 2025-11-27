@@ -14,6 +14,7 @@ on:
       - 'apps/landing-page/**'
       - 'packages/observability-edge/**'
       - '.github/workflows/deploy-landing-page.yml'
+      - '.github/workflows/security.yml'
   pull_request:
     branches:
       - develop
@@ -22,6 +23,7 @@ on:
       - 'apps/landing-page/**'
       - 'packages/observability-edge/**'
       - '.github/workflows/deploy-landing-page.yml'
+      - '.github/workflows/security.yml'
   workflow_dispatch:
     inputs:
       environment:
@@ -40,7 +42,7 @@ jobs:
   # Security scanning for landing page
   security-scan:
     name: Security Scan
-    uses: ./.github/workflows/security.yml
+    uses: TomRiddelsdell/tomriddelsdell.com/.github/workflows/security.yml@develop
     with:
       node-version: "22"
 
