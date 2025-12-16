@@ -10,12 +10,7 @@ lerna-debug.log*
 # === Package Manager Files ===
 .pnpm-store/
 # Note: Lockfiles should be committed for reproducible builds
-# **/pnpm-lock.yaml - Removed to allow lockfile commits
-# **/yarn.lock - Removed to allow lockfile commits
-# **/package-lock.json - Removed to allow lockfile commits
-
-# Root lockfile (CI/CD coordination only - regenerated each CI run)
-/pnpm-lock.yaml
+# All lockfiles (including root) are committed for CI/CD cache coordination
 
 # === Build Artifacts ===
 dist/
