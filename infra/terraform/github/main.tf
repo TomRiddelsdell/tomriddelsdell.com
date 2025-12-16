@@ -7,10 +7,8 @@ terraform {
   }
 }
 
-provider "github" {
-  token = var.github_token
-  owner = var.github_owner
-}
+# Provider configuration is in root module
+# This module receives the configured provider from the parent
 
 variable "github_token" {
   type        = string

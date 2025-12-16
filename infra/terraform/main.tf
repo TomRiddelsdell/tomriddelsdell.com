@@ -22,6 +22,12 @@ terraform {
   }
 }
 
+# Provider configurations
+provider "github" {
+  token = var.github_token
+  owner = var.github_owner
+}
+
 # Doppler Module - Manages service tokens for CI/CD
 module "doppler" {
   source = "./doppler"
