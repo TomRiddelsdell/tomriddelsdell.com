@@ -47,18 +47,21 @@ variable "doppler_token_prd" {
 }
 
 # GitHub Actions secrets for Doppler tokens
+# checkov:skip=CKV_GIT_4:GitHub API automatically encrypts secrets, plaintext_value is required by provider
 resource "github_actions_secret" "doppler_token_ci" {
   repository      = var.github_repository
   secret_name     = "DOPPLER_TOKEN_CI"
   plaintext_value = var.doppler_token_ci
 }
 
+# checkov:skip=CKV_GIT_4:GitHub API automatically encrypts secrets, plaintext_value is required by provider
 resource "github_actions_secret" "doppler_token_stg" {
   repository      = var.github_repository
   secret_name     = "DOPPLER_TOKEN_STG"
   plaintext_value = var.doppler_token_stg
 }
 
+# checkov:skip=CKV_GIT_4:GitHub API automatically encrypts secrets, plaintext_value is required by provider
 resource "github_actions_secret" "doppler_token_prd" {
   repository      = var.github_repository
   secret_name     = "DOPPLER_TOKEN_PROD"

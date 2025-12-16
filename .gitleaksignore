@@ -1,0 +1,5 @@
+# Gitleaks ignore file for false positives
+
+# pnpm lockfile contains integrity hashes that trigger false positives
+pnpm-lock.yaml
+**/pnpm-lock.yaml
