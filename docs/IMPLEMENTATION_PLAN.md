@@ -1,8 +1,976 @@
 # Implementation Plan
 
-**Last Updated:** October 20, 2025  
-**Current Phase:** 2.0 - DDD-Compliant Observability Implementation  
+**Last Updated:** December 16, 2025  
+**Current Phase:** 0.0 - URGENT: CI/CD Pipeline Remediation (BLOCKING ALL DEPLOYMENTS)  
 **Repository:** tomriddelsdell.com
+
+---
+
+## 🚨 CRITICAL STATUS: ALL CI/CD PIPELINES FAILING
+
+**Severity:** BLOCKING  
+**Impact:** No deployments possible since November 26, 2025  
+**Priority:** P0 - Immediate Action Required  
+
+**Failure Summary:**
+- ❌ **Deploy Landing Page**: 100% failure rate (startup_failure) - Missing root pnpm-lock.yaml
+- ❌ **Security Workflow**: 85% failure rate - CodeQL can't find dependencies, Terraform module incompatibility
+- ⚠️ **Last Successful Deploy**: November 25, 2025 (3 weeks ago)
+
+**Root Causes Identified:**
+1. **Missing Root Lockfile**: No `pnpm-lock.yaml` at repository root (required by GitHub Actions cache)
+2. **Terraform Module Error**: `depends_on` not supported in legacy modules with local providers
+3. **CodeQL Permissions**: Missing `security-events: write` permission in workflow_call
+4. **Terraform Init Failure**: Module initialization fails before security scan can run
+
+---
+
+## Phase 0.0: CI/CD Pipeline Remediation (URGENT - 4-6 hours)
+
+**Objective:** Restore all GitHub Actions workflows to working state  
+**Timeline:** 4-6 hours (must complete before any other work)  
+**Success Criteria:** All workflows passing on develop branch  
+
+### Problem Analysis
+
+#### Issue 1: Deploy Landing Page - Startup Failure (100% failure rate)
+
+**Symptoms:**
+```
+startup_failure - This run likely failed because of a workflow file issue
+```
+
+**Root Cause:**
+The `actions/setup-node@v4` step with `cache: "pnpm"` requires a `pnpm-lock.yaml` file at the repository root OR at the path specified in `cache-dependency-path`. Currently:
+- ✅ File exists: `apps/landing-page/pnpm-lock.yaml`
+- ❌ Missing: Root `pnpm-lock.yaml` 
+- ⚠️ Configuration specifies: `cache-dependency-path: apps/landing-page/pnpm-lock.yaml`
+
+**Why This Fails:**
+GitHub Actions runner tries to locate the lockfile for cache restoration **before** the workflow steps execute. The path resolution happens during workflow initialization, causing a "startup_failure" before any steps run.
+
+**Error in Logs:**
+```
+Dependencies lock file is not found in /home/runner/work/tomriddelsdell.com/tomriddelsdell.com. 
+Supported file patterns: pnpm-lock.yaml
+```
+
+#### Issue 2: Security Workflow - CodeQL Analysis Failure
+
+**Symptoms:**
+```
+Setup Node.js: Dependencies lock file is not found
+CodeQL Analysis: configuration error
+```
+
+**Root Causes:**
+1. **No cache-dependency-path specified** in security.yml CodeQL job
+2. **Reusable workflow loses permissions** - `security-events: write` not inherited by called workflow
+3. **CodeQL tries to cache** but can't find root pnpm-lock.yaml
+
+#### Issue 3: Infrastructure Security Scan - Terraform Module Error
+
+**Symptoms:**
+```
+Error: Module is incompatible with count, for_each, and depends_on
+│ on main.tf line 46, in module "github":
+│ 46: depends_on = [module.doppler]
+│ The module at module.github is a legacy module which contains its own local
+│ provider configurations
+```
+
+**Root Cause:**
+Terraform module `./github` contains a `provider "github"` block (line 10 in `github/main.tf`), making it a "legacy module". Legacy modules with local provider configurations cannot use `depends_on`, `count`, or `for_each` at the module call site.
+
+**Why This Matters:**
+The security scan runs `terraform init` which fails during module initialization, preventing the Checkov security scan from running.
+
+---
+
+### Remediation Plan
+
+#### Step 0.1: Fix Deploy Landing Page Workflow (2 hours)
+
+**Objective:** Eliminate startup_failure by fixing pnpm cache configuration
+
+**Problem:** GitHub Actions cache resolution fails during workflow initialization because it cannot find the lockfile at the specified path during the pre-job setup phase.
+
+**Solution:** Create a workspace-level pnpm-workspace.yaml and root pnpm-lock.yaml to satisfy GitHub Actions cache requirements while maintaining app independence.
+
+**Tasks:**
+
+1. **Create Workspace Configuration** (30 minutes)
+   
+   Create `/workspaces/pnpm-workspace.yaml`:
+   ```yaml
+   # pnpm workspace configuration
+   # Note: This is ONLY for CI/CD cache coordination
+   # Each app maintains complete independence with its own lockfile
+   
+   packages:
+     # Landing page is independently deployable
+     - 'apps/landing-page'
+     
+     # Future apps will be added here
+     # - 'apps/api'
+     # - 'apps/admin'
+   ```
+
+   **Reasoning:** GitHub Actions needs a workspace file to understand the monorepo structure for cache key generation.
+
+2. **Generate Root Lockfile** (15 minutes)
+   
+   ```bash
+   cd /workspaces
+   pnpm install --lockfile-only --ignore-scripts
+   ```
+   
+   This creates `pnpm-lock.yaml` at root that references all workspace packages WITHOUT installing dependencies or coupling the applications.
+
+   **Critical:** This lockfile is ONLY for CI/CD cache coordination. Apps remain independent.
+
+3. **Update Deploy Workflow Configuration** (30 minutes)
+   
+   **File:** `.github/workflows/deploy-landing-page.yml`
+   
+   **Change 1 - Remove cache-dependency-path from quality-gates job:**
+   ```yaml
+   # BEFORE (lines 72-76):
+   - name: Setup Node.js
+     uses: actions/setup-node@v4
+     with:
+       node-version: ${{ env.NODE_VERSION }}
+       cache: "pnpm"
+       cache-dependency-path: apps/landing-page/pnpm-lock.yaml
+   
+   # AFTER:
+   - name: Setup Node.js
+     uses: actions/setup-node@v4
+     with:
+       node-version: ${{ env.NODE_VERSION }}
+       cache: "pnpm"
+       # Cache uses root pnpm-lock.yaml for workspace-level coordination
+   ```
+
+   **Change 2 - Do the same for deploy-staging job (lines 118-122):**
+   ```yaml
+   # BEFORE:
+   - name: Setup Node.js
+     uses: actions/setup-node@v4
+     with:
+       node-version: ${{ env.NODE_VERSION }}
+       cache: "pnpm"
+       cache-dependency-path: apps/landing-page/pnpm-lock.yaml
+   
+   # AFTER:
+   - name: Setup Node.js
+     uses: actions/setup-node@v4
+     with:
+       node-version: ${{ env.NODE_VERSION }}
+       cache: "pnpm"
+       # Cache uses root pnpm-lock.yaml for workspace-level coordination
+   ```
+
+   **Change 3 - Repeat for deploy-production job (lines 235-239):**
+   Same modification as above.
+
+4. **Update Security Workflow** (15 minutes)
+   
+   **File:** `.github/workflows/security.yml`
+   
+   **Change - Remove cache-dependency-path from dependency-scan job (lines 33-36):**
+   ```yaml
+   # BEFORE:
+   - name: Setup Node.js
+     uses: actions/setup-node@v4
+     with:
+       node-version: ${{ inputs.node-version || '22' }}
+       cache: "pnpm"
+       cache-dependency-path: ${{ matrix.app }}/pnpm-lock.yaml
+   
+   # AFTER:
+   - name: Setup Node.js
+     uses: actions/setup-node@v4
+     with:
+       node-version: ${{ inputs.node-version || '22' }}
+       cache: "pnpm"
+       # Cache uses root pnpm-lock.yaml for workspace coordination
+   ```
+
+   **Change 2 - Remove cache from CodeQL job (lines 82-85):**
+   ```yaml
+   # BEFORE:
+   - name: Setup Node.js
+     uses: actions/setup-node@v4
+     with:
+       node-version: ${{ inputs.node-version || '22' }}
+       cache: "pnpm"
+   
+   # AFTER:
+   - name: Setup Node.js
+     uses: actions/setup-node@v4
+     with:
+       node-version: ${{ inputs.node-version || '22' }}
+       # No cache needed - CodeQL does its own dependency management
+   ```
+
+5. **Add .gitignore Entry** (5 minutes)
+   
+   Add to `/workspaces/.gitignore`:
+   ```
+   # Root lockfile (CI/CD coordination only)
+   /pnpm-lock.yaml
+   ```
+
+   **Reasoning:** Root lockfile should be regenerated on each CI run to reflect latest app lockfiles.
+
+6. **Test Locally** (15 minutes)
+   
+   ```bash
+   # Verify workspace structure
+   cd /workspaces
+   pnpm install --lockfile-only --ignore-scripts
+   
+   # Verify app independence
+   cd apps/landing-page
+   pnpm install
+   pnpm run build:cloudflare
+   
+   # Verify no cross-dependencies created
+   grep -r "workspace:" apps/landing-page/package.json
+   # Should return nothing
+   ```
+
+**AI Agent Prompt:**
+
+```
+TASK: Fix GitHub Actions startup_failure in Deploy Landing Page workflow
+
+CONTEXT:
+- All deployments failing since Nov 26 with "startup_failure"
+- Root cause: GitHub Actions cache initialization fails when pnpm-lock.yaml not found at repo root
+- Current state: Only apps/landing-page/pnpm-lock.yaml exists
+- Architecture: Apps must remain independently deployable (no workspace coupling)
+
+STEPS:
+1. Create /workspaces/pnpm-workspace.yaml with content:
+   ```yaml
+   packages:
+     - 'apps/landing-page'
+   ```
+
+2. Generate root lockfile (CI coordination only):
+   ```bash
+   cd /workspaces
+   pnpm install --lockfile-only --ignore-scripts
+   ```
+
+3. Update .github/workflows/deploy-landing-page.yml:
+   - Find all "Setup Node.js" steps (3 occurrences: lines 72-76, 118-122, 235-239)
+   - Remove "cache-dependency-path" parameter from each
+   - Add comment: "# Cache uses root pnpm-lock.yaml for workspace-level coordination"
+
+4. Update .github/workflows/security.yml:
+   - Line 33-36: Remove cache-dependency-path from dependency-scan job
+   - Line 82-85: Remove cache parameter entirely from CodeQL job
+   - Add comments explaining changes
+
+5. Add to .gitignore:
+   ```
+   # Root lockfile (CI/CD coordination only)
+   /pnpm-lock.yaml
+   ```
+
+6. Verify app independence maintained:
+   ```bash
+   cd apps/landing-page
+   grep "workspace:" package.json  # Should return nothing
+   pnpm install
+   pnpm run build:cloudflare  # Should work without root dependencies
+   ```
+
+VALIDATION:
+- ✅ Root pnpm-lock.yaml exists
+- ✅ pnpm-workspace.yaml created
+- ✅ All cache-dependency-path references removed
+- ✅ Landing page builds independently
+- ✅ No "workspace:" protocol in app package.json
+
+SUCCESS CRITERIA:
+- Deploy Landing Page workflow starts without "startup_failure"
+- Cache restoration works during Setup Node.js step
+- Landing page remains independently deployable
+
+DO NOT:
+- Create workspace dependencies between apps
+- Modify apps/landing-page/package.json
+- Remove apps/landing-page/pnpm-lock.yaml
+- Change app build processes
+```
+
+---
+
+#### Step 0.2: Fix Security Workflow Permissions (1 hour)
+
+**Objective:** Restore CodeQL analysis and Terraform security scanning
+
+**Problem 1:** Reusable workflow loses permissions when called
+
+**Solution:** Add explicit permissions to security.yml and calling workflow
+
+**Tasks:**
+
+1. **Add Permissions to Reusable Workflow** (15 minutes)
+   
+   **File:** `.github/workflows/security.yml`
+   
+   Add at top level (line 2, after `on:`):
+   ```yaml
+   name: Security
+   
+   on:
+     workflow_call:
+       inputs:
+         node-version:
+           description: "Node.js version to use"
+           required: false
+           default: "22"
+           type: string
+   
+   # Permissions required for security scanning
+   permissions:
+     actions: read
+     contents: read
+     security-events: write
+     packages: read
+   
+   jobs:
+     dependency-scan:
+       # ... rest of file
+   ```
+
+2. **Add Permissions to Calling Workflow** (15 minutes)
+   
+   **File:** `.github/workflows/deploy-landing-page.yml`
+   
+   Update security-scan job (line 48):
+   ```yaml
+   # BEFORE:
+   security-scan:
+     name: Security Scan
+     uses: TomRiddelsdell/tomriddelsdell.com/.github/workflows/security.yml@develop
+     with:
+       node-version: "22"
+   
+   # AFTER:
+   security-scan:
+     name: Security Scan
+     permissions:
+       actions: read
+       contents: read
+       security-events: write
+       packages: read
+     uses: TomRiddelsdell/tomriddelsdell.com/.github/workflows/security.yml@develop
+     with:
+       node-version: "22"
+   ```
+
+**Problem 2:** Terraform module incompatibility with depends_on
+
+**Solution:** Remove depends_on and rely on implicit dependencies through variable references
+
+**Tasks:**
+
+3. **Fix Terraform Module Dependency** (30 minutes)
+   
+   **File:** `infra/terraform/main.tf`
+   
+   **Change (line 40-47):**
+   ```terraform
+   # BEFORE:
+   module "github" {
+     source = "./github"
+   
+     github_token  = var.github_token
+     github_owner  = var.github_owner
+     github_repository = var.github_repository
+   
+     # Pass Doppler service tokens from doppler module
+     doppler_token_ci  = module.doppler.doppler_token_ci
+     doppler_token_stg = module.doppler.doppler_token_stg
+     doppler_token_prd = module.doppler.doppler_token_prd
+   
+     depends_on = [module.doppler]  # ❌ NOT ALLOWED with legacy modules
+   }
+   
+   # AFTER:
+   module "github" {
+     source = "./github"
+   
+     github_token  = var.github_token
+     github_owner  = var.github_owner
+     github_repository = var.github_repository
+   
+     # Pass Doppler service tokens from doppler module
+     # Implicit dependency: Terraform waits for module.doppler outputs
+     doppler_token_ci  = module.doppler.doppler_token_ci
+     doppler_token_stg = module.doppler.doppler_token_stg
+     doppler_token_prd = module.doppler.doppler_token_prd
+     
+     # depends_on removed - implicit dependency through variable references is sufficient
+   }
+   ```
+
+   **Reasoning:** Terraform automatically creates implicit dependencies when module outputs are referenced as inputs. The `depends_on` is redundant and causes errors with legacy modules.
+
+**AI Agent Prompt:**
+
+```
+TASK: Fix Security Workflow CodeQL and Terraform scanning failures
+
+CONTEXT:
+- Security workflow failing on: CodeQL analysis (permissions), Terraform init (module error)
+- CodeQL error: "This run does not have permission to access CodeQL Action API endpoints"
+- Terraform error: "Module is incompatible with depends_on" (legacy module with local provider)
+
+PROBLEM 1 - CodeQL Permissions:
+Reusable workflows don't inherit permissions from caller. Must be explicitly set.
+
+SOLUTION:
+1. Add to .github/workflows/security.yml (after line 9, before jobs):
+   ```yaml
+   permissions:
+     actions: read
+     contents: read
+     security-events: write
+     packages: read
+   ```
+
+2. Add to .github/workflows/deploy-landing-page.yml security-scan job (line 48):
+   ```yaml
+   security-scan:
+     name: Security Scan
+     permissions:
+       actions: read
+       contents: read
+       security-events: write
+       packages: read
+     uses: TomRiddelsdell/tomriddelsdell.com/.github/workflows/security.yml@develop
+     with:
+       node-version: "22"
+   ```
+
+PROBLEM 2 - Terraform Legacy Module:
+Module ./github has local provider block, making it "legacy module"
+Legacy modules cannot use depends_on at call site
+
+SOLUTION:
+Edit infra/terraform/main.tf line 46:
+- Remove: depends_on = [module.doppler]
+- Add comment explaining implicit dependency through variable references
+
+BEFORE:
+```terraform
+module "github" {
+  source = "./github"
+  ...
+  doppler_token_ci  = module.doppler.doppler_token_ci
+  doppler_token_stg = module.doppler.doppler_token_stg
+  doppler_token_prd = module.doppler.doppler_token_prd
+  
+  depends_on = [module.doppler]  # <-- REMOVE THIS LINE
+}
+```
+
+AFTER:
+```terraform
+module "github" {
+  source = "./github"
+  ...
+  doppler_token_ci  = module.doppler.doppler_token_ci
+  doppler_token_stg = module.doppler.doppler_token_stg
+  doppler_token_prd = module.doppler.doppler_token_prd
+  
+  # Implicit dependency through output references - depends_on not needed
+}
+```
+
+VALIDATION:
+1. Security workflow permissions:
+   ```bash
+   grep -A 5 "^permissions:" .github/workflows/security.yml
+   # Should show: actions, contents, security-events, packages
+   ```
+
+2. Terraform syntax check:
+   ```bash
+   cd infra/terraform
+   terraform init -backend=false
+   terraform validate
+   # Should succeed without "incompatible with depends_on" error
+   ```
+
+SUCCESS CRITERIA:
+- ✅ Security workflow has explicit permissions at top level
+- ✅ Deploy workflow grants permissions to reusable workflow call
+- ✅ Terraform init succeeds without module compatibility errors
+- ✅ CodeQL can upload SARIF results
+- ✅ Checkov security scan runs successfully
+```
+
+---
+
+#### Step 0.3: Update CodeQL to v4 (30 minutes)
+
+**Objective:** Address deprecation warnings and ensure future compatibility
+
+**Problem:** CodeQL Action v3 deprecated (removal December 2026)
+
+**Solution:** Upgrade all CodeQL actions to v4
+
+**Tasks:**
+
+1. **Update Security Workflow** (15 minutes)
+   
+   **File:** `.github/workflows/security.yml`
+   
+   Find and replace all occurrences:
+   ```yaml
+   # BEFORE:
+   uses: github/codeql-action/init@v3
+   uses: github/codeql-action/analyze@v3
+   uses: github/codeql-action/upload-sarif@v3
+   
+   # AFTER:
+   uses: github/codeql-action/init@v4
+   uses: github/codeql-action/analyze@v4
+   uses: github/codeql-action/upload-sarif@v4
+   ```
+   
+   **Locations:** Lines 72, 87, 117 (3 occurrences)
+
+2. **Verify No Breaking Changes** (15 minutes)
+   
+   Review GitHub's migration guide:
+   https://github.blog/changelog/2025-10-28-upcoming-deprecation-of-codeql-action-v3/
+   
+   Key changes in v4:
+   - Node.js 20 runtime (was 16)
+   - Improved SARIF handling
+   - Better error messages
+   - No breaking changes to input parameters
+
+**AI Agent Prompt:**
+
+```
+TASK: Upgrade CodeQL Action from v3 to v4
+
+CONTEXT:
+- CodeQL Action v3 deprecated (warning in all runs)
+- Will be removed December 2026
+- v4 has no breaking changes, just improved runtime
+
+STEPS:
+1. Open .github/workflows/security.yml
+
+2. Replace all CodeQL action references:
+   - Line ~72: github/codeql-action/init@v3 → @v4
+   - Line ~87: github/codeql-action/analyze@v3 → @v4  
+   - Line ~117: github/codeql-action/upload-sarif@v3 → @v4
+
+3. Search for any other v3 references:
+   ```bash
+   grep -n "codeql-action.*@v3" .github/workflows/*.yml
+   ```
+
+4. Replace all found instances with @v4
+
+VALIDATION:
+```bash
+# Verify no v3 references remain
+grep -r "codeql-action.*@v3" .github/workflows/
+# Should return no results
+
+# Verify v4 is used
+grep -r "codeql-action.*@v4" .github/workflows/security.yml
+# Should show 3 occurrences (init, analyze, upload-sarif)
+```
+
+SUCCESS CRITERIA:
+- ✅ All codeql-action references use @v4
+- ✅ No deprecation warnings in workflow runs
+- ✅ CodeQL analysis completes successfully
+```
+
+---
+
+#### Step 0.4: Integration Testing (1 hour)
+
+**Objective:** Verify all fixes work together in actual GitHub Actions environment
+
+**Tasks:**
+
+1. **Create Test Branch** (5 minutes)
+   ```bash
+   git checkout -b fix/cicd-pipeline-remediation
+   ```
+
+2. **Commit All Changes** (10 minutes)
+   ```bash
+   git add pnpm-workspace.yaml .gitignore .github/workflows/ infra/terraform/main.tf
+   git commit -m "fix: restore CI/CD pipeline functionality
+
+   - Add root pnpm-workspace.yaml for GitHub Actions cache coordination
+   - Remove cache-dependency-path to use root lockfile
+   - Add explicit permissions to security workflow
+   - Remove depends_on from Terraform legacy module
+   - Upgrade CodeQL actions from v3 to v4
+   
+   Fixes:
+   - Deploy Landing Page startup_failure (100% failure rate)
+   - Security workflow CodeQL permissions error
+   - Terraform module incompatibility error
+   - CodeQL v3 deprecation warnings"
+   ```
+
+3. **Push and Create PR** (5 minutes)
+   ```bash
+   git push -u origin fix/cicd-pipeline-remediation
+   gh pr create --title "fix: Restore CI/CD Pipeline Functionality" \
+     --body "## Problem
+   All CI/CD pipelines failing since Nov 26, 2025:
+   - Deploy workflow: 100% startup_failure 
+   - Security workflow: 85% failure rate
+   - No deployments possible for 3 weeks
+   
+   ## Root Causes
+   1. Missing root pnpm-lock.yaml for GitHub Actions cache
+   2. Security workflow missing required permissions  
+   3. Terraform legacy module incompatible with depends_on
+   4. CodeQL using deprecated v3 actions
+   
+   ## Changes
+   - ✅ Added root pnpm-workspace.yaml (CI coordination only)
+   - ✅ Removed cache-dependency-path from all workflows
+   - ✅ Added explicit permissions to security workflow
+   - ✅ Removed redundant depends_on from Terraform module
+   - ✅ Upgraded CodeQL to v4
+   
+   ## Testing
+   - [ ] Deploy Landing Page workflow completes
+   - [ ] Security scan passes all checks
+   - [ ] Terraform init succeeds
+   - [ ] Landing page remains independently deployable
+   
+   ## Architecture Impact
+   **NONE** - Apps remain independently deployable. Root lockfile is ONLY for CI cache coordination.
+   
+   Closes #[issue-number-if-exists]" \
+     --base develop
+   ```
+
+4. **Monitor PR Checks** (30 minutes)
+   
+   Watch for:
+   - ✅ Deploy Landing Page: Quality Gates pass
+   - ✅ Security Scan: All 4 jobs complete
+   - ✅ CodeQL Analysis: Successfully uploads results
+   - ✅ Infrastructure Scan: Terraform init succeeds, Checkov runs
+   
+   If any failures:
+   ```bash
+   # View detailed logs
+   gh run view --log-failed
+   
+   # Make fixes
+   git add .
+   git commit -m "fix: address [specific-issue]"
+   git push
+   ```
+
+5. **Merge to Develop** (10 minutes)
+   
+   Once all checks pass:
+   ```bash
+   gh pr merge --squash --delete-branch
+   ```
+
+6. **Verify Develop Deployment** (15 minutes)
+   
+   After merge to develop:
+   ```bash
+   # Wait for automatic deployment
+   gh run watch
+   
+   # Verify staging deployment
+   curl -I https://landing-page-preview.t-riddelsdell.workers.dev
+   # Should return HTTP 200
+   
+   # Check deployment logs
+   gh run view --log
+   ```
+
+**AI Agent Prompt:**
+
+```
+TASK: Integration test CI/CD pipeline fixes and deploy to develop
+
+CONTEXT:
+All remediation changes completed. Must verify in actual GitHub Actions environment.
+
+STEPS:
+
+1. Create test branch:
+   ```bash
+   git checkout develop
+   git pull origin develop
+   git checkout -b fix/cicd-pipeline-remediation
+   ```
+
+2. Stage all changes:
+   ```bash
+   git add pnpm-workspace.yaml
+   git add .gitignore
+   git add .github/workflows/deploy-landing-page.yml
+   git add .github/workflows/security.yml
+   git add infra/terraform/main.tf
+   git status  # Verify only expected files
+   ```
+
+3. Commit with detailed message:
+   ```bash
+   git commit -m "fix: restore CI/CD pipeline functionality
+
+   Root Causes Fixed:
+   - Missing root pnpm-lock.yaml for GitHub Actions cache initialization
+   - Security workflow missing security-events: write permission
+   - Terraform legacy module incompatible with depends_on
+   - CodeQL using deprecated v3 actions
+
+   Changes:
+   - Add root pnpm-workspace.yaml (CI coordination only, apps remain independent)
+   - Remove cache-dependency-path from all Setup Node.js steps
+   - Add explicit permissions to security workflow (top-level and caller)
+   - Remove redundant depends_on from GitHub Terraform module
+   - Upgrade all CodeQL actions from v3 to v4
+
+   Impact:
+   - Deploy Landing Page workflow can now start successfully
+   - Security scans have required permissions  
+   - Terraform init completes without module errors
+   - No deprecation warnings from CodeQL
+   - Apps maintain complete independence (no workspace coupling)
+
+   Testing:
+   - Verified app independence: apps/landing-page builds standalone
+   - Verified no workspace: protocol in package.json  
+   - Verified Terraform syntax: terraform validate passes
+   
+   Fixes #[issue] (if exists)"
+   ```
+
+4. Push and create PR:
+   ```bash
+   git push -u origin fix/cicd-pipeline-remediation
+   
+   gh pr create \
+     --title "fix: Restore CI/CD Pipeline Functionality (CRITICAL)" \
+     --body-file - <<'EOF'
+   ## 🚨 Critical Fix: CI/CD Pipeline Restoration
+
+   ### Problem
+   **All deployments blocked since November 26, 2025 (3 weeks)**
+   
+   Failure Rates:
+   - Deploy Landing Page: 100% (startup_failure)
+   - Security Workflow: 85% (permissions + Terraform errors)
+   - Last successful deploy: Nov 25, 2025
+
+   ### Root Causes Identified
+   
+   1. **GitHub Actions Cache Failure**
+      - Missing root pnpm-lock.yaml
+      - Cache initialization fails during workflow startup
+      - Prevents ANY workflow steps from executing
+   
+   2. **Security Permissions Missing**
+      - Reusable workflows don't inherit permissions
+      - CodeQL cannot upload SARIF results
+      - Error: "Resource not accessible by integration"
+   
+   3. **Terraform Module Incompatibility**
+      - GitHub module has local provider (legacy style)
+      - depends_on not allowed with legacy modules
+      - Init fails before security scan can run
+   
+   4. **Deprecated CodeQL Actions**
+      - Using v3 (deprecated Dec 2026)
+      - Warning noise in all workflow runs
+
+   ### Solution Implemented
+
+   #### 1. Root Workspace for CI Cache Coordination
+   - Created `pnpm-workspace.yaml` (lists apps)
+   - Root lockfile generated for cache key
+   - **Apps remain independently deployable** (no coupling)
+   - Root lockfile in .gitignore (regenerated each CI run)
+
+   #### 2. Fixed Node.js Cache Configuration
+   - Removed `cache-dependency-path` from all workflows
+   - GitHub Actions now finds lockfile at root automatically
+   - Cache restoration works during workflow initialization
+
+   #### 3. Added Security Workflow Permissions
+   - Top-level permissions in security.yml
+   - Explicit permissions in calling workflow
+   - CodeQL can now upload SARIF results
+
+   #### 4. Fixed Terraform Module Dependencies
+   - Removed explicit `depends_on` from module call
+   - Relies on implicit dependency through variable references
+   - Terraform init now succeeds
+
+   #### 5. Upgraded CodeQL to v4
+   - All codeql-action references updated v3 → v4
+   - Eliminates deprecation warnings
+   - Future-proof until 2026+
+
+   ### Files Changed
+   - ✅ `pnpm-workspace.yaml` (new - CI coordination)
+   - ✅ `.gitignore` (ignore root lockfile)
+   - ✅ `.github/workflows/deploy-landing-page.yml` (cache config)
+   - ✅ `.github/workflows/security.yml` (permissions + CodeQL v4)
+   - ✅ `infra/terraform/main.tf` (remove depends_on)
+
+   ### Architecture Impact
+   **ZERO** - Apps maintain complete independence:
+   - ✅ apps/landing-page has own pnpm-lock.yaml
+   - ✅ No workspace: protocol dependencies
+   - ✅ Builds standalone without root dependencies
+   - ✅ Can use different Next.js versions
+   - ✅ Root workspace ONLY for CI cache coordination
+
+   ### Testing Checklist
+   - [ ] Deploy Landing Page: Quality Gates pass
+   - [ ] Deploy Landing Page: No startup_failure
+   - [ ] Security: Secrets Detection passes  
+   - [ ] Security: Dependency Scan passes
+   - [ ] Security: CodeQL Analysis completes
+   - [ ] Security: Infrastructure Scan runs Checkov
+   - [ ] Landing page builds independently
+   - [ ] No workspace dependencies created
+
+   ### Post-Merge Actions
+   1. Monitor develop branch deployment
+   2. Verify staging site accessible
+   3. Update implementation plan status
+   4. Document lessons learned
+
+   **Priority: P0 - Blocking all development and deployments**
+   EOF
+   
+   --base develop \
+     --label "priority:critical" \
+     --label "type:bugfix" \
+     --label "scope:ci-cd"
+   ```
+
+5. Monitor PR checks:
+   ```bash
+   # Watch workflow runs in real-time
+   gh pr checks --watch
+   
+   # If failures occur, view logs
+   gh run list --branch fix/cicd-pipeline-remediation
+   gh run view <run-id> --log-failed
+   ```
+
+6. After all checks pass, merge:
+   ```bash
+   gh pr merge --squash --delete-branch
+   ```
+
+7. Verify deployment to staging:
+   ```bash
+   # Wait for develop deployment
+   sleep 30
+   gh run watch
+   
+   # Test staging endpoint
+   curl -I https://landing-page-preview.t-riddelsdell.workers.dev
+   # Should return: HTTP/2 200
+   
+   # Verify deployment logs
+   gh run view --log | grep -A 10 "Deploy to Cloudflare"
+   ```
+
+VALIDATION CRITERIA:
+- ✅ PR created successfully
+- ✅ All PR checks pass (Security + Deploy workflow)
+- ✅ No "startup_failure" errors
+- ✅ CodeQL uploads SARIF results
+- ✅ Terraform init succeeds
+- ✅ Merged to develop without conflicts
+- ✅ Automatic deployment to staging completes
+- ✅ Staging site returns HTTP 200
+
+SUCCESS METRICS:
+- Deploy Landing Page: 0 failures (was 100%)
+- Security Workflow: 0 failures (was 85%)
+- Time to deployment: < 10 minutes (was: impossible)
+- Last successful deploy: Today (was: Nov 25)
+```
+
+---
+
+### Post-Remediation Validation
+
+**Checklist:**
+
+- [ ] All GitHub Actions workflows passing on develop branch
+- [ ] Deploy Landing Page: No startup_failure errors
+- [ ] Security Scan: All 4 jobs complete successfully
+- [ ] CodeQL uploads SARIF results without permission errors
+- [ ] Terraform init succeeds without module compatibility errors
+- [ ] Landing page deployed to staging successfully
+- [ ] Staging site returns HTTP 200
+- [ ] Apps maintain complete independence (verified)
+- [ ] No workspace: protocol dependencies created
+
+**Success Metrics:**
+
+| Metric | Before | After | Target |
+|--------|--------|-------|--------|
+| Deploy Success Rate | 0% | 100% | 100% |
+| Security Success Rate | 15% | 100% | 100% |
+| Time Since Last Deploy | 21 days | 0 days | < 1 day |
+| Startup Failures | 100% | 0% | 0% |
+| Time to Deploy | N/A | < 10 min | < 10 min |
+
+---
+
+### Lessons Learned
+
+1. **GitHub Actions Cache Behavior**
+   - Cache restoration happens during workflow initialization (before steps run)
+   - cache-dependency-path must be accessible during pre-job setup
+   - Root lockfile needed for monorepo cache coordination
+
+2. **Reusable Workflow Permissions**
+   - Permissions must be explicitly granted to reusable workflows
+   - Both caller and callee need security-events: write for CodeQL
+   - Default token permissions don't flow through workflow_call
+
+3. **Terraform Module Best Practices**
+   - Avoid provider blocks in reusable modules
+   - Use required_providers + passed provider config instead
+   - depends_on not needed when using output → input references
+
+4. **Monorepo Independence Pattern**
+   - Root workspace file ≠ app coupling
+   - Root lockfile can be CI-only (not committed)
+   - Apps maintain independence with own lockfiles
+   - Workspace protocol = coupling; avoid in production apps
 
 ---
 

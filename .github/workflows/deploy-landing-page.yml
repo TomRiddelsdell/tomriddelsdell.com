@@ -42,6 +42,11 @@ jobs:
   # Security scanning for landing page
   security-scan:
     name: Security Scan
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+      packages: read
     uses: TomRiddelsdell/tomriddelsdell.com/.github/workflows/security.yml@develop
     with:
       node-version: "22"
@@ -73,7 +78,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
-          cache-dependency-path: apps/landing-page/pnpm-lock.yaml
+          # Cache uses root pnpm-lock.yaml for workspace-level coordination
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -116,7 +121,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
-          cache-dependency-path: apps/landing-page/pnpm-lock.yaml
+          # Cache uses root pnpm-lock.yaml for workspace-level coordination
 
       - name: Install Doppler CLI
         uses: dopplerhq/cli-action@v3
@@ -333,7 +338,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
-          cache-dependency-path: apps/landing-page/pnpm-lock.yaml
+          # Cache uses root pnpm-lock.yaml for workspace-level coordination
 
       - name: Install Doppler CLI
         uses: dopplerhq/cli-action@v3
@@ -520,7 +525,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
-          cache-dependency-path: apps/landing-page/pnpm-lock.yaml
+          # Cache uses root pnpm-lock.yaml for workspace-level coordination
 
       - name: Wait for staging deployment to stabilize
         run: |
