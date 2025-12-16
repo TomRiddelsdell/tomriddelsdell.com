@@ -14,6 +14,9 @@ lerna-debug.log*
 # **/yarn.lock - Removed to allow lockfile commits
 # **/package-lock.json - Removed to allow lockfile commits
 
+# Root lockfile (CI/CD coordination only - regenerated each CI run)
+/pnpm-lock.yaml
+
 # === Build Artifacts ===
 dist/
 **/dist/
