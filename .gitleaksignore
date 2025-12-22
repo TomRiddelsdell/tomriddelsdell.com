@@ -3,3 +3,15 @@
 # pnpm lockfile contains integrity hashes that trigger false positives
 pnpm-lock.yaml
 **/pnpm-lock.yaml
+
+# Documentation files with example API keys/tokens (not real secrets)
+infra/workers/otel-proxy/README.md
+infra/workers/otel-proxy/GRAFANA-SETUP.md
+docs/IMPLEMENTATION_PLAN.md
+docs/NEPTUNE_DEPLOYMENT_GUIDE.md
+
+# Test/example JWT tokens (not real secrets)
+interfaces/api-gateway/src/auth/simple-cognito.ts
+
+# Attached assets and logs from debugging (not real secrets)
+attached_assets/**
