@@ -1,0 +1,20 @@
+# Gitleaks configuration file to suppress false positives
+# See https://github.com/gitleaks/gitleaks#configuration
+
+# Allow list - paths that should be completely ignored by Gitleaks
+[allowlist]
+  description = "Allowlist for false positives"
+  paths = [
+    '''pnpm-lock\.yaml''',
+    '''\.pnpm-lock\.yaml$''',
+    '''attached_assets/.*''',
+  ]
+
+# Specific rule exceptions with path + commit patterns
+[[allowlist.regexes]]
+  description = "Ignore documentation files with example tokens"
+  regex = '''(IMPLEMENTATION_PLAN|NEPTUNE_DEPLOYMENT_GUIDE|GRAFANA-SETUP|otel-proxy/README)'''
+
+[[allowlist.regexes]]
+  description = "Ignore test/example code with mock JWTs"
+  regex = '''simple-cognito\.ts'''
