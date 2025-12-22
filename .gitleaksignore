@@ -1,17 +1,18 @@
 # Gitleaks ignore file for false positives
+# Format: <file-path>:<rule-id> or just <file-path> to ignore all rules for that file
 
 # pnpm lockfile contains integrity hashes that trigger false positives
 pnpm-lock.yaml
 **/pnpm-lock.yaml
 
 # Documentation files with example API keys/tokens (not real secrets)
-infra/workers/otel-proxy/README.md
-infra/workers/otel-proxy/GRAFANA-SETUP.md
-docs/IMPLEMENTATION_PLAN.md
-docs/NEPTUNE_DEPLOYMENT_GUIDE.md
+infra/workers/otel-proxy/README.md:curl-auth-header
+infra/workers/otel-proxy/GRAFANA-SETUP.md:grafana-cloud-api-token
+docs/IMPLEMENTATION_PLAN.md:confluent-access-token
+docs/NEPTUNE_DEPLOYMENT_GUIDE.md:aws-access-token
 
 # Test/example JWT tokens (not real secrets)
-interfaces/api-gateway/src/auth/simple-cognito.ts
+interfaces/api-gateway/src/auth/simple-cognito.ts:jwt
 
-# Attached assets and logs from debugging (not real secrets)
-attached_assets/**
+# Attached assets and logs from debugging (not real secrets) - ignore all files in this directory
+attached_assets/
