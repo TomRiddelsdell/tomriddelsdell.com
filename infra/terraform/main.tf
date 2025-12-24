@@ -22,6 +22,12 @@ terraform {
   }
 }
 
+# Provider configurations
+provider "github" {
+  token = var.github_token
+  owner = var.github_owner
+}
+
 # Doppler Module - Manages service tokens for CI/CD
 module "doppler" {
   source = "./doppler"
@@ -39,11 +45,12 @@ module "github" {
   github_repository = var.github_repository
 
   # Pass Doppler service tokens from doppler module
+  # Implicit dependency: Terraform waits for module.doppler outputs
   doppler_token_ci  = module.doppler.doppler_token_ci
   doppler_token_stg = module.doppler.doppler_token_stg
   doppler_token_prd = module.doppler.doppler_token_prd
-
-  depends_on = [module.doppler]
+  
+  # depends_on removed - implicit dependency through output references is sufficient
 }
 
 # Cloudflare Module - Manages Pages deployments
