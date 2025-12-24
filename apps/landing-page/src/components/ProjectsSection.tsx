@@ -6,7 +6,7 @@ export function ProjectsSection() {
       title: 'Portfolio Platform',
       description:
         'Event-sourced portfolio management system built with domain-driven design principles.',
-      image: '/impliedvol.jpeg',
+      image: '/impliedvol.webp',
       technologies: ['Next.js', 'TypeScript', 'Event Sourcing', 'PostgreSQL'],
       status: 'In Development',
     },
@@ -14,7 +14,7 @@ export function ProjectsSection() {
       title: 'Quantitative Models',
       description:
         'Collection of quantitative finance models for options pricing and portfolio optimization.',
-      image: '/background.jpg',
+      image: '/background.webp',
       technologies: ['Python', 'NumPy', 'SciPy', 'FastAPI'],
       status: 'Active Development',
     },
@@ -22,7 +22,7 @@ export function ProjectsSection() {
       title: 'Microservices Architecture',
       description:
         'Hybrid deployment architecture supporting both monolithic and microservice patterns.',
-      image: '/me.jpg',
+      image: '/me.webp',
       technologies: ['Docker', 'Terraform', 'AWS', 'Cloudflare'],
       status: 'Production Ready',
     },
@@ -54,6 +54,8 @@ export function ProjectsSection() {
                     alt={project.title}
                     fill
                     className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    quality={80}
                   />
                 </div>
                 <div className="p-6">

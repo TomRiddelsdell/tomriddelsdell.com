@@ -1,0 +1,11 @@
+# pnpm workspace configuration
+# Note: This is ONLY for CI/CD cache coordination
+# Each app maintains complete independence with its own lockfile
+
+packages:
+  # Landing page is independently deployable
+  - 'apps/landing-page'
+  
+  # Future apps will be added here as they are created
+  # - 'apps/api'
+  # - 'apps/admin'
