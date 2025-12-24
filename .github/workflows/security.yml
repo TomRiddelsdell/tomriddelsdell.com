@@ -54,6 +54,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          GITLEAKS_CONFIG: .gitleaks.toml
 
   code-scan:
     name: CodeQL Analysis
@@ -114,7 +115,7 @@ jobs:
             terraform init -backend=false
             # Use checkov for Terraform security scanning
             pip install checkov
-            checkov -d . --framework terraform --output sarif --output-file ../../terraform-security-scan.sarif
+            checkov -d . --framework terraform --config-file ../../.checkov.yaml --output sarif --output-file ../../terraform-security-scan.sarif
           fi
 
       - name: Upload Terraform scan results
