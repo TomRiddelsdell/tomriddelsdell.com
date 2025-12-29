@@ -119,7 +119,7 @@ jobs:
         run: |
           terraform init -backend=false
           pip install checkov
-          checkov -d . --framework terraform --output sarif --output-file ../../terraform-security-scan.sarif
+          checkov -d . --framework terraform --config-file ../../.checkov.yaml --output sarif --output-file ../../terraform-security-scan.sarif
 
       - name: Upload Terraform scan results
         uses: github/codeql-action/upload-sarif@v4
