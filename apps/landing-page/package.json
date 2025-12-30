@@ -71,7 +71,7 @@
     "wrangler": "latest"
   },
   "dependencies": {
-    "next": "^15.5.6",
+    "next": "^16.1.1",
     "react": "latest",
     "react-dom": "latest",
     "zustand": "latest"
