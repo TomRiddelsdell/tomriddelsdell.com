@@ -6,9 +6,14 @@ initOpenNextCloudflareForDev()
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Build configuration matching working examples
+  // Build configuration
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
+
+  // CRITICAL: Empty turbopack config to acknowledge webpack is intentional
+  // Next.js 16 defaults to Turbopack, but we use webpack due to workspace compatibility
+  // The build command will use --webpack flag to force webpack
+  turbopack: {},
 
   // CRITICAL: OpenNext requires standalone output mode
   output: 'standalone',
@@ -21,20 +26,10 @@ const nextConfig = {
     unoptimized: true,
   },
 
-  // Experimental features (matching playground examples)
+  // Experimental features
   experimental: {
     // Generate source maps for debugging (from playground examples)
     serverSourceMaps: true,
-
-    // Turbopack configuration (Next.js 15 default)
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
   },
 
   // Webpack fallback for production builds
