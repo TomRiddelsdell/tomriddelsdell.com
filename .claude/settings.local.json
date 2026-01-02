@@ -29,7 +29,11 @@
       "Read(//home/codespace/**)",
       "Bash(docker compose -f infra/docker-compose.otel.yml ps)",
       "Bash(rm -f docs/GRAFANA-AI-ACCESS.md docs/GRAFANA-MCP-QUICKSTART.md docs/unified-observability-summary.md docs/observability-data-flow.md)",
-      "Bash(ls -la docs/*.md docs/decisions/adr-0{10,23}*.md)"
+      "Bash(ls -la docs/*.md docs/decisions/adr-0{10,23}*.md)",
+      "Bash(claude --version)",
+      "Bash(npm outdated:*)",
+      "Bash(find:*)",
+      "Bash(sort:*)"
     ],
     "deny": [],
     "ask": []

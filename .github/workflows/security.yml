@@ -118,13 +118,9 @@ jobs:
       - name: Terraform Security Scan
         working-directory: infra/terraform
         run: |
-          if [ -d "infra/terraform" ]; then
-            cd infra/terraform
-            terraform init -backend=false
-            # Use checkov for Terraform security scanning
-            pip install checkov
-            checkov -d . --framework terraform --config-file ../../.checkov.yaml --output sarif --output-file ../../terraform-security-scan.sarif
-          fi
+          terraform init -backend=false
+          pip install checkov
+          checkov -d . --framework terraform --config-file ../../.checkov.yaml --output sarif --output-file ../../terraform-security-scan.sarif
 
       - name: Upload Terraform scan results
         uses: github/codeql-action/upload-sarif@v4

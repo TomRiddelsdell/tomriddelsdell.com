@@ -94,8 +94,10 @@ if grep -q '"test"' package.json; then
   fi
 fi
 
-# Run build test (if in CI or explicitly requested)
-if [ "$CI" = "true" ] || [ "$RUN_BUILD_TEST" = "true" ]; then
+# Run build test (only if explicitly requested)
+# Note: Build verification happens in the deployment stage to avoid duplication
+# and reduce CI time. Quality gates focus on code quality checks only.
+if [ "$RUN_BUILD_TEST" = "true" ]; then
   if grep -q '"build:cloudflare"' package.json; then
     run_check "Build test (OpenNext)" "pnpm run build:cloudflare"
   elif grep -q '"build"' package.json; then
