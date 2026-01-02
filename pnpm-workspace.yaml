@@ -1,11 +1,11 @@
-# pnpm workspace configuration
-# Note: This is ONLY for CI/CD cache coordination
-# Each app maintains complete independence with its own lockfile
+# CRITICAL: This workspace file exists ONLY for CI/CD cache coordination
+# It is NOT for coupling apps together - each app is independent per ADR-029
+#
+# Purpose: Enable pnpm to generate a root lockfile that GitHub Actions
+# can use as a cache key for faster CI builds
+#
+# See: docs/decisions/adr-029-independent-app-deployment.md
+# See: changes/2025-12-22-cicd-pipeline-remediation-progress.md
 
 packages:
-  # Landing page is independently deployable
   - 'apps/landing-page'
-  
-  # Future apps will be added here as they are created
-  # - 'apps/api'
-  # - 'apps/admin'

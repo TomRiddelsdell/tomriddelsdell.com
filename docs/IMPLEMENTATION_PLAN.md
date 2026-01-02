@@ -2307,3 +2307,1379 @@ gantt
 **Last Review:** October 9, 2025  
 **Next Review:** After Phase 2.1 completion  
 **Status:** ACTIVE - Ready for execution
+
+
+---
+
+## 🔴 PLATFORM REMEDIATION: Core Service Implementation
+
+**Status Update:** December 16, 2025
+**Analysis Reference:** `docs/platform-readiness-analysis-2025-12-16.md`
+**Current Assessment:** Platform is 90% design, 10% implementation - **BLOCKING new app development**
+
+**Critical Finding:** All domain services are placeholder directories with 0% implementation. Cannot build new applications without implementing core platform services and shared infrastructure.
+
+**Strategic Priority:** Complete **Phase 5: Platform Foundation** before any new application development
+
+---
+
+### Platform Readiness Summary
+
+**Strengths:**
+- ✅ 29 comprehensive ADRs covering DDD, Event Sourcing, CQRS, Infrastructure
+- ✅ Clear bounded context design with anti-corruption layers
+- ✅ Landing page deployed and operational (independent architecture validated)
+- ✅ CI/CD pipeline functional (December 16, 2025 remediation complete)
+- ✅ Observability package implemented (~95% complete)
+
+**Critical Gaps (BLOCKING):**
+- ❌ **Zero domain service implementation** - All services are placeholder directories
+- ❌ **No event contracts** - contracts/events/ is empty, blocking CQRS implementation
+- ❌ **Incomplete shared packages** - Only observability implemented, missing domain/testing
+- ❌ **No developer tooling** - No service templates, scaffolding, or code generation
+- ❌ **Missing domain documentation** - Ubiquitous language not documented
+
+**Impact:** Cannot build new applications without platform foundation. Estimated 8-10 weeks to reach "ready for app development" state.
+
+---
+
+## Phase 5: Platform Foundation (8-10 weeks)
+
+**Objective:** Implement core platform services and shared infrastructure to enable rapid application development
+**Target:** Platform ready for new app development with DDD/Event Sourcing patterns fully operational
+**Timeline:** 8-10 weeks (full-time equivalent)
+**Priority:** P0 - BLOCKING all future app development
+
+### Architecture Principles
+
+**Test-First Development:**
+- Write failing tests BEFORE implementation (Red-Green-Refactor cycle)
+- Unit tests for domain logic (aggregates, value objects, domain events)
+- Integration tests for infrastructure (event store, projections, repositories)
+- Contract tests for API boundaries
+- Target: >85% code coverage
+
+**DDD Patterns:**
+- Aggregates: Consistency boundaries with business rules
+- Value Objects: Immutable, validated domain concepts
+- Domain Events: State changes as first-class citizens
+- Repositories: Persistence abstraction for aggregates
+- Factories: Complex aggregate construction
+- Anti-Corruption Layers: Protect domain from external concerns
+
+**Event Sourcing:**
+- Event Store: Append-only log of domain events
+- Projections: Read models built from events
+- Snapshots: Performance optimization for large aggregates
+- Outbox Pattern: Reliable event publishing
+- Event Versioning: Schema evolution without breaking changes
+
+**Clean/Hexagonal Architecture:**
+- Domain Layer: Pure business logic, zero infrastructure dependencies
+- Application Layer: Use cases, command/query handlers
+- Infrastructure Layer: Adapters for external concerns (DB, HTTP, event bus)
+- Interface Layer: API endpoints, controllers, DTOs
+
+---
+
+### Phase 5.1: Event Contracts Foundation (2-3 weeks)
+
+**Objective:** Establish type-safe event contracts with code generation for all services
+**Timeline:** 2-3 weeks
+**Dependencies:** None
+**ADR Compliance:** ADR-023 (Contract Management), ADR-007 (Event Versioning)
+
+#### 5.1.1: Avro Schema Definition (1 week)
+
+**Objective:** Define Avro schemas for all domain events with versioning strategy
+
+**Test-First Approach:**
+1. Write schema validation tests (invalid schemas should fail)
+2. Write event serialization/deserialization tests
+3. Write schema evolution tests (backward compatibility)
+4. Implement schemas to pass tests
+5. Refactor for clarity and maintainability
+
+**Tasks:**
+
+1. **Set up Avro tooling** (4 hours)
+   ```bash
+   # Install Avro tools
+   npm install --save-dev avro-js @types/avro-js
+   npm install --save-dev avsc  # Avro schema validator
+
+   # Create directory structure
+   mkdir -p contracts/events/schemas/{accounts,entitlements,app-catalog,admin}
+   mkdir -p contracts/events/generated/{typescript,java,python}
+   ```
+
+2. **Define event versioning convention** (2 hours)
+   - Convention: `{Domain}{Event}V{Version}.avsc`
+   - Example: `AccountCreatedV1.avsc`, `AccountCreatedV2.avsc`
+   - Document versioning rules in `contracts/events/VERSIONING.md`
+   - Test: Schema version extraction and compatibility checks
+
+3. **Create base event schema** (2 hours)
+   ```json
+   // contracts/events/schemas/common/BaseEventV1.avsc
+   {
+     "type": "record",
+     "name": "BaseEvent",
+     "namespace": "com.tomriddelsdell.platform.events",
+     "fields": [
+       {"name": "eventId", "type": "string"},
+       {"name": "eventType", "type": "string"},
+       {"name": "eventVersion", "type": "int", "default": 1},
+       {"name": "aggregateId", "type": "string"},
+       {"name": "aggregateType", "type": "string"},
+       {"name": "timestamp", "type": "long"},
+       {"name": "correlationId", "type": ["null", "string"], "default": null},
+       {"name": "causationId", "type": ["null", "string"], "default": null},
+       {"name": "metadata", "type": {"type": "map", "values": "string"}}
+     ]
+   }
+   ```
+
+   **Tests:**
+   ```typescript
+   describe('BaseEventV1', () => {
+     it('should validate event with all required fields', () => {
+       const event = {
+         eventId: uuid(),
+         eventType: 'AccountCreated',
+         eventVersion: 1,
+         aggregateId: uuid(),
+         aggregateType: 'Account',
+         timestamp: Date.now(),
+         metadata: {}
+       };
+       expect(avro.isValid(schema, event)).toBe(true);
+     });
+
+     it('should reject event missing required fields', () => {
+       const event = { eventId: uuid() };
+       expect(avro.isValid(schema, event)).toBe(false);
+     });
+   });
+   ```
+
+4. **Define Accounts domain events** (1.5 days)
+
+   Events to define:
+   - `AccountCreatedV1.avsc` - New account registered
+   - `AccountEmailVerifiedV1.avsc` - Email verification completed
+   - `AccountProfileUpdatedV1.avsc` - Profile information changed
+   - `AccountDeactivatedV1.avsc` - Account deactivated
+   - `AccountReactivatedV1.avsc` - Account reactivated
+
+   Example:
+   ```json
+   // AccountCreatedV1.avsc
+   {
+     "type": "record",
+     "name": "AccountCreatedV1",
+     "namespace": "com.tomriddelsdell.platform.events.accounts",
+     "fields": [
+       {"name": "accountId", "type": "string"},
+       {"name": "email", "type": "string"},
+       {"name": "displayName", "type": ["null", "string"], "default": null},
+       {"name": "createdAt", "type": "long"}
+     ]
+   }
+   ```
+
+   **Tests for each event:**
+   ```typescript
+   describe('AccountCreatedV1', () => {
+     it('should serialize and deserialize correctly', () => {
+       const event = { accountId: uuid(), email: 'test@example.com', ... };
+       const buffer = avro.encode(schema, event);
+       const decoded = avro.decode(schema, buffer);
+       expect(decoded).toEqual(event);
+     });
+
+     it('should enforce email format', () => {
+       const event = { accountId: uuid(), email: 'invalid-email', ... };
+       expect(avro.isValid(schema, event)).toBe(false);
+     });
+   });
+   ```
+
+5. **Define Entitlements domain events** (1 day)
+
+   Events:
+   - `EntitlementGrantedV1.avsc`
+   - `EntitlementRevokedV1.avsc`
+   - `EntitlementExpiredV1.avsc`
+   - `SubscriptionCreatedV1.avsc`
+   - `SubscriptionRenewedV1.avsc`
+   - `SubscriptionCancelledV1.avsc`
+
+6. **Define App Catalog domain events** (1 day)
+
+   Events:
+   - `AppRegisteredV1.avsc`
+   - `AppPublishedV1.avsc`
+   - `AppDeprecatedV1.avsc`
+   - `AppVersionReleasedV1.avsc`
+
+7. **Define Admin domain events** (0.5 day)
+
+   Events:
+   - `UserRoleAssignedV1.avsc`
+   - `UserRoleRevokedV1.avsc`
+   - `PermissionGrantedV1.avsc`
+   - `PermissionRevokedV1.avsc`
+
+**Success Criteria:**
+- ✅ 20+ event schemas defined with full field documentation
+- ✅ All schemas validate with `avsc` tool
+- ✅ Versioning convention documented and enforced
+- ✅ BaseEvent schema reused across all domains
+- ✅ Tests pass for all schemas (serialization, validation, evolution)
+- ✅ >90% test coverage on schema validation logic
+
+**Validation Commands:**
+```bash
+# Validate all schemas
+find contracts/events/schemas -name "*.avsc" -exec avsc validate {} \;
+
+# Run schema tests
+npm test -- contracts/events
+
+# Check test coverage
+npm run test:coverage -- contracts/events
+```
+
+**ADR Compliance:**
+- ✅ ADR-023: Contract-first development with Avro
+- ✅ ADR-007: Event versioning with backward compatibility
+
+---
+
+#### 5.1.2: Code Generation Setup (1 week)
+
+**Objective:** Automate TypeScript/Java/Python code generation from Avro schemas
+
+**Test-First Approach:**
+1. Write tests for generated code structure
+2. Write tests for type safety
+3. Write tests for serialization round-trips
+4. Implement code generation to pass tests
+5. Refactor generation templates
+
+**Tasks:**
+
+1. **Install code generation tools** (2 hours)
+   ```bash
+   # TypeScript generation
+   npm install --save-dev avro-typescript
+
+   # Java generation (for future microservices)
+   # Requires Maven plugin configuration
+
+   # Python generation
+   pip install avro-python3
+   ```
+
+2. **Create generation scripts** (1 day)
+
+   Create `contracts/events/scripts/generate.sh`:
+   ```bash
+   #!/bin/bash
+   set -e
+
+   echo "Generating TypeScript types from Avro schemas..."
+
+   # Find all .avsc files
+   find schemas -name "*.avsc" | while read schema; do
+     # Generate TypeScript
+     avro-typescript $schema > generated/typescript/$(basename $schema .avsc).ts
+   done
+
+   echo "Generation complete!"
+   ```
+
+   **Tests:**
+   ```typescript
+   describe('Code Generation', () => {
+     it('should generate TypeScript types for all schemas', () => {
+       execSync('bash scripts/generate.sh');
+       const files = fs.readdirSync('generated/typescript');
+       expect(files.length).toBeGreaterThan(20); // 20+ schemas
+     });
+
+     it('should generate valid TypeScript code', () => {
+       execSync('bash scripts/generate.sh');
+       execSync('tsc --noEmit generated/typescript/*.ts');
+       // Should not throw
+     });
+   });
+   ```
+
+3. **Configure type-safe event interfaces** (2 days)
+
+   Create `contracts/events/src/index.ts`:
+   ```typescript
+   // Re-export all generated types
+   export * from '../generated/typescript/BaseEventV1';
+   export * from '../generated/typescript/AccountCreatedV1';
+   export * from '../generated/typescript/AccountEmailVerifiedV1';
+   // ... all events
+
+   // Type-safe event envelope
+   export interface EventEnvelope<T> {
+     base: BaseEvent;
+     payload: T;
+   }
+
+   // Event type guards
+   export function isAccountCreated(event: unknown): event is AccountCreatedV1 {
+     return (event as any).eventType === 'AccountCreated';
+   }
+   ```
+
+   **Tests:**
+   ```typescript
+   describe('Event Type Guards', () => {
+     it('should correctly identify event types', () => {
+       const event: BaseEvent = createAccountCreatedEvent();
+       expect(isAccountCreated(event.payload)).toBe(true);
+       expect(isAccountEmailVerified(event.payload)).toBe(false);
+     });
+
+     it('should provide type safety after type guard', () => {
+       const event: BaseEvent = createAccountCreatedEvent();
+       if (isAccountCreated(event.payload)) {
+         // TypeScript should know event.payload is AccountCreatedV1
+         expect(event.payload.accountId).toBeDefined();
+         expect(event.payload.email).toBeDefined();
+       }
+     });
+   });
+   ```
+
+4. **Create event publishing package** (2 days)
+
+   Create `contracts/events/src/publisher.ts`:
+   ```typescript
+   import { EventEnvelope, BaseEvent } from './index';
+
+   export interface EventPublisher {
+     publish<T>(envelope: EventEnvelope<T>): Promise<void>;
+     publishBatch<T>(envelopes: EventEnvelope<T>[]): Promise<void>;
+   }
+
+   export class KafkaEventPublisher implements EventPublisher {
+     async publish<T>(envelope: EventEnvelope<T>): Promise<void> {
+       // Serialize with Avro
+       const buffer = avro.encode(schema, envelope);
+       await this.kafka.send({
+         topic: envelope.base.aggregateType,
+         messages: [{ value: buffer }]
+       });
+     }
+   }
+   ```
+
+   **Tests:**
+   ```typescript
+   describe('EventPublisher', () => {
+     let publisher: KafkaEventPublisher;
+     let mockKafka: jest.Mocked<Kafka>;
+
+     beforeEach(() => {
+       mockKafka = createMockKafka();
+       publisher = new KafkaEventPublisher(mockKafka);
+     });
+
+     it('should serialize event with Avro before publishing', async () => {
+       const event = createAccountCreatedEvent();
+       await publisher.publish(event);
+
+       expect(mockKafka.send).toHaveBeenCalledWith(
+         expect.objectContaining({
+           topic: 'Account',
+           messages: [{ value: expect.any(Buffer) }]
+         })
+       );
+     });
+
+     it('should handle publish failures gracefully', async () => {
+       mockKafka.send.mockRejectedValue(new Error('Kafka down'));
+       const event = createAccountCreatedEvent();
+
+       await expect(publisher.publish(event)).rejects.toThrow('Kafka down');
+     });
+   });
+   ```
+
+5. **Create NPM package** (1 day)
+
+   Create `contracts/events/package.json`:
+   ```json
+   {
+     "name": "@platform/event-contracts",
+     "version": "1.0.0",
+     "main": "dist/index.js",
+     "types": "dist/index.d.ts",
+     "scripts": {
+       "generate": "bash scripts/generate.sh",
+       "prebuild": "npm run generate",
+       "build": "tsc",
+       "test": "jest",
+       "test:watch": "jest --watch",
+       "test:coverage": "jest --coverage"
+     },
+     "dependencies": {
+       "avro-js": "^1.11.1",
+       "kafkajs": "^2.2.4"
+     },
+     "devDependencies": {
+       "avro-typescript": "^1.5.0",
+       "avsc": "^5.7.7",
+       "@types/jest": "^29.5.5",
+       "jest": "^29.7.0",
+       "typescript": "^5.2.2"
+     }
+   }
+   ```
+
+   **Tests:**
+   ```typescript
+   describe('@platform/event-contracts package', () => {
+     it('should build successfully', () => {
+       execSync('npm run build');
+       expect(fs.existsSync('dist/index.js')).toBe(true);
+       expect(fs.existsSync('dist/index.d.ts')).toBe(true);
+     });
+
+     it('should export all event types', () => {
+       const exports = require('./dist/index');
+       expect(exports.BaseEvent).toBeDefined();
+       expect(exports.AccountCreatedV1).toBeDefined();
+       expect(exports.EventPublisher).toBeDefined();
+     });
+   });
+   ```
+
+**Success Criteria:**
+- ✅ Code generation scripts operational
+- ✅ TypeScript types generated for all 20+ schemas
+- ✅ Type-safe event interfaces available
+- ✅ Event publisher abstraction implemented
+- ✅ NPM package builds and publishes
+- ✅ Tests pass with >85% coverage
+- ✅ Zero TypeScript compilation errors
+
+**Validation Commands:**
+```bash
+cd contracts/events
+npm run generate
+npm run build
+npm test
+npm run test:coverage  # Should show >85% coverage
+```
+
+**ADR Compliance:**
+- ✅ ADR-023: Code generation from contracts
+- ✅ ADR-020: Type-safe API boundaries
+
+---
+
+#### 5.1.3: Event Contracts Documentation (0.5 week)
+
+**Objective:** Comprehensive documentation for event contracts and usage patterns
+
+**Tasks:**
+
+1. **Create contracts README** (4 hours)
+   - Overview of event-driven architecture
+   - How to add new events
+   - Versioning best practices
+   - Code generation workflow
+   - Publishing events from services
+   - Consuming events in projections
+
+2. **Document each domain's events** (4 hours)
+   - `contracts/events/docs/accounts-events.md`
+   - `contracts/events/docs/entitlements-events.md`
+   - `contracts/events/docs/app-catalog-events.md`
+   - `contracts/events/docs/admin-events.md`
+   - Include event flow diagrams (who publishes, who consumes)
+
+3. **Create usage examples** (4 hours)
+   - Publishing events from aggregates
+   - Subscribing to events in projections
+   - Event versioning migration example
+   - Error handling patterns
+
+**Success Criteria:**
+- ✅ Comprehensive README with quickstart
+- ✅ Domain-specific event documentation
+- ✅ Code examples for common patterns
+- ✅ Architecture diagrams included
+
+**Validation:**
+- New developer can understand and use event contracts in <30 minutes
+- Documentation reviewed by team (or external reviewer)
+
+---
+
+### Phase 5.2: Shared Domain Package (1 week)
+
+**Objective:** Implement DDD building blocks (Value Objects, Entities, Aggregates, Domain Events)
+**Timeline:** 1 week
+**Dependencies:** Phase 5.1 (Event Contracts)
+**ADR Compliance:** ADR-005 (Domain Model Design), ADR-016 (Clean Architecture)
+
+#### Test-First Implementation Plan
+
+**Test Structure:**
+- Unit tests for each building block
+- Test domain rules and invariants
+- Test value object equality and immutability
+- Test aggregate consistency boundaries
+- Test domain event creation
+
+**Tasks:**
+
+1. **Package structure setup** (0.5 day)
+   ```
+   packages/shared-domain/
+   ├── src/
+   │   ├── value-objects/     # Email, Money, Timestamp, etc.
+   │   ├── entities/          # Base Entity class
+   │   ├── aggregates/        # Base Aggregate class
+   │   ├── events/            # Domain Event interfaces
+   │   ├── repositories/      # Repository interfaces
+   │   └── index.ts
+   ├── tests/
+   │   ├── value-objects/
+   │   ├── entities/
+   │   └── aggregates/
+   └── package.json
+   ```
+
+2. **Implement Value Objects** (2 days)
+
+   **Test-First Example - Email Value Object:**
+   ```typescript
+   // tests/value-objects/Email.test.ts
+   describe('Email Value Object', () => {
+     describe('creation', () => {
+       it('should create valid email', () => {
+         const email = Email.create('test@example.com');
+         expect(email.isSuccess).toBe(true);
+         expect(email.value.value).toBe('test@example.com');
+       });
+
+       it('should reject invalid email format', () => {
+         const email = Email.create('invalid-email');
+         expect(email.isFailure).toBe(true);
+         expect(email.error).toContain('Invalid email format');
+       });
+
+       it('should normalize email to lowercase', () => {
+         const email = Email.create('Test@EXAMPLE.COM');
+         expect(email.value.value).toBe('test@example.com');
+       });
+     });
+
+     describe('equality', () => {
+       it('should be equal if values match', () => {
+         const email1 = Email.create('test@example.com').value;
+         const email2 = Email.create('test@example.com').value;
+         expect(email1.equals(email2)).toBe(true);
+       });
+
+       it('should not be equal if values differ', () => {
+         const email1 = Email.create('test1@example.com').value;
+         const email2 = Email.create('test2@example.com').value;
+         expect(email1.equals(email2)).toBe(false);
+       });
+     });
+
+     describe('immutability', () => {
+       it('should not allow value modification', () => {
+         const email = Email.create('test@example.com').value;
+         expect(() => { (email as any).value = 'new@example.com'; }).toThrow();
+       });
+     });
+   });
+   ```
+
+   **Implementation (after tests fail):**
+   ```typescript
+   // src/value-objects/Email.ts
+   import { ValueObject } from './ValueObject';
+   import { Result } from '../Result';
+
+   interface EmailProps {
+     value: string;
+   }
+
+   export class Email extends ValueObject<EmailProps> {
+     private constructor(props: EmailProps) {
+       super(props);
+       Object.freeze(this);
+     }
+
+     get value(): string {
+       return this.props.value;
+     }
+
+     public static create(email: string): Result<Email> {
+       if (!this.isValidFormat(email)) {
+         return Result.fail<Email>('Invalid email format');
+       }
+
+       const normalized = email.trim().toLowerCase();
+       return Result.ok<Email>(new Email({ value: normalized }));
+     }
+
+     private static isValidFormat(email: string): boolean {
+       const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+       return regex.test(email);
+     }
+   }
+   ```
+
+   **More Value Objects to implement (same test-first pattern):**
+   - `UserId` - UUID-based identifier
+   - `Money` - Amount + currency
+   - `Timestamp` - Validated datetime
+   - `DisplayName` - Validated name (1-100 chars)
+   - `AggregateVersion` - Positive integer for optimistic locking
+
+3. **Implement Base Entity** (1 day)
+
+   **Tests:**
+   ```typescript
+   describe('Entity', () => {
+     it('should have unique identifier', () => {
+       const entity1 = TestEntity.create({ id: 'id-1', name: 'Test' });
+       const entity2 = TestEntity.create({ id: 'id-2', name: 'Test' });
+       expect(entity1.id).not.toEqual(entity2.id);
+     });
+
+     it('should be equal only if IDs match', () => {
+       const entity1 = TestEntity.create({ id: 'same-id', name: 'Name1' });
+       const entity2 = TestEntity.create({ id: 'same-id', name: 'Name2' });
+       expect(entity1.equals(entity2)).toBe(true);
+     });
+
+     it('should track when it was created', () => {
+       const entity = TestEntity.create({ id: 'id-1', name: 'Test' });
+       expect(entity.createdAt).toBeInstanceOf(Date);
+     });
+   });
+   ```
+
+   **Implementation:**
+   ```typescript
+   export abstract class Entity<T> {
+     protected readonly _id: string;
+     protected readonly _createdAt: Date;
+     protected _updatedAt: Date;
+
+     constructor(id: string) {
+       this._id = id;
+       this._createdAt = new Date();
+       this._updatedAt = new Date();
+     }
+
+     get id(): string {
+       return this._id;
+     }
+
+     get createdAt(): Date {
+       return this._createdAt;
+     }
+
+     get updatedAt(): Date {
+       return this._updatedAt;
+     }
+
+     protected touch(): void {
+       this._updatedAt = new Date();
+     }
+
+     public equals(entity: Entity<T>): boolean {
+       if (!(entity instanceof Entity)) {
+         return false;
+       }
+       return this._id === entity._id;
+     }
+   }
+   ```
+
+4. **Implement Base Aggregate** (1.5 days)
+
+   **Tests:**
+   ```typescript
+   describe('Aggregate Root', () => {
+     it('should collect domain events', () => {
+       const aggregate = TestAggregate.create({ id: 'agg-1' });
+       aggregate.doSomething();
+
+       const events = aggregate.getUncommittedEvents();
+       expect(events.length).toBe(1);
+       expect(events[0]).toBeInstanceOf(SomethingHappenedEvent);
+     });
+
+     it('should clear events after commit', () => {
+       const aggregate = TestAggregate.create({ id: 'agg-1' });
+       aggregate.doSomething();
+       aggregate.markEventsAsCommitted();
+
+       expect(aggregate.getUncommittedEvents()).toHaveLength(0);
+     });
+
+     it('should track version for optimistic locking', () => {
+       const aggregate = TestAggregate.create({ id: 'agg-1' });
+       expect(aggregate.version).toBe(0);
+
+       aggregate.doSomething();
+       aggregate.markEventsAsCommitted();
+       expect(aggregate.version).toBe(1);
+     });
+
+     it('should enforce consistency within aggregate boundary', () => {
+       const aggregate = TestAggregate.create({ id: 'agg-1' });
+       const result = aggregate.doInvalidAction();
+
+       expect(result.isFailure).toBe(true);
+       expect(aggregate.getUncommittedEvents()).toHaveLength(0);
+     });
+   });
+   ```
+
+   **Implementation:**
+   ```typescript
+   import { DomainEvent } from './DomainEvent';
+   import { Entity } from './Entity';
+
+   export abstract class AggregateRoot<T> extends Entity<T> {
+     private _domainEvents: DomainEvent[] = [];
+     private _version: number = 0;
+
+     get version(): number {
+       return this._version;
+     }
+
+     protected addDomainEvent(event: DomainEvent): void {
+       this._domainEvents.push(event);
+       this.touch();
+     }
+
+     public getUncommittedEvents(): DomainEvent[] {
+       return [...this._domainEvents];
+     }
+
+     public markEventsAsCommitted(): void {
+       this._version += this._domainEvents.length;
+       this._domainEvents = [];
+     }
+
+     public loadFromHistory(events: DomainEvent[]): void {
+       events.forEach(event => this.applyEvent(event, false));
+       this._version = events.length;
+     }
+
+     protected abstract applyEvent(event: DomainEvent, isNew: boolean): void;
+   }
+   ```
+
+5. **Implement Repository interfaces** (0.5 day)
+
+   **Tests:**
+   ```typescript
+   describe('Repository Interface', () => {
+     it('should save aggregate with events', async () => {
+       const repo = new InMemoryTestRepository();
+       const aggregate = TestAggregate.create({ id: 'agg-1' });
+       aggregate.doSomething();
+
+       await repo.save(aggregate);
+
+       const loaded = await repo.findById('agg-1');
+       expect(loaded).toBeDefined();
+       expect(loaded.version).toBe(1);
+     });
+
+     it('should throw on version conflict', async () => {
+       const repo = new InMemoryTestRepository();
+       const aggregate1 = TestAggregate.create({ id: 'agg-1' });
+       await repo.save(aggregate1);
+
+       const aggregate2 = await repo.findById('agg-1');
+       const aggregate3 = await repo.findById('agg-1');
+
+       aggregate2.doSomething();
+       await repo.save(aggregate2);  // Version 1
+
+       aggregate3.doSomething();
+       await expect(repo.save(aggregate3)).rejects.toThrow('Version conflict');
+     });
+   });
+   ```
+
+   **Implementation:**
+   ```typescript
+   export interface Repository<T extends AggregateRoot<any>> {
+     findById(id: string): Promise<T | null>;
+     save(aggregate: T): Promise<void>;
+     delete(id: string): Promise<void>;
+   }
+
+   export class ConcurrencyError extends Error {
+     constructor(aggregateId: string, expectedVersion: number, actualVersion: number) {
+       super(`Version conflict for ${aggregateId}: expected ${expectedVersion}, got ${actualVersion}`);
+     }
+   }
+   ```
+
+**Success Criteria:**
+- ✅ All Value Objects implemented with validation
+- ✅ Base Entity with identity and equality
+- ✅ Base Aggregate with domain event collection
+- ✅ Repository interfaces defined
+- ✅ Tests pass with >90% coverage
+- ✅ Zero violations of immutability or encapsulation
+- ✅ TypeScript strict mode enabled and passing
+
+**Validation Commands:**
+```bash
+cd packages/shared-domain
+npm test
+npm run test:coverage  # Should show >90% coverage
+npm run type-check  # Should pass with --strict
+```
+
+**ADR Compliance:**
+- ✅ ADR-005: DDD tactical patterns implemented
+- ✅ ADR-016: Domain layer has zero infrastructure dependencies
+
+---
+
+### Phase 5.3: Shared Infrastructure Package (1.5 weeks)
+
+**Objective:** Implement Event Store, Outbox Pattern, Message Bus, and Projection infrastructure
+**Timeline:** 1.5 weeks
+**Dependencies:** Phase 5.1 (Event Contracts), Phase 5.2 (Shared Domain)
+**ADR Compliance:** ADR-006 (Event Sourcing), ADR-008 (Event Bus), ADR-011 (Data Storage)
+
+**Test-First Approach:**
+- Write integration tests for Event Store (in-memory implementation)
+- Write tests for Outbox Pattern reliability
+- Write tests for Message Bus pub/sub
+- Write tests for Projection synchronization
+- Implement to pass tests
+
+**Tasks:**
+
+1. **Event Store implementation** (3 days)
+
+   **Tests:**
+   ```typescript
+   describe('Event Store', () => {
+     let eventStore: EventStore;
+
+     beforeEach(() => {
+       eventStore = new NeonEventStore(dbConnection);
+     });
+
+     it('should append events to stream', async () => {
+       const events = [
+         createAccountCreatedEvent(),
+         createAccountEmailVerifiedEvent()
+       ];
+
+       await eventStore.appendToStream('Account-123', events, 0);
+
+       const stream = await eventStore.getStream('Account-123');
+       expect(stream.events).toHaveLength(2);
+       expect(stream.version).toBe(2);
+     });
+
+     it('should enforce optimistic concurrency', async () => {
+       const event1 = createAccountCreatedEvent();
+       await eventStore.appendToStream('Account-123', [event1], 0);
+
+       const event2 = createAccountProfileUpdatedEvent();
+       await expect(
+         eventStore.appendToStream('Account-123', [event2], 0)
+       ).rejects.toThrow('Version conflict');
+     });
+
+     it('should create snapshots for large aggregates', async () => {
+       const events = createManyEvents(600); // > 500 event threshold
+       await eventStore.appendToStream('Account-123', events, 0);
+
+       const snapshot = await eventStore.getSnapshot('Account-123');
+       expect(snapshot).toBeDefined();
+       expect(snapshot.version).toBeGreaterThan(500);
+     });
+
+     it('should allow replaying events from specific version', async () => {
+       const events = createManyEvents(100);
+       await eventStore.appendToStream('Account-123', events, 0);
+
+       const replayEvents = await eventStore.getEventsFrom('Account-123', 50);
+       expect(replayEvents).toHaveLength(50);
+       expect(replayEvents[0].version).toBe(51);
+     });
+   });
+   ```
+
+   **Implementation:**
+   ```typescript
+   // packages/shared-infra/src/event-store/NeonEventStore.ts
+   export class NeonEventStore implements EventStore {
+     constructor(private db: NeonConnection) {}
+
+     async appendToStream(
+       streamId: string,
+       events: DomainEvent[],
+       expectedVersion: number
+     ): Promise<void> {
+       await this.db.transaction(async (tx) => {
+         // Check current version
+         const stream = await tx.one(
+           'SELECT version FROM event_streams WHERE stream_id = $1 FOR UPDATE',
+           [streamId]
+         );
+
+         if (stream && stream.version !== expectedVersion) {
+           throw new ConcurrencyError(streamId, expectedVersion, stream.version);
+         }
+
+         // Append events
+         for (const event of events) {
+           await tx.none(
+             'INSERT INTO events (stream_id, version, event_type, payload, metadata) VALUES ($1, $2, $3, $4, $5)',
+             [streamId, expectedVersion + 1, event.eventType, event.payload, event.metadata]
+           );
+           expectedVersion++;
+         }
+
+         // Update stream version
+         await tx.none(
+           'INSERT INTO event_streams (stream_id, version) VALUES ($1, $2) ON CONFLICT (stream_id) DO UPDATE SET version = $2',
+           [streamId, expectedVersion]
+         );
+
+         // Check if snapshot needed
+         if (expectedVersion > 500 && expectedVersion % 100 === 0) {
+           await this.createSnapshot(streamId, expectedVersion, tx);
+         }
+       });
+     }
+
+     // ... other methods
+   }
+   ```
+
+2. **Outbox Pattern implementation** (2 days)
+
+   **Tests:**
+   ```typescript
+   describe('Outbox Pattern', () => {
+     it('should store events in outbox table', async () => {
+       const event = createAccountCreatedEvent();
+       await outbox.add(event);
+
+       const pending = await outbox.getPending();
+       expect(pending).toContainEqual(expect.objectContaining({
+         eventId: event.eventId,
+         published: false
+       }));
+     });
+
+     it('should mark events as published', async () => {
+       const event = createAccountCreatedEvent();
+       await outbox.add(event);
+       await outbox.markAsPublished(event.eventId);
+
+       const pending = await outbox.getPending();
+       expect(pending).not.toContainEqual(expect.objectContaining({
+         eventId: event.eventId
+       }));
+     });
+
+     it('should retry failed publications', async () => {
+       const event = createAccountCreatedEvent();
+       await outbox.add(event);
+       await outbox.markAsFailed(event.eventId, 'Kafka down');
+
+       const retryable = await outbox.getRetryable();
+       expect(retryable).toContainEqual(expect.objectContaining({
+         eventId: event.eventId,
+         retryCount: 1
+       }));
+     });
+
+     it('should not retry beyond max attempts', async () => {
+       const event = createAccountCreatedEvent();
+       await outbox.add(event);
+
+       for (let i = 0; i < 5; i++) {
+         await outbox.markAsFailed(event.eventId, 'Kafka down');
+       }
+
+       const retryable = await outbox.getRetryable();
+       expect(retryable).not.toContainEqual(expect.objectContaining({
+         eventId: event.eventId
+       }));
+     });
+   });
+   ```
+
+3. **Message Bus abstraction** (2 days)
+
+   **Tests:**
+   ```typescript
+   describe('Message Bus', () => {
+     it('should publish events to Kafka topic', async () => {
+       const bus = new KafkaMessageBus(kafkaClient);
+       const event = createAccountCreatedEvent();
+
+       await bus.publish(event);
+
+       expect(mockKafka.send).toHaveBeenCalledWith({
+         topic: 'Account',
+         messages: [expect.objectContaining({
+           value: expect.any(Buffer)
+         })]
+       });
+     });
+
+     it('should subscribe to events by type', async () => {
+       const bus = new KafkaMessageBus(kafkaClient);
+       const handler = jest.fn();
+
+       await bus.subscribe('AccountCreated', handler);
+       await bus.publish(createAccountCreatedEvent());
+
+       await waitFor(() => expect(handler).toHaveBeenCalled());
+     });
+
+     it('should handle consumer group coordination', async () => {
+       const bus1 = new KafkaMessageBus(kafkaClient, { groupId: 'projection-1' });
+       const bus2 = new KafkaMessageBus(kafkaClient, { groupId: 'projection-1' });
+
+       const handler1 = jest.fn();
+       const handler2 = jest.fn();
+
+       await bus1.subscribe('AccountCreated', handler1);
+       await bus2.subscribe('AccountCreated', handler2);
+
+       await bus1.publish(createAccountCreatedEvent());
+
+       // Only one handler should process (Kafka consumer group)
+       await waitFor(() => {
+         const totalCalls = handler1.mock.calls.length + handler2.mock.calls.length;
+         expect(totalCalls).toBe(1);
+       });
+     });
+   });
+   ```
+
+4. **Projection base classes** (1.5 days)
+
+   **Tests:**
+   ```typescript
+   describe('Projection', () => {
+     it('should build read model from events', async () => {
+       const projection = new AccountListProjection(db);
+
+       const events = [
+         createAccountCreatedEvent({ accountId: 'acc-1', email: 'test1@example.com' }),
+         createAccountCreatedEvent({ accountId: 'acc-2', email: 'test2@example.com' })
+       ];
+
+       for (const event of events) {
+         await projection.handle(event);
+       }
+
+       const accounts = await db.query('SELECT * FROM account_list_view');
+       expect(accounts).toHaveLength(2);
+     });
+
+     it('should track projection position', async () => {
+       const projection = new AccountListProjection(db);
+
+       await projection.handle(createAccountCreatedEvent());
+
+       const position = await projection.getPosition();
+       expect(position).toBeGreaterThan(0);
+     });
+
+     it('should allow rebuilding from scratch', async () => {
+       const projection = new AccountListProjection(db);
+
+       // Create some data
+       await projection.handle(createAccountCreatedEvent());
+       await projection.handle(createAccountCreatedEvent());
+
+       // Rebuild
+       await projection.rebuild();
+
+       const position = await projection.getPosition();
+       expect(position).toBe(0);
+
+       const accounts = await db.query('SELECT * FROM account_list_view');
+       expect(accounts).toHaveLength(0);
+     });
+   });
+   ```
+
+**Success Criteria:**
+- ✅ Event Store operational with Neon PostgreSQL
+- ✅ Outbox Pattern prevents event loss
+- ✅ Message Bus (Kafka) pub/sub working
+- ✅ Projection base classes implemented
+- ✅ Integration tests pass
+- ✅ >85% test coverage
+
+**Validation Commands:**
+```bash
+cd packages/shared-infra
+npm test
+npm run test:integration
+npm run test:coverage
+```
+
+**ADR Compliance:**
+- ✅ ADR-006: Event Sourcing with Event Store
+- ✅ ADR-008: Event Bus (Kafka) integration
+- ✅ ADR-011: Neon PostgreSQL for event storage
+
+---
+
+### Phase 5.4: Testing Utilities Package (0.5 week)
+
+**Objective:** Create reusable test utilities for DDD/Event Sourcing patterns
+**Timeline:** 0.5 week
+**Dependencies:** Phase 5.2 (Shared Domain), Phase 5.3 (Shared Infrastructure)
+**ADR Compliance:** ADR-021 (Testing Strategy)
+
+**Tasks:**
+
+1. **Test factories** (1 day)
+   - Event factories (`createAccountCreatedEvent()`)
+   - Aggregate factories (`createTestAccount()`)
+   - Value object factories (`createEmail()`)
+
+2. **Test utilities** (1 day)
+   - In-memory Event Store
+   - Mock Message Bus
+   - Test database setup/teardown
+   - Async test helpers (`waitFor`, `eventually`)
+
+3. **Contract testing helpers** (1 day)
+   - API contract validators
+   - Event schema validators
+   - GraphQL schema testers
+
+**Success Criteria:**
+- ✅ Test factories for all domain objects
+- ✅ In-memory implementations for fast tests
+- ✅ Contract testing utilities operational
+- ✅ Documentation with examples
+
+---
+
+### Phase 5.5: Accounts Service Implementation (2 weeks)
+
+**Objective:** Implement first production service with full DDD/Event Sourcing patterns
+**Timeline:** 2 weeks
+**Dependencies:** Phases 5.1-5.4
+**ADR Compliance:** ADR-005, ADR-006, ADR-016, ADR-020
+
+**Test-First Implementation:**
+
+1. **Domain Layer** (1 week)
+   - Account Aggregate (3 days)
+   - Value Objects: AccountId, Email, DisplayName (1 day)
+   - Domain Events: AccountCreated, EmailVerified, etc. (1 day)
+   - Domain Services (if needed) (1 day)
+   - Tests FIRST, then implementation
+
+2. **Application Layer** (3 days)
+   - Command Handlers: CreateAccount, UpdateProfile, VerifyEmail (2 days)
+   - Query Handlers: GetAccount, ListAccounts (1 day)
+   - Tests for use cases
+
+3. **Infrastructure Layer** (3 days)
+   - Event Store Repository (1 day)
+   - Projections: AccountDetailsView, AccountListView (1 day)
+   - API Controllers (1 day)
+
+4. **Integration Testing** (1 day)
+   - End-to-end command/query flows
+   - Event publishing/subscription
+   - API contract tests
+
+**Success Criteria:**
+- ✅ Account Aggregate with business rules
+- ✅ CQRS with commands and queries
+- ✅ Event Sourcing with Event Store
+- ✅ Projections synchronized
+- ✅ API endpoints operational
+- ✅ Tests pass with >85% coverage
+
+---
+
+### Phase 5.6-5.8: Remaining Services (4.5 weeks)
+
+**Phase 5.6: Entitlements Service** (1.5 weeks)
+**Phase 5.7: App-Catalog Service** (1.5 weeks)
+**Phase 5.8: Admin Service** (1.5 weeks)
+
+**Approach:** Follow identical pattern to Accounts Service (Phase 5.5)
+
+**Success Criteria (per service):**
+- ✅ Domain model implemented
+- ✅ CQRS operational
+- ✅ Event Sourcing with Event Store
+- ✅ Projections synchronized
+- ✅ >85% test coverage
+
+---
+
+### Phase 5.9: Service Template & Scaffolding (1-2 weeks)
+
+**Objective:** Create reusable service template and code generation tools
+**Timeline:** 1-2 weeks
+**Dependencies:** Phase 5.5 (reference implementation complete)
+**ADR Compliance:** ADR-029 (Service Templates)
+
+**Tasks:**
+
+1. **Create service template** (3 days)
+   - Directory structure
+   - Package.json with standard dependencies
+   - Dockerfile and docker-compose.yml
+   - Clean architecture layers pre-configured
+   - Sample aggregate, command, query, projection
+
+2. **Build scaffolding CLI** (4 days)
+   ```bash
+   npm install -g @platform/cli
+
+   # Create new service
+   platform new-service --name notifications --domain messaging
+
+   # Generate aggregate
+   platform generate aggregate --name Notification --service notifications
+
+   # Generate command
+   platform generate command --name SendNotification --aggregate Notification
+
+   # Generate projection
+   platform generate projection --name NotificationListView --events NotificationSent
+   ```
+
+3. **Documentation** (2 days)
+   - Service development guide
+   - Quickstart tutorial
+   - Best practices checklist
+
+**Success Criteria:**
+- ✅ Service template generates working service in <5 minutes
+- ✅ CLI generates aggregates, commands, queries, projections
+- ✅ Generated code passes TypeScript compilation
+- ✅ Generated tests run successfully
+- ✅ New developer can create service following guide in <2 hours
+
+---
+
+## Phase 5 Success Metrics
+
+| Metric | Target | Validation |
+|--------|--------|------------|
+| Event Contracts Defined | 20+ schemas | `find contracts/events/schemas -name "*.avsc" \| wc -l` |
+| Code Generation Working | 100% schemas | `npm run generate && tsc --noEmit` |
+| Shared Domain Package | >90% coverage | `npm run test:coverage` |
+| Shared Infra Package | >85% coverage | `npm run test:coverage` |
+| Services Implemented | 4 services | `ls services/*/src` |
+| Service Independence | 100% | No cross-service imports |
+| ADR Compliance | >90% | Manual review checklist |
+| Platform Ready for Apps | Yes | New app can consume services via API |
+
+---
+
+## Phase 5 Risk Management
+
+**Risk 1: Event Store Performance**
+- **Risk:** Event Store becomes bottleneck at scale
+- **Mitigation:** Snapshots every 500 events, PostgreSQL partitioning, read replicas
+- **Validation:** Load test with 10k events/sec
+
+**Risk 2: Event Schema Evolution**
+- **Risk:** Breaking changes in event schemas
+- **Mitigation:** Avro backward compatibility enforced, version all schemas
+- **Validation:** Automated schema compatibility checks in CI
+
+**Risk 3: Projection Lag**
+- **Risk:** Projections fall behind event stream
+- **Mitigation:** Monitor lag metric, parallel projection processing, scaling strategy
+- **Target:** <5 second lag under normal load
+
+**Risk 4: Developer Onboarding**
+- **Risk:** DDD/Event Sourcing learning curve too steep
+- **Mitigation:** Comprehensive documentation, service template, video tutorials
+- **Target:** New developer productive in <1 week
+
+---
+
+## Post-Phase 5 Validation
+
+**Platform Readiness Checklist:**
+
+- [ ] All 20+ event schemas defined and validated
+- [ ] Code generation produces type-safe TypeScript/Java/Python
+- [ ] Shared Domain package operational (Value Objects, Aggregates, Events)
+- [ ] Shared Infrastructure package operational (Event Store, Outbox, Message Bus)
+- [ ] Testing utilities available for all patterns
+- [ ] Accounts Service 100% implemented and tested
+- [ ] Entitlements Service 100% implemented and tested
+- [ ] App-Catalog Service 100% implemented and tested
+- [ ] Admin Service 100% implemented and tested
+- [ ] Service template generates working service
+- [ ] CLI scaffolding operational
+- [ ] Documentation complete (>50 pages)
+- [ ] New developer can create service in <2 hours
+- [ ] >85% test coverage across all packages
+- [ ] Zero TypeScript compilation errors
+- [ ] ADR compliance validated (>90%)
+
+**Success Declaration:**
+Platform is ready for new application development when ALL checklist items are complete.
+
+---
+
+## Timeline and Effort Estimates
+
+| Phase | Duration | Effort | Completion Date |
+|-------|----------|--------|-----------------|
+| 5.1: Event Contracts | 2-3 weeks | 80-100 hours | Week 3 |
+| 5.2: Shared Domain | 1 week | 40 hours | Week 4 |
+| 5.3: Shared Infrastructure | 1.5 weeks | 60 hours | Week 5.5 |
+| 5.4: Testing Utilities | 0.5 week | 20 hours | Week 6 |
+| 5.5: Accounts Service | 2 weeks | 80 hours | Week 8 |
+| 5.6: Entitlements Service | 1.5 weeks | 60 hours | Week 9.5 |
+| 5.7: App-Catalog Service | 1.5 weeks | 60 hours | Week 11 |
+| 5.8: Admin Service | 1.5 weeks | 60 hours | Week 12.5 |
+| 5.9: Service Template | 1-2 weeks | 40-60 hours | Week 14 |
+| **TOTAL** | **12-14 weeks** | **500-580 hours** | **~3.5 months** |
+
+**Note:** Estimates assume full-time dedicated work. Part-time development will extend timeline proportionally.
+
+---
+
+**Next Action:** Execute Phase 5.1.1 - Define Avro schemas for all domain events with test-first approach
+
+

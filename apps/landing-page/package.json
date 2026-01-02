@@ -40,7 +40,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "latest",
     "@eslint/js": "^9.39.1",
-    "@lhci/cli": "^0.14.0",
+    "@lhci/cli": "^0.15.1",
     "@opennextjs/cloudflare": "latest",
     "@playwright/test": "latest",
     "@tailwindcss/postcss": "latest",
@@ -71,7 +71,7 @@
     "wrangler": "latest"
   },
   "dependencies": {
-    "next": "^15.5.6",
+    "next": "^15.5.9",
     "react": "latest",
     "react-dom": "latest",
     "zustand": "latest"
